@@ -182,8 +182,8 @@ function onEnviarMensajeFaq() {
   // formulario de contacto real (p. ej. /#/contacto) cambiar esto a
   // emit('navigate', { name: 'contacto' }).
   window.location.href =
-    'mailto:soporte@conasama.gob.mx?subject=' +
-    encodeURIComponent('Consulta — Plataforma de Capacitación CONASAMA')
+    'mailto:REEMPLAZA_CON_CORREO_DE_SOPORTE?subject=' +
+    encodeURIComponent('Consulta — Plataforma de Capacitación')
 }
 </script>
 

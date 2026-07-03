@@ -26,7 +26,7 @@ DO_FUNCTIONS=1
 DRY_RUN=0
 BRANCH="develop"
 # URL pública para el chequeo final; override con PUBLIC_URL=...
-PUBLIC_URL="${PUBLIC_URL:-https://appsconasama.salud.gob.mx}"
+PUBLIC_URL="${PUBLIC_URL:-https://REEMPLAZA_CON_TU_DOMINIO_PUBLICO}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

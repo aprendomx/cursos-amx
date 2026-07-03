@@ -38,8 +38,8 @@ docker/
 ### 1. Clonar y posicionarse
 
 ```bash
-git clone git@gitlab.com:conasama/cursos.git
-cd cursos/docker
+git clone <URL_DE_TU_REPO>
+cd <nombre-del-repo>/docker
 ```
 
 ### 2. Traer los `volumes/` stock de Supabase upstream
