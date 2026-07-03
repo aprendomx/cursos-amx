@@ -82,18 +82,6 @@ export default defineConfig(({ mode }) => {
     build: {
       chunkSizeWarningLimit: 600,
       rollupOptions: {
-        external: [
-          '/img/Logo_CONASAMA_blanco.png',
-          '/img/logo-abc.png',
-          '/img/logo-plataforma.png',
-          '/img/abc-foto.webp',
-          '/img/fiinicio.webp',
-          '/img/fiinicio-mobile.webp',
-          '/img/constancia-fondo.webp',
-          '/img/constancia-logos.webp',
-          '/img/constancia-pleca.webp',
-          '/img/constancia-preview.webp'
-        ],
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
