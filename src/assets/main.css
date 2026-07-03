@@ -1,0 +1,1037 @@
+/* =========================================================
+   Cursos AMX — Design System
+   Tokens de marca: ver theme/theme.config.js (fuente de verdad)
+========================================================= */
+
+:root {
+  /* ----- Paleta institucional V1.24 (cerrada) ----- */
+  --guinda: #9b2247; /* Pantone 7420 C — primario */
+  --guinda-oscuro: #611232; /* Pantone 7421 C */
+  --verde: #1e5b4f; /* Pantone 626 C */
+  --verde-oscuro: #002f2a; /* Pantone 627 C */
+  --oro: #a57f2c; /* Pantone 1255 C — solo línea divisoria APF */
+  --arena: #e6d194; /* Pantone 7402 C */
+  --negro: #161a1d; /* Pantone Neutral Black C */
+  --gris: #98989a; /* Pantone Cool Gray 7 C */
+
+  --gris-70: #4d4d4d;
+  --gris-50: #808080;
+  --gris-20: #cccccc;
+
+  /* ----- Aliases retro-compatibles con código existente ----- */
+  --guinda-700: var(--guinda-oscuro);
+  --guinda-100: #f4e3e9;
+  --verde-700: var(--verde-oscuro);
+  --verde-100: #e3ebe9;
+  --dorado: var(--oro);
+  --dorado-200: var(--arena);
+
+  /* Primary (Guinda por default) */
+  --primary: var(--guinda);
+  --primary-700: var(--guinda-oscuro);
+  --primary-100: #f4e3e9;
+
+  /* Neutrals — paper blanco institucional + grays oficiales */
+  --paper: #ffffff;
+  --paper-2: #fafafa;
+  --paper-3: #f3f3f3;
+  --line: #e6e6e6;
+  --line-soft: #efefef;
+  --ink: var(--negro);
+  --ink-2: var(--gris-70);
+  --ink-3: var(--gris-50);
+  --ink-4: var(--gris-20);
+
+  /* Semantic (derivados de la paleta institucional) */
+  --success: var(--verde);
+  --warn: var(--oro);
+  --danger: var(--guinda);
+
+  /* Density */
+  --space: 1;
+  --unit: calc(8px * var(--space));
+
+  /* Type — Fraunces open-source para display */
+  --display: 'Fraunces', 'Times New Roman', Georgia, serif;
+  --ui: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-density='compact'] {
+  --space: 0.7;
+}
+[data-density='cozy'] {
+  --space: 1;
+}
+[data-density='spacious'] {
+  --space: 1.35;
+}
+
+[data-primary='verde'] {
+  --primary: var(--verde);
+  --primary-700: var(--verde-700);
+  --primary-100: var(--verde-100);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Typography utilities */
+/* Display: Fraunces variable, gana en opsz alto + weight medio para que se sienta editorial sin caer en "Times". */
+.display {
+  font-family: var(--display);
+  font-weight: 500;
+  font-variation-settings:
+    'opsz' 144,
+    'wght' 500;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
+}
+.display-italic {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings:
+    'opsz' 144,
+    'wght' 400;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.mono {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* Layout primitives */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 calc(var(--unit) * 6);
+}
+.hairline {
+  height: 1px;
+  background: var(--line);
+  border: 0;
+}
+.hairline-dark {
+  height: 1px;
+  background: var(--ink);
+  border: 0;
+  opacity: 0.12;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2.5);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition: all 180ms var(--ease);
+  white-space: nowrap;
+}
+.btn-primary {
+  background: var(--primary);
+  color: var(--paper);
+}
+.btn-primary:hover {
+  background: var(--primary-700);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-ghost:hover {
+  background: var(--paper-2);
+  border-color: var(--ink-3);
+}
+.btn-ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+.btn-ink:hover {
+  background: var(--ink-2);
+}
+.btn-sm {
+  padding: calc(var(--unit)) calc(var(--unit) * 2);
+  font-size: 13px;
+}
+
+/* Chips */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.chip-primary {
+  background: var(--primary-100);
+  color: var(--primary);
+}
+.chip-verde {
+  background: var(--verde-100);
+  color: var(--verde);
+}
+.chip-dorado {
+  background: var(--dorado-200);
+  color: #8a6e3f;
+}
+
+/* Cards */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: all 220ms var(--ease);
+}
+.card:hover {
+  border-color: var(--ink);
+}
+
+/* Placeholders for imagery — striped */
+.ph-stripe {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--paper-3) 0,
+    var(--paper-3) 1px,
+    var(--paper-2) 1px,
+    var(--paper-2) 12px
+  );
+  background-color: var(--paper-2);
+  position: relative;
+}
+.ph-stripe::after {
+  content: attr(data-label);
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--paper);
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ph-stripe-dark {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.06) 0,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  background-color: var(--ink);
+}
+
+/* Form fields */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.field input,
+.field select,
+.field textarea {
+  padding: 14px 0;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  font-size: 18px;
+  font-family: var(--display);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 180ms var(--ease);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-bottom-color: var(--primary);
+}
+.field input::placeholder {
+  color: var(--ink-4);
+  font-family: var(--display);
+  font-style: italic;
+}
+
+/* Focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+.fade-in {
+  animation: fadeIn 320ms var(--ease) both;
+}
+.slide-in {
+  animation: slideInRight 320ms var(--ease) both;
+}
+.pulsing {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* App shell */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================
+   Header institucional — fondo guinda oscuro + logo CONASAMA blanco
+========================================================= */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--guinda-oscuro);
+  color: var(--paper);
+  border-bottom: 4px solid var(--guinda);
+}
+.nav::after {
+  /* línea oro V1.24 — divisor APF */
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--oro);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 76px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 calc(var(--unit) * 6);
+  gap: calc(var(--unit) * 4);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.nav-brand-logo {
+  height: 38px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+.nav-brand-divider {
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.nav-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  color: var(--paper);
+}
+.nav-brand-text strong {
+  font-family: var(--display);
+  font-weight: 500;
+  font-variation-settings:
+    'opsz' 72,
+    'wght' 500;
+  font-size: 16px;
+  letter-spacing: -0.005em;
+}
+.nav-brand-text span {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.nav-logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: var(--primary);
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  font-family: var(--display);
+  font-size: 20px;
+  line-height: 1;
+  font-style: italic;
+}
+.nav-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.nav-logo-text b {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.nav-logo-text span {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+.nav-links {
+  display: flex;
+  gap: 24px;
+}
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  position: relative;
+  padding: 6px 0;
+  transition: color 160ms var(--ease);
+  cursor: pointer;
+  text-decoration: none;
+}
+.nav-links a:hover {
+  color: var(--paper);
+}
+.nav-links a.active {
+  color: var(--paper);
+}
+.nav-links a.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: var(--oro);
+}
+
+/* Botones dentro del header oscuro */
+.nav .btn-ghost {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.nav .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.nav .btn-primary {
+  background: var(--paper);
+  color: var(--guinda-oscuro);
+}
+.nav .btn-primary:hover {
+  background: var(--arena);
+  color: var(--guinda-oscuro);
+}
+
+/* Avatar institucional — cuadrado, paper sobre guinda oscuro, línea oro */
+.nav-avatar {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 0 !important;
+  background: var(--paper) !important;
+  color: var(--guinda-oscuro) !important;
+  font-family: var(--ui) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  letter-spacing: 0.04em !important;
+  position: relative;
+  box-shadow: inset 0 -3px 0 var(--oro);
+  transition:
+    background 160ms var(--ease),
+    color 160ms var(--ease) !important;
+}
+.nav-avatar:hover {
+  background: var(--arena) !important;
+  transform: none !important;
+}
+.nav-meta {
+  display: none !important;
+} /* el "gob.mx" se mueve al pleca del pie */
+
+/* Tweaks panel */
+.tweaks-panel {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px;
+  padding: 18px 20px;
+  min-width: 260px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  animation: slideInRight 280ms var(--ease) both;
+}
+.tweaks-panel h4 {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dorado);
+  margin-bottom: 14px;
+}
+.tweaks-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.tweaks-row label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.tweaks-segment {
+  display: flex;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  padding: 3px;
+}
+.tweaks-segment button {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--ink-4);
+  border-radius: 2px;
+  transition: all 180ms var(--ease);
+}
+.tweaks-segment button.on {
+  background: var(--paper);
+  color: var(--ink);
+}
+.tweaks-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--paper);
+}
+.tweaks-switch {
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  position: relative;
+  transition: background 180ms var(--ease);
+  cursor: pointer;
+}
+.tweaks-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--paper);
+  transition: transform 180ms var(--ease);
+}
+.tweaks-switch.on {
+  background: var(--dorado);
+}
+.tweaks-switch.on::after {
+  transform: translateX(14px);
+}
+
+/* =========================================================
+   Responsive
+========================================================= */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 calc(var(--unit) * 4);
+  }
+  .nav-inner {
+    padding: 0 calc(var(--unit) * 4);
+  }
+}
+
+@media (max-width: 880px) {
+  .nav-brand-text {
+    display: none;
+  } /* en tablet solo dejamos el logotipo */
+  .nav-brand-divider {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  html,
+  body {
+    font-size: 14px;
+  }
+  .container {
+    padding: 0 calc(var(--unit) * 2.5);
+  }
+  .nav-inner {
+    height: 64px;
+    padding: 0 calc(var(--unit) * 2.5);
+    gap: calc(var(--unit) * 1.5);
+  }
+  .nav-brand-logo {
+    height: 30px;
+  }
+  .nav-links {
+    display: none;
+  }
+  .nav-toggle {
+    display: inline-flex;
+  }
+  .nav-meta {
+    display: none !important;
+  }
+  /* En móvil las acciones (auth/perfil) viven en el drawer; en la barra
+     solo queda el hamburger. Evita que "Registro" se desborde del viewport. */
+  .nav-actions .btn,
+  .nav-actions .nav-avatar,
+  .nav-actions .nav-logout-link {
+    display: none;
+  }
+  .btn {
+    padding: calc(var(--unit) * 1.25) calc(var(--unit) * 2);
+    font-size: 13px;
+  }
+  .btn-sm {
+    padding: calc(var(--unit) * 0.75) calc(var(--unit) * 1.5);
+    font-size: 12px;
+  }
+  .tweaks-panel {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    min-width: 0;
+  }
+
+  /* Drawer móvil */
+  .nav-drawer {
+    position: fixed;
+    inset: 64px 0 0 0;
+    background: var(--guinda-oscuro);
+    padding: calc(var(--unit) * 3) calc(var(--unit) * 3) calc(var(--unit) * 4);
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--unit) * 2);
+    z-index: 49;
+    overflow-y: auto;
+  }
+  .nav-drawer a {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.1;
+    color: var(--paper);
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .nav-drawer a.active {
+    color: var(--arena);
+  }
+  .nav-drawer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: calc(var(--unit) * 2);
+  }
+  .nav-drawer-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 721px) {
+  .nav-toggle {
+    display: none;
+  }
+  .nav-drawer {
+    display: none;
+  }
+}
+
+/* =========================================================
+   Pleca institucional (footer V1.24)
+   Línea oro divisora APF + dos zonas: contenido y créditos.
+========================================================= */
+.gmx-pleca {
+  margin-top: calc(var(--unit) * 8);
+  background: var(--guinda-oscuro);
+  color: var(--paper);
+  position: relative;
+}
+.gmx-pleca::before {
+  content: '';
+  display: block;
+  height: 2px;
+  background: var(--oro);
+}
+.gmx-pleca-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: calc(var(--unit) * 8) calc(var(--unit) * 6) calc(var(--unit) * 5);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: calc(var(--unit) * 6);
+}
+.gmx-pleca-brand {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 2);
+}
+.gmx-pleca-brand img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+.gmx-pleca-brand p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 38ch;
+}
+.gmx-pleca-col h4 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--arena);
+  margin-bottom: calc(var(--unit) * 2);
+  font-weight: 500;
+}
+.gmx-pleca-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gmx-pleca-col li a {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.82);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 160ms var(--ease);
+}
+.gmx-pleca-col li a:hover {
+  color: var(--paper);
+  text-decoration: underline;
+  text-decoration-color: var(--oro);
+  text-underline-offset: 4px;
+}
+
+/* Zona de créditos (gob.mx) */
+.gmx-pleca-creditos {
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: calc(var(--unit) * 2.5) calc(var(--unit) * 6);
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: calc(var(--unit) * 3);
+  flex-wrap: wrap;
+}
+.gmx-pleca-creditos .gob-wordmark {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--paper);
+}
+.gmx-pleca-creditos .gob-wordmark::first-letter {
+  /* no-op, decorativo */
+}
+.gmx-pleca-creditos small {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+@media (max-width: 880px) {
+  .gmx-pleca-inner {
+    grid-template-columns: 1fr;
+    gap: calc(var(--unit) * 4);
+    padding: calc(var(--unit) * 5) calc(var(--unit) * 3) calc(var(--unit) * 3);
+  }
+  .gmx-pleca-creditos {
+    padding: calc(var(--unit) * 2.5) calc(var(--unit) * 3);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--unit) * 1.5);
+  }
+}
+
+/* =========================================================
+   Hero institucional editorial
+========================================================= */
+.gmx-hero {
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+}
+.gmx-hero::before {
+  /* franja arena diagonal sutil tipo "textura" autorizada */
+  content: '';
+  position: absolute;
+  inset: auto -10% -40% auto;
+  width: 60%;
+  height: 70%;
+  background: var(--arena);
+  opacity: 0.5;
+  transform: rotate(-12deg);
+  z-index: 0;
+}
+.gmx-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: calc(var(--unit) * 12) calc(var(--unit) * 6) calc(var(--unit) * 14);
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: calc(var(--unit) * 8);
+  align-items: end;
+}
+.gmx-hero h1 {
+  font-family: var(--display);
+  font-weight: 500;
+  font-variation-settings:
+    'opsz' 144,
+    'wght' 500;
+  font-size: clamp(48px, 7vw, 96px);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  color: var(--negro);
+  margin-bottom: calc(var(--unit) * 3);
+}
+.gmx-hero h1 em {
+  font-style: italic;
+  font-variation-settings:
+    'opsz' 144,
+    'wght' 400;
+  color: var(--guinda);
+}
+.gmx-hero p.lede {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--gris-70);
+  max-width: 52ch;
+  margin-bottom: calc(var(--unit) * 4);
+}
+.gmx-hero .gmx-stats {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 3);
+  border-left: 2px solid var(--oro);
+  padding-left: calc(var(--unit) * 3);
+}
+.gmx-hero .gmx-stat strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: 48px;
+  line-height: 1;
+  color: var(--guinda);
+}
+.gmx-hero .gmx-stat span {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gris-70);
+}
+
+@media (max-width: 880px) {
+  .gmx-hero-inner {
+    grid-template-columns: 1fr;
+    padding: calc(var(--unit) * 7) calc(var(--unit) * 3) calc(var(--unit) * 8);
+    gap: calc(var(--unit) * 4);
+  }
+  .gmx-hero::before {
+    display: none;
+  }
+  .gmx-hero h1 {
+    font-size: clamp(36px, 11vw, 64px);
+  }
+}
+
+/* =========================================================
+   Botón institucional (refinamiento sobre .btn existente)
+========================================================= */
+.btn {
+  font-family: var(--ui);
+  font-weight: 600;
+  border-radius: 0;
+} /* esquinas rectas — más institucional */
+.btn-primary {
+  background: var(--guinda);
+}
+.btn-primary:hover {
+  background: var(--guinda-oscuro);
+}
+
+/* Hamburger toggle — visibilidad controlada SOLO por los media queries
+   (oculto ≥721px, visible ≤720px). No poner `display` aquí: esta regla
+   va después del media query y, al no sumar especificidad, lo sobreescribiría
+   por orden de fuente y el hamburger nunca aparecería en móvil. */
+.nav-toggle {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  color: var(--paper);
+}
+.nav-toggle span {
+  display: block;
+  position: relative;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+}
+.nav-toggle span::before,
+.nav-toggle span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+}
+.nav-toggle span::before {
+  top: -6px;
+}
+.nav-toggle span::after {
+  top: 6px;
+}

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist.tar.gz
+
+# Environment
+.env
+.env.local
+*.local
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Tooling
+.playwright-mcp/
+
+# Logs
+*.log
+tmp/
+
+# Archivos comprimidos de respaldo (no versionar)
+supabase/migrations.zip
+
+# Git worktrees
+.worktrees/
+
+# Additional exclusions
+dist/
+test-results/
+tmp/
+.worktrees/
+.playwright-mcp/
+*.local
+docker/.env
