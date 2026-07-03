@@ -228,7 +228,7 @@ select {
   background: var(--brand-secondary-soft);
   color: var(--brand-secondary);
 }
-.chip-dorado {
+.chip-accent {
   background: var(--brand-accent-soft);
   color: #8a6e3f;
 }
@@ -391,7 +391,7 @@ select {
 }
 
 /* =========================================================
-   Header institucional — fondo guinda oscuro + logo CONASAMA blanco
+   Header institucional — fondo oscuro del primario + logo CONASAMA blanco
 ========================================================= */
 .nav {
   position: sticky;
@@ -402,7 +402,7 @@ select {
   border-bottom: 4px solid var(--brand-primary);
 }
 .nav::after {
-  /* línea oro V1.24 — divisor APF */
+  /* línea de acento V1.24 — divisor APF */
   content: '';
   display: block;
   height: 2px;
@@ -542,7 +542,7 @@ select {
   color: var(--brand-primary-dark);
 }
 
-/* Avatar institucional — cuadrado, paper sobre guinda oscuro, línea oro */
+/* Avatar institucional — cuadrado, paper sobre fondo oscuro del primario, línea de acento */
 .nav-avatar {
   width: 40px !important;
   height: 40px !important;
@@ -772,7 +772,7 @@ select {
 
 /* =========================================================
    Pleca institucional (footer V1.24)
-   Línea oro divisora APF + dos zonas: contenido y créditos.
+   Línea de acento divisora APF + dos zonas: contenido y créditos.
 ========================================================= */
 .site-pleca {
   margin-top: calc(var(--unit) * 8);
@@ -893,7 +893,7 @@ select {
   overflow: hidden;
 }
 .site-hero::before {
-  /* franja arena diagonal sutil tipo "textura" autorizada */
+  /* franja de acento diagonal sutil tipo "textura" autorizada */
   content: '';
   position: absolute;
   inset: auto -10% -40% auto;

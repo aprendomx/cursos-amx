@@ -5,7 +5,7 @@ const props = defineProps({
   tweaks: {
     type: Object,
     default: () => ({
-      primary: 'guinda',
+      primary: 'brand',
       density: 'cozy',
       playerLayout: 'split',
       liveChat: true,
@@ -38,8 +38,8 @@ function toggleChat() {
     <div class="tweaks-row">
       <label>Color primario</label>
       <div class="tweaks-segment">
-        <button :class="{ on: tweaks.primary === 'guinda' }" @click="set('primary', 'guinda')">
-          Guinda
+        <button :class="{ on: tweaks.primary === 'brand' }" @click="set('primary', 'brand')">
+          Principal
         </button>
         <button :class="{ on: tweaks.primary === 'secondary' }" @click="set('primary', 'secondary')">
           Alterno

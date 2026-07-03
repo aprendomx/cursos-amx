@@ -896,7 +896,7 @@ onUnmounted(() => {
                 >Plataforma Nacional de Transparencia &middot; 04 / 18</span
               >
               <h2 class="slide-heading display">
-                El portal de<br /><em class="slide-dorado display-italic">obligaciones</em>
+                El portal de<br /><em class="slide-accent display-italic">obligaciones</em>
                 de<br />transparencia
               </h2>
               <span class="slide-footer mono"
@@ -1135,7 +1135,7 @@ onUnmounted(() => {
                 >Plataforma Nacional de Transparencia &middot; 04 / 18</span
               >
               <h2 class="slide-heading display">
-                El portal de<br /><em class="slide-dorado display-italic">obligaciones</em>
+                El portal de<br /><em class="slide-accent display-italic">obligaciones</em>
                 de<br />transparencia
               </h2>
               <span class="slide-footer mono"
@@ -1421,7 +1421,7 @@ onUnmounted(() => {
   margin-bottom: 32px;
 }
 
-.slide-dorado {
+.slide-accent {
   color: var(--brand-accent);
 }
 

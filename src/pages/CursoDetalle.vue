@@ -683,7 +683,7 @@ async function continueCurso() {
                     <IconSet name="lock" />
                     Bloqueado
                   </span>
-                  <span v-else class="chip chip-dorado">
+                  <span v-else class="chip chip-accent">
                     <span class="chip-dot" />
                     Disponible
                   </span>

@@ -21,7 +21,7 @@ const pasos = [
 
 <template>
   <section class="cc-section" aria-labelledby="cc-titulo">
-    <!-- Banda superior guinda con título -->
+    <!-- Banda superior del color primario con título -->
     <header class="cc-band">
       <div class="cc-band-inner">
         <h2 id="cc-titulo" class="cc-band-title">Como obtener tu constancia</h2>
@@ -82,7 +82,7 @@ const pasos = [
   background: var(--paper-2);
 }
 
-/* Banda superior guinda */
+/* Banda superior del color primario */
 .cc-band {
   background: var(--brand-primary);
   border-top: 2px solid var(--brand-accent);

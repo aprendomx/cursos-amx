@@ -24,7 +24,7 @@ describe('UI Store', () => {
 
   it('should initialize with default tweaks', () => {
     const store = useUiStore()
-    expect(store.tweaks.primary).toBe('guinda')
+    expect(store.tweaks.primary).toBe('brand')
     expect(store.tweaks.density).toBe('cozy')
     expect(store.tweaks.playerLayout).toBe('split')
     expect(store.tweaks.liveChat).toBe(true)
@@ -43,7 +43,7 @@ describe('UI Store', () => {
     expect(localStorageMock.setItem).toHaveBeenCalledWith('conasama.tweaks', expect.any(String))
 
     // Verify document attributes are set by the watch
-    expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-primary', 'guinda')
+    expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-primary', 'brand')
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-density', 'cozy')
   })
 

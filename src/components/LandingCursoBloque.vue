@@ -14,7 +14,7 @@ function statusChip() {
   if (props.curso.progreso === 1) return { label: 'Completado', cls: 'chip chip-verde' }
   if (props.curso.progreso > 0)
     return { label: Math.round(props.curso.progreso * 100) + '%', cls: 'chip chip-primary' }
-  return { label: 'Nuevo', cls: 'chip chip-dorado' }
+  return { label: 'Nuevo', cls: 'chip chip-accent' }
 }
 
 function btnLabel() {

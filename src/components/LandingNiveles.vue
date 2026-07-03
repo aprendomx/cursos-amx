@@ -11,7 +11,7 @@ defineProps({
 const niveles = [
   {
     key: 'Fundamental',
-    chipCls: 'chip chip-dorado',
+    chipCls: 'chip chip-accent',
     descripcion:
       'Para servidoras y servidores que inician su carrera o cambian de funci&oacute;n. Cubre principios b&aacute;sicos de la administraci&oacute;n p&uacute;blica.',
   },

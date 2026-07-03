@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 const TWEAK_DEFAULTS = {
-  primary: 'guinda',
+  primary: 'brand',
   density: 'cozy',
   playerLayout: 'split',
   liveChat: true,

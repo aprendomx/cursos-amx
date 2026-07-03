@@ -310,7 +310,7 @@ function goBack() {
   pointer-events: none;
   user-select: none;
 }
-/* Plecas guinda arriba y abajo */
+/* Plecas del color primario arriba y abajo */
 .cnst-pleca {
   position: absolute;
   left: 0;

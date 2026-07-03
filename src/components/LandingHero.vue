@@ -28,7 +28,7 @@ function fmt(n) {
 <template>
   <section class="site-hero" aria-labelledby="hero-titulo">
     <div class="site-hero-inner">
-      <!-- Velo guinda para legibilidad sobre la foto -->
+      <!-- Velo oscuro para legibilidad sobre la foto -->
       <div class="hero-overlay" aria-hidden="true" />
 
       <div class="hero-grid">
@@ -129,7 +129,7 @@ function fmt(n) {
   overflow: hidden;
 }
 
-/* Velo guinda+negro para legibilidad sobre la foto */
+/* Velo oscuro con gradiente para legibilidad sobre la foto */
 .hero-overlay {
   position: absolute;
   inset: 0;

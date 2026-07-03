@@ -2335,7 +2335,7 @@ async function publishCurso() {
                         <span class="mono" :style="{ color: 'var(--ink-4)' }">
                           {{ editingCurso.nivel }}
                         </span>
-                        <span class="chip chip-dorado">
+                        <span class="chip chip-accent">
                           <span class="chip-dot" />
                           Nuevo
                         </span>
