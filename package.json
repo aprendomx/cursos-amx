@@ -1,6 +1,9 @@
 {
-  "name": "cursos_conasama",
-  "version": "1.0.0",
+  "name": "cursos-amx",
+  "version": "0.1.0",
+  "description": "LMS open source con video HLS, evaluaciones y constancias verificables. Personalizable por capa de tema.",
+  "license": "AGPL-3.0-only",
+  "author": "Julio Adrián <jadrian.s@gmail.com>",
   "private": true,
   "type": "module",
   "scripts": {

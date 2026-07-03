@@ -36,3 +36,4 @@ tmp/
 .playwright-mcp/
 *.local
 docker/.env
+.superpowers/
