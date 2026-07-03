@@ -107,7 +107,7 @@ function submit() {
 }
 
 .auth-aside {
-  background: var(--guinda);
+  background: var(--brand-primary);
   color: var(--paper);
   position: relative;
   overflow: hidden;
@@ -121,7 +121,7 @@ function submit() {
   inset: -20% auto auto -20%;
   width: 70%;
   height: 50%;
-  background: var(--arena);
+  background: var(--brand-accent-soft);
   opacity: 0.18;
   transform: rotate(-18deg);
 }
@@ -133,7 +133,7 @@ function submit() {
   bottom: 0;
   right: 0;
   width: 4px;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 .auth-aside-inner {
   position: relative;
@@ -143,7 +143,7 @@ function submit() {
   margin: 0 auto;
 }
 .auth-aside-kicker {
-  color: var(--arena);
+  color: var(--brand-accent-soft);
   margin-bottom: calc(var(--unit) * 3);
 }
 .auth-aside-quote {
@@ -162,7 +162,7 @@ function submit() {
   font-variation-settings:
     'opsz' 144,
     'wght' 400;
-  color: var(--arena);
+  color: var(--brand-accent-soft);
 }
 .auth-aside-meta {
   font-size: 12px;
@@ -187,7 +187,7 @@ function submit() {
   margin-bottom: calc(var(--unit) * 5);
 }
 .auth-header .eyebrow {
-  color: var(--guinda);
+  color: var(--brand-primary);
   margin-bottom: 14px;
 }
 .auth-header h1 {
@@ -234,15 +234,15 @@ function submit() {
   text-align: center;
 }
 .auth-alt a {
-  color: var(--guinda);
+  color: var(--brand-primary);
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: var(--oro);
+  text-decoration-color: var(--brand-accent);
   text-underline-offset: 3px;
   cursor: pointer;
 }
 .auth-alt a:hover {
-  color: var(--guinda-oscuro);
+  color: var(--brand-primary-dark);
 }
 
 @media (max-width: 880px) {

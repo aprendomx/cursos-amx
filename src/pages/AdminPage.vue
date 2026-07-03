@@ -1610,7 +1610,7 @@ async function publishCurso() {
     <!-- Sidebar -->
     <aside v-show="!sidebarHidden" id="admin-sidebar" class="admin-sidebar">
       <div class="admin-sidebar-header">
-        <p class="eyebrow" :style="{ color: 'var(--dorado)' }">Panel admin</p>
+        <p class="eyebrow" :style="{ color: 'var(--brand-accent)' }">Panel admin</p>
         <h2 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
           Operaci&oacute;n
         </h2>
@@ -3474,7 +3474,7 @@ async function publishCurso() {
 .portada-progress-bar {
   flex: 1;
   height: 4px;
-  background: var(--oro);
+  background: var(--brand-accent);
   transition: width 120ms linear;
 }
 .portada-actions {
@@ -3497,7 +3497,7 @@ async function publishCurso() {
   transition: background 160ms var(--ease);
 }
 .portada-btn:hover {
-  background: var(--guinda);
+  background: var(--brand-primary);
 }
 .portada-btn input {
   display: none;
@@ -3509,11 +3509,11 @@ async function publishCurso() {
 }
 .portada-btn-danger {
   background: transparent;
-  color: var(--guinda);
-  border: 1px solid var(--guinda);
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
 }
 .portada-btn-danger:hover {
-  background: var(--guinda);
+  background: var(--brand-primary);
   color: var(--paper);
 }
 .portada-err {
@@ -3551,7 +3551,7 @@ async function publishCurso() {
 .config-msg {
   font-size: 12px;
   letter-spacing: 0.06em;
-  color: var(--verde);
+  color: var(--brand-secondary);
 }
 
 .editor-checkbox {

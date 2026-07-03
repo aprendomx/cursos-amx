@@ -104,10 +104,10 @@ const summaryRows = computed(() => [
     <aside class="registro-left">
       <div class="registro-left-content">
         <div class="registro-left-top">
-          <p class="eyebrow" style="color: var(--arena)">Paso {{ step + 1 }} de 4</p>
+          <p class="eyebrow" style="color: var(--brand-accent-soft)">Paso {{ step + 1 }} de 4</p>
           <h1 class="display registro-headline">
             Tu cuenta,<br />
-            <em class="display-italic" style="color: var(--arena)">tu constancia.</em>
+            <em class="display-italic" style="color: var(--brand-accent-soft)">tu constancia.</em>
           </h1>
           <p class="registro-privacy">
             Tu información se usa exclusivamente para emitir constancias de CONASAMA. No compartimos
@@ -295,7 +295,7 @@ const summaryRows = computed(() => [
   color: var(--paper);
   display: flex;
   flex-direction: column;
-  background: var(--guinda-oscuro);
+  background: var(--brand-primary-dark);
   overflow: hidden;
 }
 .registro-left::before {
@@ -304,7 +304,7 @@ const summaryRows = computed(() => [
   inset: auto -20% -30% auto;
   width: 60%;
   height: 60%;
-  background: var(--arena);
+  background: var(--brand-accent-soft);
   opacity: 0.16;
   transform: rotate(-14deg);
 }
@@ -316,7 +316,7 @@ const summaryRows = computed(() => [
   bottom: 0;
   right: 0;
   width: 3px;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 
 .registro-left-content {
@@ -378,14 +378,14 @@ const summaryRows = computed(() => [
 }
 
 .registro-step-item.completed .registro-step-circle {
-  background: var(--arena);
-  color: var(--guinda-oscuro);
+  background: var(--brand-accent-soft);
+  color: var(--brand-primary-dark);
 }
 
 .registro-step-item.current .registro-step-circle {
   background: transparent;
-  border: 2px solid var(--arena);
-  color: var(--arena);
+  border: 2px solid var(--brand-accent-soft);
+  color: var(--brand-accent-soft);
 }
 
 .registro-step-item.future .registro-step-circle {

@@ -146,15 +146,15 @@ const fmtBytes = (b) =>
   color: var(--ink-3);
 }
 .entrega-estado[data-estado='aprobada'] {
-  background: var(--verde-100, #d8e6e1);
-  color: var(--verde, #1e5b4f);
+  background: var(--brand-secondary-soft, #d8e6e1);
+  color: var(--brand-secondary, #1e5b4f);
 }
 .entrega-estado[data-estado='rechazada'] {
   background: var(--primary-100, #f0dce4);
   color: var(--primary, #9b2247);
 }
 .entrega-estado[data-estado='revisada'] {
-  background: var(--dorado-200, #e6d194);
+  background: var(--brand-accent-soft, #e6d194);
   color: #8a6e3f;
 }
 .entrega-error {
@@ -187,7 +187,7 @@ const fmtBytes = (b) =>
   color: var(--ink-2);
   background: var(--paper-2, #f8f5ee);
   padding: 8px 12px;
-  border-left: 3px solid var(--oro, #a57f2c);
+  border-left: 3px solid var(--brand-accent, #a57f2c);
 }
 .entrega-subir {
   display: flex;

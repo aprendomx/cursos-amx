@@ -195,9 +195,9 @@ function marcarCorrecta(p, oi) {
   cursor: pointer;
 }
 .qe-correct.on {
-  background: var(--verde, #2e7d32);
+  background: var(--brand-secondary, #2e7d32);
   color: #fff;
-  border-color: var(--verde, #2e7d32);
+  border-color: var(--brand-secondary, #2e7d32);
 }
 .qe-icon {
   width: 28px;
@@ -212,6 +212,6 @@ function marcarCorrecta(p, oi) {
   cursor: not-allowed;
 }
 .qe-icon-danger:hover {
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
 </style>

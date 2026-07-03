@@ -115,7 +115,7 @@ function onTerminar() {
 .aula-modal {
   width: min(1200px, 100%);
   height: min(86vh, 100%);
-  background: var(--negro, #161a1d);
+  background: var(--brand-ink, #161a1d);
   border-radius: 10px;
   overflow: hidden;
   display: flex;

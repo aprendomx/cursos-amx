@@ -8,10 +8,10 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <footer class="gmx-pleca" role="contentinfo">
-    <div class="gmx-pleca-inner">
+  <footer class="site-pleca" role="contentinfo">
+    <div class="site-pleca-inner">
       <!-- Brand -->
-      <div class="gmx-pleca-brand">
+      <div class="site-pleca-brand">
         <img
           src="/img/Logo_CONASAMA_blanco.png"
           alt="CONASAMA — Comisión Nacional contra las Adicciones"
@@ -24,7 +24,7 @@ const year = new Date().getFullYear()
       </div>
 
       <!-- Institucional -->
-      <div class="gmx-pleca-col">
+      <div class="site-pleca-col">
         <h4>Institucional</h4>
         <ul>
           <li>
@@ -46,7 +46,7 @@ const year = new Date().getFullYear()
       </div>
 
       <!-- Enlaces gob.mx -->
-      <div class="gmx-pleca-col">
+      <div class="site-pleca-col">
         <h4>Enlaces oficiales</h4>
         <ul>
           <li>
@@ -68,7 +68,7 @@ const year = new Date().getFullYear()
     </div>
 
     <!-- Créditos: wordmark gob.mx + ciclo -->
-    <div class="gmx-pleca-creditos">
+    <div class="site-pleca-creditos">
       <span class="gob-wordmark"><em>gob</em>.mx</span>
       <small
         >Ciclo {{ year }} · Q2 · {{ cursosCount }} cursos activos · © {{ year }} CONASAMA</small

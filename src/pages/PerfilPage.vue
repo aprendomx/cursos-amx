@@ -338,7 +338,7 @@ function goToHome() {
                   width="54"
                   height="68"
                   rx="2"
-                  stroke="var(--dorado)"
+                  stroke="var(--brand-accent)"
                   stroke-width="1.5"
                 />
                 <rect
@@ -347,7 +347,7 @@ function goToHome() {
                   width="44"
                   height="58"
                   rx="1"
-                  stroke="var(--dorado)"
+                  stroke="var(--brand-accent)"
                   stroke-width="0.75"
                   stroke-dasharray="2 2"
                 />
@@ -357,14 +357,14 @@ function goToHome() {
                   text-anchor="middle"
                   font-family="var(--display)"
                   font-size="10"
-                  fill="var(--dorado)"
+                  fill="var(--brand-accent)"
                   font-style="italic"
                 >
                   C
                 </text>
-                <line x1="16" y1="40" x2="40" y2="40" stroke="var(--dorado)" stroke-width="0.75" />
-                <line x1="20" y1="46" x2="36" y2="46" stroke="var(--dorado)" stroke-width="0.5" />
-                <line x1="22" y1="52" x2="34" y2="52" stroke="var(--dorado)" stroke-width="0.5" />
+                <line x1="16" y1="40" x2="40" y2="40" stroke="var(--brand-accent)" stroke-width="0.75" />
+                <line x1="20" y1="46" x2="36" y2="46" stroke="var(--brand-accent)" stroke-width="0.5" />
+                <line x1="22" y1="52" x2="34" y2="52" stroke="var(--brand-accent)" stroke-width="0.5" />
               </svg>
             </div>
 

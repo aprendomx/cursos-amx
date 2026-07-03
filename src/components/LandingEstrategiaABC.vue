@@ -126,9 +126,9 @@ function selecciona(perfil) {
 
 /* === Banda superior === */
 .abc-band {
-  background: var(--verde-oscuro);
-  border-top: 2px solid var(--oro);
-  border-bottom: 2px solid var(--oro);
+  background: var(--brand-secondary-dark);
+  border-top: 2px solid var(--brand-accent);
+  border-bottom: 2px solid var(--brand-accent);
 }
 .abc-band-inner {
   max-width: 1440px;
@@ -154,7 +154,7 @@ function selecciona(perfil) {
   margin-top: calc(var(--unit) * 5);
 }
 .abc-card {
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   color: var(--paper);
   border-radius: 28px;
   overflow: hidden;
@@ -216,17 +216,17 @@ function selecciona(perfil) {
   min-width: 180px;
 }
 .abc-pill-primary {
-  background: var(--arena);
-  color: var(--negro);
+  background: var(--brand-accent-soft);
+  color: var(--brand-ink);
 }
 .abc-pill-primary:hover {
-  background: var(--oro);
+  background: var(--brand-accent);
   color: var(--paper);
   transform: translateY(-1px);
 }
 .abc-pill-secondary {
   background: var(--paper);
-  color: var(--negro);
+  color: var(--brand-ink);
 }
 .abc-pill-secondary:hover {
   background: var(--gris-20);
@@ -236,7 +236,7 @@ function selecciona(perfil) {
 /* Derecha: foto + sticker */
 .abc-card-right {
   position: relative;
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   min-height: 360px;
 }
 .abc-photo {
@@ -260,7 +260,7 @@ function selecciona(perfil) {
   top: 20px;
   right: 20px;
   width: clamp(220px, 22vw, 280px);
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
   padding: 0;
@@ -271,8 +271,8 @@ function selecciona(perfil) {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--oro);
-  color: var(--verde-oscuro);
+  background: var(--brand-accent);
+  color: var(--brand-secondary-dark);
   padding: 10px 14px;
 }
 .abc-sticker-ico {

@@ -233,7 +233,7 @@ watch(
 }
 .nav-avatar:focus-visible {
   box-shadow:
-    inset 0 -3px 0 var(--oro),
-    0 0 0 2px var(--oro);
+    inset 0 -3px 0 var(--brand-accent),
+    0 0 0 2px var(--brand-accent);
 }
 </style>

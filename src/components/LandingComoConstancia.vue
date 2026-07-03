@@ -84,9 +84,9 @@ const pasos = [
 
 /* Banda superior guinda */
 .cc-band {
-  background: var(--guinda);
-  border-top: 2px solid var(--oro);
-  border-bottom: 2px solid var(--oro);
+  background: var(--brand-primary);
+  border-top: 2px solid var(--brand-accent);
+  border-bottom: 2px solid var(--brand-accent);
 }
 .cc-band-inner {
   max-width: 1440px;
@@ -112,7 +112,7 @@ const pasos = [
   margin-top: calc(var(--unit) * 5);
 }
 .cc-card {
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   color: var(--paper);
   border-radius: 28px;
   overflow: hidden;
@@ -159,7 +159,7 @@ const pasos = [
 }
 .cc-paso {
   background: var(--paper);
-  color: var(--negro);
+  color: var(--brand-ink);
   border-radius: 14px;
   padding: calc(var(--unit) * 2);
   display: flex;
@@ -172,7 +172,7 @@ const pasos = [
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--oro);
+  background: var(--brand-accent);
   color: var(--paper);
   display: grid;
   place-items: center;
@@ -193,7 +193,7 @@ const pasos = [
   font-family: var(--ui);
   font-weight: 700;
   font-size: 14.5px;
-  color: var(--negro);
+  color: var(--brand-ink);
   line-height: 1.2;
 }
 .cc-paso-body span {
@@ -225,14 +225,14 @@ const pasos = [
 }
 .cc-pill:hover {
   background: var(--paper);
-  color: var(--verde-oscuro);
+  color: var(--brand-secondary-dark);
   border-color: var(--paper);
   transform: translateY(-1px);
 }
 
 /* Lado derecho: preview del certificado */
 .cc-right {
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   display: flex;
   align-items: center;
   justify-content: center;

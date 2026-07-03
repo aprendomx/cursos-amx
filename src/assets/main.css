@@ -4,32 +4,27 @@
 ========================================================= */
 
 :root {
-  /* ----- Paleta institucional V1.24 (cerrada) ----- */
-  --guinda: #9b2247; /* Pantone 7420 C — primario */
-  --guinda-oscuro: #611232; /* Pantone 7421 C */
-  --verde: #1e5b4f; /* Pantone 626 C */
-  --verde-oscuro: #002f2a; /* Pantone 627 C */
-  --oro: #a57f2c; /* Pantone 1255 C — solo línea divisoria APF */
-  --arena: #e6d194; /* Pantone 7402 C */
-  --negro: #161a1d; /* Pantone Neutral Black C */
-  --gris: #98989a; /* Pantone Cool Gray 7 C */
+  /* ----- Tokens de marca (defaults del tema neutro; theme/theme.config.js
+       los sobreescribe en runtime vía applyTheme) ----- */
+  --brand-primary: #1e40af;
+  --brand-primary-dark: #1e3a8a;
+  --brand-primary-soft: #dbeafe;
+  --brand-secondary: #0f766e;
+  --brand-secondary-dark: #134e4a;
+  --brand-secondary-soft: #ccfbf1;
+  --brand-accent: #b45309;
+  --brand-accent-soft: #fde68a;
+  --brand-ink: #161a1d;
 
+  --gris: #98989a;
   --gris-70: #4d4d4d;
   --gris-50: #808080;
   --gris-20: #cccccc;
 
-  /* ----- Aliases retro-compatibles con código existente ----- */
-  --guinda-700: var(--guinda-oscuro);
-  --guinda-100: #f4e3e9;
-  --verde-700: var(--verde-oscuro);
-  --verde-100: #e3ebe9;
-  --dorado: var(--oro);
-  --dorado-200: var(--arena);
-
-  /* Primary (Guinda por default) */
-  --primary: var(--guinda);
-  --primary-700: var(--guinda-oscuro);
-  --primary-100: #f4e3e9;
+  /* Primary activo (conmutable a secondary vía data-primary) */
+  --primary: var(--brand-primary);
+  --primary-700: var(--brand-primary-dark);
+  --primary-100: var(--brand-primary-soft);
 
   /* Neutrals — paper blanco institucional + grays oficiales */
   --paper: #ffffff;
@@ -37,15 +32,15 @@
   --paper-3: #f3f3f3;
   --line: #e6e6e6;
   --line-soft: #efefef;
-  --ink: var(--negro);
+  --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
   --ink-3: var(--gris-50);
   --ink-4: var(--gris-20);
 
   /* Semantic (derivados de la paleta institucional) */
-  --success: var(--verde);
-  --warn: var(--oro);
-  --danger: var(--guinda);
+  --success: var(--brand-secondary);
+  --warn: var(--brand-accent);
+  --danger: var(--brand-primary);
 
   /* Density */
   --space: 1;
@@ -70,10 +65,10 @@
   --space: 1.35;
 }
 
-[data-primary='verde'] {
-  --primary: var(--verde);
-  --primary-700: var(--verde-700);
-  --primary-100: var(--verde-100);
+[data-primary='secondary'] {
+  --primary: var(--brand-secondary);
+  --primary-700: var(--brand-secondary-dark);
+  --primary-100: var(--brand-secondary-soft);
 }
 
 * {
@@ -230,11 +225,11 @@ select {
   color: var(--primary);
 }
 .chip-verde {
-  background: var(--verde-100);
-  color: var(--verde);
+  background: var(--brand-secondary-soft);
+  color: var(--brand-secondary);
 }
 .chip-dorado {
-  background: var(--dorado-200);
+  background: var(--brand-accent-soft);
   color: #8a6e3f;
 }
 
@@ -402,16 +397,16 @@ select {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--guinda-oscuro);
+  background: var(--brand-primary-dark);
   color: var(--paper);
-  border-bottom: 4px solid var(--guinda);
+  border-bottom: 4px solid var(--brand-primary);
 }
 .nav::after {
   /* línea oro V1.24 — divisor APF */
   content: '';
   display: block;
   height: 2px;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 .nav-inner {
   display: flex;
@@ -525,7 +520,7 @@ select {
   right: 0;
   bottom: -4px;
   height: 2px;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 
 /* Botones dentro del header oscuro */
@@ -540,11 +535,11 @@ select {
 }
 .nav .btn-primary {
   background: var(--paper);
-  color: var(--guinda-oscuro);
+  color: var(--brand-primary-dark);
 }
 .nav .btn-primary:hover {
-  background: var(--arena);
-  color: var(--guinda-oscuro);
+  background: var(--brand-accent-soft);
+  color: var(--brand-primary-dark);
 }
 
 /* Avatar institucional — cuadrado, paper sobre guinda oscuro, línea oro */
@@ -553,19 +548,19 @@ select {
   height: 40px !important;
   border-radius: 0 !important;
   background: var(--paper) !important;
-  color: var(--guinda-oscuro) !important;
+  color: var(--brand-primary-dark) !important;
   font-family: var(--ui) !important;
   font-weight: 700 !important;
   font-size: 13px !important;
   letter-spacing: 0.04em !important;
   position: relative;
-  box-shadow: inset 0 -3px 0 var(--oro);
+  box-shadow: inset 0 -3px 0 var(--brand-accent);
   transition:
     background 160ms var(--ease),
     color 160ms var(--ease) !important;
 }
 .nav-avatar:hover {
-  background: var(--arena) !important;
+  background: var(--brand-accent-soft) !important;
   transform: none !important;
 }
 .nav-meta {
@@ -592,7 +587,7 @@ select {
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--dorado);
+  color: var(--brand-accent);
   margin-bottom: 14px;
 }
 .tweaks-row {
@@ -654,7 +649,7 @@ select {
   transition: transform 180ms var(--ease);
 }
 .tweaks-switch.on {
-  background: var(--dorado);
+  background: var(--brand-accent);
 }
 .tweaks-switch.on::after {
   transform: translateX(14px);
@@ -732,7 +727,7 @@ select {
   .nav-drawer {
     position: fixed;
     inset: 64px 0 0 0;
-    background: var(--guinda-oscuro);
+    background: var(--brand-primary-dark);
     padding: calc(var(--unit) * 3) calc(var(--unit) * 3) calc(var(--unit) * 4);
     display: flex;
     flex-direction: column;
@@ -752,7 +747,7 @@ select {
     text-decoration: none;
   }
   .nav-drawer a.active {
-    color: var(--arena);
+    color: var(--brand-accent-soft);
   }
   .nav-drawer-actions {
     display: flex;
@@ -779,19 +774,19 @@ select {
    Pleca institucional (footer V1.24)
    Línea oro divisora APF + dos zonas: contenido y créditos.
 ========================================================= */
-.gmx-pleca {
+.site-pleca {
   margin-top: calc(var(--unit) * 8);
-  background: var(--guinda-oscuro);
+  background: var(--brand-primary-dark);
   color: var(--paper);
   position: relative;
 }
-.gmx-pleca::before {
+.site-pleca::before {
   content: '';
   display: block;
   height: 2px;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
-.gmx-pleca-inner {
+.site-pleca-inner {
   max-width: 1440px;
   margin: 0 auto;
   padding: calc(var(--unit) * 8) calc(var(--unit) * 6) calc(var(--unit) * 5);
@@ -799,53 +794,53 @@ select {
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: calc(var(--unit) * 6);
 }
-.gmx-pleca-brand {
+.site-pleca-brand {
   display: flex;
   flex-direction: column;
   gap: calc(var(--unit) * 2);
 }
-.gmx-pleca-brand img {
+.site-pleca-brand img {
   height: 48px;
   width: auto;
   object-fit: contain;
 }
-.gmx-pleca-brand p {
+.site-pleca-brand p {
   font-size: 13px;
   line-height: 1.55;
   color: rgba(255, 255, 255, 0.78);
   max-width: 38ch;
 }
-.gmx-pleca-col h4 {
+.site-pleca-col h4 {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--arena);
+  color: var(--brand-accent-soft);
   margin-bottom: calc(var(--unit) * 2);
   font-weight: 500;
 }
-.gmx-pleca-col ul {
+.site-pleca-col ul {
   list-style: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.gmx-pleca-col li a {
+.site-pleca-col li a {
   font-size: 13.5px;
   color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   cursor: pointer;
   transition: color 160ms var(--ease);
 }
-.gmx-pleca-col li a:hover {
+.site-pleca-col li a:hover {
   color: var(--paper);
   text-decoration: underline;
-  text-decoration-color: var(--oro);
+  text-decoration-color: var(--brand-accent);
   text-underline-offset: 4px;
 }
 
 /* Zona de créditos (gob.mx) */
-.gmx-pleca-creditos {
+.site-pleca-creditos {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   padding: calc(var(--unit) * 2.5) calc(var(--unit) * 6);
   max-width: 1440px;
@@ -856,7 +851,7 @@ select {
   gap: calc(var(--unit) * 3);
   flex-wrap: wrap;
 }
-.gmx-pleca-creditos .gob-wordmark {
+.site-pleca-creditos .gob-wordmark {
   font-family: var(--display);
   font-style: italic;
   font-weight: 500;
@@ -864,10 +859,10 @@ select {
   letter-spacing: -0.01em;
   color: var(--paper);
 }
-.gmx-pleca-creditos .gob-wordmark::first-letter {
+.site-pleca-creditos .gob-wordmark::first-letter {
   /* no-op, decorativo */
 }
-.gmx-pleca-creditos small {
+.site-pleca-creditos small {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -876,12 +871,12 @@ select {
 }
 
 @media (max-width: 880px) {
-  .gmx-pleca-inner {
+  .site-pleca-inner {
     grid-template-columns: 1fr;
     gap: calc(var(--unit) * 4);
     padding: calc(var(--unit) * 5) calc(var(--unit) * 3) calc(var(--unit) * 3);
   }
-  .gmx-pleca-creditos {
+  .site-pleca-creditos {
     padding: calc(var(--unit) * 2.5) calc(var(--unit) * 3);
     flex-direction: column;
     align-items: flex-start;
@@ -892,24 +887,24 @@ select {
 /* =========================================================
    Hero institucional editorial
 ========================================================= */
-.gmx-hero {
+.site-hero {
   background: var(--paper);
   position: relative;
   overflow: hidden;
 }
-.gmx-hero::before {
+.site-hero::before {
   /* franja arena diagonal sutil tipo "textura" autorizada */
   content: '';
   position: absolute;
   inset: auto -10% -40% auto;
   width: 60%;
   height: 70%;
-  background: var(--arena);
+  background: var(--brand-accent-soft);
   opacity: 0.5;
   transform: rotate(-12deg);
   z-index: 0;
 }
-.gmx-hero-inner {
+.site-hero-inner {
   position: relative;
   z-index: 1;
   max-width: 1440px;
@@ -920,7 +915,7 @@ select {
   gap: calc(var(--unit) * 8);
   align-items: end;
 }
-.gmx-hero h1 {
+.site-hero h1 {
   font-family: var(--display);
   font-weight: 500;
   font-variation-settings:
@@ -929,39 +924,39 @@ select {
   font-size: clamp(48px, 7vw, 96px);
   line-height: 0.98;
   letter-spacing: -0.025em;
-  color: var(--negro);
+  color: var(--brand-ink);
   margin-bottom: calc(var(--unit) * 3);
 }
-.gmx-hero h1 em {
+.site-hero h1 em {
   font-style: italic;
   font-variation-settings:
     'opsz' 144,
     'wght' 400;
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
-.gmx-hero p.lede {
+.site-hero p.lede {
   font-size: 18px;
   line-height: 1.6;
   color: var(--gris-70);
   max-width: 52ch;
   margin-bottom: calc(var(--unit) * 4);
 }
-.gmx-hero .gmx-stats {
+.site-hero .site-stats {
   display: flex;
   flex-direction: column;
   gap: calc(var(--unit) * 3);
-  border-left: 2px solid var(--oro);
+  border-left: 2px solid var(--brand-accent);
   padding-left: calc(var(--unit) * 3);
 }
-.gmx-hero .gmx-stat strong {
+.site-hero .site-stat strong {
   display: block;
   font-family: var(--display);
   font-weight: 500;
   font-size: 48px;
   line-height: 1;
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
-.gmx-hero .gmx-stat span {
+.site-hero .site-stat span {
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -970,15 +965,15 @@ select {
 }
 
 @media (max-width: 880px) {
-  .gmx-hero-inner {
+  .site-hero-inner {
     grid-template-columns: 1fr;
     padding: calc(var(--unit) * 7) calc(var(--unit) * 3) calc(var(--unit) * 8);
     gap: calc(var(--unit) * 4);
   }
-  .gmx-hero::before {
+  .site-hero::before {
     display: none;
   }
-  .gmx-hero h1 {
+  .site-hero h1 {
     font-size: clamp(36px, 11vw, 64px);
   }
 }
@@ -992,10 +987,10 @@ select {
   border-radius: 0;
 } /* esquinas rectas — más institucional */
 .btn-primary {
-  background: var(--guinda);
+  background: var(--brand-primary);
 }
 .btn-primary:hover {
-  background: var(--guinda-oscuro);
+  background: var(--brand-primary-dark);
 }
 
 /* Hamburger toggle — visibilidad controlada SOLO por los media queries

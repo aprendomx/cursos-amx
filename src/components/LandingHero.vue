@@ -26,8 +26,8 @@ function fmt(n) {
 </script>
 
 <template>
-  <section class="gmx-hero" aria-labelledby="hero-titulo">
-    <div class="gmx-hero-inner">
+  <section class="site-hero" aria-labelledby="hero-titulo">
+    <div class="site-hero-inner">
       <!-- Velo guinda para legibilidad sobre la foto -->
       <div class="hero-overlay" aria-hidden="true" />
 
@@ -89,21 +89,21 @@ function fmt(n) {
     </div>
 
     <!-- Stats por debajo del hero, en banda institucional clara -->
-    <aside v-if="showStats" class="gmx-stats-band" aria-label="Indicadores de la plataforma">
-      <div class="gmx-stats-band-inner">
-        <div v-if="stats.servidoresInscritos > 0" class="gmx-stat">
+    <aside v-if="showStats" class="site-stats-band" aria-label="Indicadores de la plataforma">
+      <div class="site-stats-band-inner">
+        <div v-if="stats.servidoresInscritos > 0" class="site-stat">
           <strong>{{ fmt(stats.servidoresInscritos) }}</strong>
           <span>Servidores inscritos</span>
         </div>
-        <div v-if="stats.cursosDisponibles > 0" class="gmx-stat">
+        <div v-if="stats.cursosDisponibles > 0" class="site-stat">
           <strong>{{ fmt(stats.cursosDisponibles) }}</strong>
           <span>Cursos disponibles</span>
         </div>
-        <div v-if="stats.constanciasEmitidas > 0" class="gmx-stat">
+        <div v-if="stats.constanciasEmitidas > 0" class="site-stat">
           <strong>{{ fmt(stats.constanciasEmitidas) }}</strong>
           <span>Constancias emitidas</span>
         </div>
-        <div v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0" class="gmx-stat">
+        <div v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0" class="site-stat">
           <strong>{{ porcentajeAprobacion }}%</strong>
           <span>Tasa de finalización</span>
         </div>
@@ -113,11 +113,11 @@ function fmt(n) {
 </template>
 
 <style scoped>
-.gmx-hero {
-  background: var(--guinda-oscuro);
+.site-hero {
+  background: var(--brand-primary-dark);
 }
 
-.gmx-hero-inner {
+.site-hero-inner {
   position: relative;
   display: block;
   padding: 0;
@@ -184,8 +184,8 @@ function fmt(n) {
   display: none;
 }
 .hero-search-btn {
-  background: var(--arena);
-  color: var(--negro);
+  background: var(--brand-accent-soft);
+  color: var(--brand-ink);
   border: none;
   padding: 0 calc(var(--unit) * 3);
   font-family: var(--ui);
@@ -196,7 +196,7 @@ function fmt(n) {
   flex-shrink: 0;
 }
 .hero-search-btn:hover {
-  background: var(--oro);
+  background: var(--brand-accent);
   color: var(--paper);
 }
 
@@ -282,8 +282,8 @@ function fmt(n) {
 
 /* Botón pill arena (rompe con el resto del DS, intencional para CTA hero) */
 .hero-pill {
-  background: var(--arena);
-  color: var(--negro);
+  background: var(--brand-accent-soft);
+  color: var(--brand-ink);
   border: none;
   border-radius: 999px;
   padding: 16px 36px;
@@ -297,18 +297,18 @@ function fmt(n) {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .hero-pill:hover {
-  background: var(--oro);
+  background: var(--brand-accent);
   color: var(--paper);
   transform: translateY(-1px);
 }
 
 /* === Banda de stats debajo del hero === */
-.gmx-stats-band {
+.site-stats-band {
   background: var(--paper);
-  border-top: 2px solid var(--oro);
+  border-top: 2px solid var(--brand-accent);
   border-bottom: 1px solid var(--line);
 }
-.gmx-stats-band-inner {
+.site-stats-band-inner {
   max-width: 1440px;
   margin: 0 auto;
   padding: calc(var(--unit) * 5) calc(var(--unit) * 6);
@@ -316,7 +316,7 @@ function fmt(n) {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: calc(var(--unit) * 4);
 }
-.gmx-stats-band .gmx-stat strong {
+.site-stats-band .site-stat strong {
   display: block;
   font-family: var(--display);
   font-weight: 500;
@@ -325,10 +325,10 @@ function fmt(n) {
     'wght' 500;
   font-size: clamp(36px, 4vw, 56px);
   line-height: 1;
-  color: var(--guinda);
+  color: var(--brand-primary);
   margin-bottom: 6px;
 }
-.gmx-stats-band .gmx-stat span {
+.site-stats-band .site-stat span {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.16em;
@@ -386,7 +386,7 @@ function fmt(n) {
 }
 
 @media (max-width: 720px) {
-  .gmx-hero-inner {
+  .site-hero-inner {
     background-image: url('/img/fiinicio-mobile.webp');
     min-height: clamp(640px, 100vh, 900px);
   }
@@ -410,7 +410,7 @@ function fmt(n) {
     padding: 0 calc(var(--unit) * 2);
     font-size: 14px;
   }
-  .gmx-stats-band-inner {
+  .site-stats-band-inner {
     padding: calc(var(--unit) * 4) calc(var(--unit) * 3);
     gap: calc(var(--unit) * 3);
   }

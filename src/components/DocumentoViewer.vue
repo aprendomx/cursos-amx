@@ -205,7 +205,7 @@ watch(
   z-index: 1;
 }
 .doc-fallback a {
-  color: var(--arena, #e6d194);
+  color: var(--brand-accent-soft, #e6d194);
   text-decoration: underline;
 }
 .doc-sentinel {

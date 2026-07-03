@@ -171,7 +171,7 @@ function reintentar() {
   font-size: 14px;
 }
 .eval-error {
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
 .eval-meta {
   color: var(--ink-4);
@@ -206,10 +206,10 @@ function reintentar() {
   gap: 12px;
 }
 .eval-result-head.is-ok .eval-verdict {
-  color: var(--verde, #2e7d32);
+  color: var(--brand-secondary, #2e7d32);
 }
 .eval-result-head.is-fail .eval-verdict {
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
 .eval-score {
   font-size: 40px;
@@ -231,9 +231,9 @@ function reintentar() {
   font-size: 13px;
 }
 .eval-detalle li.is-ok {
-  color: var(--verde, #2e7d32);
+  color: var(--brand-secondary, #2e7d32);
 }
 .eval-detalle li.is-fail {
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
 </style>

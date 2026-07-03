@@ -41,8 +41,8 @@ function toggleChat() {
         <button :class="{ on: tweaks.primary === 'guinda' }" @click="set('primary', 'guinda')">
           Guinda
         </button>
-        <button :class="{ on: tweaks.primary === 'verde' }" @click="set('primary', 'verde')">
-          Verde
+        <button :class="{ on: tweaks.primary === 'secondary' }" @click="set('primary', 'secondary')">
+          Alterno
         </button>
       </div>
     </div>

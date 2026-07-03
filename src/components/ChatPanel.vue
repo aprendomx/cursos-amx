@@ -246,13 +246,13 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   font-size: 11px;
   font-weight: 600;
   background: var(--paper-2, #f0ece2);
-  color: var(--oro, #a57f2c);
+  color: var(--brand-accent, #a57f2c);
 }
 .chatp[data-tema='oscuro'] .chatp-avatar {
   background: rgba(255, 255, 255, 0.08);
 }
 .chatp-avatar.is-instructor {
-  background: var(--oro, #a57f2c);
+  background: var(--brand-accent, #a57f2c);
   color: var(--paper, #fff);
 }
 .chatp-cuerpo {
@@ -273,7 +273,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--oro, #a57f2c);
+  background: var(--brand-accent, #a57f2c);
   color: var(--paper, #fff);
   padding: 1px 6px;
   border-radius: 3px;
@@ -301,7 +301,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   word-break: break-word;
 }
 .chatp-mencion {
-  color: var(--oro, #a57f2c);
+  color: var(--brand-accent, #a57f2c);
   font-weight: 600;
 }
 .chatp-input-wrap {
@@ -359,7 +359,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   outline: none;
 }
 .chatp-input-bar input:focus {
-  border-color: var(--oro, #a57f2c);
+  border-color: var(--brand-accent, #a57f2c);
 }
 .chatp[data-tema='oscuro'] .chatp-input-bar input::placeholder {
   color: rgba(255, 255, 255, 0.35);

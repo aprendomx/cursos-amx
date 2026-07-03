@@ -1284,8 +1284,8 @@ onUnmounted(() => {
   justify-content: space-between;
   padding: 0 24px;
   height: 56px;
-  background: var(--guinda-oscuro);
-  border-bottom: 2px solid var(--oro); /* línea oro APF — consistencia con TopNav global */
+  background: var(--brand-primary-dark);
+  border-bottom: 2px solid var(--brand-accent); /* línea oro APF — consistencia con TopNav global */
   flex-shrink: 0;
   position: relative;
 }
@@ -1422,7 +1422,7 @@ onUnmounted(() => {
 }
 
 .slide-dorado {
-  color: var(--dorado);
+  color: var(--brand-accent);
 }
 
 .slide-footer {
@@ -1529,7 +1529,7 @@ onUnmounted(() => {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--dorado);
+  background: var(--brand-accent);
   color: var(--ink);
   display: grid;
   place-items: center;
@@ -1566,7 +1566,7 @@ onUnmounted(() => {
 
 .controls-progress-fill {
   height: 100%;
-  background: var(--dorado);
+  background: var(--brand-accent);
   transition: width 200ms linear;
 }
 
@@ -1616,7 +1616,7 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 .chat-header .eyebrow {
-  color: var(--dorado);
+  color: var(--brand-accent);
   margin-bottom: 4px;
   display: block;
 }
@@ -1669,7 +1669,7 @@ onUnmounted(() => {
 
 /* Comentario destacado por instructor: barra oro a la izquierda */
 .chat-msg-destacado {
-  box-shadow: inset 3px 0 0 var(--dorado);
+  box-shadow: inset 3px 0 0 var(--brand-accent);
   padding-left: 8px;
 }
 
@@ -1677,15 +1677,15 @@ onUnmounted(() => {
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--negro, #161a1d);
-  background: var(--dorado);
+  color: var(--brand-ink, #161a1d);
+  background: var(--brand-accent);
   padding: 1px 6px;
   border-radius: 3px;
 }
 
 .chat-avatar-instructor {
-  background: var(--dorado);
-  color: var(--negro, #161a1d);
+  background: var(--brand-accent);
+  color: var(--brand-ink, #161a1d);
 }
 
 .chat-avatar {
@@ -1693,7 +1693,7 @@ onUnmounted(() => {
   height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  color: var(--dorado);
+  color: var(--brand-accent);
   display: grid;
   place-items: center;
   font-size: 11px;
@@ -1722,7 +1722,7 @@ onUnmounted(() => {
 
 .chat-dep {
   font-size: 10px;
-  color: var(--dorado);
+  color: var(--brand-accent);
 }
 
 .chat-time {
@@ -1770,7 +1770,7 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--dorado);
+  background: var(--brand-accent);
   color: var(--ink);
   display: grid;
   place-items: center;
@@ -1832,7 +1832,7 @@ onUnmounted(() => {
 
 .lesson-active {
   background: rgba(255, 255, 255, 0.06);
-  border-left-color: var(--dorado);
+  border-left-color: var(--brand-accent);
 }
 
 .lesson-completed .lesson-check {
@@ -1858,7 +1858,7 @@ onUnmounted(() => {
 }
 
 .lesson-playing {
-  color: var(--dorado);
+  color: var(--brand-accent);
 }
 
 .lesson-num {
@@ -1987,7 +1987,7 @@ onUnmounted(() => {
 }
 .notes-highlight {
   padding: 16px;
-  border-left: 3px solid var(--dorado);
+  border-left: 3px solid var(--brand-accent);
   background: rgba(212, 193, 156, 0.06);
   color: rgba(255, 255, 255, 0.75) !important;
   font-style: italic;
@@ -2124,7 +2124,7 @@ onUnmounted(() => {
 }
 .lesson-strip-card.lesson-active {
   background: rgba(255, 255, 255, 0.08);
-  border-left-color: var(--dorado);
+  border-left-color: var(--brand-accent);
 }
 
 .doc-actions {

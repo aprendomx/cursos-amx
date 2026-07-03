@@ -102,7 +102,7 @@ function toggle(i) {
 
 /* Banda superior oro */
 .faq-band {
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 .faq-band-inner {
   max-width: 1440px;
@@ -169,7 +169,7 @@ function toggle(i) {
   flex-shrink: 0;
   width: 8px;
   align-self: stretch;
-  background: var(--oro);
+  background: var(--brand-accent);
 }
 
 .faq-q-text {
@@ -179,7 +179,7 @@ function toggle(i) {
   font-weight: 700;
   font-size: clamp(16px, 1.6vw, 22px);
   line-height: 1.3;
-  color: var(--negro);
+  color: var(--brand-ink);
 }
 
 .faq-q-icon {
@@ -189,7 +189,7 @@ function toggle(i) {
   display: grid;
   place-items: center;
   margin-right: calc(var(--unit) * 1.5);
-  color: var(--oro);
+  color: var(--brand-accent);
   transition: transform 220ms var(--ease);
 }
 .faq-q-icon svg {
@@ -205,7 +205,7 @@ function toggle(i) {
   background: var(--paper);
   margin-top: -2px;
   padding: 0 calc(var(--unit) * 3) calc(var(--unit) * 3) calc(var(--unit) * 5);
-  border-left: 8px solid var(--oro);
+  border-left: 8px solid var(--brand-accent);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   animation: faq-slide 200ms var(--ease) both;
 }
@@ -241,11 +241,11 @@ function toggle(i) {
   font-family: var(--ui);
   font-size: 15.5px;
   line-height: 1.5;
-  color: var(--negro);
+  color: var(--brand-ink);
   max-width: 64ch;
 }
 .faq-foot-cta {
-  background: var(--verde);
+  background: var(--brand-secondary);
   color: var(--paper);
   border: none;
   border-radius: 999px;
@@ -261,7 +261,7 @@ function toggle(i) {
   box-shadow: 0 8px 24px rgba(30, 91, 79, 0.3);
 }
 .faq-foot-cta:hover {
-  background: var(--verde-oscuro);
+  background: var(--brand-secondary-dark);
   transform: translateY(-1px);
 }
 

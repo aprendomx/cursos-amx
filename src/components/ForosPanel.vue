@@ -481,7 +481,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   border-color: var(--ink-3);
 }
 .foro-hilo-card.is-fijado {
-  box-shadow: inset 3px 0 0 var(--oro, #a57f2c);
+  box-shadow: inset 3px 0 0 var(--brand-accent, #a57f2c);
 }
 .foro-hilo-card.is-oculto,
 .foro-hilo-abierto.is-oculto {
@@ -571,13 +571,13 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   font-size: 9px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--oro, #a57f2c);
+  background: var(--brand-accent, #a57f2c);
   color: var(--paper, #fff);
   padding: 1px 6px;
   border-radius: 3px;
 }
 .chip-oro {
-  background: var(--dorado-200, #e6d194);
+  background: var(--brand-accent-soft, #e6d194);
   color: #8a6e3f;
 }
 </style>

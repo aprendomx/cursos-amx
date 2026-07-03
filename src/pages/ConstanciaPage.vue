@@ -365,7 +365,7 @@ function goBack() {
 .cnst-pre {
   font-family: var(--ui);
   font-size: 18px;
-  color: var(--negro);
+  color: var(--brand-ink);
   margin: 0;
 }
 .cnst-pre-2 {
@@ -380,7 +380,7 @@ function goBack() {
     'wght' 700;
   font-size: clamp(48px, 7vw, 78px);
   letter-spacing: 0.04em;
-  color: var(--oro);
+  color: var(--brand-accent);
   margin: 0.4rem 0 0.4rem;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
@@ -388,7 +388,7 @@ function goBack() {
   font-family: var(--display);
   font-style: italic;
   font-size: 22px;
-  color: var(--negro);
+  color: var(--brand-ink);
 }
 .cnst-nombre {
   font-family: var(--display);
@@ -397,7 +397,7 @@ function goBack() {
     'opsz' 144,
     'wght' 700;
   font-size: clamp(28px, 4vw, 44px);
-  color: var(--negro);
+  color: var(--brand-ink);
   margin: 0.4rem 0 1.2rem;
 }
 .cnst-descripcion {
@@ -412,7 +412,7 @@ function goBack() {
   font-style: italic;
   font-family: var(--display);
   font-weight: 600;
-  color: var(--guinda);
+  color: var(--brand-primary);
 }
 .cnst-duracion {
   font-size: 11px;
@@ -433,14 +433,14 @@ function goBack() {
 .cnst-firma-linea {
   width: 240px;
   height: 1px;
-  background: var(--negro);
+  background: var(--brand-ink);
   margin-bottom: 8px;
 }
 .cnst-titular-nombre {
   font-family: var(--ui);
   font-weight: 700;
   font-size: 16px;
-  color: var(--negro);
+  color: var(--brand-ink);
 }
 .cnst-titular-cargo {
   font-family: var(--ui);
@@ -461,7 +461,7 @@ function goBack() {
 .cnst-lugar {
   font-family: var(--ui);
   font-size: 13px;
-  color: var(--negro);
+  color: var(--brand-ink);
 }
 .cnst-foot-qr {
   display: flex;

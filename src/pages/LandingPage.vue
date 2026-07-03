@@ -243,7 +243,7 @@ function onEnviarMensajeFaq() {
             t&eacute;rmino o
             <a
               href="#"
-              :style="{ color: 'var(--guinda)', textDecoration: 'underline' }"
+              :style="{ color: 'var(--brand-primary)', textDecoration: 'underline' }"
               @click.prevent="limpiarBusqueda"
               >limpiar la b&uacute;squeda</a
             >.
@@ -321,10 +321,10 @@ function onEnviarMensajeFaq() {
   font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--guinda);
+  color: var(--brand-primary);
   padding: 6px 10px;
   background: var(--paper-3);
-  border-left: 2px solid var(--oro);
+  border-left: 2px solid var(--brand-accent);
 }
 .cursos-search-clear {
   background: transparent;
@@ -341,7 +341,7 @@ function onEnviarMensajeFaq() {
   text-underline-offset: 4px;
 }
 .cursos-search-clear:hover {
-  color: var(--guinda);
-  text-decoration-color: var(--oro);
+  color: var(--brand-primary);
+  text-decoration-color: var(--brand-accent);
 }
 </style>

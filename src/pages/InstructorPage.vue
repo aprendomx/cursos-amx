@@ -422,7 +422,7 @@ const fmtBytes = (b) =>
   opacity: 0.55;
 }
 .inst-comentario.is-destacado {
-  box-shadow: inset 3px 0 0 var(--oro, #a57f2c);
+  box-shadow: inset 3px 0 0 var(--brand-accent, #a57f2c);
   padding-left: calc(var(--unit) * 1.5);
 }
 .inst-comentario-meta {
@@ -454,7 +454,7 @@ const fmtBytes = (b) =>
   color: var(--ink-4);
 }
 .chip-oro {
-  background: var(--dorado-200, #e6d194);
+  background: var(--brand-accent-soft, #e6d194);
   color: #8a6e3f;
 }
 .inst-tabla {
@@ -511,8 +511,8 @@ const fmtBytes = (b) =>
   color: var(--ink);
 }
 .inst-entrega-meta .chip[data-estado='aprobada'] {
-  background: var(--verde-100, #d8e6e1);
-  color: var(--verde, #1e5b4f);
+  background: var(--brand-secondary-soft, #d8e6e1);
+  color: var(--brand-secondary, #1e5b4f);
 }
 .inst-entrega-meta .chip[data-estado='rechazada'] {
   background: var(--primary-100, #f0dce4);
@@ -534,7 +534,7 @@ const fmtBytes = (b) =>
   color: var(--ink-3);
   background: var(--paper-2, #f8f5ee);
   padding: 6px 10px;
-  border-left: 3px solid var(--oro, #a57f2c);
+  border-left: 3px solid var(--brand-accent, #a57f2c);
   margin-bottom: 6px;
 }
 .inst-log {
