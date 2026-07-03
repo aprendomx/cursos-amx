@@ -10,7 +10,7 @@
 create table if not exists public.constancia_settings (
   id              boolean primary key default true check (id = true),
   titular_nombre  text not null default 'Nombre Completo Del Titular',
-  titular_cargo   text not null default 'Comisionado Nacional contra las Adicciones',
+  titular_cargo   text not null default 'Titular del Área de Certificación',
   lugar           text not null default 'Ciudad de México',
   actualizado_en  timestamptz not null default now(),
   actualizado_por uuid references public.perfiles(id) on delete set null

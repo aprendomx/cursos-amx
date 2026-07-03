@@ -1,5 +1,5 @@
 -- ==========================================================
--- CONASAMA LMS — Supabase schema
+-- Cursos AMX — Supabase schema
 -- Postgres 15 · pgcrypto · RLS enabled
 -- ==========================================================
 

@@ -1,5 +1,5 @@
 -- ==========================================================
--- CONASAMA LMS — Seed: 6 cursos con módulos y lecciones
+-- Cursos AMX — Seed demo: 6 cursos con módulos y lecciones
 -- ==========================================================
 
 -- Completar dependencias que faltan
@@ -46,7 +46,7 @@ insert into public.modulos (id, curso_id, orden, titulo, descripcion, requiere_p
    'Del ingreso de la solicitud a la respuesta. Plazos, prórrogas y recursos de revisión.', true),
   ('b0000001-0005-4000-8000-000000000001', 'a0000001-0001-4000-8000-000000000001', 5,
    'Casos prácticos y evaluación final',
-   'Ejercicios aplicados y examen para constancia  CONASAMA.', true);
+   'Ejercicios aplicados y examen para constancia.', true);
 
 -- Lecciones Módulo 1
 insert into public.lecciones (id, modulo_id, orden, titulo, tipo_material, duracion_seg) values
@@ -222,7 +222,7 @@ insert into public.modulos (id, curso_id, orden, titulo, descripcion, requiere_p
   ('b0000006-0003-4000-8000-000000000001', 'a0000001-0006-4000-8000-000000000001', 3,
    'Sellos digitales y CFDI', 'Certificados de sello digital y comprobantes fiscales.', true),
   ('b0000006-0004-4000-8000-000000000001', 'a0000001-0006-4000-8000-000000000001', 4,
-   'Expediente electrónico gubernamental', 'Tramitación digital, interoperabilidad y gob.mx.', true);
+   'Expediente electrónico gubernamental', 'Tramitación digital e interoperabilidad.', true);
 
 insert into public.lecciones (modulo_id, orden, titulo, tipo_material, duracion_seg) values
   ('b0000006-0001-4000-8000-000000000001', 1, 'Criptografía de clave pública', 'video', 720),
