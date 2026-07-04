@@ -1,0 +1,12 @@
+{
+  "chat": {
+    "eyebrow": "Live classroom",
+    "title": "Conversation",
+    "badgeInstructor": "Instructor",
+    "placeholder": "Type a message..."
+  },
+  "navigator": {
+    "eyebrow": "Module",
+    "fallbackTitle": "Lessons"
+  }
+}

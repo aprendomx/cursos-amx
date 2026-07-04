@@ -13,7 +13,6 @@ name: supabase
 services:
   video-worker:
     build: ../services/video-worker
-    container_name: supabase-video-worker
     restart: unless-stopped
     depends_on:
       db:
@@ -28,6 +27,11 @@ services:
       HLS_BUCKET: ${HLS_BUCKET:-video-hls}
       WORK_DIR: /tmp/video-worker
       MAX_CONCURRENT: ${MAX_CONCURRENT:-1}
+      HEALTH_PORT: 3000
+    deploy:
+      replicas: ${VIDEO_WORKER_REPLICAS:-1}
+      restart_policy:
+        condition: unless-stopped
     volumes:
       - video_worker_tmp:/tmp/video-worker
   studio:

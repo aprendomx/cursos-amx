@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useUiStore } from '@/stores/ui.js'
@@ -16,6 +16,9 @@ import EntregaUploadField from '@/components/EntregaUploadField.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import DocumentoViewer from '@/components/DocumentoViewer.vue'
 import EvaluacionPanel from '@/components/EvaluacionPanel.vue'
+import PlayerVideoSurface from '@/components/PlayerVideoSurface.vue'
+import PlayerChatPane from '@/components/PlayerChatPane.vue'
+import PlayerLessonNavigator from '@/components/PlayerLessonNavigator.vue'
 
 const props = defineProps({
   cursoId: { type: String, default: 'c1' },
@@ -321,57 +324,6 @@ watch(completada, async (val) => {
   }
 })
 
-/* ── Comment simulation ───────────────────────────── */
-let chatInterval = null
-let chatIndex = 0
-
-function startChat() {
-  stopChat()
-  chatInterval = setInterval(() => {
-    const src = COMENTARIOS_FUENTE[chatIndex % COMENTARIOS_FUENTE.length]
-    chatIndex++
-    comentarios.value.push({
-      id: Date.now(),
-      user: src.user,
-      dep: src.dep,
-      t: 'ahora',
-      texto: src.texto,
-      incoming: true,
-    })
-  }, 4500)
-}
-
-function stopChat() {
-  if (chatInterval) {
-    clearInterval(chatInterval)
-    chatInterval = null
-  }
-}
-
-watch(
-  () => tweaks.value.liveChat,
-  (v) => {
-    if (v) startChat()
-    else stopChat()
-  },
-  { immediate: false }
-)
-
-/* ── Auto-scroll chat ─────────────────────────────── */
-const chatContainer = ref(null)
-
-watch(
-  comentarios,
-  () => {
-    nextTick(() => {
-      if (chatContainer.value) {
-        chatContainer.value.scrollTop = chatContainer.value.scrollHeight
-      }
-    })
-  },
-  { deep: true }
-)
-
 /* ── Send comment ─────────────────────────────────── */
 const userName = computed(() => {
   if (appUser?.value?.nombre)
@@ -406,6 +358,25 @@ const sendComment = async () => {
     } catch (e) {
       console.error('Error saving comment:', e)
     }
+  }
+}
+
+/* ── Seek handler delegated from PlayerVideoSurface ─ */
+function handleSeek(ratio) {
+  const targetTime = Math.floor(ratio * totalTime.value)
+  if (source.value.kind === 'hls') {
+    const el = videoEl.value
+    if (el) el.currentTime = targetTime
+    currentTime.value = targetTime
+    return
+  }
+  currentTime.value = targetTime
+  if (currentTime.value >= totalTime.value) {
+    completada.value = true
+    playing.value = false
+  } else {
+    completada.value = false
+    if (!playing.value) playing.value = true
   }
 }
 
@@ -583,7 +554,6 @@ watch(currentLeccion, async (id) => {
 
 onUnmounted(() => {
   stopPlayback()
-  stopChat()
   if (pollComentarios) clearInterval(pollComentarios)
   if (comentariosAbort) comentariosAbort.abort()
 })
@@ -591,7 +561,7 @@ onUnmounted(() => {
 
 <template>
   <div class="player-page" :class="`variant-${variant}`">
-    <!-- ═══════ TOP BAR ═══════ -->
+    <!-- Top bar -->
     <header class="player-topbar">
       <div class="topbar-left">
         <button
@@ -618,394 +588,93 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <!-- ═══════ VARIANT: SPLIT ═══════ -->
+    <!-- Split -->
     <div v-if="variant === 'split'" class="layout-split">
       <div class="split-left">
-        <!-- Video -->
-        <div
-          class="video-surface"
-          :class="{ 'has-iframe': source.kind === 'youtube' }"
-          @click="source.kind === 'none' && togglePlay()"
-        >
-          <iframe
-            v-if="source.kind === 'youtube'"
-            class="video-iframe"
-            :src="youtubeEmbed"
-            title="video"
-            frameborder="0"
-            allow="
-              accelerometer;
-              autoplay;
-              clipboard-write;
-              encrypted-media;
-              gyroscope;
-              picture-in-picture;
-            "
-            allowfullscreen
-          />
-          <video
-            v-else-if="source.kind === 'hls'"
-            ref="videoEl"
-            class="video-native"
-            :poster="hlsPoster"
-            playsinline
-            controls
-            @timeupdate="onHlsTimeUpdate"
-            @loadedmetadata="onHlsLoadedMetadata"
-            @ended="onHlsEnded"
-            @play="playing = true"
-            @pause="playing = false"
-          />
-          <DocumentoViewer
-            v-else-if="source.kind === 'documento'"
-            :leccion-id="source.leccionId"
-            @fin-de-lectura="handleFinLectura"
-          />
-          <EvaluacionPanel
-            v-else-if="source.kind === 'examen' && featureEnabled('evaluaciones')"
-            :key="source.leccionId"
-            :leccion-id="source.leccionId"
-            @aprobada="handleEvaluacionAprobada"
-          />
-          <template v-else>
-            <div class="video-bg">
-              <div class="video-stripe-overlay" />
-              <div class="video-radial" />
-            </div>
-            <div class="slide-content">
-              <span class="slide-eyebrow eyebrow"
-                >{{ moduloTitulo || 'Lecci\u00f3n' }} &middot;
-                {{ String(leccion.orden || 1).padStart(2, '0') }}</span
-              >
-              <h2 class="slide-heading display">
-                {{ leccion.titulo || 'Lecci\u00f3n' }}
-              </h2>
-              <span class="slide-footer mono">Sin video disponible</span>
-            </div>
-          </template>
-
-          <!-- Badges -->
-          <div class="video-badges">
-            <span class="badge-live"><span class="badge-dot pulsing" /> Aula viva</span>
-            <span class="badge-duration">{{ leccion.duracion }}</span>
-          </div>
-
-          <!-- Center play (when paused) -->
-          <div
-            v-if="source.kind === 'none' && !playing && !completada"
-            class="play-overlay"
-            @click.stop="togglePlay"
-          >
-            <div class="play-circle">
-              <IconSet name="play" />
-            </div>
-          </div>
-
-          <!-- Completion overlay -->
-          <div v-if="source.kind === 'none' && completada" class="completion-overlay" @click.stop>
-            <div class="completion-inner">
-              <div class="completion-circle">
-                <IconSet name="check" />
-              </div>
-              <span class="completion-text display-italic">Leccion completada</span>
-            </div>
-          </div>
-
-          <!-- Bottom controls (solo si no hay iframe real) -->
-          <div v-if="source.kind === 'none'" class="video-controls" @click.stop>
-            <div class="controls-progress" @click="seekProgress">
-              <div class="controls-progress-fill" :style="{ width: progress * 100 + '%' }" />
-            </div>
-            <div class="controls-bar">
-              <button class="controls-play" @click="togglePlay">
-                <IconSet :name="playing ? 'close' : 'play'" />
-              </button>
-              <span class="controls-time mono"
-                >{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span
-              >
-              <span class="controls-status mono">{{
-                source.kind === 'hls' ? 'HLS' : 'Simulador (sin URL)'
-              }}</span>
-            </div>
-          </div>
-        </div>
-        <div v-if="source.kind === 'documento'" class="doc-actions">
-          <button
-            class="btn btn-primary doc-mark-btn"
-            :disabled="!llegoAlFinal || completada"
-            @click="marcarLecturaCompletada"
-          >
-            <template v-if="completada"> ✓ Lección completada </template>
-            <template v-else-if="llegoAlFinal"> Marcar como leída </template>
-            <template v-else> Desliza hasta el final para habilitar </template>
-          </button>
-        </div>
-
-        <!-- Entrega de archivo (módulo LMS 3, flag VITE_FEATURE_ENTREGAS) -->
+        <PlayerVideoSurface
+          :source="source"
+          :leccion="leccion"
+          :video-el-ref="videoEl"
+          :hls-poster="hlsPoster"
+          :playing="playing"
+          :completada="completada"
+          :current-time="currentTime"
+          :total-time="totalTime"
+          :modulo-titulo="moduloTitulo"
+          :llego-al-final="llegoAlFinal"
+          @toggle-play="togglePlay"
+          @seek="handleSeek"
+          @time-update="onHlsTimeUpdate"
+          @loaded-metadata="onHlsLoadedMetadata"
+          @ended="onHlsEnded"
+          @update:current-time="(v) => (currentTime = v)"
+          @update:total-time="(v) => (totalTime = v)"
+          @fin-lectura="handleFinLectura"
+          @eval-aprobada="handleEvaluacionAprobada"
+          @marcar-lectura-completada="marcarLecturaCompletada"
+        />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
         />
-
-        <!-- Lesson list below video -->
-        <div class="lesson-list">
-          <div class="lesson-list-header">
-            <span class="eyebrow">Modulo 02</span>
-            <h3 class="lesson-list-title">Sujetos obligados</h3>
-            <span class="lesson-list-progress mono"
-              >{{ progressFraction }} &middot; {{ progressPct }}%</span
-            >
-          </div>
-          <ul class="lesson-items">
-            <li
-              v-for="l in lecciones"
-              :key="l.id"
-              class="lesson-item"
-              :class="{
-                'lesson-active': l.id === currentLeccion,
-                'lesson-completed': l.completado,
-              }"
-              @click="selectLesson(l.id)"
-            >
-              <div class="lesson-status-icon">
-                <template v-if="l.completado">
-                  <span class="lesson-check"><IconSet name="check" /></span>
-                </template>
-                <template v-else-if="l.id === currentLeccion">
-                  <span class="lesson-playing pulsing"><IconSet name="play" /></span>
-                </template>
-                <template v-else>
-                  <span class="lesson-num mono">{{ l.orden }}</span>
-                </template>
-              </div>
-              <div class="lesson-info">
-                <span class="lesson-name">{{ l.titulo }}</span>
-                <span class="lesson-meta mono">{{ l.duracion }} &middot; {{ l.tipo }}</span>
-              </div>
-              <IconSet v-if="l.tipo === 'lectura'" name="doc" />
-              <IconSet v-else name="clock" />
-            </li>
-          </ul>
-        </div>
+        <PlayerLessonNavigator
+          :lecciones="lecciones"
+          :current-leccion-id="currentLeccion"
+          :completed-count="completedCount"
+          :progress-fraction="progressFraction"
+          :progress-pct="progressPct"
+          :modulo-titulo="moduloTitulo"
+          @select="selectLesson"
+        />
       </div>
-
-      <!-- Chat pane -->
-      <div class="chat-pane">
-        <div class="chat-header">
-          <span class="eyebrow">Aula viva</span>
-          <div class="chat-header-row">
-            <h3 class="chat-title display">Conversacion</h3>
-            <span class="chat-live-dot pulsing" />
-          </div>
-        </div>
-        <div ref="chatContainer" class="chat-messages">
-          <div
-            v-for="c in comentarios"
-            :key="c.id"
-            class="chat-msg"
-            :class="{ 'chat-msg-incoming': c.incoming, 'chat-msg-destacado': c.destacado }"
-          >
-            <div class="chat-avatar" :class="{ 'chat-avatar-instructor': c.esInstructor }">
-              {{ c.user.charAt(0) }}
-            </div>
-            <div class="chat-body">
-              <div class="chat-meta">
-                <span class="chat-name">{{ c.user }}</span>
-                <span v-if="c.esInstructor" class="chat-badge-instructor mono">Instructor</span>
-                <span class="chat-dep mono">{{ c.dep }}</span>
-                <span class="chat-time">{{ c.t }}</span>
-              </div>
-              <p class="chat-text">
-                {{ c.texto }}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="chat-input-bar">
-          <input
-            v-model="draft"
-            type="text"
-            placeholder="Escribe un mensaje..."
-            @keydown.enter="sendComment"
-          />
-          <button class="chat-send" @click="sendComment">
-            <IconSet name="send" />
-          </button>
-        </div>
-      </div>
+      <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
     </div>
 
-    <!-- ═══════ VARIANT: STACKED ═══════ -->
+    <!-- Stacked -->
     <div v-else-if="variant === 'stacked'" class="layout-stacked">
       <div class="stacked-top">
-        <!-- Video -->
-        <div
-          class="video-surface stacked-video"
-          :class="{ 'has-iframe': source.kind === 'youtube' }"
-          @click="source.kind === 'none' && togglePlay()"
-        >
-          <iframe
-            v-if="source.kind === 'youtube'"
-            class="video-iframe"
-            :src="youtubeEmbed"
-            title="video"
-            frameborder="0"
-            allow="
-              accelerometer;
-              autoplay;
-              clipboard-write;
-              encrypted-media;
-              gyroscope;
-              picture-in-picture;
-            "
-            allowfullscreen
-          />
-          <video
-            v-else-if="source.kind === 'hls'"
-            ref="videoEl"
-            class="video-native"
-            :poster="hlsPoster"
-            playsinline
-            controls
-            @timeupdate="onHlsTimeUpdate"
-            @loadedmetadata="onHlsLoadedMetadata"
-            @ended="onHlsEnded"
-            @play="playing = true"
-            @pause="playing = false"
-          />
-          <DocumentoViewer
-            v-else-if="source.kind === 'documento'"
-            :leccion-id="source.leccionId"
-            @fin-de-lectura="handleFinLectura"
-          />
-          <EvaluacionPanel
-            v-else-if="source.kind === 'examen' && featureEnabled('evaluaciones')"
-            :key="source.leccionId"
-            :leccion-id="source.leccionId"
-            @aprobada="handleEvaluacionAprobada"
-          />
-          <template v-else>
-            <div class="video-bg">
-              <div class="video-stripe-overlay" />
-              <div class="video-radial" />
-            </div>
-            <div class="slide-content">
-              <span class="slide-eyebrow eyebrow"
-                >Plataforma Nacional de Transparencia &middot; 04 / 18</span
-              >
-              <h2 class="slide-heading display">
-                El portal de<br /><em class="slide-accent display-italic">obligaciones</em>
-                de<br />transparencia
-              </h2>
-              <span class="slide-footer mono"
-                >Dra. Alejandra Rueda &middot; 2024</span
-              >
-            </div>
-          </template>
-          <div class="video-badges">
-            <span class="badge-live"><span class="badge-dot pulsing" /> Aula viva</span>
-            <span class="badge-duration">{{ leccion.duracion }}</span>
-          </div>
-          <div
-            v-if="source.kind === 'none' && !playing && !completada"
-            class="play-overlay"
-            @click.stop="togglePlay"
-          >
-            <div class="play-circle">
-              <IconSet name="play" />
-            </div>
-          </div>
-          <div v-if="source.kind === 'none' && completada" class="completion-overlay" @click.stop>
-            <div class="completion-inner">
-              <div class="completion-circle">
-                <IconSet name="check" />
-              </div>
-              <span class="completion-text display-italic">Leccion completada</span>
-            </div>
-          </div>
-          <div v-if="source.kind === 'none'" class="video-controls" @click.stop>
-            <div class="controls-progress" @click="seekProgress">
-              <div class="controls-progress-fill" :style="{ width: progress * 100 + '%' }" />
-            </div>
-            <div class="controls-bar">
-              <button class="controls-play" @click="togglePlay">
-                <IconSet :name="playing ? 'close' : 'play'" />
-              </button>
-              <span class="controls-time mono"
-                >{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span
-              >
-              <span class="controls-status mono">{{
-                source.kind === 'hls' ? 'HLS' : 'Simulador (sin URL)'
-              }}</span>
-            </div>
-          </div>
-        </div>
-        <div v-if="source.kind === 'documento'" class="doc-actions">
-          <button
-            class="btn btn-primary doc-mark-btn"
-            :disabled="!llegoAlFinal || completada"
-            @click="marcarLecturaCompletada"
-          >
-            <template v-if="completada"> ✓ Lección completada </template>
-            <template v-else-if="llegoAlFinal"> Marcar como leída </template>
-            <template v-else> Desliza hasta el final para habilitar </template>
-          </button>
-        </div>
-
-        <!-- Entrega de archivo (módulo LMS 3, flag VITE_FEATURE_ENTREGAS) -->
+        <PlayerVideoSurface
+          :source="source"
+          :leccion="leccion"
+          :video-el-ref="videoEl"
+          :hls-poster="hlsPoster"
+          :playing="playing"
+          :completada="completada"
+          :current-time="currentTime"
+          :total-time="totalTime"
+          :modulo-titulo="moduloTitulo"
+          :llego-al-final="llegoAlFinal"
+          @toggle-play="togglePlay"
+          @seek="handleSeek"
+          @time-update="onHlsTimeUpdate"
+          @loaded-metadata="onHlsLoadedMetadata"
+          @ended="onHlsEnded"
+          @update:current-time="(v) => (currentTime = v)"
+          @update:total-time="(v) => (totalTime = v)"
+          @fin-lectura="handleFinLectura"
+          @eval-aprobada="handleEvaluacionAprobada"
+          @marcar-lectura-completada="marcarLecturaCompletada"
+        />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
         />
-
-        <!-- Lesson list sidebar -->
-        <div class="lesson-list stacked-lessons">
-          <div class="lesson-list-header">
-            <span class="eyebrow">Modulo 02</span>
-            <h3 class="lesson-list-title">Sujetos obligados</h3>
-            <span class="lesson-list-progress mono"
-              >{{ progressFraction }} &middot; {{ progressPct }}%</span
-            >
-          </div>
-          <ul class="lesson-items">
-            <li
-              v-for="l in lecciones"
-              :key="l.id"
-              class="lesson-item"
-              :class="{
-                'lesson-active': l.id === currentLeccion,
-                'lesson-completed': l.completado,
-              }"
-              @click="selectLesson(l.id)"
-            >
-              <div class="lesson-status-icon">
-                <template v-if="l.completado">
-                  <span class="lesson-check"><IconSet name="check" /></span>
-                </template>
-                <template v-else-if="l.id === currentLeccion">
-                  <span class="lesson-playing pulsing"><IconSet name="play" /></span>
-                </template>
-                <template v-else>
-                  <span class="lesson-num mono">{{ l.orden }}</span>
-                </template>
-              </div>
-              <div class="lesson-info">
-                <span class="lesson-name">{{ l.titulo }}</span>
-                <span class="lesson-meta mono">{{ l.duracion }} &middot; {{ l.tipo }}</span>
-              </div>
-              <IconSet v-if="l.tipo === 'lectura'" name="doc" />
-              <IconSet v-else name="clock" />
-            </li>
-          </ul>
-        </div>
+        <PlayerLessonNavigator
+          variant="stacked"
+          :lecciones="lecciones"
+          :current-leccion-id="currentLeccion"
+          :completed-count="completedCount"
+          :progress-fraction="progressFraction"
+          :progress-pct="progressPct"
+          :modulo-titulo="moduloTitulo"
+          @select="selectLesson"
+        />
       </div>
-
       <div class="stacked-bottom">
-        <!-- Lesson notes -->
         <div class="stacked-notes">
           <div class="notes-header">
             <span class="eyebrow">Notas de leccion</span>
@@ -1028,180 +697,41 @@ onUnmounted(() => {
             </p>
           </div>
         </div>
-
-        <!-- Chat pane -->
-        <div class="chat-pane">
-          <div class="chat-header">
-            <span class="eyebrow">Aula viva</span>
-            <div class="chat-header-row">
-              <h3 class="chat-title display">Conversacion</h3>
-              <span class="chat-live-dot pulsing" />
-            </div>
-          </div>
-          <div ref="chatContainer" class="chat-messages">
-            <div
-              v-for="c in comentarios"
-              :key="c.id"
-              class="chat-msg"
-              :class="{ 'chat-msg-incoming': c.incoming, 'chat-msg-destacado': c.destacado }"
-            >
-              <div class="chat-avatar" :class="{ 'chat-avatar-instructor': c.esInstructor }">
-                {{ c.user.charAt(0) }}
-              </div>
-              <div class="chat-body">
-                <div class="chat-meta">
-                  <span class="chat-name">{{ c.user }}</span>
-                  <span v-if="c.esInstructor" class="chat-badge-instructor mono">Instructor</span>
-                  <span class="chat-dep mono">{{ c.dep }}</span>
-                  <span class="chat-time">{{ c.t }}</span>
-                </div>
-                <p class="chat-text">
-                  {{ c.texto }}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div class="chat-input-bar">
-            <input
-              v-model="draft"
-              type="text"
-              placeholder="Escribe un mensaje..."
-              @keydown.enter="sendComment"
-            />
-            <button class="chat-send" @click="sendComment">
-              <IconSet name="send" />
-            </button>
-          </div>
-        </div>
+        <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
       </div>
     </div>
 
-    <!-- ═══════ VARIANT: FOCUS ═══════ -->
+    <!-- Focus -->
     <div v-else class="layout-focus">
       <div class="focus-center">
-        <!-- Video -->
-        <div
-          class="video-surface focus-video"
-          :class="{ 'has-iframe': source.kind === 'youtube' }"
-          @click="source.kind === 'none' && togglePlay()"
-        >
-          <iframe
-            v-if="source.kind === 'youtube'"
-            class="video-iframe"
-            :src="youtubeEmbed"
-            title="video"
-            frameborder="0"
-            allow="
-              accelerometer;
-              autoplay;
-              clipboard-write;
-              encrypted-media;
-              gyroscope;
-              picture-in-picture;
-            "
-            allowfullscreen
-          />
-          <video
-            v-else-if="source.kind === 'hls'"
-            ref="videoEl"
-            class="video-native"
-            :poster="hlsPoster"
-            playsinline
-            controls
-            @timeupdate="onHlsTimeUpdate"
-            @loadedmetadata="onHlsLoadedMetadata"
-            @ended="onHlsEnded"
-            @play="playing = true"
-            @pause="playing = false"
-          />
-          <DocumentoViewer
-            v-else-if="source.kind === 'documento'"
-            :leccion-id="source.leccionId"
-            @fin-de-lectura="handleFinLectura"
-          />
-          <EvaluacionPanel
-            v-else-if="source.kind === 'examen' && featureEnabled('evaluaciones')"
-            :key="source.leccionId"
-            :leccion-id="source.leccionId"
-            @aprobada="handleEvaluacionAprobada"
-          />
-          <template v-else>
-            <div class="video-bg">
-              <div class="video-stripe-overlay" />
-              <div class="video-radial" />
-            </div>
-            <div class="slide-content">
-              <span class="slide-eyebrow eyebrow"
-                >Plataforma Nacional de Transparencia &middot; 04 / 18</span
-              >
-              <h2 class="slide-heading display">
-                El portal de<br /><em class="slide-accent display-italic">obligaciones</em>
-                de<br />transparencia
-              </h2>
-              <span class="slide-footer mono"
-                >Dra. Alejandra Rueda &middot; 2024</span
-              >
-            </div>
-          </template>
-          <div class="video-badges">
-            <span class="badge-live"><span class="badge-dot pulsing" /> Aula viva</span>
-            <span class="badge-duration">{{ leccion.duracion }}</span>
-          </div>
-          <div
-            v-if="source.kind === 'none' && !playing && !completada"
-            class="play-overlay"
-            @click.stop="togglePlay"
-          >
-            <div class="play-circle">
-              <IconSet name="play" />
-            </div>
-          </div>
-          <div v-if="source.kind === 'none' && completada" class="completion-overlay" @click.stop>
-            <div class="completion-inner">
-              <div class="completion-circle">
-                <IconSet name="check" />
-              </div>
-              <span class="completion-text display-italic">Leccion completada</span>
-            </div>
-          </div>
-          <div v-if="source.kind === 'none'" class="video-controls" @click.stop>
-            <div class="controls-progress" @click="seekProgress">
-              <div class="controls-progress-fill" :style="{ width: progress * 100 + '%' }" />
-            </div>
-            <div class="controls-bar">
-              <button class="controls-play" @click="togglePlay">
-                <IconSet :name="playing ? 'close' : 'play'" />
-              </button>
-              <span class="controls-time mono"
-                >{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span
-              >
-              <span class="controls-status mono">{{
-                source.kind === 'hls' ? 'HLS' : 'Simulador (sin URL)'
-              }}</span>
-            </div>
-          </div>
-        </div>
-        <div v-if="source.kind === 'documento'" class="doc-actions">
-          <button
-            class="btn btn-primary doc-mark-btn"
-            :disabled="!llegoAlFinal || completada"
-            @click="marcarLecturaCompletada"
-          >
-            <template v-if="completada"> ✓ Lección completada </template>
-            <template v-else-if="llegoAlFinal"> Marcar como leída </template>
-            <template v-else> Desliza hasta el final para habilitar </template>
-          </button>
-        </div>
-
-        <!-- Entrega de archivo (módulo LMS 3, flag VITE_FEATURE_ENTREGAS) -->
+        <PlayerVideoSurface
+          :source="source"
+          :leccion="leccion"
+          :video-el-ref="videoEl"
+          :hls-poster="hlsPoster"
+          :playing="playing"
+          :completada="completada"
+          :current-time="currentTime"
+          :total-time="totalTime"
+          :modulo-titulo="moduloTitulo"
+          :llego-al-final="llegoAlFinal"
+          @toggle-play="togglePlay"
+          @seek="handleSeek"
+          @time-update="onHlsTimeUpdate"
+          @loaded-metadata="onHlsLoadedMetadata"
+          @ended="onHlsEnded"
+          @update:current-time="(v) => (currentTime = v)"
+          @update:total-time="(v) => (totalTime = v)"
+          @fin-lectura="handleFinLectura"
+          @eval-aprobada="handleEvaluacionAprobada"
+          @marcar-lectura-completada="marcarLecturaCompletada"
+        />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
         />
-
-        <!-- Title + actions below video -->
         <div class="focus-below">
           <div class="focus-title-block">
             <span class="eyebrow">Modulo 02 &middot; Leccion {{ leccion.orden }}</span>
@@ -1210,59 +740,28 @@ onUnmounted(() => {
             </h2>
           </div>
           <div class="focus-actions">
-            <button class="btn btn-ghost btn-sm" title="Notas (próximamente)" @click="() => {}">
-              <IconSet name="doc" />
-              Notas
+            <button class="btn btn-ghost btn-sm" title="Notas (proximamente)" @click="() => {}">
+              <IconSet name="doc" /> Notas
             </button>
-            <button class="btn btn-ghost btn-sm" title="Chat (próximamente)" @click="() => {}">
-              <IconSet name="chat" />
-              Chat
+            <button class="btn btn-ghost btn-sm" title="Chat (proximamente)" @click="() => {}">
+              <IconSet name="chat" /> Chat
             </button>
             <button v-if="completada" class="btn btn-primary btn-sm" @click="goToNextLesson">
-              Siguiente leccion
-              <IconSet name="arrow" />
+              Siguiente leccion <IconSet name="arrow" />
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Horizontal lesson list -->
-      <div class="focus-lesson-strip">
-        <div class="lesson-strip-header">
-          <span class="eyebrow">Modulo 02 &middot; Sujetos obligados</span>
-          <span class="lesson-list-progress mono"
-            >{{ progressFraction }} &middot; {{ progressPct }}%</span
-          >
-        </div>
-        <div class="lesson-strip-items">
-          <div
-            v-for="l in lecciones"
-            :key="l.id"
-            class="lesson-strip-card"
-            :class="{
-              'lesson-active': l.id === currentLeccion,
-              'lesson-completed': l.completado,
-            }"
-            @click="selectLesson(l.id)"
-          >
-            <div class="lesson-status-icon">
-              <template v-if="l.completado">
-                <span class="lesson-check"><IconSet name="check" /></span>
-              </template>
-              <template v-else-if="l.id === currentLeccion">
-                <span class="lesson-playing pulsing"><IconSet name="play" /></span>
-              </template>
-              <template v-else>
-                <span class="lesson-num mono">{{ l.orden }}</span>
-              </template>
-            </div>
-            <div class="lesson-info">
-              <span class="lesson-name">{{ l.titulo }}</span>
-              <span class="lesson-meta mono">{{ l.duracion }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PlayerLessonNavigator
+        variant="focus"
+        :lecciones="lecciones"
+        :current-leccion-id="currentLeccion"
+        :completed-count="completedCount"
+        :progress-fraction="progressFraction"
+        :progress-pct="progressPct"
+        :modulo-titulo="moduloTitulo"
+        @select="selectLesson"
+      />
     </div>
   </div>
 </template>
@@ -1353,544 +852,26 @@ onUnmounted(() => {
 }
 
 /* ─── Video surface (shared) ─────────────────────── */
-.video-surface {
-  position: relative;
-  background: #000;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  cursor: pointer;
-  user-select: none;
-}
-
-.video-surface.has-iframe {
-  cursor: default;
-}
-.video-iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.video-bg {
-  position: absolute;
-  inset: 0;
-}
-
-.video-radial {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 40%, rgba(98, 17, 50, 0.18) 0%, transparent 70%);
-}
-
-.video-stripe-overlay {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.03) 0,
-    rgba(255, 255, 255, 0.03) 1px,
-    transparent 1px,
-    transparent 12px
-  );
-}
 
 /* ─── Slide content ──────────────────────────────── */
-.slide-content {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 48px;
-  z-index: 2;
-}
-
-.slide-eyebrow {
-  color: rgba(255, 255, 255, 0.4);
-  margin-bottom: 24px;
-}
-
-.slide-heading {
-  font-size: clamp(28px, 4vw, 52px);
-  color: var(--paper);
-  line-height: 1;
-  margin-bottom: 32px;
-}
-
-.slide-accent {
-  color: var(--brand-accent);
-}
-
-.slide-footer {
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 10px;
-}
 
 /* ─── Video badges ───────────────────────────────── */
-.video-badges {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: flex;
-  gap: 8px;
-  z-index: 5;
-}
-
-.badge-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: var(--primary);
-  color: var(--paper);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--paper);
-  display: inline-block;
-}
-
-.badge-duration {
-  display: inline-flex;
-  align-items: center;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.7);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-}
 
 /* ─── Center play button ─────────────────────────── */
-.play-overlay {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.2);
-}
-
-.play-circle {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  display: grid;
-  place-items: center;
-  color: var(--paper);
-  font-size: 24px;
-  transition:
-    transform 180ms var(--ease),
-    background 180ms var(--ease);
-}
-.play-circle:hover {
-  transform: scale(1.08);
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.play-circle svg {
-  width: 24px;
-  height: 24px;
-}
 
 /* ─── Completion overlay ─────────────────────────── */
-.completion-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  display: grid;
-  place-items: center;
-  z-index: 10;
-}
-
-.completion-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.completion-circle {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: var(--brand-accent);
-  color: var(--ink);
-  display: grid;
-  place-items: center;
-}
-.completion-circle svg {
-  width: 28px;
-  height: 28px;
-}
-
-.completion-text {
-  font-size: 22px;
-  color: var(--paper);
-}
 
 /* ─── Video controls ─────────────────────────────── */
-.video-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 12;
-  cursor: default;
-}
-
-.controls-progress {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.15);
-  cursor: pointer;
-  transition: height 120ms var(--ease);
-}
-.controls-progress:hover {
-  height: 6px;
-}
-
-.controls-progress-fill {
-  height: 100%;
-  background: var(--brand-accent);
-  transition: width 200ms linear;
-}
-
-.controls-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.controls-play {
-  color: var(--paper);
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  transition: opacity 120ms;
-}
-.controls-play:hover {
-  opacity: 0.8;
-}
-
-.controls-time {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 11px;
-}
-
-.controls-status {
-  margin-left: auto;
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 10px;
-}
 
 /* ─── Chat pane ──────────────────────────────────── */
-.chat-pane {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-
-.chat-header {
-  padding: 20px 20px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-}
-.chat-header .eyebrow {
-  color: var(--brand-accent);
-  margin-bottom: 4px;
-  display: block;
-}
-
-.chat-header-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat-title {
-  font-size: 24px;
-  color: var(--paper);
-}
-
-.chat-live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-}
 
 /* ─── Chat messages ──────────────────────────────── */
-.chat-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.chat-messages::-webkit-scrollbar {
-  width: 4px;
-}
-.chat-messages::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
-
-.chat-msg {
-  display: flex;
-  gap: 10px;
-  animation: fadeIn 280ms var(--ease) both;
-}
-
-.chat-msg-incoming {
-  animation: slideInRight 320ms var(--ease) both;
-}
 
 /* Comentario destacado por instructor: barra oro a la izquierda */
-.chat-msg-destacado {
-  box-shadow: inset 3px 0 0 var(--brand-accent);
-  padding-left: 8px;
-}
-
-.chat-badge-instructor {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--brand-ink, #161a1d);
-  background: var(--brand-accent);
-  padding: 1px 6px;
-  border-radius: 3px;
-}
-
-.chat-avatar-instructor {
-  background: var(--brand-accent);
-  color: var(--brand-ink, #161a1d);
-}
-
-.chat-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--brand-accent);
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  font-weight: 600;
-  flex-shrink: 0;
-  font-family: var(--ui);
-}
-
-.chat-body {
-  min-width: 0;
-}
-
-.chat-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 3px;
-  flex-wrap: wrap;
-}
-
-.chat-name {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--paper);
-}
-
-.chat-dep {
-  font-size: 10px;
-  color: var(--brand-accent);
-}
-
-.chat-time {
-  font-size: 11px;
-  color: var(--ink-4);
-}
-
-.chat-text {
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.72);
-}
 
 /* ─── Chat input ─────────────────────────────────── */
-.chat-input-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  flex-shrink: 0;
-}
-
-.chat-input-bar input {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-size: 13px;
-  color: var(--paper);
-  outline: none;
-  transition: border-color 180ms var(--ease);
-}
-.chat-input-bar input::placeholder {
-  color: var(--ink-4);
-  font-family: var(--ui);
-  font-style: normal;
-}
-.chat-input-bar input:focus {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.chat-send {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--brand-accent);
-  color: var(--ink);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  transition:
-    transform 120ms var(--ease),
-    opacity 120ms;
-}
-.chat-send:hover {
-  transform: scale(1.06);
-}
 
 /* ─── Lesson list ────────────────────────────────── */
-.lesson-list {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  overflow-y: auto;
-}
-
-.lesson-list-header {
-  padding: 20px 20px 12px;
-}
-
-.lesson-list-header .eyebrow {
-  color: var(--ink-4);
-  display: block;
-  margin-bottom: 4px;
-}
-
-.lesson-list-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--paper);
-  margin-bottom: 4px;
-}
-
-.lesson-list-progress {
-  color: var(--ink-4);
-  font-size: 11px;
-}
-
-.lesson-items {
-  list-style: none;
-  padding: 0 8px 8px;
-}
-
-.lesson-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 180ms var(--ease);
-  border-left: 3px solid transparent;
-}
-.lesson-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.lesson-active {
-  background: rgba(255, 255, 255, 0.06);
-  border-left-color: var(--brand-accent);
-}
-
-.lesson-completed .lesson-check {
-  color: var(--paper);
-}
-
-.lesson-status-icon {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-
-.lesson-check {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--success);
-  display: grid;
-  place-items: center;
-  color: var(--paper);
-}
-
-.lesson-playing {
-  color: var(--brand-accent);
-}
-
-.lesson-num {
-  color: var(--ink-4);
-  font-size: 12px;
-}
-
-.lesson-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.lesson-name {
-  font-size: 13px;
-  color: var(--paper);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lesson-meta {
-  font-size: 10px;
-  color: var(--ink-4);
-}
-
-.lesson-item > svg {
-  color: var(--ink-4);
-  flex-shrink: 0;
-}
 
 /* ═══════════════════════════════════════════════════
    VARIANT: SPLIT
@@ -1939,12 +920,6 @@ onUnmounted(() => {
 
 .stacked-video {
   /* inherits video-surface */
-}
-
-.stacked-lessons {
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-  overflow-y: auto;
-  max-height: calc(100vw * 9 / 16 * (1 / (1 + 320 / 100)));
 }
 
 .stacked-bottom {
@@ -2061,87 +1036,4 @@ onUnmounted(() => {
 }
 
 /* ─── Focus horizontal lesson strip ──────────────── */
-.focus-lesson-strip {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 16px 24px 20px;
-  flex-shrink: 0;
-}
-
-.lesson-strip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.lesson-strip-header .eyebrow {
-  color: var(--ink-4);
-}
-.lesson-strip-header .lesson-list-progress {
-  color: var(--ink-4);
-}
-
-.lesson-strip-items {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.lesson-strip-items::-webkit-scrollbar {
-  height: 3px;
-}
-.lesson-strip-items::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
-
-.video-native {
-  width: 100%;
-  height: 100%;
-  display: block;
-  background: #000;
-  object-fit: contain;
-}
-
-.lesson-strip-card {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition:
-    background 180ms var(--ease),
-    border-color 180ms var(--ease);
-  border-left: 3px solid transparent;
-}
-.lesson-strip-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-}
-.lesson-strip-card.lesson-active {
-  background: rgba(255, 255, 255, 0.08);
-  border-left-color: var(--brand-accent);
-}
-
-.doc-actions {
-  padding: 16px 24px;
-  display: flex;
-  justify-content: center;
-  background: var(--ink, #1a1a1a);
-}
-.doc-mark-btn {
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.doc-mark-btn[disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
 </style>

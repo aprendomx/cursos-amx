@@ -1,51 +1,123 @@
 # Cursos AMX
 
-LMS open source (AGPL-3.0) para instituciones: cursos en video HLS, evaluaciones,
-foros, constancias en PDF con verificación pública por QR, y una capa de tema
-que permite aplicar tu identidad gráfica sin tocar el código.
+[![CI](https://github.com/aprendomx/cursos-amx/actions/workflows/ci.yml/badge.svg)](https://github.com/aprendomx/cursos-amx/actions/workflows/ci.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Vue 3](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js)](https://vuejs.org)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite)](https://vitejs.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-self--hosted-3ECF8E?logo=supabase)](https://supabase.com)
+
+> **Plataforma abierta de capacitación en línea** para instituciones que necesitan cursos en video, evaluaciones, foros y constancias verificables — sin depender de SaaS cerrados ni pagar licencias por alumno.
+
+---
+
+## ¿Por qué Cursos AMX?
+
+| 🎨                                                                                                                                                 | **Tu marca, tu código** |
+| :------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------- |
+| Cambia colores, logos y textos desde un solo archivo (`theme/theme.config.js`). Sin tocar código. Ideal para identidades gráficas institucionales. |
+
+| 🎬                                                                                                                                                                        | **Video que escala** |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------- |
+| Upload resumable de videos grandes, transcodificación automática a HLS ABR (360p/720p/1080p) con ffmpeg, y reproductor adaptativo. No necesitas Vimeo ni YouTube privado. |
+
+| 📜                                                                                                                                             | **Constancias con valor legal** |
+| :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ |
+| Emite constancias en PDF con folio único y verificación pública por QR. Cualquier persona puede validar la autenticidad sin entrar al sistema. |
+
+| ⚡                                                                                                          | **Rápido, offline-first** |
+| :---------------------------------------------------------------------------------------------------------- | :------------------------ |
+| PWA instalable con cache de assets y modo oscuro. Los alumnos pueden continuar cursos sin conexión estable. |
+
+| 🔧                                                                                                                                          | **Activa módulos en caliente** |
+| :------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------- |
+| Foros, chat, entregas de archivos, aulas virtuales y evaluaciones se activan vía feature flags en runtime. No requiere rebuild ni redeploy. |
+
+| 🏛️                                                                                                                                                                                | **Hecho para el sector público** |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------- |
+| Licencia AGPL-3.0 (la misma libertad que Canvas LMS), self-hosted completo con Docker, y soporte para múltiples dependencias/instituciones. Tus datos nunca salen de tu servidor. |
+
+---
+
+## Comparativa con otras plataformas
+
+| Plataforma     | Stack                        | Licencia | Self-hosted |   Video HLS   | Constancias QR |     White-label sin código     | Feature flags runtime |
+| :------------- | :--------------------------- | :------- | :---------: | :-----------: | :------------: | :----------------------------: | :-------------------: |
+| **Cursos AMX** | Vue 3 + Vite + TS + Supabase | AGPL-3.0 |     ✅      |      ✅       |       ✅       |               ✅               |          ✅           |
+| Moodle         | PHP                          | GPL-3.0  |     ✅      |  ❌ (plugin)  |  ❌ (plugin)   |     ❌ (requiere tema PHP)     |          ❌           |
+| Canvas LMS     | Ruby + React MFEs            | AGPL-3.0 |     ✅      |      ❌       |       ❌       |       ❌ (requiere fork)       |          ❌           |
+| Open edX       | Python + Django + React MFEs | AGPL-3.0 |     ✅      |      ❌       |       ❌       | ❌ (requiere theming complejo) |          ❌           |
+| Chamilo        | PHP + Symfony                | GPL-3.0  |     ✅      | ❌ (limitado) |       ✅       |     ❌ (requiere CSS/PHP)      |          ❌           |
+| ILIAS          | PHP                          | GPL-3.0  |     ✅      |      ❌       |       ❌       |     ❌ (requiere skin PHP)     |          ❌           |
+| Frappe LMS     | Vue + Python/Frappe          | MIT      |     ✅      |      ❌       |       ❌       |     ❌ (requiere theming)      |          ❌           |
+| CourseLit      | React + Node                 | MIT      |     ✅      |      ❌       |       ❌       |      ❌ (requiere código)      |          ❌           |
+
+> **Conclusión:** Cursos AMX es la única opción open source con stack JavaScript moderno, video HLS nativo, constancias verificables por QR y personalización completa vía configuración — sin necesidad de editar código ni depender de plugins de terceros.
+
+---
 
 ## Características
 
-- Vue 3 + Vite, PWA instalable
-- Backend Supabase self-hosted (Postgres, Auth, Storage, Edge Functions)
-- Video HLS con worker de transcodificación (ffmpeg) y subida reanudable (tus)
-- Constancias PDF con folio y verificación pública por QR
-- Módulos activables por feature flags: instructor, foros, chat, entregas, aulas, evaluaciones
-- Personalización completa vía `theme/theme.config.js` (ver [THEMING.md](THEMING.md))
+- **Vue 3 + Vite 6**, Composition API con `<script setup>`, migración progresiva a TypeScript
+- **Backend Supabase self-hosted** (Postgres 15, Auth, Storage, Edge Functions, Realtime)
+- **Video HLS** con worker de transcodificación (ffmpeg) y subida reanudable (tus)
+- **Constancias PDF** con folio y verificación pública por QR
+- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones
+- **Personalización completa** vía `theme/theme.config.js` (ver [THEMING.md](THEMING.md))
+- **Dark mode** con selector Claro / Oscuro / Sistema
+- **i18n base** con `vue-i18n` (es/en listos para extender)
+- **PWA instalable** con precache de assets y fuentes Google
+- **CI/CD** con GitHub Actions (lint + test + build)
+- **Prerender SEO** de rutas públicas con Playwright (`npm run prerender`)
+- **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
+- **Dark mode** con selector Claro / Oscuro / Sistema
+- **Documentación API** OpenAPI completa en `docs/API.md`
+- **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
 ## Inicio rápido (desarrollo)
 
-1. `npm install`
-2. `cp .env.example .env` y configura `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
-3. `npm run dev`
+```bash
+npm install
+cp .env.example .env   # configura VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
+npm run dev            # http://localhost:5173
+```
 
 ## Instalación completa (producción self-hosted)
 
 Ver `docs/MANUAL_ACTUALIZACION.md` y `docker/` (stack Supabase + video-worker).
 
+```bash
+# Un solo comando en el servidor
+scripts/deploy.sh
+```
+
 ## Personalización de identidad gráfica
 
-Ver [THEMING.md](THEMING.md).
+Ver [THEMING.md](THEMING.md). Solo necesitas cambiar:
+
+1. `theme/theme.config.js` — textos, colores, logos
+2. `public/theme/` — assets de imagen
+3. `theme/sections/` — secciones custom de landing (opcional)
 
 ## Estructura del repo
 
 ```
 src/
   pages/        Vistas (LandingPage, CursoDetalle, PlayerPage, AdminPage, etc.)
-  components/   Componentes compartidos (TopNav, AppLogo, LandingHero, LandingFooter, …)
-  composables/  Lógica reutilizable (useHlsPlayer, useVideoStatus, useCachedFetch)
+  components/   Componentes compartidos y extraídos (AdminDashboard, PlayerChatPane, ...)
+  composables/  Lógica reutilizable (useHlsPlayer, useTiempoActividad, useErrorHandler, ...)
   stores/       Pinia stores (auth, ui)
-  services/     Acceso a Supabase por dominio (cursos, progreso, videos, …)
+  services/     Acceso a Supabase por dominio (cursos, progreso, videos, ...)
   router/       Vue Router config + guards
-  lib/          Cliente Supabase y helpers (theme.js, featureFlags.js)
-  assets/       CSS global
+  lib/          Cliente Supabase, helpers (theme.js, featureFlags.js, i18n.js, errors.ts)
+  locales/      Archivos de traducción (es.json, en.json)
+  assets/       CSS global con tokens de marca y modo oscuro
 
 theme/
   theme.config.js   Única fuente de identidad gráfica
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–029)
+  migrations/   Esquema versionado en SQL (001–030)
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url)
 
 services/
@@ -53,21 +125,12 @@ services/
 
 docker/
   docker-compose.yml    Stack completo Supabase self-hosted + video-worker
-  overrides/            Overrides opcionales (nginx, caddy, pg17, MinIO, RustFS)
-
-scripts/
-  migrate.sh    Aplica migraciones en orden, transaccional, con registro
-  deploy.sh     Actualización del servidor en un paso (pull + migrar + funciones)
-
-docs/
-  MANUAL_ACTUALIZACION.md  Guía para actualizar un despliegue existente
-  architecture.md          Arquitectura del frontend
 ```
 
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom)
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 38 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
@@ -80,8 +143,7 @@ npm run lint:fix    # ESLint con --fix
 npm run format      # Prettier en todo el repo
 ```
 
-El proyecto usa **husky + lint-staged**: cada commit ejecuta `eslint --fix` y
-`prettier --write` automáticamente.
+Husky + lint-staged ejecutan `eslint --fix` y `prettier --write` en cada commit.
 
 ## Build de producción
 

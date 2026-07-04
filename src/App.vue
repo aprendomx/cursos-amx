@@ -160,8 +160,10 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
 
     <TweaksPanel
       :tweaks="ui.tweaks"
+      :theme="ui.theme"
       :visible="ui.tweaksOpen"
       @update:tweaks="ui.updateTweaks"
+      @update:theme="ui.updateTheme"
       @close="ui.closeTweaks"
     />
   </div>

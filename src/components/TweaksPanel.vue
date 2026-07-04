@@ -11,13 +11,18 @@ const props = defineProps({
       liveChat: true,
     }),
   },
+  theme: { type: String, default: 'system' },
   visible: { type: Boolean, default: false },
 })
 
-const emit = defineEmits(['update:tweaks', 'close'])
+const emit = defineEmits(['update:tweaks', 'update:theme', 'close'])
 
 function set(key, value) {
   emit('update:tweaks', { ...props.tweaks, [key]: value })
+}
+
+function setTheme(value) {
+  emit('update:theme', value)
 }
 
 function toggleChat() {
@@ -34,6 +39,16 @@ function toggleChat() {
       </button>
     </div>
 
+    <!-- Theme -->
+    <div class="tweaks-row">
+      <label>Tema</label>
+      <div class="tweaks-segment">
+        <button :class="{ on: theme === 'light' }" @click="setTheme('light')">Claro</button>
+        <button :class="{ on: theme === 'dark' }" @click="setTheme('dark')">Oscuro</button>
+        <button :class="{ on: theme === 'system' }" @click="setTheme('system')">Sistema</button>
+      </div>
+    </div>
+
     <!-- Primary color -->
     <div class="tweaks-row">
       <label>Color primario</label>
@@ -41,7 +56,10 @@ function toggleChat() {
         <button :class="{ on: tweaks.primary === 'brand' }" @click="set('primary', 'brand')">
           Principal
         </button>
-        <button :class="{ on: tweaks.primary === 'secondary' }" @click="set('primary', 'secondary')">
+        <button
+          :class="{ on: tweaks.primary === 'secondary' }"
+          @click="set('primary', 'secondary')"
+        >
           Alterno
         </button>
       </div>

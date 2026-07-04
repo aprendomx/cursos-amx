@@ -10,13 +10,13 @@
 //   VITE_FEATURE_AULAS=true
 //   VITE_FEATURE_EVALUACIONES=true
 
-function flag(name, porDefecto = false) {
-  const raw = import.meta.env[name]
+function flag(name: string, porDefecto = false): boolean {
+  const raw = (import.meta as any).env[name]
   if (raw === undefined || raw === '') return porDefecto
   return raw === true || raw === 'true' || raw === '1'
 }
 
-export const FEATURES = {
+export const FEATURES: Record<string, boolean> = {
   instructor: flag('VITE_FEATURE_INSTRUCTOR', true),
   foros: flag('VITE_FEATURE_FOROS'),
   chat: flag('VITE_FEATURE_CHAT'),
@@ -25,6 +25,6 @@ export const FEATURES = {
   evaluaciones: flag('VITE_FEATURE_EVALUACIONES'),
 }
 
-export function featureEnabled(nombre) {
+export function featureEnabled(nombre: string): boolean {
   return FEATURES[nombre] === true
 }

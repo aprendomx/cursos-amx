@@ -71,6 +71,19 @@
   --primary-100: var(--brand-secondary-soft);
 }
 
+/* Dark mode — inverted neutrals */
+[data-theme='dark'] {
+  --paper: #0f1115;
+  --paper-2: #1a1c21;
+  --paper-3: #22242a;
+  --line: #2a2d35;
+  --line-soft: #1f2128;
+  --ink: #f0f0f0;
+  --ink-2: #b0b0b0;
+  --ink-3: #808080;
+  --ink-4: #505050;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;

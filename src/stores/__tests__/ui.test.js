@@ -14,6 +14,17 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock document.documentElement
 document.documentElement.setAttribute = vi.fn()
+document.documentElement.removeAttribute = vi.fn()
+
+// Mock matchMedia
+const matchMediaMock = vi.fn(() => ({
+  matches: false,
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+}))
+Object.defineProperty(window, 'matchMedia', {
+  value: matchMediaMock,
+})
 
 describe('UI Store', () => {
   beforeEach(() => {
@@ -56,5 +67,43 @@ describe('UI Store', () => {
 
     store.closeTweaks()
     expect(store.tweaksOpen).toBe(false)
+  })
+
+  it('should initialize with default theme "system"', () => {
+    const store = useUiStore()
+    expect(store.theme).toBe('system')
+  })
+
+  it('should load saved theme from localStorage', () => {
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === 'cursosamx.theme') return 'dark'
+      return null
+    })
+    const store = useUiStore()
+    expect(store.theme).toBe('dark')
+  })
+
+  it('should persist theme to localStorage and apply data-theme', () => {
+    const store = useUiStore()
+    store.updateTheme('dark')
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('cursosamx.theme', 'dark')
+    expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-theme', 'dark')
+
+    store.updateTheme('light')
+    expect(document.documentElement.removeAttribute).toHaveBeenCalledWith('data-theme')
+  })
+
+  it('should use system preference when theme is "system"', () => {
+    matchMediaMock.mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })
+    localStorageMock.getItem.mockImplementation((key) => {
+      if (key === 'cursosamx.theme') return 'system'
+      return null
+    })
+    const store = useUiStore()
+    expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-theme', 'dark')
   })
 })

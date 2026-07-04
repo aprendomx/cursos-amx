@@ -4,13 +4,13 @@ import { supabase } from '@/lib/supabase.js'
 import { USER as MOCK_USER } from '@/data.js'
 
 export const useAuthStore = defineStore('auth', () => {
-  const session = ref(null)
-  const perfil = ref(null)
+  const session = ref<any>(null)
+  const perfil = ref<any>(null)
   const authLoading = ref(true)
   const hasRegistered = ref(false)
 
   // User data: real profile when authenticated, mock fallback otherwise
-  const user = ref({ ...MOCK_USER })
+  const user = ref<any>({ ...MOCK_USER })
 
   const isLoggedIn = computed(() => !!session.value)
   const isAdmin = computed(() => perfil.value?.es_admin === true)
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
     return (n + a).toUpperCase()
   })
 
-  async function fetchPerfil(userId) {
+  async function fetchPerfil(userId: string) {
     const { data } = await supabase
       .from('perfiles')
       .select('*, dependencias(nombre, siglas)')
@@ -56,7 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {}
     authLoading.value = false
 
-    supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    supabase.auth.onAuthStateChange(async (_event: any, newSession: any) => {
       session.value = newSession
       if (newSession) {
         await fetchPerfil(newSession.user.id)
