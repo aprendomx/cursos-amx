@@ -3,33 +3,37 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { fileURLToPath, URL } from 'node:url'
+import theme from './theme/theme.config.js'
+
+const themeHtmlPlugin = () => ({
+  name: 'theme-html',
+  transformIndexHtml(html) {
+    return html
+      .replaceAll('%THEME_TITLE%', `${theme.app.name} · ${theme.app.tagline}`)
+      .replaceAll('%THEME_DESCRIPTION%', theme.app.description)
+      .replaceAll('%THEME_COLOR%', theme.pwa.themeColor)
+  },
+})
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const plugins = [
+    themeHtmlPlugin(),
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'CONASAMA · Plataforma de Capacitación',
-        short_name: 'CONASAMA',
-        description: 'Plataforma de Capacitación de la Comisión Nacional contra las Adicciones',
-        theme_color: '#611232',
-        background_color: '#ffffff',
+        name: `${theme.app.name} · ${theme.app.tagline}`,
+        short_name: theme.app.shortName,
+        description: theme.app.description,
+        theme_color: theme.pwa.themeColor,
+        background_color: theme.pwa.backgroundColor,
         display: 'standalone',
         start_url: '/',
         icons: [
-          {
-            src: '/icon-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: '/icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
+          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
       workbox: {
@@ -86,7 +90,6 @@ export default defineConfig(({ mode }) => {
           manualChunks(id) {
             if (id.includes('node_modules')) {
               if (/vue|pinia|vue-router/.test(id)) return 'vendor'
-              if (/quasar/.test(id)) return 'ui'
               if (/supabase|@supabase/.test(id)) return 'db'
               if (/lodash|dayjs|marked/.test(id)) return 'utils'
               if (/hls\.js/.test(id)) return 'video'
