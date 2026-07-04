@@ -7,6 +7,7 @@ import IconSet from '@/components/IconSet.vue'
 import html2pdf from 'html2pdf.js'
 import QrcodeVue from 'qrcode.vue'
 import { getConstanciaConfig, CONSTANCIA_DEFAULTS } from '@/services/constanciaConfig.js'
+import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
   cursoId: { type: String, required: true },
@@ -22,7 +23,7 @@ const curso = computed(() => CURSOS.find((c) => c.id === props.cursoId) || CURSO
 
 const folio = computed(() => {
   if (realConstancia.value?.folio) return realConstancia.value.folio
-  return `CONASAMA-2026-${curso.value.id.toUpperCase()}-4721`
+  return `${theme.constancia.folioPrefix}-${new Date().getFullYear()}-${curso.value.id.toUpperCase()}-4721`
 })
 
 const fullName = computed(() => {
@@ -168,17 +169,17 @@ function goBack() {
     <div class="cnst-wrap container">
       <div class="cnst-doc">
         <!-- Fondo decorativo -->
-        <img src="/img/constancia-fondo.webp" class="cnst-fondo" alt="" aria-hidden="true" />
+        <img src="/theme/constancia-fondo.webp" class="cnst-fondo" alt="" aria-hidden="true" />
         <!-- Pleca superior -->
         <img
-          src="/img/constancia-pleca.webp"
+          src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-top"
           alt=""
           aria-hidden="true"
         />
         <!-- Pleca inferior -->
         <img
-          src="/img/constancia-pleca.webp"
+          src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-bottom"
           alt=""
           aria-hidden="true"
@@ -189,15 +190,15 @@ function goBack() {
           <!-- Logos institucionales -->
           <header class="cnst-head">
             <img
-              src="/img/constancia-logos.webp"
+              :src="theme.logos.constancia"
               class="cnst-logos"
-              alt="Gobierno de México · Salud · CONASAMA"
+              :alt="theme.constancia.emisor"
             />
           </header>
 
           <!-- Cuerpo -->
           <section class="cnst-body">
-            <p class="cnst-pre">La Comisión Nacional de Salud Mental y Adicciones</p>
+            <p class="cnst-pre">{{ theme.constancia.emisor }}</p>
             <p class="cnst-pre cnst-pre-2">Otorga el presente</p>
 
             <h1 class="cnst-titulo">CONSTANCIA</h1>
@@ -211,8 +212,7 @@ function goBack() {
             <p class="cnst-descripcion">
               Por haber acreditado satisfactoriamente el curso de capacitación
               <em>{{ cursoTitle }}</em
-              >, impartido por la Plataforma de Capacitación CONASAMA y dirigido a servidoras y
-              servidores públicos del Gobierno de México.
+              >, impartido a través de {{ theme.app.name }}.
             </p>
 
             <p class="cnst-duracion mono">{{ cursoDuracion || '—' }} · Folio {{ folio }}</p>

@@ -391,7 +391,7 @@ select {
 }
 
 /* =========================================================
-   Header institucional — fondo oscuro del primario + logo CONASAMA blanco
+   Header institucional — fondo oscuro del primario + logo de la plataforma blanco
 ========================================================= */
 .nav {
   position: sticky;
@@ -565,7 +565,7 @@ select {
 }
 .nav-meta {
   display: none !important;
-} /* el "gob.mx" se mueve al pleca del pie */
+} /* el dominio institucional se mueve al pleca del pie */
 
 /* Tweaks panel */
 .tweaks-panel {
@@ -839,7 +839,7 @@ select {
   text-underline-offset: 4px;
 }
 
-/* Zona de créditos (gob.mx) */
+/* Zona de créditos */
 .site-pleca-creditos {
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   padding: calc(var(--unit) * 2.5) calc(var(--unit) * 6);

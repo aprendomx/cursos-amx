@@ -63,7 +63,7 @@ const pasos = [
         <!-- Lado derecho: preview del certificado -->
         <div class="cc-right">
           <img
-            src="/img/constancia-preview.webp"
+            src="/theme/constancia-preview.webp"
             alt="Vista previa de la constancia oficial"
             class="cc-preview"
             loading="lazy"

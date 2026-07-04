@@ -1,6 +1,7 @@
 <!-- src/components/LandingConstancia.vue -->
 <script setup>
 import IconSet from '@/components/IconSet.vue'
+import { theme } from '@/lib/theme.js'
 </script>
 
 <template>
@@ -9,7 +10,7 @@ import IconSet from '@/components/IconSet.vue'
       <!-- Mockup decorativo -->
       <div class="constancia-mock" aria-hidden="true">
         <div class="constancia-paper">
-          <p class="eyebrow">CONASAMA &middot; CONSTANCIA OFICIAL</p>
+          <p class="eyebrow">{{ theme.constancia.emisor }} &middot; CONSTANCIA</p>
           <p class="display constancia-paper-title">Se otorga a</p>
           <p class="display-italic constancia-paper-name">Nombre de la persona</p>
           <p class="constancia-paper-curso">

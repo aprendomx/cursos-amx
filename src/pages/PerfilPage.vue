@@ -8,6 +8,7 @@ import IconSet from '@/components/IconSet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import PlaceholderImage from '@/components/PlaceholderImage.vue'
 import AppLogo from '@/components/AppLogo.vue'
+import { theme } from '@/lib/theme.js'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -429,7 +430,7 @@ function goToHome() {
       >
         <AppLogo />
         <span class="mono" :style="{ color: 'var(--ink-4)' }">
-          CONASAMA &middot; Plataforma de Capacitación &middot; gob.mx/conasama
+          {{ theme.app.name }} &middot; {{ theme.nav.title }}
         </span>
       </div>
     </footer>

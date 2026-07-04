@@ -6,6 +6,7 @@ import { useUiStore } from '@/stores/ui.js'
 import TopNav from '@/components/TopNav.vue'
 import TweaksPanel from '@/components/TweaksPanel.vue'
 import { supabase } from '@/lib/supabase.js'
+import { storageKey } from '@/lib/theme.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -69,7 +70,7 @@ async function onRegistroComplete(form) {
 
       auth.hasRegistered = true
       try {
-        localStorage.setItem('conasama.registered', 'true')
+        localStorage.setItem(storageKey('registered'), 'true')
       } catch {}
 
       router.push('/')
@@ -80,7 +81,7 @@ async function onRegistroComplete(form) {
   } else {
     auth.hasRegistered = true
     try {
-      localStorage.setItem('conasama.registered', 'true')
+      localStorage.setItem(storageKey('registered'), 'true')
     } catch {}
     router.push('/')
   }
@@ -109,7 +110,7 @@ async function onLogin({ correo, password }) {
     await auth.fetchPerfil(data.user.id)
     auth.hasRegistered = true
     try {
-      localStorage.setItem('conasama.registered', 'true')
+      localStorage.setItem(storageKey('registered'), 'true')
     } catch {}
     const redirect = route.query.redirect
     router.push(typeof redirect === 'string' ? redirect : '/')

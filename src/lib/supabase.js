@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { theme } from '@/lib/theme.js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -9,7 +10,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'sb-cursos-conasama-auth',
+    storageKey: `sb-${theme.app.storagePrefix}-auth`,
   },
   realtime: {
     params: { eventsPerSecond: 10 },

@@ -40,7 +40,7 @@ describe('UI Store', () => {
     const store = useUiStore()
 
     // Verify that immediate watch called setItem during initialization
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('conasama.tweaks', expect.any(String))
+    expect(localStorageMock.setItem).toHaveBeenCalledWith('cursosamx.tweaks', expect.any(String))
 
     // Verify document attributes are set by the watch
     expect(document.documentElement.setAttribute).toHaveBeenCalledWith('data-primary', 'brand')

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { DEPENDENCIAS } from '@/data.js'
 import { supabase } from '@/lib/supabase.js'
 import IconSet from '@/components/IconSet.vue'
+import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
   nextPage: { type: Object, default: null },
@@ -110,7 +111,7 @@ const summaryRows = computed(() => [
             <em class="display-italic" style="color: var(--brand-accent-soft)">tu constancia.</em>
           </h1>
           <p class="registro-privacy">
-            Tu información se usa exclusivamente para emitir constancias de CONASAMA. No compartimos
+            Tu información se usa exclusivamente para emitir constancias de {{ theme.constancia.emisor }}. No compartimos
             tus datos con terceros.
           </p>
         </div>
@@ -185,7 +186,7 @@ const summaryRows = computed(() => [
                 id="r-correo"
                 v-model="correo"
                 type="email"
-                placeholder="nombre@dependencia.gob.mx"
+                placeholder="correo@ejemplo.com"
               />
             </div>
             <div class="field">
@@ -231,7 +232,7 @@ const summaryRows = computed(() => [
               <span>
                 He leído y acepto el
                 <a href="#" style="text-decoration: underline">aviso de privacidad</a>
-                de CONASAMA.
+                de {{ theme.constancia.emisor }}.
               </span>
             </label>
           </div>

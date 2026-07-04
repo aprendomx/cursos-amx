@@ -2,11 +2,12 @@
 // Lee y actualiza la configuración global del firmante de la constancia
 // (titular_nombre, titular_cargo, lugar). Tabla constancia_settings.
 import { supabase } from '@/lib/supabase.js'
+import { theme } from '@/lib/theme.js'
 
 const DEFAULTS = Object.freeze({
   titular_nombre: 'Nombre Completo Del Titular',
-  titular_cargo: 'Comisionado Nacional contra las Adicciones',
-  lugar: 'Ciudad de México',
+  titular_cargo: theme.constancia.titularCargoDefault,
+  lugar: theme.constancia.lugarDefault,
 })
 
 export async function getConstanciaConfig() {

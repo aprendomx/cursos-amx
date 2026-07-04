@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import IconSet from '@/components/IconSet.vue'
+import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
   loading: { type: Boolean, default: false },
@@ -28,7 +29,7 @@ function submit() {
     <!-- Lado izquierdo: panel institucional -->
     <aside class="auth-aside" aria-hidden="true">
       <div class="auth-aside-inner">
-        <p class="eyebrow auth-aside-kicker">Plataforma de Capacitación · CONASAMA</p>
+        <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
         <h2 class="auth-aside-quote">
           Formación oficial,
           <em>constancia verificable</em>, servicio público profesional.
@@ -55,7 +56,7 @@ function submit() {
               id="login-correo"
               v-model="correo"
               type="email"
-              placeholder="nombre@gob.mx"
+              placeholder="correo@ejemplo.com"
               autocomplete="email"
               autofocus
               @keydown.enter="submit"

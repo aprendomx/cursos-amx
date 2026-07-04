@@ -900,7 +900,7 @@ onUnmounted(() => {
                 de<br />transparencia
               </h2>
               <span class="slide-footer mono"
-                >Dra. Alejandra Rueda &middot; CONASAMA &middot; 2024</span
+                >Dra. Alejandra Rueda &middot; 2024</span
               >
             </div>
           </template>
@@ -1139,7 +1139,7 @@ onUnmounted(() => {
                 de<br />transparencia
               </h2>
               <span class="slide-footer mono"
-                >Dra. Alejandra Rueda &middot; CONASAMA &middot; 2024</span
+                >Dra. Alejandra Rueda &middot; 2024</span
               >
             </div>
           </template>

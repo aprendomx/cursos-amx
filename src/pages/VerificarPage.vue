@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { sbRpc } from '@/lib/sbRest.js'
 import IconSet from '@/components/IconSet.vue'
 import AppLogo from '@/components/AppLogo.vue'
+import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
   folio: { type: String, required: true },
@@ -68,7 +69,7 @@ function goHome() {
     <header class="verificar-header container">
       <AppLogo />
       <span class="mono" :style="{ color: 'var(--ink-4)' }">
-        Verificaci&oacute;n oficial &middot; CONASAMA
+        Verificaci&oacute;n oficial &middot; {{ theme.constancia.emisor }}
       </span>
     </header>
 
