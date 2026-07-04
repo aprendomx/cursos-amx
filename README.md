@@ -12,29 +12,29 @@
 
 ## ¿Por qué Cursos AMX?
 
-| 🎨                                                                                                                                                 | **Tu marca, tu código** |
-| :------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------- |
-| Cambia colores, logos y textos desde un solo archivo (`theme/theme.config.js`). Sin tocar código. Ideal para identidades gráficas institucionales. |
+| 🎨  | **Tu marca, tu código**                                                                                                                            |
+| :-- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Cambia colores, logos y textos desde un solo archivo (`theme/theme.config.js`). Sin tocar código. Ideal para identidades gráficas institucionales. |
 
-| 🎬                                                                                                                                                                        | **Video que escala** |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------- |
-| Upload resumable de videos grandes, transcodificación automática a HLS ABR (360p/720p/1080p) con ffmpeg, y reproductor adaptativo. No necesitas Vimeo ni YouTube privado. |
+| 🎬  | **Video que escala**                                                                                                                                                      |
+| :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+|     | Upload resumable de videos grandes, transcodificación automática a HLS ABR (360p/720p/1080p) con ffmpeg, y reproductor adaptativo. No necesitas Vimeo ni YouTube privado. |
 
-| 📜                                                                                                                                             | **Constancias con valor legal** |
-| :--------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------ |
-| Emite constancias en PDF con folio único y verificación pública por QR. Cualquier persona puede validar la autenticidad sin entrar al sistema. |
+| 📜  | **Constancias con valor legal**                                                                                                                |
+| :-- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Emite constancias en PDF con folio único y verificación pública por QR. Cualquier persona puede validar la autenticidad sin entrar al sistema. |
 
-| ⚡                                                                                                          | **Rápido, offline-first** |
-| :---------------------------------------------------------------------------------------------------------- | :------------------------ |
-| PWA instalable con cache de assets y modo oscuro. Los alumnos pueden continuar cursos sin conexión estable. |
+| ⚡  | **Rápido, offline-first**                                                                                   |
+| :-- | :---------------------------------------------------------------------------------------------------------- |
+|     | PWA instalable con cache de assets y modo oscuro. Los alumnos pueden continuar cursos sin conexión estable. |
 
-| 🔧                                                                                                                                          | **Activa módulos en caliente** |
-| :------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------------- |
-| Foros, chat, entregas de archivos, aulas virtuales y evaluaciones se activan vía feature flags en runtime. No requiere rebuild ni redeploy. |
+| 🔧  | **Activa módulos en caliente**                                                                                                              |
+| :-- | :------------------------------------------------------------------------------------------------------------------------------------------ |
+|     | Foros, chat, entregas de archivos, aulas virtuales y evaluaciones se activan vía feature flags en runtime. No requiere rebuild ni redeploy. |
 
-| 🏛️                                                                                                                                                                                | **Hecho para el sector público** |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------- |
-| Licencia AGPL-3.0 (la misma libertad que Canvas LMS), self-hosted completo con Docker, y soporte para múltiples dependencias/instituciones. Tus datos nunca salen de tu servidor. |
+| 🏛️  | **Hecho para el sector público**                                                                                                                                                  |
+| :-- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Licencia AGPL-3.0 (la misma libertad que Canvas LMS), self-hosted completo con Docker, y soporte para múltiples dependencias/instituciones. Tus datos nunca salen de tu servidor. |
 
 ---
 
