@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test.describe('Landing Page', () => {
   test('should load the landing page', async ({ page }) => {
     await page.goto('/')
-    await expect(page).toHaveTitle(/CONASAMA|Plataforma/)
+    await expect(page).toHaveTitle(/Cursos AMX|Plataforma/)
   })
 
   test('should navigate to login page', async ({ page }) => {

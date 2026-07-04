@@ -1,6 +1,6 @@
 # video-worker
 
-Sidecar service for the cursos_conasama Supabase self-hosted deployment.
+Sidecar service for the cursos_amx Supabase self-hosted deployment.
 Listens on `LISTEN video_jobs` and transcodes uploaded mp4s to HLS using
 ffmpeg.
 
