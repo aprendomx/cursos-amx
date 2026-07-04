@@ -35,7 +35,7 @@ function submit() {
           <em>constancia verificable</em>, servicio público profesional.
         </h2>
         <p class="auth-aside-meta">
-          Gobierno de México · Secretaría de Salud · Comisión Nacional contra las Adicciones
+          {{ theme.org.name }}
         </p>
       </div>
     </aside>

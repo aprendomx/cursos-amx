@@ -3065,7 +3065,7 @@ async function publishCurso() {
                 id="cs-cargo"
                 v-model="constConfig.titular_cargo"
                 type="text"
-                placeholder="Ej. Comisionado Nacional contra las Adicciones"
+                placeholder="Ej. Titular de la institución"
                 maxlength="160"
               />
             </div>
