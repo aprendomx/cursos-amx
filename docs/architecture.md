@@ -1,6 +1,6 @@
 # Arquitectura
 
-Documentación técnica de alto nivel del frontend de CONASAMA.
+Documentación técnica de alto nivel del frontend de Cursos AMX.
 
 ## Stack
 

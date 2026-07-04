@@ -1,6 +1,6 @@
 # Performance Baseline
 
-Medidas de rendimiento de la aplicación CONASAMA.
+Medidas de rendimiento de la aplicación Cursos AMX.
 
 ## Metodología
 

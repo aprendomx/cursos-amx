@@ -1,6 +1,6 @@
 # Contributing
 
-Guía para colaboradores del proyecto CONASAMA.
+Guía para colaboradores de Cursos AMX.
 
 ## Requisitos
 

@@ -1,4 +1,4 @@
-# Manual de actualización — Plataforma CONASAMA
+# Manual de actualización — Cursos AMX
 
 Guía para **actualizar un despliegue ya en marcha**. Si vas a instalar desde
 cero, usa la sección _Instalación limpia_ del [README](../README.md); aquí se
