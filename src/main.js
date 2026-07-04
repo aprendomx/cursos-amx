@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import * as Sentry from '@sentry/vue'
 import App from './App.vue'
 import router from './router'
+import { applyTheme } from './lib/theme.js'
 import './assets/main.css'
 
 const app = createApp(App)
@@ -26,4 +27,7 @@ if (sentryDsn) {
 
 app.use(createPinia())
 app.use(router)
+
+applyTheme()
+
 app.mount('#app')
