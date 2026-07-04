@@ -24,9 +24,9 @@ DO_PULL=1
 DO_MIGRATE=1
 DO_FUNCTIONS=1
 DRY_RUN=0
-BRANCH="develop"
-# URL pública para el chequeo final; override con PUBLIC_URL=...
-PUBLIC_URL="${PUBLIC_URL:-https://REEMPLAZA_CON_TU_DOMINIO_PUBLICO}"
+BRANCH="main"
+# URL pública para el chequeo final (obligatoria): PUBLIC_URL=https://... scripts/deploy.sh
+PUBLIC_URL="${PUBLIC_URL:?Define PUBLIC_URL (ej. PUBLIC_URL=https://cursos.tu-dominio.org)}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in

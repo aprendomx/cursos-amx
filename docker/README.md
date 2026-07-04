@@ -1,6 +1,6 @@
 # docker/
 
-Stack completo de **Supabase self-hosted + cursos_conasama** en
+Stack completo de **Supabase self-hosted + cursos_amx** en
 docker-compose. Diseñado para reproducir el ambiente de producción
 desde cero en un VPS limpio.
 
