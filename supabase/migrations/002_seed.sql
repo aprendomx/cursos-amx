@@ -4,23 +4,14 @@
 
 -- Completar dependencias que faltan
 insert into public.dependencias (nombre, siglas) values
-  ('Secretaría de Relaciones Exteriores','SRE'),
-  ('Secretaría del Bienestar','BIENESTAR'),
-  ('Secretaría de Medio Ambiente y Recursos Naturales','SEMARNAT'),
-  ('Secretaría de Cultura','CULTURA'),
-  ('Secretaría del Trabajo y Previsión Social','STPS'),
-  ('ISSSTE','ISSSTE'),
-  ('Otro / Gobierno estatal o municipal', null),
-  ('Secretaría de la Función Pública','SFP'),
-  ('Archivo General de la Nación','AGN'),
-  ('Instituto Nacional Electoral','INE'),
-  ('PEMEX','PEMEX'),
-  ('Comisión Federal de Electricidad','CFE'),
-  ('Secretaría de la Defensa Nacional','SEDENA'),
-  ('Secretaría de Comunicaciones y Transportes','SCT'),
-  ('Fiscalía General de la República','FGR'),
-  ('Secretaría de Desarrollo Agrario, Territorial y Urbano','SEDATU'),
-  ('Secretaría de Turismo','SECTUR')
+  ('Dirección General','DG'),
+  ('Recursos Humanos','RH'),
+  ('Finanzas','FIN'),
+  ('Tecnologías de la Información','TI'),
+  ('Jurídico','JUR'),
+  ('Comunicación','COM'),
+  ('Operaciones','OPS'),
+  ('Otra área', null)
 on conflict (nombre) do nothing;
 
 -- ========== CURSO 1: Transparencia y Rendición de Cuentas ==========

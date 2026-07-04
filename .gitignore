@@ -2,7 +2,7 @@
 node_modules
 
 # Build output
-dist
+dist/
 dist.tar.gz
 
 # Environment
@@ -29,11 +29,6 @@ supabase/migrations.zip
 .worktrees/
 
 # Additional exclusions
-dist/
 test-results/
-tmp/
-.worktrees/
-.playwright-mcp/
-*.local
 docker/.env
 .superpowers/

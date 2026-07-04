@@ -1,4 +1,4 @@
-# Contributing
+# Guía de contribución
 
 Guía para colaboradores de Cursos AMX.
 
