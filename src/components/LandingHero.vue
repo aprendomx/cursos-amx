@@ -1,6 +1,7 @@
 <!-- src/components/LandingHero.vue — Hero institucional V1.24 (layout mockup) -->
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { theme } from '@/lib/theme.js'
 
 defineProps({
   hasRegistered: { type: Boolean, default: false },
@@ -16,6 +17,16 @@ const emit = defineEmits(['registro', 'catalogo', 'buscar'])
 
 const query = ref('')
 
+const heroStyle = computed(() =>
+  theme.hero.backgroundImage
+    ? {
+        backgroundImage: `url(${theme.hero.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : {}
+)
+
 function submitSearch() {
   emit('buscar', query.value.trim())
 }
@@ -27,9 +38,9 @@ function fmt(n) {
 
 <template>
   <section class="site-hero" aria-labelledby="hero-titulo">
-    <div class="site-hero-inner">
+    <div class="site-hero-inner" :style="heroStyle">
       <!-- Velo oscuro para legibilidad sobre la foto -->
-      <div class="hero-overlay" aria-hidden="true" />
+      <div v-if="theme.hero.backgroundImage" class="hero-overlay" aria-hidden="true" />
 
       <div class="hero-grid">
         <!-- FILA 1 — search (top-right) -->
@@ -49,39 +60,36 @@ function fmt(n) {
         <!-- FILA 2 — logo plataforma (top, alineado a la derecha) -->
         <div class="hero-brand">
           <img
-            src="/img/logo-plataforma.png"
-            alt="Plataforma de Capacitación"
+            :src="theme.logos.hero"
+            :alt="theme.app.name"
             class="hero-brand-logo"
-            width="720"
-            height="166"
             fetchpriority="high"
           />
         </div>
 
         <!-- FILA 3 — columna izquierda: título principal -->
         <div class="hero-left">
-          <p class="hero-eyebrow">Cursos especializados en Salud Mental y Adicciones</p>
-          <h1 id="hero-titulo" class="hero-title">Capacitación en Salud Mental y Adicciones</h1>
+          <p class="hero-eyebrow">{{ theme.hero.eyebrow }}</p>
+          <h1 id="hero-titulo" class="hero-title">{{ theme.hero.title }}</h1>
         </div>
 
-        <!-- FILA 3 — columna derecha: ABC + Estrategia + descripción + CTA -->
+        <!-- FILA 3 — columna derecha: logos + descripción + CTA -->
         <div class="hero-right">
-          <div class="hero-partners">
+          <div v-if="theme.hero.partnerLogos.length" class="hero-partners">
             <img
-              src="/img/logo-abc.png"
-              alt="El ABC de las Emociones — Salud Mental para las y los Jóvenes — Estrategia Nacional de Salud Mental"
-              class="hero-partner-abc"
+              v-for="logo in theme.hero.partnerLogos"
+              :key="logo.src"
+              :src="logo.src"
+              :alt="logo.alt"
+              class="hero-partner-logo"
             />
           </div>
 
-          <p class="hero-desc">
-            Si eres persona servidora pública o has sido asignado como Brigadista en la Estrategia
-            Nacional del "ABC de las Emociones", conoce aquí los cursos y materiales.
-          </p>
+          <p class="hero-desc">{{ theme.hero.description }}</p>
 
           <div class="hero-actions">
             <button class="hero-pill" type="button" @click="emit('catalogo')">
-              Ver oferta educativa
+              {{ theme.hero.cta }}
             </button>
           </div>
         </div>
@@ -121,9 +129,7 @@ function fmt(n) {
   position: relative;
   display: block;
   padding: 0;
-  background-image: url('/img/fiinicio.webp');
-  background-size: cover;
-  background-position: center;
+  background: linear-gradient(160deg, var(--brand-primary-dark), var(--brand-primary));
   background-repeat: no-repeat;
   min-height: clamp(580px, 88vh, 820px);
   overflow: hidden;
@@ -243,7 +249,7 @@ function fmt(n) {
   color: var(--paper);
 }
 
-/* === Columna derecha: ABC + Estrategia + descripción + CTA === */
+/* === Columna derecha: logos + descripción + CTA === */
 .hero-right {
   grid-column: 2;
   grid-row: 3;
@@ -259,7 +265,7 @@ function fmt(n) {
   display: flex;
   align-items: center;
 }
-.hero-partner-abc {
+.hero-partner-logo {
   height: clamp(56px, 7vw, 86px);
   width: auto;
   display: block;
@@ -387,7 +393,6 @@ function fmt(n) {
 
 @media (max-width: 720px) {
   .site-hero-inner {
-    background-image: url('/img/fiinicio-mobile.webp');
     min-height: clamp(640px, 100vh, 900px);
   }
   .hero-grid {

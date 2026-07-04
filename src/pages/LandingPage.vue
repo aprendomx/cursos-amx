@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase.js'
 import LandingHero from '@/components/LandingHero.vue'
 import LandingCursoBloque from '@/components/LandingCursoBloque.vue'
-import LandingEstrategiaABC from '@/components/LandingEstrategiaABC.vue'
+import { theme } from '@/lib/theme.js'
+import { CUSTOM_SECTIONS } from '../../theme/sections/index.js'
 import LandingComoConstancia from '@/components/LandingComoConstancia.vue'
 import LandingNiveles from '@/components/LandingNiveles.vue'
 import LandingConstancia from '@/components/LandingConstancia.vue'
@@ -134,6 +135,13 @@ const cursosPorNivel = computed(() => {
   return counts
 })
 
+function sectionEnabled(name) {
+  return theme.landing.sections.includes(name)
+}
+const customSections = theme.landing.sections
+  .filter((name) => CUSTOM_SECTIONS[name])
+  .map((name) => ({ name, component: CUSTOM_SECTIONS[name] }))
+
 function goToCurso(curso, anchor = null) {
   router.push({ name: 'curso', params: { id: curso.id }, query: anchor ? { anchor } : undefined })
 }
@@ -163,14 +171,6 @@ function limpiarBusqueda() {
   searchQuery.value = ''
 }
 
-// Perfiles del módulo "Estrategia ABC de las emociones".
-// Los cursos específicos para cada perfil se construirán después;
-// por ahora redirigimos al catálogo con una marca por perfil.
-function onSeleccionarPerfilAbc(perfil) {
-  // perfil ∈ { 'servidor-publico', 'brigadista' }
-  router.push({ name: 'home', query: { anchor: 'catalogo', perfilAbc: perfil } })
-}
-
 function onDescargarConstancia() {
   // Si el usuario está autenticado y tiene constancia, llevarlo a su perfil
   // donde están listadas. Si no, al login. Por ahora navegamos a perfil.
@@ -178,12 +178,8 @@ function onDescargarConstancia() {
 }
 
 function onEnviarMensajeFaq() {
-  // CTA del FAQ → correo de soporte institucional. Cuando exista un
-  // formulario de contacto real (p. ej. /#/contacto) cambiar esto a
-  // emit('navigate', { name: 'contacto' }).
   window.location.href =
-    'mailto:REEMPLAZA_CON_CORREO_DE_SOPORTE?subject=' +
-    encodeURIComponent('Consulta — Plataforma de Capacitación')
+    `mailto:${theme.app.supportEmail}?subject=` + encodeURIComponent(`Consulta — ${theme.app.name}`)
 }
 </script>
 
@@ -270,17 +266,18 @@ function onEnviarMensajeFaq() {
       </div>
     </section>
 
-    <!-- Sección 3.5: Cursos Estrategia "ABC de las emociones" por perfil -->
-    <LandingEstrategiaABC @seleccionar-perfil="onSeleccionarPerfilAbc" />
+    <component :is="section.component" v-for="section in customSections" :key="section.name" />
 
-    <!-- Sección 3.6: Cómo obtener tu constancia (pasos + preview) -->
-    <LandingComoConstancia @descargar-constancia="onDescargarConstancia" />
+    <LandingComoConstancia
+      v-if="sectionEnabled('como-constancia')"
+      @descargar-constancia="onDescargarConstancia"
+    />
 
-    <LandingNiveles :cursos-por-nivel="cursosPorNivel" />
+    <LandingNiveles v-if="sectionEnabled('niveles')" :cursos-por-nivel="cursosPorNivel" />
 
-    <LandingConstancia />
+    <LandingConstancia v-if="sectionEnabled('constancia')" />
 
-    <LandingFaq @enviar-mensaje="onEnviarMensajeFaq" />
+    <LandingFaq v-if="sectionEnabled('faq')" @enviar-mensaje="onEnviarMensajeFaq" />
 
     <LandingFooter :cursos-count="cursos.length" />
   </div>

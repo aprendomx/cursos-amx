@@ -1,4 +1,6 @@
 <script setup>
+import { theme } from '@/lib/theme.js'
+
 defineProps({
   minimal: { type: Boolean, default: false },
 })
@@ -6,10 +8,10 @@ defineProps({
 
 <template>
   <div class="nav-logo">
-    <div class="nav-logo-mark">C</div>
+    <div class="nav-logo-mark">{{ theme.logos.mark }}</div>
     <div v-if="!minimal" class="nav-logo-text">
-      <b>CONASAMA</b>
-      <span>Plataforma &middot; Servidores p&uacute;blicos</span>
+      <b>{{ theme.app.name }}</b>
+      <span>{{ theme.app.tagline }}</span>
     </div>
   </div>
 </template>

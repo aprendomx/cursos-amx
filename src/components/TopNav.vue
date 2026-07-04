@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { featureEnabled } from '@/lib/featureFlags.js'
+import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
   user: { type: Object, default: () => ({}) },
@@ -57,18 +58,14 @@ watch(
       <a
         class="nav-brand"
         href="#"
-        aria-label="Inicio CONASAMA"
+        :aria-label="`Inicio ${theme.app.name}`"
         @click.prevent="go({ name: 'home' })"
       >
-        <img
-          class="nav-brand-logo"
-          src="/img/Logo_CONASAMA_blanco.png"
-          alt="CONASAMA — Comisión Nacional contra las Adicciones"
-        />
+        <img class="nav-brand-logo" :src="theme.logos.nav" :alt="theme.app.name" />
         <span class="nav-brand-divider" aria-hidden="true" />
         <span class="nav-brand-text">
-          <strong>Plataforma de Capacitación</strong>
-          <span>Formación de servidoras y servidores públicos</span>
+          <strong>{{ theme.nav.title }}</strong>
+          <span>{{ theme.nav.subtitle }}</span>
         </span>
       </a>
 
