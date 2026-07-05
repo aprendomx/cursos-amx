@@ -29,6 +29,7 @@ const emit = defineEmits(['update:modelValue', 'dirty'])
 const { t } = useI18n()
 
 let debounceTimer = null
+let hayPendiente = false
 const editor = useEditor({
   content: props.modelValue,
   extensions: [
@@ -37,15 +38,22 @@ const editor = useEditor({
   ],
   onUpdate({ editor: ed }) {
     emit('dirty')
+    hayPendiente = true
     clearTimeout(debounceTimer)
-    debounceTimer = setTimeout(() => emit('update:modelValue', ed.getJSON()), 1500)
+    debounceTimer = setTimeout(() => {
+      emit('update:modelValue', ed.getJSON())
+      hayPendiente = false
+      debounceTimer = null
+    }, 1500)
   },
 })
 
 function flush() {
-  if (!editor.value) return
+  if (!editor.value || !hayPendiente) return
   clearTimeout(debounceTimer)
+  debounceTimer = null
   emit('update:modelValue', editor.value.getJSON())
+  hayPendiente = false
 }
 
 function setLink() {
@@ -74,49 +82,62 @@ onBeforeUnmount(() => {
     <div v-if="editor" class="rich-toolbar" role="toolbar">
       <button
         data-test="tb-bold"
+        :aria-label="t('builder.tbBold')"
         :class="{ on: editor.isActive('bold') }"
         @click="editor.chain().focus().toggleBold().run()"
       >
         <b>B</b>
       </button>
       <button
+        :aria-label="t('builder.tbItalic')"
         :class="{ on: editor.isActive('italic') }"
         @click="editor.chain().focus().toggleItalic().run()"
       >
         <i>I</i>
       </button>
       <button
+        :aria-label="t('builder.tbH2')"
         :class="{ on: editor.isActive('heading', { level: 2 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
       >
         H2
       </button>
       <button
+        :aria-label="t('builder.tbH3')"
         :class="{ on: editor.isActive('heading', { level: 3 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
       >
         H3
       </button>
       <button
+        :aria-label="t('builder.tbBullet')"
         :class="{ on: editor.isActive('bulletList') }"
         @click="editor.chain().focus().toggleBulletList().run()"
       >
         ••
       </button>
       <button
+        :aria-label="t('builder.tbOrdered')"
         :class="{ on: editor.isActive('orderedList') }"
         @click="editor.chain().focus().toggleOrderedList().run()"
       >
         1.
       </button>
       <button
+        :aria-label="t('builder.tbQuote')"
         :class="{ on: editor.isActive('blockquote') }"
         @click="editor.chain().focus().toggleBlockquote().run()"
       >
         "
       </button>
-      <button :class="{ on: editor.isActive('link') }" @click="setLink">🔗</button>
-      <button @click="addImage">🖼</button>
+      <button
+        :aria-label="t('builder.tbLink')"
+        :class="{ on: editor.isActive('link') }"
+        @click="setLink"
+      >
+        🔗
+      </button>
+      <button :aria-label="t('builder.tbImage')" @click="addImage">🖼</button>
     </div>
     <EditorContent :editor="editor" class="rich-content" />
   </div>

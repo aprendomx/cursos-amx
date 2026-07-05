@@ -76,6 +76,17 @@ describe('LessonRichTextEditor', () => {
     w.unmount()
   })
 
+  it('flush() tras debounce ya disparado no emite por segunda vez (anti double-emit)', async () => {
+    const w = factory()
+    await nextTick()
+    w.vm.editor.commands.insertContent(' extra')
+    vi.advanceTimersByTime(1600) // debounce fires → emitted once
+    expect(w.emitted('update:modelValue')).toHaveLength(1)
+    w.vm.flush() // hayPendiente is false → should be a no-op
+    expect(w.emitted('update:modelValue')).toHaveLength(1) // still exactly 1
+    w.unmount()
+  })
+
   it('la toolbar aplica negritas', async () => {
     const w = factory()
     await nextTick()

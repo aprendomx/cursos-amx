@@ -51,6 +51,15 @@
     "markComplete": "Mark as complete",
     "validationSummary": "{modules} modules · {lessons} lessons · {warnings} empty",
     "dragHint": "New visual builder — drag to reorder",
-    "lessonMenu": "Lesson options"
+    "lessonMenu": "Lesson options",
+    "tbBold": "Bold",
+    "tbItalic": "Italic",
+    "tbH2": "Heading 2",
+    "tbH3": "Heading 3",
+    "tbBullet": "Bulleted list",
+    "tbOrdered": "Numbered list",
+    "tbQuote": "Blockquote",
+    "tbLink": "Insert link",
+    "tbImage": "Insert image"
   }
 }

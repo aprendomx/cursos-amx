@@ -51,6 +51,15 @@
     "markComplete": "Marcar como completada",
     "validationSummary": "{modules} módulos · {lessons} lecciones · {warnings} sin contenido",
     "dragHint": "Nuevo constructor visual — arrastra para reordenar",
-    "lessonMenu": "Opciones de la lección"
+    "lessonMenu": "Opciones de la lección",
+    "tbBold": "Negritas",
+    "tbItalic": "Cursiva",
+    "tbH2": "Título 2",
+    "tbH3": "Título 3",
+    "tbBullet": "Lista con viñetas",
+    "tbOrdered": "Lista numerada",
+    "tbQuote": "Cita",
+    "tbLink": "Insertar enlace",
+    "tbImage": "Insertar imagen"
   }
 }
