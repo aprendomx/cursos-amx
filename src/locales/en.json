@@ -52,6 +52,8 @@
     "validationSummary": "{modules} modules · {lessons} lessons · {warnings} empty",
     "dragHint": "New visual builder — drag to reorder",
     "lessonMenu": "Lesson options",
+    "youtubeUrl": "YouTube URL",
+    "youtubePreview": "Preview",
     "tbBold": "Bold",
     "tbItalic": "Italic",
     "tbH2": "Heading 2",

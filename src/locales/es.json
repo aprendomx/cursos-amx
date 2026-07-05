@@ -52,6 +52,8 @@
     "validationSummary": "{modules} módulos · {lessons} lecciones · {warnings} sin contenido",
     "dragHint": "Nuevo constructor visual — arrastra para reordenar",
     "lessonMenu": "Opciones de la lección",
+    "youtubeUrl": "URL de YouTube",
+    "youtubePreview": "Vista previa",
     "tbBold": "Negritas",
     "tbItalic": "Cursiva",
     "tbH2": "Título 2",

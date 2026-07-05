@@ -48,15 +48,37 @@ const local = ref(null)
 const dirty = ref(false)
 const richRef = ref(null)
 const duracionStr = ref('')
+let preguntasSnapshot = ''
 
 watch(
   () => props.lesson,
   (l) => {
-    local.value = l ? { ...l, fuente: l.fuente || fuenteDe(l), preguntas: l.preguntas || [] } : null
+    local.value = l
+      ? {
+          ...l,
+          fuente: l.fuente || fuenteDe(l),
+          // Finding 2: deep-copy to avoid aliasing parent's preguntas array
+          preguntas: (l.preguntas || []).map((p) => ({
+            ...p,
+            opciones: (p.opciones || []).map((o) => ({ ...o })),
+          })),
+        }
+      : null
     duracionStr.value = l ? segToDuracion(l.duracion_seg) : ''
     dirty.value = false
+    // Finding 3: snapshot taken AFTER building local, so open doesn't mark dirty
+    preguntasSnapshot = JSON.stringify(local.value?.preguntas ?? [])
   },
   { immediate: true }
+)
+
+// Finding 3: deep watch on preguntas for exam-editor mutations
+watch(
+  () => local.value?.preguntas,
+  (p) => {
+    if (local.value && JSON.stringify(p) !== preguntasSnapshot) marcarDirty()
+  },
+  { deep: true }
 )
 
 const abierto = computed(() => !!local.value)
@@ -83,118 +105,122 @@ function guardar() {
 </script>
 
 <template>
-  <template v-if="abierto">
-    <div class="panel-backdrop" @click="onEsc" />
-    <aside
-      class="panel"
-      role="dialog"
-      aria-modal="true"
-      :aria-label="t('builder.editLesson')"
-      tabindex="-1"
-      @keydown.esc="onEsc"
-    >
-      <header class="panel-header">
-        <h3>{{ t('builder.editLesson') }}</h3>
-        <span v-if="dirty" class="unsaved">{{ t('builder.unsaved') }}</span>
-        <button class="panel-close" :aria-label="t('builder.cancel')" @click="onEsc">✕</button>
-      </header>
+  <!-- Finding 1: teleport to body so position:fixed escapes any transform-retaining ancestor -->
+  <teleport to="body">
+    <template v-if="abierto">
+      <div class="panel-backdrop" @click="onEsc" />
+      <aside
+        class="panel"
+        role="dialog"
+        aria-modal="true"
+        :aria-label="t('builder.editLesson')"
+        tabindex="-1"
+        @keydown.esc="onEsc"
+      >
+        <header class="panel-header">
+          <h3>{{ t('builder.editLesson') }}</h3>
+          <span v-if="dirty" class="unsaved">{{ t('builder.unsaved') }}</span>
+          <button class="panel-close" :aria-label="t('builder.cancel')" @click="onEsc">✕</button>
+        </header>
 
-      <div class="panel-body">
-        <label class="field">
-          {{ t('builder.title') }}
-          <input
-            v-model="local.titulo"
-            data-test="lesson-titulo"
-            type="text"
-            @input="marcarDirty"
-          />
-        </label>
-
-        <fieldset class="field">
-          <legend>{{ t('builder.source') }}</legend>
-          <label v-for="f in FUENTES" :key="f" class="radio">
+        <div class="panel-body">
+          <label class="field">
+            {{ t('builder.title') }}
             <input
-              v-model="local.fuente"
-              type="radio"
-              name="fuente"
-              :value="f"
-              :data-test="`fuente-${f}`"
-              @change="marcarDirty"
+              v-model="local.titulo"
+              data-test="lesson-titulo"
+              type="text"
+              @input="marcarDirty"
             />
-            {{ t(`builder.source${f.charAt(0).toUpperCase() + f.slice(1)}`) }}
           </label>
-        </fieldset>
 
-        <label v-if="local.fuente === 'youtube'" class="field">
-          URL de YouTube
-          <input
-            v-model="local.url_youtube"
-            type="url"
-            placeholder="https://youtube.com/watch?v=…"
-            @input="marcarDirty"
+          <fieldset class="field">
+            <legend>{{ t('builder.source') }}</legend>
+            <label v-for="f in FUENTES" :key="f" class="radio">
+              <input
+                v-model="local.fuente"
+                type="radio"
+                name="fuente"
+                :value="f"
+                :data-test="`fuente-${f}`"
+                @change="marcarDirty"
+              />
+              {{ t(`builder.source${f.charAt(0).toUpperCase() + f.slice(1)}`) }}
+            </label>
+          </fieldset>
+
+          <!-- Finding 4: i18n keys for hardcoded YouTube literals -->
+          <label v-if="local.fuente === 'youtube'" class="field">
+            {{ t('builder.youtubeUrl') }}
+            <input
+              v-model="local.url_youtube"
+              type="url"
+              placeholder="https://youtube.com/watch?v=…"
+              @input="marcarDirty"
+            />
+            <iframe
+              v-if="/youtu\.?be/.test(local.url_youtube || '')"
+              class="yt-preview"
+              :src="`https://www.youtube.com/embed/${(local.url_youtube.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/) || [])[1] || ''}?rel=0`"
+              :title="t('builder.youtubePreview')"
+            />
+          </label>
+
+          <!-- VideoUploadField: real props leccionId + videoId, emit videoId-updated -->
+          <VideoUploadField
+            v-if="local.fuente === 'hls'"
+            :leccion-id="local.id"
+            :video-id="local.video_id || null"
+            @video-id-updated="
+              (id) => {
+                local.video_id = id
+                marcarDirty()
+              }
+            "
           />
-          <iframe
-            v-if="/youtu\.?be/.test(local.url_youtube || '')"
-            class="yt-preview"
-            :src="`https://www.youtube.com/embed/${(local.url_youtube.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/) || [])[1] || ''}?rel=0`"
-            title="Preview"
+
+          <!-- DocumentoUploadField: real props leccionId + documentoPath + documentoTipo, emit documento-updated -->
+          <DocumentoUploadField
+            v-if="local.fuente === 'documento'"
+            :leccion-id="local.id"
+            :documento-path="local.documento_path || null"
+            :documento-tipo="local.documento_tipo || null"
+            @documento-updated="
+              (data) => {
+                local.documento_path = data?.path || null
+                local.documento_tipo = data?.tipo || null
+                marcarDirty()
+              }
+            "
           />
-        </label>
 
-        <!-- VideoUploadField: real props leccionId + videoId, emit videoId-updated -->
-        <VideoUploadField
-          v-if="local.fuente === 'hls'"
-          :leccion-id="local.id"
-          :video-id="local.video_id || null"
-          @video-id-updated="
-            (id) => {
-              local.video_id = id
-              marcarDirty()
-            }
-          "
-        />
+          <!-- EvaluacionEditor: real prop preguntas (mutates in-place, no emits) -->
+          <EvaluacionEditor v-if="local.fuente === 'examen'" :preguntas="local.preguntas" />
 
-        <!-- DocumentoUploadField: real props leccionId + documentoPath + documentoTipo, emit documento-updated -->
-        <DocumentoUploadField
-          v-if="local.fuente === 'documento'"
-          :leccion-id="local.id"
-          :documento-path="local.documento_path || null"
-          :documento-tipo="local.documento_tipo || null"
-          @documento-updated="
-            (data) => {
-              local.documento_path = data?.path || null
-              local.documento_tipo = data?.tipo || null
-              marcarDirty()
-            }
-          "
-        />
+          <LessonRichTextEditor
+            v-if="local.fuente === 'texto'"
+            ref="richRef"
+            v-model="local.contenido"
+            @dirty="marcarDirty"
+          />
 
-        <!-- EvaluacionEditor: real prop preguntas (mutates in-place, no emits) -->
-        <EvaluacionEditor v-if="local.fuente === 'examen'" :preguntas="local.preguntas" />
+          <label class="field">
+            {{ t('builder.duration') }}
+            <input v-model="duracionStr" type="text" placeholder="12:30" @input="marcarDirty" />
+          </label>
+        </div>
 
-        <LessonRichTextEditor
-          v-if="local.fuente === 'texto'"
-          ref="richRef"
-          v-model="local.contenido"
-          @dirty="marcarDirty"
-        />
-
-        <label class="field">
-          {{ t('builder.duration') }}
-          <input v-model="duracionStr" type="text" placeholder="12:30" @input="marcarDirty" />
-        </label>
-      </div>
-
-      <footer class="panel-footer">
-        <button class="btn-secondary" data-test="panel-cancel" @click="emit('close')">
-          {{ t('builder.cancel') }}
-        </button>
-        <button class="btn-primary" data-test="panel-save" @click="guardar">
-          {{ t('builder.save') }}
-        </button>
-      </footer>
-    </aside>
-  </template>
+        <footer class="panel-footer">
+          <button class="btn-secondary" data-test="panel-cancel" @click="emit('close')">
+            {{ t('builder.cancel') }}
+          </button>
+          <button class="btn-primary" data-test="panel-save" @click="guardar">
+            {{ t('builder.save') }}
+          </button>
+        </footer>
+      </aside>
+    </template>
+  </teleport>
 </template>
 
 <style scoped>
