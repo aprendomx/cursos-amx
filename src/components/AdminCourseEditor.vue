@@ -9,6 +9,7 @@ import EvaluacionEditor from '@/components/EvaluacionEditor.vue'
 import { uploadPortada, deletePortada } from '@/services/portadas.js'
 import { cargarPreguntasAdmin, guardarEvaluacionAdmin } from '@/services/evaluaciones.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
+import { parseDuracionToSeg } from '@/lib/duracion.js'
 
 const props = defineProps({
   session: { type: Object, default: null },
@@ -86,18 +87,6 @@ function createBlankCurso() {
       },
     ],
   }
-}
-
-function parseDuracionToSeg(input) {
-  if (!input) return 0
-  const s = String(input).trim()
-  if (!s) return 0
-  if (/^\d+$/.test(s)) return parseInt(s, 10)
-  const parts = s.split(':').map((p) => parseInt(p, 10))
-  if (parts.some(Number.isNaN)) return 0
-  if (parts.length === 2) return parts[0] * 60 + parts[1]
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2]
-  return 0
 }
 
 function parseEntregaTipos(csv) {
