@@ -73,6 +73,12 @@ describe('ModuleList', () => {
     expect(w.emitted('reorder')).toEqual([[0, 1]])
   })
 
+  it('botón ↑ en segundo módulo emite reorder [1, 0]', async () => {
+    const w = factory()
+    await w.findAll('[data-test="module-up"]')[0].trigger('click')
+    expect(w.emitted('reorder')).toEqual([[1, 0]])
+  })
+
   it('estado vacío muestra invitación', () => {
     const w = factory({ modules: [] })
     expect(w.text()).toContain('Comienza agregando tu primer módulo')

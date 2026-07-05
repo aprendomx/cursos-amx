@@ -27,6 +27,8 @@
     "duplicate": "Duplicar",
     "delete": "Eliminar",
     "moveTo": "Mover a…",
+    "moveUp": "Subir {title}",
+    "moveDown": "Bajar {title}",
     "deleteLessonConfirm": "¿Eliminar la lección \"{title}\"?",
     "editLesson": "Editar lección",
     "title": "Título",

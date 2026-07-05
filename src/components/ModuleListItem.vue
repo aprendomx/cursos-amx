@@ -74,7 +74,7 @@ function confirmarRenombrar() {
       <button
         v-if="!isFirst"
         data-test="module-up"
-        :aria-label="`${module.titulo} arriba`"
+        :aria-label="t('builder.moveUp', { title: module.titulo })"
         @click.stop="emit('move-up')"
       >
         ↑
@@ -82,7 +82,7 @@ function confirmarRenombrar() {
       <button
         v-if="!isLast"
         data-test="module-down"
-        :aria-label="`${module.titulo} abajo`"
+        :aria-label="t('builder.moveDown', { title: module.titulo })"
         @click.stop="emit('move-down')"
       >
         ↓
