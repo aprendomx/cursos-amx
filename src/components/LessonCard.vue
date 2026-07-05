@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import IconSet from '@/components/IconSet.vue'
 import { segToDuracion } from '@/lib/duracion.js'
@@ -13,6 +13,19 @@ const emit = defineEmits(['edit', 'delete', 'duplicate', 'move-to'])
 const { t } = useI18n()
 
 const menuOpen = ref(false)
+
+function cerrarMenu() {
+  menuOpen.value = false
+}
+
+watch(menuOpen, (open) => {
+  if (open) document.addEventListener('click', cerrarMenu)
+  else document.removeEventListener('click', cerrarMenu)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', cerrarMenu)
+})
 
 const ICONS = {
   youtube: 'video',
@@ -71,6 +84,7 @@ function doMoveTo(mi) {
       data-test="lesson-menu"
       aria-haspopup="menu"
       :aria-expanded="menuOpen"
+      :aria-label="t('builder.lessonMenu')"
       @click.stop="menuOpen = !menuOpen"
     >
       ⋯
@@ -178,7 +192,7 @@ function doMoveTo(mi) {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-pop);
   min-width: 160px;
 }
 .lesson-menu button {

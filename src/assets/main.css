@@ -53,6 +53,9 @@
 
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Shadows */
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 [data-density='compact'] {
@@ -82,6 +85,7 @@
   --ink-2: #b0b0b0;
   --ink-3: #808080;
   --ink-4: #505050;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 * {

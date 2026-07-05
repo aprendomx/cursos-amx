@@ -79,6 +79,15 @@ describe('LessonTimeline', () => {
     expect(w.emitted('duplicate')).toEqual([[0]])
   })
 
+  it('eliminar NO emite remove si el usuario cancela la confirmación', async () => {
+    const spy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const w = factory()
+    await w.findAll('[data-test="lesson-menu"]')[0].trigger('click')
+    await w.findAll('[data-test="lesson-delete"]')[0].trigger('click')
+    expect(w.emitted('remove')).toBeFalsy()
+    spy.mockRestore()
+  })
+
   it('botón + emite add y estado vacío invita a arrastrar', async () => {
     const w = factory({ lessons: [] })
     expect(w.text()).toContain('Arrastra lecciones aquí o haz clic en +')

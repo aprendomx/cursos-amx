@@ -50,6 +50,7 @@
     "imagePrompt": "Image URL:",
     "markComplete": "Mark as complete",
     "validationSummary": "{modules} modules · {lessons} lessons · {warnings} empty",
-    "dragHint": "New visual builder — drag to reorder"
+    "dragHint": "New visual builder — drag to reorder",
+    "lessonMenu": "Lesson options"
   }
 }
