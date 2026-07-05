@@ -22,13 +22,30 @@ export function useCourseBuilder(cursoId) {
   const error = ref(null)
 
   // Cola: serializa persistencias para que drags rápidos no se pisen.
-  // En fallo: error visible + recarga del servidor (consistencia garantizada).
+  // En fallo: error visible + recarga diferida al vaciar la cola.
+  // La recarga es diferida (no inmediata) porque las ops encoladas DETRÁS de un
+  // fallo ya se aplicaron optimistamente al árbol local y deben persistir primero;
+  // recargar antes de que terminen sobreescribiría esos cambios locales con datos
+  // desactualizados del servidor → divergencia árbol/servidor.
   let cola = Promise.resolve()
+  let pendientes = 0
+  let recargaPendiente = false
+
   function encolar(op) {
-    cola = cola.then(op).catch(async (e) => {
-      error.value = e
-      await recargar().catch(() => {})
-    })
+    pendientes++
+    cola = cola
+      .then(op)
+      .catch((e) => {
+        error.value = e
+        recargaPendiente = true
+      })
+      .then(async () => {
+        pendientes--
+        if (recargaPendiente && pendientes === 0) {
+          recargaPendiente = false
+          await recargar().catch(() => {})
+        }
+      })
     return cola
   }
 

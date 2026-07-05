@@ -100,4 +100,103 @@ describe('useCourseBuilder', () => {
     await Promise.all([p1, p2])
     expect(llamadas).toEqual(['A', 'B'])
   })
+
+  it('cola se recupera tras un fallo y el reload es diferido', async () => {
+    // actualizarModulo falla; reordenarModulos (op encolada detrás) debe
+    // ejecutarse antes del reload para no perder el cambio local ya aplicado.
+    const callLog = []
+    svc.fetchEstructura.mockImplementation(async () => {
+      callLog.push('fetchEstructura')
+      return arbol()
+    })
+    svc.actualizarModulo.mockImplementation(async () => {
+      callLog.push('actualizarModulo')
+      throw new Error('net')
+    })
+    svc.reordenarModulos.mockImplementation(async () => {
+      callLog.push('reordenarModulos')
+    })
+
+    const cb = useCourseBuilder('c1')
+    await cb.cargar()
+    callLog.length = 0 // borrar la llamada inicial a fetchEstructura
+
+    // Encolar las dos ops sin await intermedio
+    const p1 = cb.editarModulo('m1', { titulo: 'X' })
+    const p2 = cb.moverModulo(1, 0)
+    await Promise.all([p1, p2])
+
+    expect(svc.reordenarModulos).toHaveBeenCalled() // cola no envenenada
+    expect(cb.error.value).toBeTruthy()
+    // El reload ocurre DESPUÉS de que reordenarModulos persiste
+    expect(callLog).toEqual(['actualizarModulo', 'reordenarModulos', 'fetchEstructura'])
+  })
+
+  it('moverLeccion mismo módulo recalcula orden correcto', async () => {
+    // Árbol con dos lecciones en m1: l1(orden 1) y l2(orden 2)
+    // Mover l1 al índice 1 → destinoSin=[l2(2)], ordenParaIndice max+1 = 3
+    svc.fetchEstructura.mockResolvedValue([
+      {
+        id: 'm1',
+        orden: 1,
+        titulo: 'M1',
+        lecciones: [
+          { id: 'l1', orden: 1, modulo_id: 'm1' },
+          { id: 'l2', orden: 2, modulo_id: 'm1' },
+        ],
+      },
+      { id: 'm2', orden: 2, titulo: 'M2', lecciones: [] },
+    ])
+    svc.reordenarLecciones.mockResolvedValue()
+    const cb = useCourseBuilder('c1')
+    await cb.cargar()
+
+    await cb.moverLeccion('l1', 'm1', 1)
+
+    const m1 = cb.modulos.value[0]
+    expect(m1.lecciones.map((l) => l.id)).toEqual(['l2', 'l1'])
+    // destinoSin=[l2(orden 2)], index=1 >= n=1 → max+1 = 3
+    expect(svc.reordenarLecciones).toHaveBeenCalledWith([{ id: 'l1', modulo_id: 'm1', orden: 3 }])
+  })
+
+  it('moverLeccion dispara renormalización cuando gap < EPSILON', async () => {
+    // m1 ya tiene dos lecciones con gap=1e-10 < EPSILON(1e-9).
+    // Al insertar l3 (de m2) en índice 1 de m1, la lista intermedia tiene
+    // gap=5e-11 → necesitaRenormalizar → reordenarLecciones recibe batch completo.
+    svc.fetchEstructura.mockResolvedValue([
+      {
+        id: 'm1',
+        orden: 1,
+        titulo: 'M1',
+        lecciones: [
+          { id: 'l1', orden: 1, modulo_id: 'm1' },
+          { id: 'l2', orden: 1 + 1e-10, modulo_id: 'm1' },
+        ],
+      },
+      {
+        id: 'm2',
+        orden: 2,
+        titulo: 'M2',
+        lecciones: [{ id: 'l3', orden: 1, modulo_id: 'm2' }],
+      },
+    ])
+    svc.reordenarLecciones.mockResolvedValue()
+    const cb = useCourseBuilder('c1')
+    await cb.cargar()
+
+    // Insertar l3 entre l1 y l2 en m1:
+    // destinoSin=[l1(1),l2(1+1e-10)], orden=promedio=(1+1+1e-10)/2=1+5e-11
+    // listaDestino=[l1(1), l3(1+5e-11), l2(1+1e-10)] → gap=5e-11 < EPSILON → renorm
+    // renorm: l1→1, l3→2, l2→3
+    await cb.moverLeccion('l3', 'm1', 1)
+
+    const m1 = cb.modulos.value[0]
+    expect(m1.lecciones.map((l) => l.id)).toEqual(['l1', 'l3', 'l2'])
+    expect(m1.lecciones.map((l) => l.orden)).toEqual([1, 2, 3])
+    expect(svc.reordenarLecciones).toHaveBeenCalledWith([
+      { id: 'l1', modulo_id: 'm1', orden: 1 },
+      { id: 'l3', modulo_id: 'm1', orden: 2 },
+      { id: 'l2', modulo_id: 'm1', orden: 3 },
+    ])
+  })
 })
