@@ -45,7 +45,7 @@ Este spec define un **constructor visual dual** que permite:
 
 ### Componente refactorizado
 
-- `AdminCourseEditor.vue` — el step 1 (Estructura) se simplifica a un wrapper que monta `CourseBuilder` y recibe `update` para sincronizar `editingCurso`. Los steps 0 (Básico) y 2 (Revisar) no cambian.
+- `AdminCourseEditor.vue` — el step 1 (Estructura) se simplifica a un wrapper que monta `CourseBuilder` y recibe `structure-changed` para la barra de validación (v2, §7). Los steps 0 (Básico) y 2 (Revisar) no cambian, salvo el auto-borrador al avanzar de step 0 (§7.2).
 
 ---
 
