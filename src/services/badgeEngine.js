@@ -12,25 +12,28 @@ export async function evaluarBadges(userId) {
   for (const badge of badges || []) {
     const cumple = await evaluarCriterio(userId, badge.criterio_tipo, badge.criterio_config)
     if (cumple) {
-      const { data: existente } = await supabase
+      const { data: existente, error: errExistente } = await supabase
         .from('badge_usuarios')
         .select('id')
         .eq('usuario_id', userId)
         .eq('badge_id', badge.id)
         .single()
+      if (errExistente && errExistente.code !== 'PGRST116') throw errExistente
       if (!existente) {
-        await supabase.from('badge_usuarios').insert({
+        const { error: errInsert } = await supabase.from('badge_usuarios').insert({
           usuario_id: userId,
           badge_id: badge.id,
         })
+        if (errInsert) throw errInsert
         // Otorgar puntos del badge
-        await supabase.rpc('otorgar_puntos', {
+        const { error: errPuntos } = await supabase.rpc('otorgar_puntos', {
           p_usuario_id: userId,
           p_fuente_tipo: 'badge_desbloqueado',
           p_fuente_id: badge.id,
           p_puntos: badge.puntos_otorga,
           p_descripcion: `Badge desbloqueado: ${badge.nombre}`,
         })
+        if (errPuntos) throw errPuntos
         nuevos.push(badge)
       }
     }
