@@ -61,7 +61,11 @@
 - **Backend Supabase self-hosted** (Postgres 15, Auth, Storage, Edge Functions, Realtime)
 - **Video HLS** con worker de transcodificación (ffmpeg) y subida reanudable (tus)
 - **Constancias PDF** con folio y verificación pública por QR
-- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones
+- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones, rúbricas, cohortes, importación masiva
+- **Evaluaciones avanzadas** — 6 tipos de pregunta: opción única, múltiple, verdadero/falso, emparejamiento, rellenar huecos y ensayo
+- **Rúbricas de evaluación** — editor visual de criterios y niveles de desempeño, asignables a evaluaciones o preguntas individuales
+- **Cohortes (grupos)** — agrupa alumnos por curso con cupo máximo, fechas y foro privado exclusivo
+- **Importación masiva de usuarios** — carga por CSV con validación en tiempo real y Edge Function `bulk-invite`
 - **Personalización completa** vía `theme/theme.config.js` (ver [THEMING.md](THEMING.md))
 - **Dark mode** con selector Claro / Oscuro / Sistema
 - **i18n base** con `vue-i18n` (es/en listos para extender)
@@ -69,9 +73,16 @@
 - **CI/CD** con GitHub Actions (lint + test + build)
 - **Prerender SEO** de rutas públicas con Playwright (`npm run prerender`)
 - **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
-- **Dark mode** con selector Claro / Oscuro / Sistema
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
+
+## Novedades v0.5.0 — Fase 1 Núcleo Educativo
+
+- **Evaluaciones avanzadas** — 3 nuevos tipos de pregunta: emparejamiento, rellenar huecos y ensayo, además de los clásicos (opción única, múltiple, verdadero/falso).
+- **Sistema de rúbricas** — Crea rúbricas con criterios y niveles de desempeño desde el panel admin. Asignables a evaluaciones completas o a preguntas de ensayo individuales.
+- **Cohortes (grupos)** — Organiza alumnos en cohortes por curso, con cupo máximo, fechas de inicio/fin y foro privado exclusivo para cada grupo.
+- **Importación masiva de usuarios** — Sube un CSV con nombre, email, apellidos, teléfono y cargo. Validación en tiempo real y creación masiva vía Edge Function `bulk-invite`.
+- **Feature flags runtime** — Todos los nuevos módulos se activan/desactivan desde la tabla `feature_toggles` en Supabase, sin redeploy.
 
 ## Inicio rápido (desarrollo)
 
@@ -117,8 +128,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–030)
-  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url)
+  migrations/   Esquema versionado en SQL (001–038)
+  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite)
 
 services/
   video-worker/ Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
@@ -130,7 +141,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 38 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 118 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
