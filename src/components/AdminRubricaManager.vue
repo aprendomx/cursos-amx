@@ -54,21 +54,12 @@ onMounted(cargar)
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          Evaluación
-        </p>
-        <h1
-          class="display"
-          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
-        >
+        <p class="eyebrow">Evaluación</p>
+        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
           Rúbricas
         </h1>
       </div>
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm"
-        @click="onNueva"
-      >
+      <button type="button" class="btn btn-secondary btn-sm" @click="onNueva">
         + Nueva rúbrica
       </button>
     </div>
@@ -91,42 +82,25 @@ onMounted(cargar)
       "
     />
 
-    <div
-      v-else
-      class="card"
-      :style="{ overflow: 'auto' }"
-    >
+    <div v-else class="card" :style="{ overflow: 'auto' }">
       <table class="admin-table admin-table-full">
         <thead>
           <tr>
-            <th class="mono">
-              Nombre
-            </th>
-            <th class="mono">
-              Criterios
-            </th>
-            <th class="mono">
-              Niveles (max)
-            </th>
+            <th class="mono">Nombre</th>
+            <th class="mono">Criterios</th>
+            <th class="mono">Niveles (max)</th>
             <th class="mono" />
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="r in rubricas"
-            :key="r.id"
-          >
+          <tr v-for="r in rubricas" :key="r.id">
             <td>{{ r.nombre }}</td>
             <td>{{ r.criterios?.length || 0 }}</td>
             <td>
               {{ Math.max(0, ...(r.criterios || []).map((c) => c.niveles?.length || 0)) }}
             </td>
             <td :style="{ textAlign: 'right' }">
-              <button
-                type="button"
-                class="btn btn-ghost btn-sm"
-                @click="onEditar(r)"
-              >
+              <button type="button" class="btn btn-ghost btn-sm" @click="onEditar(r)">
                 Editar
               </button>
               <button
