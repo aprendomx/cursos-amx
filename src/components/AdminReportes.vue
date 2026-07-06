@@ -252,12 +252,21 @@ function exportReportCsv() {
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">An&aacute;lisis</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <p class="eyebrow">
+          An&aacute;lisis
+        </p>
+        <h1
+          class="display"
+          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Reportes
         </h1>
       </div>
-      <button v-if="reportRows.length" class="btn btn-ghost btn-sm" @click="exportReportCsv">
+      <button
+        v-if="reportRows.length"
+        class="btn btn-ghost btn-sm"
+        @click="exportReportCsv"
+      >
         Descargar CSV
         <IconSet name="arrow" />
       </button>
@@ -271,7 +280,10 @@ function exportReportCsv() {
         :class="{ active: selectedReport?.key === r.key }"
         @click="runReport(r)"
       >
-        <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-4)', minWidth: '28px' }"
+        >
           {{ String(i + 1).padStart(2, '0') }}
         </span>
         <span
@@ -287,16 +299,25 @@ function exportReportCsv() {
         />
       </button>
     </div>
-    <div v-if="selectedReport" :style="{ marginTop: 'calc(var(--unit) * 4)' }">
+    <div
+      v-if="selectedReport"
+      :style="{ marginTop: 'calc(var(--unit) * 4)' }"
+    >
       <div :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
         <p class="eyebrow">
           {{ selectedReport.label }}
         </p>
-        <p class="mono" :style="{ color: 'var(--ink-4)', marginTop: '4px' }">
+        <p
+          class="mono"
+          :style="{ color: 'var(--ink-4)', marginTop: '4px' }"
+        >
           {{ reportLoading ? 'Generando\u2026' : `${reportRows.length} resultado(s)` }}
         </p>
       </div>
-      <div v-if="reportError" class="publish-status publish-status-error">
+      <div
+        v-if="reportError"
+        class="publish-status publish-status-error"
+      >
         {{ reportError }}
       </div>
       <div
@@ -321,18 +342,32 @@ function exportReportCsv() {
       >
         Sin resultados.
       </div>
-      <div v-else class="card" :style="{ overflow: 'auto' }">
+      <div
+        v-else
+        class="card"
+        :style="{ overflow: 'auto' }"
+      >
         <table class="admin-table admin-table-full">
           <thead>
             <tr>
-              <th v-for="col in reportColumns" :key="col" class="mono">
+              <th
+                v-for="col in reportColumns"
+                :key="col"
+                class="mono"
+              >
                 {{ col }}
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, i) in reportRows" :key="i">
-              <td v-for="col in reportColumns" :key="col">
+            <tr
+              v-for="(row, i) in reportRows"
+              :key="i"
+            >
+              <td
+                v-for="col in reportColumns"
+                :key="col"
+              >
                 {{ row[col] }}
               </td>
             </tr>

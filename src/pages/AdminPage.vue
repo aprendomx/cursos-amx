@@ -47,11 +47,26 @@ function handleDeleted(curso) {
 </script>
 
 <template>
-  <div class="admin-layout" :class="{ 'sidebar-hidden': sidebarHidden }">
-    <aside v-show="!sidebarHidden" id="admin-sidebar" class="admin-sidebar">
+  <div
+    class="admin-layout"
+    :class="{ 'sidebar-hidden': sidebarHidden }"
+  >
+    <aside
+      v-show="!sidebarHidden"
+      id="admin-sidebar"
+      class="admin-sidebar"
+    >
       <div class="admin-sidebar-header">
-        <p class="eyebrow" :style="{ color: 'var(--brand-accent)' }">Panel admin</p>
-        <h2 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--brand-accent)' }"
+        >
+          Panel admin
+        </p>
+        <h2
+          class="display"
+          :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Operaci&oacute;n
         </h2>
       </div>
@@ -102,13 +117,22 @@ function handleDeleted(curso) {
         @published="handlePublished"
       />
 
-      <AdminUserManager v-else-if="activeSection === 'usuarios'" :session="session" />
+      <AdminUserManager
+        v-else-if="activeSection === 'usuarios'"
+        :session="session"
+      />
 
       <AdminInstructorManager v-else-if="activeSection === 'instructores'" />
 
-      <AdminConstancias v-else-if="activeSection === 'constancias'" :metrics="metrics" />
+      <AdminConstancias
+        v-else-if="activeSection === 'constancias'"
+        :metrics="metrics"
+      />
 
-      <AdminReportes v-else-if="activeSection === 'reportes'" :session="session" />
+      <AdminReportes
+        v-else-if="activeSection === 'reportes'"
+        :session="session"
+      />
 
       <AdminConfig v-else-if="activeSection === 'config'" />
     </main>

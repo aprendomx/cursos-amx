@@ -6,7 +6,9 @@ defineProps({
 
 <template>
   <div class="admin-content fade-in admin-centered">
-    <p class="eyebrow">Constancias emitidas</p>
+    <p class="eyebrow">
+      Constancias emitidas
+    </p>
     <div
       class="display"
       :style="{

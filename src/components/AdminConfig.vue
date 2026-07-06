@@ -52,8 +52,13 @@ onMounted(loadConstConfig)
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">Plataforma</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <p class="eyebrow">
+          Plataforma
+        </p>
+        <h1
+          class="display"
+          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Configuraci&oacute;n de la constancia
         </h1>
         <p
@@ -69,10 +74,20 @@ onMounted(loadConstConfig)
         </p>
       </div>
     </div>
-    <div v-if="constConfigLoading" class="config-card">
-      <span class="mono" :style="{ color: 'var(--ink-3)' }">Cargando…</span>
+    <div
+      v-if="constConfigLoading"
+      class="config-card"
+    >
+      <span
+        class="mono"
+        :style="{ color: 'var(--ink-3)' }"
+      >Cargando…</span>
     </div>
-    <form v-else class="config-card" @submit.prevent="saveConstConfig">
+    <form
+      v-else
+      class="config-card"
+      @submit.prevent="saveConstConfig"
+    >
       <div class="field">
         <label for="cs-titular">Nombre del titular</label>
         <input
@@ -81,7 +96,7 @@ onMounted(loadConstConfig)
           type="text"
           placeholder="Ej. Dr. Juan P&eacute;rez Garc&iacute;a"
           maxlength="120"
-        />
+        >
       </div>
       <div class="field">
         <label for="cs-cargo">Cargo del titular</label>
@@ -91,7 +106,7 @@ onMounted(loadConstConfig)
           type="text"
           placeholder="Ej. Titular de la instituci&oacute;n"
           maxlength="160"
-        />
+        >
       </div>
       <div class="field">
         <label for="cs-lugar">Lugar de emisi&oacute;n</label>
@@ -101,14 +116,25 @@ onMounted(loadConstConfig)
           type="text"
           placeholder="Ej. Ciudad de M&eacute;xico"
           maxlength="80"
-        />
+        >
       </div>
       <div class="config-actions">
-        <button type="submit" class="btn btn-primary" :disabled="constConfigSaving">
-          <template v-if="constConfigSaving"> Guardando… </template>
-          <template v-else> Guardar cambios <IconSet name="arrow" /> </template>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          :disabled="constConfigSaving"
+        >
+          <template v-if="constConfigSaving">
+            Guardando…
+          </template>
+          <template v-else>
+            Guardar cambios <IconSet name="arrow" />
+          </template>
         </button>
-        <span v-if="constConfigMsg" class="mono config-msg">{{ constConfigMsg }}</span>
+        <span
+          v-if="constConfigMsg"
+          class="mono config-msg"
+        >{{ constConfigMsg }}</span>
       </div>
     </form>
   </div>
