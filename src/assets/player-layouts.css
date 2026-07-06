@@ -1,0 +1,269 @@
+/* ─── Page shell ─────────────────────────────────── */
+.player-page {
+  background: var(--ink);
+  color: var(--paper);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Top bar ────────────────────────────────────── */
+.player-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 56px;
+  background: var(--brand-primary-dark);
+  border-bottom: 2px solid var(--brand-accent); /* línea oro APF — consistencia con TopNav global */
+  flex-shrink: 0;
+  position: relative;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-4);
+  transition: color 180ms var(--ease);
+  flex-shrink: 0;
+}
+.topbar-back:hover {
+  color: var(--paper);
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.topbar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.topbar-info .eyebrow {
+  color: var(--ink-4);
+  font-size: 10px;
+}
+.topbar-title {
+  font-size: 18px;
+  color: var(--paper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar-right {
+  flex-shrink: 0;
+}
+
+.topbar-variants {
+  background: rgba(255, 255, 255, 0.06);
+}
+.topbar-variants button {
+  color: var(--ink-4);
+  font-size: 12px;
+  padding: 6px 12px;
+}
+.topbar-variants button.on {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ─── Video surface (shared) ─────────────────────── */
+
+/* ─── Slide content ──────────────────────────────── */
+
+/* ─── Video badges ───────────────────────────────── */
+
+/* ─── Center play button ─────────────────────────── */
+
+/* ─── Completion overlay ─────────────────────────── */
+
+/* ─── Video controls ─────────────────────────────── */
+
+/* ─── Chat pane ──────────────────────────────────── */
+
+/* ─── Chat messages ──────────────────────────────── */
+
+/* Comentario destacado por instructor: barra oro a la izquierda */
+
+/* ─── Chat input ─────────────────────────────────── */
+
+/* ─── Lesson list ────────────────────────────────── */
+
+/* ═══════════════════════════════════════════════════
+   VARIANT: SPLIT
+   ═══════════════════════════════════════════════════ */
+.layout-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  overflow: hidden;
+}
+
+.split-left {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.split-left .video-surface {
+  flex-shrink: 0;
+}
+
+.split-left .lesson-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.layout-split .chat-pane {
+  height: 100%;
+}
+
+/* ═══════════════════════════════════════════════════
+   VARIANT: STACKED
+   ═══════════════════════════════════════════════════ */
+.layout-stacked {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.stacked-top {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  flex-shrink: 0;
+}
+
+.stacked-video {
+  /* inherits video-surface */
+}
+
+.stacked-bottom {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  min-height: 280px;
+}
+
+.stacked-notes {
+  padding: 24px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.notes-header {
+  margin-bottom: 20px;
+}
+.notes-header .eyebrow {
+  color: var(--ink-4);
+  display: block;
+  margin-bottom: 6px;
+}
+.notes-header h3 {
+  font-size: 22px;
+  color: var(--paper);
+}
+
+.notes-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.notes-body p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.6);
+}
+.notes-highlight {
+  padding: 16px;
+  border-left: 3px solid var(--brand-accent);
+  background: rgba(212, 193, 156, 0.06);
+  color: rgba(255, 255, 255, 0.75) !important;
+  font-style: italic;
+}
+
+.layout-stacked .chat-pane {
+  border-left: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   VARIANT: FOCUS
+   ═══════════════════════════════════════════════════ */
+.layout-focus {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.focus-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 24px 0;
+  overflow-y: auto;
+}
+
+.focus-video {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.focus-below {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 0 24px;
+}
+
+.focus-title-block {
+  min-width: 0;
+}
+.focus-title-block .eyebrow {
+  color: var(--ink-4);
+  display: block;
+  margin-bottom: 4px;
+}
+.focus-lesson-title {
+  font-size: 28px;
+  color: var(--paper);
+}
+
+.focus-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.focus-actions .btn-ghost {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--paper);
+}
+.focus-actions .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+/* ─── Focus horizontal lesson strip ──────────────── */
