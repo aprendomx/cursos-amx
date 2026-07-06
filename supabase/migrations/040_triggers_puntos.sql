@@ -9,27 +9,35 @@
 
 -- ---------- Función para otorgar puntos ----------
 create or replace function public.otorgar_puntos(
-  p_usuario_id   uuid,
-  p_fuente_tipo  text,
-  p_fuente_id    uuid,
-  p_puntos       int,
-  p_descripcion  text default null
+  p_usuario_id uuid,
+  p_fuente_tipo text,
+  p_fuente_id text default null,
+  p_puntos int default 0,
+  p_descripcion text default null
 )
-returns public.log_puntos
+returns void
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  r public.log_puntos;
 begin
+  -- Only allow self or admin
+  if p_usuario_id != auth.uid() and not public.is_admin() then
+    raise exception 'No autorizado para otorgar puntos a este usuario';
+  end if;
+
+  -- Validate fuente_tipo
+  if p_fuente_tipo not in ('leccion_completada', 'quiz_aprobado', 'foro_post', 'entrega_tiempo', 'badge_desbloqueado', 'login_diario', 'streak') then
+    raise exception 'Tipo de fuente no válido: %', p_fuente_tipo;
+  end if;
+
   insert into public.log_puntos (usuario_id, fuente_tipo, fuente_id, puntos, descripcion)
   values (p_usuario_id, p_fuente_tipo, p_fuente_id, p_puntos, p_descripcion)
-  returning * into r;
-  return r;
-end $$;
+  on conflict (usuario_id, fuente_tipo, fuente_id) do nothing;
+end;
+$$;
 
-grant execute on function public.otorgar_puntos(uuid, text, uuid, int, text) to authenticated;
+grant execute on function public.otorgar_puntos(uuid, text, text, int, text) to authenticated;
 
 -- ---------- Trigger: puntos por completar lección (10 pts) ----------
 create or replace function public.trg_puntos_leccion_fn()
