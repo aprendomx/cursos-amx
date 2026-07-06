@@ -61,6 +61,7 @@ test.describe('Constructor visual de cursos', () => {
     // Persistencia: recargar y verificar que el orden sobrevive
     await page.reload()
     await page.getByRole('button', { name: /estructura/i }).click()
+    await expect(page.locator('.course-builder')).toBeVisible()
     await expect(page.getByTestId('module-item')).toHaveCount(2)
     // El módulo activo (index 0) es el que era el segundo (sin lecciones)
     await expect(page.getByTestId('lesson-card')).toHaveCount(0)
@@ -77,8 +78,14 @@ test.describe('Constructor visual de cursos', () => {
     // LessonEditorPanel.vue: <button data-test="panel-save"> (line 217)
     await page.getByTestId('panel-save').click()
 
-    // Verificación mínima: la lección quedó con fuente=texto, badge "Sin contenido" NO visible
+    // Verificación de persistencia post-save: server-side check tras reload
     // LessonCard.vue: badge warn rendered only when lesson.fuente === 'ninguno' (line 77-79)
+    await page.reload()
+    await page.getByRole('button', { name: /estructura/i }).click()
+    await expect(page.locator('.course-builder')).toBeVisible()
+    // Navegar al módulo que contiene la lección (índice 1, donde agregamos la lección)
+    await page.getByTestId('module-item').nth(1).click()
+    // Ahora verificar que la lección persisted con fuente=texto, badge "Sin contenido" NO visible
     await expect(page.getByTestId('lesson-card').first()).not.toContainText('Sin contenido')
   })
 })
