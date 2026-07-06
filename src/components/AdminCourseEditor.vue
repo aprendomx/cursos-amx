@@ -42,7 +42,7 @@ const { isEnabled, load: loadFlags } = useFeatureFlags()
 onMounted(loadFlags)
 const visualBuilder = computed(() => isEnabled('visual_builder'))
 const creandoBorrador = ref(false)
-const builderResumen = ref({ modulos: 0, lecciones: 0, advertencias: 0 })
+const builderResumen = ref(null)
 
 /* ──────────────────────────────
    Helpers (copied from AdminPage)
@@ -530,7 +530,8 @@ const validationChecks = computed(() => {
   if (!editingCurso.value) return []
   const c = editingCurso.value
   // v2: con el constructor visual usamos builderResumen para estructura
-  if (visualBuilder.value && isUuid(c.id)) {
+  // Solo usamos builderResumen cuando ya recibimos al menos un @structure-changed
+  if (visualBuilder.value && isUuid(c.id) && builderResumen.value !== null) {
     const br = builderResumen.value
     return [
       { label: 'Tiene t\u00edtulo', pass: (c.titulo || '').trim().length > 0 },
@@ -587,6 +588,7 @@ const editorSummary = computed(() => {
    Step navigation
    ────────────────────────────── */
 async function goToStep(i) {
+  if (creandoBorrador.value) return
   if (i >= 1 && visualBuilder.value && !isUuid(editingCurso.value.id)) {
     if (!editingCurso.value.titulo || !editingCurso.value.slug) {
       publishStatus.value = { type: 'error', text: 'Completa el título antes de continuar.' }
