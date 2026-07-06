@@ -10,7 +10,7 @@ const props = defineProps({
   moduleTitle: { type: String, default: '' },
   moduleTitles: { type: Array, default: () => [] },
 })
-const emit = defineEmits(['reorder', 'move', 'add', 'remove', 'select', 'duplicate'])
+const emit = defineEmits(['reorder', 'move', 'add', 'remove', 'select', 'duplicate', 'drag-state'])
 const { t } = useI18n()
 
 const local = ref([...props.lessons])
@@ -25,8 +25,13 @@ watch(
 const totalSeg = computed(() => props.lessons.reduce((s, l) => s + (l.duracion_seg || 0), 0))
 const sinContenido = computed(() => props.lessons.filter((l) => l.fuente === 'ninguno').length)
 
+function onStart() {
+  emit('drag-state', true)
+}
+
 function onEnd(evt) {
   if (evt.oldIndex !== evt.newIndex) emit('reorder', evt.oldIndex, evt.newIndex)
+  emit('drag-state', false)
 }
 </script>
 
@@ -52,6 +57,7 @@ function onEnd(evt) {
         handle=".lesson-drag"
         :group="{ name: 'lecciones', pull: true, put: true }"
         :animation="150"
+        @start="onStart"
         @end="onEnd"
       >
         <LessonCard

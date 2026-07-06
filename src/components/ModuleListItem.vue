@@ -164,8 +164,7 @@ function confirmarRenombrar() {
   inset: 0;
   pointer-events: none;
 }
-.module-item.sortable-drag-over .lesson-drop,
-.lesson-drop:has(.sortable-ghost) {
+:global(.dragging-lesson) .lesson-drop {
   pointer-events: auto;
 }
 </style>

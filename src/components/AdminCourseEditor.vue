@@ -254,7 +254,7 @@ async function loadCurso(curso) {
   try {
     const token = props.session.access_token
     const { data: rows } = await rawSelect(
-      `cursos?select=id,slug,titulo,descripcion,nivel,imagen_portada,publicado,modulos(id,orden,titulo,descripcion,imagen_portada,requiere_previo,lecciones(id,orden,titulo,tipo_material,url_youtube,duracion_seg,video_id,documento_path,documento_tipo,requiere_entrega,entrega_tipos,entrega_max_mb,eval_puntaje_minimo,eval_max_intentos))&id=eq.${curso.id}`,
+      `cursos?select=id,slug,titulo,descripcion,nivel,imagen_portada,publicado,modulos(id,orden,titulo,descripcion,imagen_portada,requiere_previo,lecciones(id,orden,titulo,tipo_material,url_youtube,duracion_seg,video_id,documento_path,documento_tipo,contenido,requiere_entrega,entrega_tipos,entrega_max_mb,eval_puntaje_minimo,eval_max_intentos))&id=eq.${curso.id}`,
       token
     )
     const c = rows?.[0]
@@ -294,7 +294,9 @@ async function loadCurso(curso) {
                     ? 'hls'
                     : l.url_youtube
                       ? 'youtube'
-                      : 'ninguno',
+                      : l.contenido
+                        ? 'texto'
+                        : 'ninguno',
             requiere_entrega: l.requiere_entrega === true,
             entrega_tipos_csv: (l.entrega_tipos || ['pdf', 'docx', 'zip', 'png', 'jpg']).join(', '),
             entrega_max_mb: l.entrega_max_mb || 10,
@@ -561,7 +563,8 @@ const validationChecks = computed(() => {
             (l.fuente === 'youtube' && (l.youtube_url || '').trim().length > 0) ||
             (l.fuente === 'hls' && !!l.video_id) ||
             (l.fuente === 'documento' && !!l.documento_path) ||
-            (l.fuente === 'examen' && (l.preguntas?.length || 0) > 0)
+            (l.fuente === 'examen' && (l.preguntas?.length || 0) > 0) ||
+            (l.fuente === 'texto' && !!l.contenido)
         ),
     },
   ]

@@ -8,6 +8,15 @@ export function fuenteDe(l) {
   return 'ninguno'
 }
 
+function parseEntregaTipos(csv) {
+  const tipos = String(csv || '')
+    .toLowerCase()
+    .split(/[\s,]+/)
+    .map((t) => t.replace(/^\./, ''))
+    .filter(Boolean)
+  return tipos.length ? tipos : ['pdf', 'docx', 'zip', 'png', 'jpg']
+}
+
 export function leccionPatch(l) {
   return {
     titulo: l.titulo,
@@ -16,13 +25,20 @@ export function leccionPatch(l) {
         ? 'examen'
         : l.fuente === 'documento' || l.fuente === 'texto'
           ? 'lectura'
-          : 'video',
+          : l.tipo_material && l.tipo_material !== 'examen'
+            ? l.tipo_material
+            : 'video',
     url_youtube: l.fuente === 'youtube' ? l.url_youtube || null : null,
     video_id: l.fuente === 'hls' ? l.video_id || null : null,
     documento_path: l.fuente === 'documento' ? l.documento_path || null : null,
     documento_tipo: l.fuente === 'documento' ? l.documento_tipo || null : null,
     contenido: l.fuente === 'texto' ? l.contenido || null : null,
     duracion_seg: l.duracion_seg || 0,
+    requiere_entrega: l.requiere_entrega === true,
+    entrega_tipos: parseEntregaTipos(l.entrega_tipos_csv),
+    entrega_max_mb: Math.min(50, Math.max(1, parseInt(l.entrega_max_mb, 10) || 10)),
+    eval_puntaje_minimo: l.fuente === 'examen' ? Number(l.eval_puntaje_minimo) || 70 : 70,
+    eval_max_intentos: l.fuente === 'examen' ? Number(l.eval_max_intentos) || 3 : 3,
   }
 }
 </script>
@@ -62,6 +78,10 @@ watch(
             ...p,
             opciones: (p.opciones || []).map((o) => ({ ...o })),
           })),
+          // Fix 3: initialize entrega_tipos_csv from entrega_tipos array or csv string
+          entrega_tipos_csv: Array.isArray(l.entrega_tipos)
+            ? l.entrega_tipos.join(', ')
+            : l.entrega_tipos_csv || 'pdf, docx, zip, png, jpg',
         }
       : null
     duracionStr.value = l ? segToDuracion(l.duracion_seg) : ''
@@ -197,6 +217,31 @@ function guardar() {
           <!-- EvaluacionEditor: real prop preguntas (mutates in-place, no emits) -->
           <EvaluacionEditor v-if="local.fuente === 'examen'" :preguntas="local.preguntas" />
 
+          <!-- Fix 3: Eval config fields (only for examen) -->
+          <template v-if="local.fuente === 'examen'">
+            <label class="field">
+              {{ t('builder.minScore') }}
+              <input
+                v-model.number="local.eval_puntaje_minimo"
+                data-test="eval-min-score"
+                type="number"
+                min="0"
+                max="100"
+                @input="marcarDirty"
+              />
+            </label>
+            <label class="field">
+              {{ t('builder.maxAttempts') }}
+              <input
+                v-model.number="local.eval_max_intentos"
+                data-test="eval-max-attempts"
+                type="number"
+                min="1"
+                @input="marcarDirty"
+              />
+            </label>
+          </template>
+
           <LessonRichTextEditor
             v-if="local.fuente === 'texto'"
             ref="richRef"
@@ -207,6 +252,40 @@ function guardar() {
           <label class="field">
             {{ t('builder.duration') }}
             <input v-model="duracionStr" type="text" placeholder="12:30" @input="marcarDirty" />
+          </label>
+
+          <!-- Fix 3: Entrega fields (always visible) -->
+          <label class="field">
+            <label class="radio">
+              <input
+                v-model="local.requiere_entrega"
+                data-test="requiere-entrega"
+                type="checkbox"
+                @change="marcarDirty"
+              />
+              {{ t('builder.requiresDelivery') }}
+            </label>
+          </label>
+          <label class="field">
+            {{ t('builder.deliveryTypes') }}
+            <input
+              v-model="local.entrega_tipos_csv"
+              data-test="entrega-tipos"
+              type="text"
+              placeholder="pdf, docx, zip, png, jpg"
+              @input="marcarDirty"
+            />
+          </label>
+          <label class="field">
+            {{ t('builder.deliveryMaxMb') }}
+            <input
+              v-model.number="local.entrega_max_mb"
+              data-test="entrega-max-mb"
+              type="number"
+              min="1"
+              max="50"
+              @input="marcarDirty"
+            />
           </label>
         </div>
 

@@ -42,6 +42,23 @@ describe('useCourseBuilder', () => {
     expect(cb.modulos.value[2]).toMatchObject({ id: 'm3', lecciones: [] })
   })
 
+  it('agregarLeccion resuelve con el row del servidor', async () => {
+    svc.fetchEstructura.mockResolvedValue(arbol())
+    const mockRow = {
+      id: 'l-new',
+      orden: 2,
+      titulo: 'Nueva lección',
+      tipo_material: 'video',
+      modulo_id: 'm1',
+    }
+    svc.crearLeccion.mockResolvedValue(mockRow)
+    const cb = useCourseBuilder('c1')
+    await cb.cargar()
+    const row = await cb.agregarLeccion('m1')
+    expect(row).toMatchObject({ id: 'l-new' })
+    expect(cb.modulos.value[0].lecciones).toHaveLength(2)
+  })
+
   it('editarModulo es optimista', async () => {
     svc.fetchEstructura.mockResolvedValue(arbol())
     let resolver
@@ -60,7 +77,8 @@ describe('useCourseBuilder', () => {
     const cb = useCourseBuilder('c1')
     await cb.cargar()
     await cb.editarModulo('m1', { titulo: 'X' })
-    expect(cb.error.value?.message).toBe('rls')
+    // Fix 7.1: error is cleared after a successful deferred reload, so it's null here.
+    expect(cb.error.value).toBeNull()
     expect(svc.fetchEstructura).toHaveBeenCalledTimes(2) // carga inicial + recarga
   })
 
@@ -127,7 +145,8 @@ describe('useCourseBuilder', () => {
     await Promise.all([p1, p2])
 
     expect(svc.reordenarModulos).toHaveBeenCalled() // cola no envenenada
-    expect(cb.error.value).toBeTruthy()
+    // Fix 7.1: error cleared after successful deferred reload
+    expect(cb.error.value).toBeNull()
     // El reload ocurre DESPUÉS de que reordenarModulos persiste
     expect(callLog).toEqual(['actualizarModulo', 'reordenarModulos', 'fetchEstructura'])
   })

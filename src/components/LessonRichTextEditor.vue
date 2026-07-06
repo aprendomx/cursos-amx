@@ -59,13 +59,13 @@ function flush() {
 function setLink() {
   const url = window.prompt(t('builder.linkPrompt'))
   if (!url) return
-  if (!/^https?:\/\//.test(url)) return
+  if (!/^https?:\/\//i.test(url.trim())) return
   editor.value.chain().focus().setLink({ href: url }).run()
 }
 
 function addImage() {
   const url = window.prompt(t('builder.imagePrompt'))
-  if (!url || !/^https?:\/\//.test(url)) return
+  if (!url || !/^https?:\/\//i.test(url.trim())) return
   editor.value.chain().focus().setImage({ src: url }).run()
 }
 

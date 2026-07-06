@@ -143,6 +143,86 @@ describe('CourseBuilder', () => {
     )
   })
 
+  it('abrir lección de examen llama cargarPreguntasAdmin y pasa preguntas al panel', async () => {
+    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones.js')
+    const mockPreguntas = [{ id: 'p1', tipo: 'multiple', enunciado: '¿Qué?', opciones: [] }]
+    cargarPreguntasAdmin.mockResolvedValue(mockPreguntas)
+
+    // Árbol con lección tipo examen
+    const arbolExamen = [
+      {
+        id: 'm1',
+        orden: 1,
+        titulo: 'M1',
+        lecciones: [
+          {
+            id: 'l-exam',
+            orden: 1,
+            modulo_id: 'm1',
+            titulo: 'Quiz',
+            tipo_material: 'examen',
+            duracion_seg: 0,
+          },
+        ],
+      },
+    ]
+    svc.fetchEstructura.mockResolvedValue(arbolExamen)
+    const w = factory()
+    await flushPromises()
+
+    // Abrir la lección de examen
+    await w.findAll('[data-test="lesson-card"]')[0].trigger('click')
+    await flushPromises()
+
+    expect(cargarPreguntasAdmin).toHaveBeenCalledWith('l-exam')
+    // Panel should be open with preguntas loaded
+    expect(document.querySelector('.panel')).toBeTruthy()
+  })
+
+  it('abrir lección no-examen NO llama cargarPreguntasAdmin', async () => {
+    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones.js')
+    const w = factory()
+    await flushPromises()
+    await w.findAll('[data-test="lesson-card"]')[0].trigger('click')
+    await flushPromises()
+    expect(cargarPreguntasAdmin).not.toHaveBeenCalled()
+  })
+
+  it('guardar lección de examen pasa preguntas a guardarEvaluacionAdmin', async () => {
+    const { cargarPreguntasAdmin, guardarEvaluacionAdmin } =
+      await import('@/services/evaluaciones.js')
+    const mockPreguntas = [{ id: 'p1', tipo: 'multiple', enunciado: '¿Qué?', opciones: [] }]
+    cargarPreguntasAdmin.mockResolvedValue(mockPreguntas)
+    guardarEvaluacionAdmin.mockResolvedValue()
+    svc.actualizarLeccion.mockResolvedValue({})
+
+    const arbolExamen = [
+      {
+        id: 'm1',
+        orden: 1,
+        titulo: 'M1',
+        lecciones: [
+          {
+            id: 'l-exam',
+            orden: 1,
+            modulo_id: 'm1',
+            titulo: 'Quiz',
+            tipo_material: 'examen',
+            duracion_seg: 0,
+          },
+        ],
+      },
+    ]
+    svc.fetchEstructura.mockResolvedValue(arbolExamen)
+    const w = factory()
+    await flushPromises()
+    await w.findAll('[data-test="lesson-card"]')[0].trigger('click')
+    await flushPromises()
+    document.querySelector('[data-test="panel-save"]').click()
+    await flushPromises()
+    expect(guardarEvaluacionAdmin).toHaveBeenCalledWith('l-exam', mockPreguntas)
+  })
+
   it('la barra de validación resume el estado', async () => {
     const w = factory()
     await flushPromises()

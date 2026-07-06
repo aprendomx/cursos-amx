@@ -5,7 +5,7 @@ import ModuleList from '@/components/ModuleList.vue'
 import LessonTimeline from '@/components/LessonTimeline.vue'
 import LessonEditorPanel, { fuenteDe } from '@/components/LessonEditorPanel.vue'
 import { useCourseBuilder } from '@/composables/useCourseBuilder.js'
-import { guardarEvaluacionAdmin } from '@/services/evaluaciones.js'
+import { guardarEvaluacionAdmin, cargarPreguntasAdmin } from '@/services/evaluaciones.js'
 
 const props = defineProps({
   cursoId: { type: String, required: true },
@@ -17,6 +17,7 @@ const { t } = useI18n()
 const cb = useCourseBuilder(props.cursoId)
 const activeIndex = ref(0)
 const leccionAbierta = ref(null)
+const arrastrandoLeccion = ref(false)
 
 const moduloActivo = computed(() => cb.modulos.value[activeIndex.value] || null)
 const leccionesActivas = computed(() =>
@@ -56,9 +57,24 @@ function onKey(e) {
   }
 }
 
-function abrirLeccion(index) {
+async function abrirLeccion(index) {
   const l = leccionesActivas.value[index]
-  leccionAbierta.value = l ? { ...l } : null
+  if (!l) {
+    leccionAbierta.value = null
+    return
+  }
+  if (fuenteDe(l) === 'examen') {
+    let preguntas = []
+    try {
+      preguntas = await cargarPreguntasAdmin(l.id)
+    } catch (e) {
+      cb.error.value = e
+      return
+    }
+    leccionAbierta.value = { ...l, preguntas }
+  } else {
+    leccionAbierta.value = { ...l }
+  }
 }
 
 async function guardarLeccion(patch) {
@@ -76,17 +92,37 @@ function moverLeccionAModulo(lessonIndex, targetModuleIndex) {
   cb.moverLeccion(l.id, target.id, target.lecciones.length)
 }
 
-function duplicarLeccion(lessonIndex) {
+async function duplicarLeccion(lessonIndex) {
   const l = leccionesActivas.value[lessonIndex]
   if (!l || !moduloActivo.value) return
   // video_id NO se copia: videos.leccion_id apunta a una sola lección.
   const { id, orden, modulo_id, fuente, video_id, ...copia } = l
-  cb.agregarLeccion(moduloActivo.value.id, { ...copia, titulo: `${l.titulo} (copia)` })
+  if (fuente === 'examen') {
+    let preguntas = []
+    try {
+      preguntas = await cargarPreguntasAdmin(l.id)
+    } catch (e) {
+      console.error('Error cargando preguntas para duplicar:', e)
+    }
+    const nuevaLeccion = await cb.agregarLeccion(moduloActivo.value.id, {
+      ...copia,
+      titulo: `${l.titulo} (copia)`,
+    })
+    if (nuevaLeccion?.id) {
+      try {
+        await guardarEvaluacionAdmin(nuevaLeccion.id, preguntas)
+      } catch (e) {
+        console.error('Error guardando preguntas del duplicado:', e)
+      }
+    }
+  } else {
+    cb.agregarLeccion(moduloActivo.value.id, { ...copia, titulo: `${l.titulo} (copia)` })
+  }
 }
 </script>
 
 <template>
-  <div class="course-builder">
+  <div class="course-builder" :class="{ 'dragging-lesson': arrastrandoLeccion }">
     <p v-if="cb.error.value" class="builder-error" role="alert">
       {{ cb.error.value.message }}
     </p>
@@ -112,6 +148,7 @@ function duplicarLeccion(lessonIndex) {
         @reorder="(from, to) => cb.moverLeccion(leccionesActivas[from].id, moduloActivo.id, to)"
         @move="moverLeccionAModulo"
         @duplicate="duplicarLeccion"
+        @drag-state="(v) => (arrastrandoLeccion = v)"
       />
     </div>
     <footer class="validation-bar" data-test="validation-bar">

@@ -46,6 +46,14 @@ begin
     raise exception 'Lote de reorden vacío' using errcode = '22023';
   end if;
 
+  if exists (
+    select 1 from jsonb_array_elements(items) it
+    where (it->>'orden') is null
+       or not ((it->>'orden') ~ '^-?[0-9]+(\.[0-9]+)?$')
+  ) then
+    raise exception 'orden inválido en items' using errcode = '22023';
+  end if;
+
   select count(*) into v_bad
   from jsonb_array_elements(items) as item
   left join public.modulos m on m.id = (item->>'id')::uuid
@@ -80,6 +88,14 @@ declare
 begin
   if items is null or jsonb_array_length(items) = 0 then
     raise exception 'Lote de reorden vacío' using errcode = '22023';
+  end if;
+
+  if exists (
+    select 1 from jsonb_array_elements(items) it
+    where (it->>'orden') is null
+       or not ((it->>'orden') ~ '^-?[0-9]+(\.[0-9]+)?$')
+  ) then
+    raise exception 'orden inválido en items' using errcode = '22023';
   end if;
 
   select count(*) into v_bad

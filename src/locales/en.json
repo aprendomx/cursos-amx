@@ -62,6 +62,11 @@
     "tbOrdered": "Numbered list",
     "tbQuote": "Blockquote",
     "tbLink": "Insert link",
-    "tbImage": "Insert image"
+    "tbImage": "Insert image",
+    "minScore": "Minimum score (%)",
+    "maxAttempts": "Max attempts",
+    "requiresDelivery": "Requires delivery",
+    "deliveryTypes": "Allowed types (csv)",
+    "deliveryMaxMb": "Max size (MB)"
   }
 }

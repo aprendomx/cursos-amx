@@ -62,6 +62,11 @@
     "tbOrdered": "Lista numerada",
     "tbQuote": "Cita",
     "tbLink": "Insertar enlace",
-    "tbImage": "Insertar imagen"
+    "tbImage": "Insertar imagen",
+    "minScore": "Puntaje mínimo (%)",
+    "maxAttempts": "Intentos máximos",
+    "requiresDelivery": "Requiere entrega",
+    "deliveryTypes": "Tipos permitidos (csv)",
+    "deliveryMaxMb": "Tamaño máximo (MB)"
   }
 }

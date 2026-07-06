@@ -86,6 +86,7 @@ test.describe('Constructor visual de cursos', () => {
     // Navegar al módulo que contiene la lección (índice 1, donde agregamos la lección)
     await page.getByTestId('module-item').nth(1).click()
     // Ahora verificar que la lección persisted con fuente=texto, badge "Sin contenido" NO visible
+    await expect(page.getByTestId('lesson-card')).toHaveCount(1)
     await expect(page.getByTestId('lesson-card').first()).not.toContainText('Sin contenido')
   })
 })

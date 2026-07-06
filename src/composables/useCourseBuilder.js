@@ -33,8 +33,12 @@ export function useCourseBuilder(cursoId) {
 
   function encolar(op) {
     pendientes++
+    let capturedResult
     cola = cola
-      .then(op)
+      .then(async () => {
+        capturedResult = await op()
+        return capturedResult
+      })
       .catch((e) => {
         error.value = e
         recargaPendiente = true
@@ -43,8 +47,14 @@ export function useCourseBuilder(cursoId) {
         pendientes--
         if (recargaPendiente && pendientes === 0) {
           recargaPendiente = false
-          await recargar().catch(() => {})
+          // Fix 7.1: clear error when deferred reload succeeds
+          await recargar()
+            .then(() => {
+              error.value = null
+            })
+            .catch(() => {})
         }
+        return capturedResult
       })
     return cola
   }
@@ -127,6 +137,7 @@ export function useCourseBuilder(cursoId) {
       modulos.value = modulos.value.map((m) =>
         m.id === moduloId ? { ...m, lecciones: [...m.lecciones, row] } : m
       )
+      return row
     })
   }
 
