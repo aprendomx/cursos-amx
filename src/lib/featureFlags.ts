@@ -23,6 +23,7 @@ export const FEATURES: Record<string, boolean> = {
   entregas: flag('VITE_FEATURE_ENTREGAS'),
   aulas: flag('VITE_FEATURE_AULAS'),
   evaluaciones: flag('VITE_FEATURE_EVALUACIONES'),
+  gamificacion: flag('VITE_FEATURE_GAMIFICACION'),
 }
 
 export function featureEnabled(nombre: string): boolean {
