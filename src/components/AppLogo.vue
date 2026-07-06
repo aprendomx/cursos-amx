@@ -8,7 +8,9 @@ defineProps({
 
 <template>
   <div class="nav-logo">
-    <div class="nav-logo-mark">{{ theme.logos.mark }}</div>
+    <div class="nav-logo-mark">
+      {{ theme.logos.mark }}
+    </div>
     <div v-if="!minimal" class="nav-logo-text">
       <b>{{ theme.app.name }}</b>
       <span>{{ theme.app.tagline }}</span>

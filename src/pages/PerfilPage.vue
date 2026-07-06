@@ -363,9 +363,30 @@ function goToHome() {
                 >
                   C
                 </text>
-                <line x1="16" y1="40" x2="40" y2="40" stroke="var(--brand-accent)" stroke-width="0.75" />
-                <line x1="20" y1="46" x2="36" y2="46" stroke="var(--brand-accent)" stroke-width="0.5" />
-                <line x1="22" y1="52" x2="34" y2="52" stroke="var(--brand-accent)" stroke-width="0.5" />
+                <line
+                  x1="16"
+                  y1="40"
+                  x2="40"
+                  y2="40"
+                  stroke="var(--brand-accent)"
+                  stroke-width="0.75"
+                />
+                <line
+                  x1="20"
+                  y1="46"
+                  x2="36"
+                  y2="46"
+                  stroke="var(--brand-accent)"
+                  stroke-width="0.5"
+                />
+                <line
+                  x1="22"
+                  y1="52"
+                  x2="34"
+                  y2="52"
+                  stroke="var(--brand-accent)"
+                  stroke-width="0.5"
+                />
               </svg>
             </div>
 

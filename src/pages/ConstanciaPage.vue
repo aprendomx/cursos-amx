@@ -189,16 +189,14 @@ function goBack() {
         <div class="cnst-content">
           <!-- Logos institucionales -->
           <header class="cnst-head">
-            <img
-              :src="theme.logos.constancia"
-              class="cnst-logos"
-              :alt="theme.constancia.emisor"
-            />
+            <img :src="theme.logos.constancia" class="cnst-logos" :alt="theme.constancia.emisor" />
           </header>
 
           <!-- Cuerpo -->
           <section class="cnst-body">
-            <p class="cnst-pre">{{ theme.constancia.emisor }}</p>
+            <p class="cnst-pre">
+              {{ theme.constancia.emisor }}
+            </p>
             <p class="cnst-pre cnst-pre-2">Otorga el presente</p>
 
             <h1 class="cnst-titulo">CONSTANCIA</h1>

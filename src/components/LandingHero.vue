@@ -69,8 +69,12 @@ function fmt(n) {
 
         <!-- FILA 3 — columna izquierda: título principal -->
         <div class="hero-left">
-          <p class="hero-eyebrow">{{ theme.hero.eyebrow }}</p>
-          <h1 id="hero-titulo" class="hero-title">{{ theme.hero.title }}</h1>
+          <p class="hero-eyebrow">
+            {{ theme.hero.eyebrow }}
+          </p>
+          <h1 id="hero-titulo" class="hero-title">
+            {{ theme.hero.title }}
+          </h1>
         </div>
 
         <!-- FILA 3 — columna derecha: logos + descripción + CTA -->
@@ -85,7 +89,9 @@ function fmt(n) {
             />
           </div>
 
-          <p class="hero-desc">{{ theme.hero.description }}</p>
+          <p class="hero-desc">
+            {{ theme.hero.description }}
+          </p>
 
           <div class="hero-actions">
             <button class="hero-pill" type="button" @click="emit('catalogo')">

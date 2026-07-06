@@ -111,8 +111,8 @@ const summaryRows = computed(() => [
             <em class="display-italic" style="color: var(--brand-accent-soft)">tu constancia.</em>
           </h1>
           <p class="registro-privacy">
-            Tu información se usa exclusivamente para emitir constancias de {{ theme.constancia.emisor }}. No compartimos
-            tus datos con terceros.
+            Tu información se usa exclusivamente para emitir constancias de
+            {{ theme.constancia.emisor }}. No compartimos tus datos con terceros.
           </p>
         </div>
 
@@ -182,12 +182,7 @@ const summaryRows = computed(() => [
           <div v-else-if="step === 1" key="fields-1" class="registro-fields fade-in">
             <div class="field">
               <label for="r-correo">Correo institucional</label>
-              <input
-                id="r-correo"
-                v-model="correo"
-                type="email"
-                placeholder="correo@ejemplo.com"
-              />
+              <input id="r-correo" v-model="correo" type="email" placeholder="correo@ejemplo.com" />
             </div>
             <div class="field">
               <label for="r-tel">Teléfono móvil</label>
