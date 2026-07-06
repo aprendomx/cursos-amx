@@ -12,6 +12,7 @@ import { featureEnabled } from '@/lib/featureFlags.js'
 import { parseDuracionToSeg } from '@/lib/duracion.js'
 import CourseBuilder from '@/components/CourseBuilder.vue'
 import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
+import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest.js'
 
 const props = defineProps({
   session: { type: Object, default: null },
@@ -123,125 +124,6 @@ function withTimeout(promise, ms, label) {
   ])
 }
 
-function explainPgError(table, status, body) {
-  let pg = null
-  try {
-    pg = typeof body === 'string' ? JSON.parse(body) : body
-  } catch {
-    /* texto plano */
-  }
-  const code = pg?.code
-  const msg = pg?.message || ''
-  const tableLabel =
-    { cursos: 'curso', modulos: 'm\u00f3dulo', lecciones: 'lecci\u00f3n' }[table] || table
-
-  if (code === '23505') {
-    if (/slug/i.test(msg))
-      return `Ya existe un ${tableLabel} con ese slug. Cambia el slug o el t\u00edtulo.`
-    if (/orden/i.test(msg)) return `Ya existe un ${tableLabel} con ese orden en este nivel.`
-    return `Registro duplicado en ${tableLabel}: ${msg}`
-  }
-  if (code === '23502') {
-    const col = msg.match(/column "(.+?)"/)?.[1]
-    return `Falta el campo obligatorio${col ? ' "' + col + '"' : ''} en ${tableLabel}.`
-  }
-  if (code === '23503') return `Referencia inv\u00e1lida en ${tableLabel} (FK): ${msg}`
-  if (code === '23514') return `Valor no permitido en ${tableLabel} (check): ${msg}`
-  if (code === '42501' || status === 403) {
-    return `Permisos insuficientes para escribir en ${tableLabel} (RLS). Verifica que tu usuario sea administrador.`
-  }
-  if (status === 401) return 'Tu sesi\u00f3n expir\u00f3. Cierra sesi\u00f3n y vuelve a entrar.'
-  if (status >= 500)
-    return `Error del servidor (${status}) al guardar ${tableLabel}. Intenta de nuevo.`
-  return msg ? `${tableLabel}: ${msg}` : `${tableLabel}: error ${status}`
-}
-
-async function rawSelect(path, accessToken, opts = {}) {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${path}`
-  const headers = {
-    apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    Authorization: `Bearer ${accessToken}`,
-  }
-  if (opts.count) {
-    headers.Prefer = `count=${opts.count}`
-    headers.Range = '0-0'
-  }
-  const res = await fetch(url, { headers })
-  if (!res.ok) throw new Error(`select ${path} ${res.status}: ${await res.text()}`)
-  let count = null
-  const range = res.headers.get('content-range')
-  if (range) {
-    const m = range.match(/\/(\d+|\*)$/)
-    if (m && m[1] !== '*') count = parseInt(m[1], 10)
-  }
-  return { data: opts.count ? [] : await res.json(), count }
-}
-
-async function rawInsert(table, payload, accessToken, returnRow = true) {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${accessToken}`,
-      Prefer: returnRow ? 'return=representation' : 'return=minimal',
-    },
-    body: JSON.stringify(Array.isArray(payload) ? payload : [payload]),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    const err = new Error(explainPgError(table, res.status, text))
-    err.raw = text
-    err.status = res.status
-    throw err
-  }
-  if (!returnRow) return null
-  const rows = await res.json()
-  return Array.isArray(rows) ? rows[0] : rows
-}
-
-async function rawPatch(table, query, payload, accessToken) {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${table}?${query}`
-  const res = await fetch(url, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${accessToken}`,
-      Prefer: 'return=representation',
-    },
-    body: JSON.stringify(payload),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    const err = new Error(explainPgError(table, res.status, text))
-    err.raw = text
-    err.status = res.status
-    throw err
-  }
-  const rows = await res.json()
-  return Array.isArray(rows) ? rows[0] : rows
-}
-
-async function rawDelete(path, accessToken) {
-  const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/${path}`
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: {
-      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    const err = new Error(explainPgError(path.split('?')[0], res.status, text))
-    err.raw = text
-    err.status = res.status
-    throw err
-  }
-}
-
 /* ──────────────────────────────
    Course loading
    ────────────────────────────── */
@@ -253,7 +135,7 @@ async function loadCurso(curso) {
   }
   try {
     const token = props.session.access_token
-    const { data: rows } = await rawSelect(
+    const { data: rows } = await sbSelect(
       `cursos?select=id,slug,titulo,descripcion,nivel,imagen_portada,publicado,modulos(id,orden,titulo,descripcion,imagen_portada,requiere_previo,lecciones(id,orden,titulo,tipo_material,url_youtube,duracion_seg,video_id,documento_path,documento_tipo,contenido,requiere_entrega,entrega_tipos,entrega_max_mb,eval_puntaje_minimo,eval_max_intentos))&id=eq.${curso.id}`,
       token
     )
@@ -599,7 +481,7 @@ async function goToStep(i) {
     }
     creandoBorrador.value = true
     try {
-      const data = await rawInsert(
+      const data = await sbInsert(
         'cursos',
         {
           slug: editingCurso.value.slug,
@@ -665,7 +547,7 @@ async function publishCurso() {
 
     // v2: con el constructor visual la estructura ya está persistida — solo metadata.
     if (visualBuilder.value && isUuid(c.id)) {
-      const cursoData = await rawPatch('cursos', `id=eq.${c.id}`, cursoPayload, accessToken)
+      const cursoData = await sbPatch('cursos', `id=eq.${c.id}`, cursoPayload, accessToken)
       if (!cursoData?.id) throw new Error('Update curso devolvió vacío (posible RLS).')
       publishStatus.value = { type: 'success', text: 'Curso actualizado exitosamente.' }
       emit('published', cursoData.id)
@@ -674,10 +556,10 @@ async function publishCurso() {
 
     let cursoData
     if (isExisting) {
-      cursoData = await rawPatch('cursos', `id=eq.${c.id}`, cursoPayload, accessToken)
+      cursoData = await sbPatch('cursos', `id=eq.${c.id}`, cursoPayload, accessToken)
       if (!cursoData?.id) throw new Error('Update curso devolvi\u00f3 vac\u00edo (posible RLS).')
     } else {
-      cursoData = await rawInsert('cursos', cursoPayload, accessToken)
+      cursoData = await sbInsert('cursos', cursoPayload, accessToken)
       if (!cursoData?.id) throw new Error('Insert curso devolvi\u00f3 vac\u00edo (posible RLS).')
     }
     const cursoId = cursoData.id
@@ -685,7 +567,7 @@ async function publishCurso() {
     const existingByModule = new Map()
     const existingModuleIds = new Set()
     if (isExisting) {
-      const { data: existing } = await rawSelect(
+      const { data: existing } = await sbSelect(
         `modulos?curso_id=eq.${cursoId}&select=id,lecciones(id)`,
         accessToken
       )
@@ -713,10 +595,10 @@ async function publishCurso() {
 
       let moduloId
       if (isUuid(mod.id) && existingModuleIds.has(mod.id)) {
-        await rawPatch('modulos', `id=eq.${mod.id}`, modPayload, accessToken)
+        await sbPatch('modulos', `id=eq.${mod.id}`, modPayload, accessToken)
         moduloId = mod.id
       } else {
-        const modData = await rawInsert('modulos', modPayload, accessToken)
+        const modData = await sbInsert('modulos', modPayload, accessToken)
         if (!modData?.id) throw new Error(`Insert modulo ${mi + 1} devolvi\u00f3 vac\u00edo.`)
         moduloId = modData.id
         mod.id = moduloId
@@ -758,9 +640,9 @@ async function publishCurso() {
           eval_max_intentos: lec.fuente === 'examen' ? Number(lec.eval_max_intentos) || 3 : 3,
           ...entregaPayload(lec),
         }
-        await rawPatch('lecciones', `id=eq.${lec.id}`, payload, accessToken)
+        await sbPatch('lecciones', `id=eq.${lec.id}`, payload, accessToken)
         if (lec.fuente === 'hls' && lec.video_id) {
-          await rawPatch('videos', `id=eq.${lec.video_id}`, { leccion_id: lec.id }, accessToken)
+          await sbPatch('videos', `id=eq.${lec.video_id}`, { leccion_id: lec.id }, accessToken)
         }
       }
 
@@ -784,22 +666,17 @@ async function publishCurso() {
           eval_max_intentos: lec.fuente === 'examen' ? Number(lec.eval_max_intentos) || 3 : 3,
           ...entregaPayload(lec),
         }
-        const newLec = await rawInsert('lecciones', payload, accessToken)
+        const newLec = await sbInsert('lecciones', payload, accessToken)
         if (newLec?.id) {
           lec.id = newLec.id
           if (lec.fuente === 'hls' && lec.video_id) {
-            await rawPatch(
-              'videos',
-              `id=eq.${lec.video_id}`,
-              { leccion_id: newLec.id },
-              accessToken
-            )
+            await sbPatch('videos', `id=eq.${lec.video_id}`, { leccion_id: newLec.id }, accessToken)
           }
         }
       }
 
       for (const { lec, li } of keptLessons) {
-        await rawPatch('lecciones', `id=eq.${lec.id}`, { orden: li + 1 }, accessToken)
+        await sbPatch('lecciones', `id=eq.${lec.id}`, { orden: li + 1 }, accessToken)
       }
     }
 
@@ -813,14 +690,14 @@ async function publishCurso() {
 
     for (const moduloId of existingModuleIds) {
       if (!keptModuleIds.has(moduloId)) {
-        await rawDelete(`modulos?id=eq.${moduloId}`, accessToken)
+        await sbDelete(`modulos?id=eq.${moduloId}`, accessToken)
       }
     }
     for (const [moduloId, keptLessonIds] of keptLessonsByModule) {
       const existingLessons = existingByModule.get(moduloId) || new Set()
       for (const leccionId of existingLessons) {
         if (!keptLessonIds.has(leccionId)) {
-          await rawDelete(`lecciones?id=eq.${leccionId}`, accessToken)
+          await sbDelete(`lecciones?id=eq.${leccionId}`, accessToken)
         }
       }
     }
@@ -843,26 +720,15 @@ async function publishCurso() {
 </script>
 
 <template>
-  <div
-    v-if="editingCurso"
-    class="admin-content fade-in"
-  >
+  <div v-if="editingCurso" class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          Editor de curso
-        </p>
-        <h1
-          class="display"
-          :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }"
-        >
+        <p class="eyebrow">Editor de curso</p>
+        <h1 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
           {{ editingCurso.titulo || 'Nuevo curso' }}
         </h1>
       </div>
-      <button
-        class="btn btn-ghost btn-sm"
-        @click="$emit('cancel')"
-      >
+      <button class="btn btn-ghost btn-sm" @click="$emit('cancel')">
         <IconSet name="close" />
         Cerrar
       </button>
@@ -883,10 +749,7 @@ async function publishCurso() {
     </div>
 
     <!-- Step 1: Basico -->
-    <div
-      v-if="editorStep === 0"
-      class="editor-panel fade-in"
-    >
+    <div v-if="editorStep === 0" class="editor-panel fade-in">
       <div class="editor-fields">
         <div class="field">
           <label>T&iacute;tulo del curso</label>
@@ -894,7 +757,7 @@ async function publishCurso() {
             v-model="editingCurso.titulo"
             type="text"
             placeholder="Ej. Transparencia y Rendici\u00f3n de Cuentas"
-          >
+          />
         </div>
         <div class="field">
           <label>Slug (auto)</label>
@@ -903,7 +766,7 @@ async function publishCurso() {
             type="text"
             :style="{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', fontSize: '14px' }"
             readonly
-          >
+          />
         </div>
         <div class="field">
           <label>Descripci&oacute;n</label>
@@ -924,11 +787,7 @@ async function publishCurso() {
           <div class="field">
             <label>Nivel</label>
             <select v-model="editingCurso.nivel">
-              <option
-                v-for="n in nivelOptions"
-                :key="n"
-                :value="n"
-              >
+              <option v-for="n in nivelOptions" :key="n" :value="n">
                 {{ n }}
               </option>
             </select>
@@ -936,11 +795,7 @@ async function publishCurso() {
           <div class="field">
             <label>Idioma</label>
             <select v-model="editingCurso.idioma">
-              <option
-                v-for="i in idiomaOptions"
-                :key="i"
-                :value="i"
-              >
+              <option v-for="i in idiomaOptions" :key="i" :value="i">
                 {{ i }}
               </option>
             </select>
@@ -959,16 +814,10 @@ async function publishCurso() {
                 editingCurso.imagen ? { backgroundImage: `url(${editingCurso.imagen})` } : null
               "
             >
-              <span
-                v-if="!editingCurso.imagen && !portadaUploading"
-                class="portada-preview-empty"
-              >
+              <span v-if="!editingCurso.imagen && !portadaUploading" class="portada-preview-empty">
                 Sin portada
               </span>
-              <div
-                v-if="portadaUploading"
-                class="portada-progress"
-              >
+              <div v-if="portadaUploading" class="portada-progress">
                 <div
                   class="portada-progress-bar"
                   :style="{ width: Math.round(portadaProgress * 100) + '%' }"
@@ -984,7 +833,7 @@ async function publishCurso() {
                   accept="image/png,image/jpeg,image/webp"
                   :disabled="portadaUploading"
                   @change="onPortadaFile"
-                >
+                />
                 <span>{{ editingCurso.imagen ? 'Reemplazar' : 'Subir imagen' }}</span>
               </label>
               <button
@@ -997,52 +846,30 @@ async function publishCurso() {
                 Quitar
               </button>
             </div>
-            <p
-              v-if="portadaError"
-              class="portada-err"
-            >
+            <p v-if="portadaError" class="portada-err">
               {{ portadaError }}
             </p>
-            <p class="portada-hint">
-              PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.
-            </p>
+            <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
           </div>
         </div>
         <label class="editor-checkbox">
-          <input
-            v-model="editingCurso.publicado"
-            type="checkbox"
-          >
+          <input v-model="editingCurso.publicado" type="checkbox" />
           <span>Publicar curso inmediatamente</span>
         </label>
       </div>
 
       <div class="editor-nav">
         <div />
-        <button
-          class="btn btn-primary btn-sm"
-          :disabled="creandoBorrador"
-          @click="goToStep(1)"
-        >
-          <template v-if="creandoBorrador">
-            Creando borrador&hellip;
-          </template>
-          <template v-else>
-            Siguiente: Estructura
-          </template>
-          <IconSet
-            v-if="!creandoBorrador"
-            name="arrow"
-          />
+        <button class="btn btn-primary btn-sm" :disabled="creandoBorrador" @click="goToStep(1)">
+          <template v-if="creandoBorrador"> Creando borrador&hellip; </template>
+          <template v-else> Siguiente: Estructura </template>
+          <IconSet v-if="!creandoBorrador" name="arrow" />
         </button>
       </div>
     </div>
 
     <!-- Step 2: Estructura -->
-    <div
-      v-else-if="editorStep === 1"
-      class="editor-panel fade-in"
-    >
+    <div v-else-if="editorStep === 1" class="editor-panel fade-in">
       <CourseBuilder
         v-if="visualBuilder && isUuid(editingCurso.id)"
         :curso-id="editingCurso.id"
@@ -1052,16 +879,9 @@ async function publishCurso() {
       <template v-else>
         <div class="editor-structure-layout">
           <div class="editor-modules">
-            <div
-              v-for="(mod, mi) in editingCurso.modulos"
-              :key="mod.id"
-              class="editor-module card"
-            >
+            <div v-for="(mod, mi) in editingCurso.modulos" :key="mod.id" class="editor-module card">
               <div class="editor-module-header">
-                <span
-                  class="mono"
-                  :style="{ color: 'var(--ink-4)' }"
-                >
+                <span class="mono" :style="{ color: 'var(--ink-4)' }">
                   M&oacute;dulo {{ mi + 1 }}
                 </span>
                 <div :style="{ display: 'flex', gap: '4px' }">
@@ -1099,7 +919,7 @@ async function publishCurso() {
                     v-model="mod.titulo"
                     type="text"
                     placeholder="Ej. Fundamentos de la transparencia"
-                  >
+                  />
                 </div>
                 <div class="field">
                   <label>Descripci&oacute;n</label>
@@ -1111,10 +931,7 @@ async function publishCurso() {
                   />
                 </div>
                 <label class="editor-checkbox">
-                  <input
-                    v-model="mod.requiere_previo"
-                    type="checkbox"
-                  >
+                  <input v-model="mod.requiere_previo" type="checkbox" />
                   <span>Requiere completar m&oacute;dulo previo</span>
                 </label>
 
@@ -1139,10 +956,7 @@ async function publishCurso() {
                       >
                         Sin portada
                       </span>
-                      <div
-                        v-if="mod._portadaUploading"
-                        class="portada-progress"
-                      >
+                      <div v-if="mod._portadaUploading" class="portada-progress">
                         <div
                           class="portada-progress-bar"
                           :style="{
@@ -1159,7 +973,7 @@ async function publishCurso() {
                           accept="image/png,image/jpeg,image/webp"
                           :disabled="mod._portadaUploading"
                           @change="onModuloPortadaFile(mod, $event)"
-                        >
+                        />
                         <span>{{ mod.imagen_portada ? 'Reemplazar' : 'Subir imagen' }}</span>
                       </label>
                       <button
@@ -1172,35 +986,20 @@ async function publishCurso() {
                         Quitar
                       </button>
                     </div>
-                    <p
-                      v-if="mod._portadaError"
-                      class="portada-err"
-                    >
+                    <p v-if="mod._portadaError" class="portada-err">
                       {{ mod._portadaError }}
                     </p>
-                    <p class="portada-hint">
-                      PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.
-                    </p>
+                    <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
                   </div>
                 </div>
 
                 <!-- Lecciones -->
                 <div class="editor-lessons">
-                  <p
-                    class="eyebrow"
-                    :style="{ marginBottom: 'calc(var(--unit) * 1)' }"
-                  >
+                  <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">
                     Lecciones ({{ mod.lecciones.length }})
                   </p>
-                  <div
-                    v-for="(lec, li) in mod.lecciones"
-                    :key="lec.id"
-                    class="editor-lesson-row"
-                  >
-                    <span
-                      class="mono"
-                      :style="{ color: 'var(--ink-4)', minWidth: '28px' }"
-                    >
+                  <div v-for="(lec, li) in mod.lecciones" :key="lec.id" class="editor-lesson-row">
+                    <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
                       {{ String(li + 1).padStart(2, '0') }}
                     </span>
                     <input
@@ -1208,58 +1007,28 @@ async function publishCurso() {
                       type="text"
                       placeholder="T\u00edtulo de la lecci\u00f3n"
                       class="editor-lesson-input"
-                    >
-                    <select
-                      v-model="lec.tipo"
-                      class="editor-lesson-select"
-                    >
-                      <option
-                        v-for="t in tipoOptions"
-                        :key="t"
-                        :value="t"
-                      >
+                    />
+                    <select v-model="lec.tipo" class="editor-lesson-select">
+                      <option v-for="t in tipoOptions" :key="t" :value="t">
                         {{ t }}
                       </option>
                     </select>
                     <div class="leccion-fuente">
                       <label class="leccion-fuente-opt">
-                        <input
-                          v-model="lec.fuente"
-                          type="radio"
-                          :value="'youtube'"
-                        > YouTube
+                        <input v-model="lec.fuente" type="radio" :value="'youtube'" /> YouTube
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input
-                          v-model="lec.fuente"
-                          type="radio"
-                          :value="'hls'"
-                        > HLS
+                        <input v-model="lec.fuente" type="radio" :value="'hls'" /> HLS
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input
-                          v-model="lec.fuente"
-                          type="radio"
-                          :value="'documento'"
-                        >
+                        <input v-model="lec.fuente" type="radio" :value="'documento'" />
                         Documento
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input
-                          v-model="lec.fuente"
-                          type="radio"
-                          :value="'ninguno'"
-                        > Sin contenido
+                        <input v-model="lec.fuente" type="radio" :value="'ninguno'" /> Sin contenido
                       </label>
-                      <label
-                        v-if="featureEnabled('evaluaciones')"
-                        class="leccion-fuente-opt"
-                      >
-                        <input
-                          v-model="lec.fuente"
-                          type="radio"
-                          :value="'examen'"
-                        > Examen
+                      <label v-if="featureEnabled('evaluaciones')" class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'examen'" /> Examen
                       </label>
                     </div>
 
@@ -1270,7 +1039,7 @@ async function publishCurso() {
                       placeholder="URL de YouTube"
                       class="editor-lesson-input"
                       :style="{ flex: '1.5' }"
-                    >
+                    />
 
                     <VideoUploadField
                       v-else-if="lec.fuente === 'hls'"
@@ -1296,7 +1065,7 @@ async function publishCurso() {
                       placeholder="mm:ss"
                       class="editor-lesson-input"
                       :style="{ maxWidth: '80px' }"
-                    >
+                    />
                     <button
                       class="editor-icon-btn editor-icon-btn-danger"
                       :disabled="mod.lecciones.length <= 1"
@@ -1317,10 +1086,7 @@ async function publishCurso() {
                       }"
                     >
                       <label class="leccion-fuente-opt">
-                        <input
-                          v-model="lec.requiere_entrega"
-                          type="checkbox"
-                        >
+                        <input v-model="lec.requiere_entrega" type="checkbox" />
                         Requiere entrega de archivo
                       </label>
                       <template v-if="lec.requiere_entrega">
@@ -1331,7 +1097,7 @@ async function publishCurso() {
                           title="Extensiones permitidas, separadas por coma"
                           class="editor-lesson-input"
                           :style="{ maxWidth: '220px' }"
-                        >
+                        />
                         <input
                           v-model.number="lec.entrega_max_mb"
                           type="number"
@@ -1340,11 +1106,10 @@ async function publishCurso() {
                           title="Tamaño máximo en MB"
                           class="editor-lesson-input"
                           :style="{ maxWidth: '70px' }"
+                        />
+                        <span class="mono" :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
+                          >MB m&aacute;x</span
                         >
-                        <span
-                          class="mono"
-                          :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
-                        >MB m&aacute;x</span>
                       </template>
                     </div>
 
@@ -1375,7 +1140,7 @@ async function publishCurso() {
                             max="100"
                             class="editor-lesson-input"
                             :style="{ maxWidth: '80px' }"
-                          >
+                          />
                         </label>
                         <label class="leccion-fuente-opt">
                           Máx. intentos
@@ -1385,7 +1150,7 @@ async function publishCurso() {
                             min="1"
                             class="editor-lesson-input"
                             :style="{ maxWidth: '70px' }"
-                          >
+                          />
                         </label>
                       </div>
                       <EvaluacionEditor :preguntas="lec.preguntas" />
@@ -1402,11 +1167,7 @@ async function publishCurso() {
               </div>
             </div>
 
-            <button
-              class="btn btn-ghost"
-              :style="{ alignSelf: 'flex-start' }"
-              @click="addModule"
-            >
+            <button class="btn btn-ghost" :style="{ alignSelf: 'flex-start' }" @click="addModule">
               + Agregar m&oacute;dulo
             </button>
           </div>
@@ -1414,10 +1175,7 @@ async function publishCurso() {
           <!-- Sidebar guide -->
           <div class="editor-guide card">
             <div :style="{ padding: 'calc(var(--unit) * 2.5)' }">
-              <p
-                class="eyebrow"
-                :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-              >
+              <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
                 Gu&iacute;a de estructura
               </p>
               <ul class="editor-guide-list">
@@ -1434,17 +1192,11 @@ async function publishCurso() {
       </template>
 
       <div class="editor-nav">
-        <button
-          class="btn btn-ghost btn-sm"
-          @click="editorStep = 0"
-        >
+        <button class="btn btn-ghost btn-sm" @click="editorStep = 0">
           <IconSet name="arrowLeft" />
           B&aacute;sico
         </button>
-        <button
-          class="btn btn-primary btn-sm"
-          @click="goToStep(2)"
-        >
+        <button class="btn btn-primary btn-sm" @click="goToStep(2)">
           Siguiente: Revisar
           <IconSet name="arrow" />
         </button>
@@ -1452,23 +1204,14 @@ async function publishCurso() {
     </div>
 
     <!-- Step 3: Revisar -->
-    <div
-      v-else-if="editorStep === 2"
-      class="editor-panel fade-in"
-    >
+    <div v-else-if="editorStep === 2" class="editor-panel fade-in">
       <div class="editor-review-layout">
         <!-- Preview card -->
         <div>
-          <p
-            class="eyebrow"
-            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-          >
+          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
             Vista previa de tarjeta
           </p>
-          <div
-            class="card"
-            :style="{ maxWidth: '380px' }"
-          >
+          <div class="card" :style="{ maxWidth: '380px' }">
             <img
               v-if="isUrl(editingCurso.imagen)"
               :src="editingCurso.imagen"
@@ -1479,7 +1222,7 @@ async function publishCurso() {
                 objectFit: 'cover',
                 display: 'block',
               }"
-            >
+            />
             <PlaceholderImage
               v-else
               :label="editingCurso.imagen || editingCurso.titulo || 'Sin imagen'"
@@ -1500,10 +1243,7 @@ async function publishCurso() {
                   alignItems: 'center',
                 }"
               >
-                <span
-                  class="mono"
-                  :style="{ color: 'var(--ink-4)' }"
-                >
+                <span class="mono" :style="{ color: 'var(--ink-4)' }">
                   {{ editingCurso.nivel }}
                 </span>
                 <span class="chip chip-accent">
@@ -1526,26 +1266,12 @@ async function publishCurso() {
 
         <!-- Summary + validation -->
         <div>
-          <p
-            class="eyebrow"
-            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-          >
-            Resumen
-          </p>
-          <div
-            class="card"
-            :style="{ marginBottom: 'calc(var(--unit) * 3)' }"
-          >
+          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">Resumen</p>
+          <div class="card" :style="{ marginBottom: 'calc(var(--unit) * 3)' }">
             <table class="admin-table">
               <tbody>
-                <tr
-                  v-for="row in editorSummary"
-                  :key="row.label"
-                >
-                  <td
-                    class="mono"
-                    :style="{ color: 'var(--ink-3)', width: '120px' }"
-                  >
+                <tr v-for="row in editorSummary" :key="row.label">
+                  <td class="mono" :style="{ color: 'var(--ink-3)', width: '120px' }">
                     {{ row.label }}
                   </td>
                   <td>{{ row.value }}</td>
@@ -1554,10 +1280,7 @@ async function publishCurso() {
             </table>
           </div>
 
-          <p
-            class="eyebrow"
-            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-          >
+          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
             Validaci&oacute;n
           </p>
           <div class="editor-validation">
@@ -1596,11 +1319,7 @@ async function publishCurso() {
       </div>
 
       <div class="editor-nav">
-        <button
-          class="btn btn-ghost btn-sm"
-          :disabled="publishing"
-          @click="editorStep = 1"
-        >
+        <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="editorStep = 1">
           <IconSet name="arrowLeft" />
           Estructura
         </button>
@@ -1610,19 +1329,10 @@ async function publishCurso() {
           :disabled="publishing"
           @click="publishCurso"
         >
-          <template v-if="publishing">
-            Guardando&hellip;
-          </template>
-          <template v-else-if="isUuid(editingCurso?.id || '')">
-            Actualizar curso
-          </template>
-          <template v-else>
-            Publicar curso
-          </template>
-          <IconSet
-            v-if="!publishing"
-            name="arrow"
-          />
+          <template v-if="publishing"> Guardando&hellip; </template>
+          <template v-else-if="isUuid(editingCurso?.id || '')"> Actualizar curso </template>
+          <template v-else> Publicar curso </template>
+          <IconSet v-if="!publishing" name="arrow" />
         </button>
       </div>
     </div>

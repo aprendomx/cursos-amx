@@ -7,6 +7,7 @@ import { applyTheme } from './lib/theme.js'
 import i18n from './lib/i18n.js'
 import { loadFeatureFlags } from './composables/useFeatureFlags.js'
 import './assets/main.css'
+import './assets/admin-shared.css'
 
 const app = createApp(App)
 
