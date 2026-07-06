@@ -10,6 +10,8 @@ import { uploadPortada, deletePortada } from '@/services/portadas.js'
 import { cargarPreguntasAdmin, guardarEvaluacionAdmin } from '@/services/evaluaciones.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { parseDuracionToSeg } from '@/lib/duracion.js'
+import CourseBuilder from '@/components/CourseBuilder.vue'
+import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 
 const props = defineProps({
   session: { type: Object, default: null },
@@ -35,6 +37,12 @@ const portadaError = ref('')
 
 const publishing = ref(false)
 const publishStatus = ref(null)
+
+const { isEnabled, load: loadFlags } = useFeatureFlags()
+onMounted(loadFlags)
+const visualBuilder = computed(() => isEnabled('visual_builder'))
+const creandoBorrador = ref(false)
+const builderResumen = ref({ modulos: 0, lecciones: 0, advertencias: 0 })
 
 /* ──────────────────────────────
    Helpers (copied from AdminPage)
@@ -521,6 +529,19 @@ const tipoOptions = ['video', 'lectura', 'evaluaci\u00f3n', 'actividad']
 const validationChecks = computed(() => {
   if (!editingCurso.value) return []
   const c = editingCurso.value
+  // v2: con el constructor visual usamos builderResumen para estructura
+  if (visualBuilder.value && isUuid(c.id)) {
+    const br = builderResumen.value
+    return [
+      { label: 'Tiene t\u00edtulo', pass: (c.titulo || '').trim().length > 0 },
+      {
+        label: 'Descripci\u00f3n \u2265 10 caracteres',
+        pass: (c.descripcion || '').trim().length >= 10,
+      },
+      { label: '\u2265 1 m\u00f3dulo', pass: br.modulos > 0 },
+      { label: '\u2265 1 lecci\u00f3n', pass: br.lecciones > 0 },
+    ]
+  }
   const allLessons = c.modulos.flatMap((m) => m.lecciones)
   return [
     { label: 'Tiene t\u00edtulo', pass: (c.titulo || '').trim().length > 0 },
@@ -563,6 +584,42 @@ const editorSummary = computed(() => {
 })
 
 /* ──────────────────────────────
+   Step navigation
+   ────────────────────────────── */
+async function goToStep(i) {
+  if (i >= 1 && visualBuilder.value && !isUuid(editingCurso.value.id)) {
+    if (!editingCurso.value.titulo || !editingCurso.value.slug) {
+      publishStatus.value = { type: 'error', text: 'Completa el título antes de continuar.' }
+      return
+    }
+    creandoBorrador.value = true
+    try {
+      const data = await rawInsert(
+        'cursos',
+        {
+          slug: editingCurso.value.slug,
+          titulo: editingCurso.value.titulo,
+          descripcion: editingCurso.value.descripcion,
+          nivel: editingCurso.value.nivel,
+          imagen_portada: editingCurso.value.imagen || null,
+          publicado: false,
+        },
+        props.session.access_token
+      )
+      if (!data?.id) throw new Error('No se pudo crear el borrador (posible RLS).')
+      editingCurso.value.id = data.id
+      publishStatus.value = null
+    } catch (err) {
+      publishStatus.value = { type: 'error', text: err?.message || 'Error creando el borrador.' }
+      return
+    } finally {
+      creandoBorrador.value = false
+    }
+  }
+  editorStep.value = i
+}
+
+/* ──────────────────────────────
    Publish
    ────────────────────────────── */
 async function publishCurso() {
@@ -599,6 +656,15 @@ async function publishCurso() {
       nivel: c.nivel,
       imagen_portada: c.imagen || null,
       publicado: c.publicado,
+    }
+
+    // v2: con el constructor visual la estructura ya está persistida — solo metadata.
+    if (visualBuilder.value && isUuid(c.id)) {
+      const cursoData = await rawPatch('cursos', `id=eq.${c.id}`, cursoPayload, accessToken)
+      if (!cursoData?.id) throw new Error('Update curso devolvió vacío (posible RLS).')
+      publishStatus.value = { type: 'success', text: 'Curso actualizado exitosamente.' }
+      emit('published', cursoData.id)
+      return
     }
 
     let cursoData
@@ -793,7 +859,7 @@ async function publishCurso() {
         :key="i"
         class="editor-step-btn"
         :class="{ active: editorStep === i, completed: editorStep > i }"
-        @click="editorStep = i"
+        @click="goToStep(i)"
       >
         <span class="editor-step-num">{{ i + 1 }}</span>
         {{ label }}
@@ -912,261 +978,225 @@ async function publishCurso() {
 
       <div class="editor-nav">
         <div />
-        <button class="btn btn-primary btn-sm" @click="editorStep = 1">
-          Siguiente: Estructura
-          <IconSet name="arrow" />
+        <button class="btn btn-primary btn-sm" :disabled="creandoBorrador" @click="goToStep(1)">
+          <template v-if="creandoBorrador"> Creando borrador&hellip; </template>
+          <template v-else> Siguiente: Estructura </template>
+          <IconSet v-if="!creandoBorrador" name="arrow" />
         </button>
       </div>
     </div>
 
     <!-- Step 2: Estructura -->
     <div v-else-if="editorStep === 1" class="editor-panel fade-in">
-      <div class="editor-structure-layout">
-        <div class="editor-modules">
-          <div v-for="(mod, mi) in editingCurso.modulos" :key="mod.id" class="editor-module card">
-            <div class="editor-module-header">
-              <span class="mono" :style="{ color: 'var(--ink-4)' }">
-                M&oacute;dulo {{ mi + 1 }}
-              </span>
-              <div :style="{ display: 'flex', gap: '4px' }">
-                <button
-                  class="editor-icon-btn"
-                  :disabled="mi === 0"
-                  title="Mover arriba"
-                  @click="moveModule(mi, -1)"
-                >
-                  &uarr;
-                </button>
-                <button
-                  class="editor-icon-btn"
-                  :disabled="mi === editingCurso.modulos.length - 1"
-                  title="Mover abajo"
-                  @click="moveModule(mi, 1)"
-                >
-                  &darr;
-                </button>
-                <button
-                  class="editor-icon-btn editor-icon-btn-danger"
-                  :disabled="editingCurso.modulos.length <= 1"
-                  title="Eliminar m\u00f3dulo"
-                  @click="removeModule(mi)"
-                >
-                  &times;
-                </button>
-              </div>
-            </div>
-
-            <div class="editor-module-body">
-              <div class="field">
-                <label>T&iacute;tulo del m&oacute;dulo</label>
-                <input
-                  v-model="mod.titulo"
-                  type="text"
-                  placeholder="Ej. Fundamentos de la transparencia"
-                />
-              </div>
-              <div class="field">
-                <label>Descripci&oacute;n</label>
-                <textarea
-                  v-model="mod.descripcion"
-                  rows="2"
-                  placeholder="Breve descripci\u00f3n del m\u00f3dulo..."
-                  :style="{ resize: 'vertical' }"
-                />
-              </div>
-              <label class="editor-checkbox">
-                <input v-model="mod.requiere_previo" type="checkbox" />
-                <span>Requiere completar m&oacute;dulo previo</span>
-              </label>
-
-              <div class="field">
-                <label>Portada del m&oacute;dulo</label>
-                <div class="portada-upload">
-                  <div
-                    class="portada-preview"
-                    :class="{
-                      'is-empty': !mod.imagen_portada,
-                      'is-uploading': mod._portadaUploading,
-                    }"
-                    :style="
-                      mod.imagen_portada ? { backgroundImage: `url(${mod.imagen_portada})` } : null
-                    "
+      <CourseBuilder
+        v-if="visualBuilder && isUuid(editingCurso.id)"
+        :curso-id="editingCurso.id"
+        :session="session"
+        @structure-changed="(r) => (builderResumen = r)"
+      />
+      <template v-else>
+        <div class="editor-structure-layout">
+          <div class="editor-modules">
+            <div v-for="(mod, mi) in editingCurso.modulos" :key="mod.id" class="editor-module card">
+              <div class="editor-module-header">
+                <span class="mono" :style="{ color: 'var(--ink-4)' }">
+                  M&oacute;dulo {{ mi + 1 }}
+                </span>
+                <div :style="{ display: 'flex', gap: '4px' }">
+                  <button
+                    class="editor-icon-btn"
+                    :disabled="mi === 0"
+                    title="Mover arriba"
+                    @click="moveModule(mi, -1)"
                   >
-                    <span
-                      v-if="!mod.imagen_portada && !mod._portadaUploading"
-                      class="portada-preview-empty"
-                    >
-                      Sin portada
-                    </span>
-                    <div v-if="mod._portadaUploading" class="portada-progress">
-                      <div
-                        class="portada-progress-bar"
-                        :style="{
-                          width: Math.round((mod._portadaProgress || 0) * 100) + '%',
-                        }"
-                      />
-                      <span>{{ Math.round((mod._portadaProgress || 0) * 100) }}%</span>
-                    </div>
-                  </div>
-                  <div class="portada-actions">
-                    <label class="portada-btn">
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        :disabled="mod._portadaUploading"
-                        @change="onModuloPortadaFile(mod, $event)"
-                      />
-                      <span>{{ mod.imagen_portada ? 'Reemplazar' : 'Subir imagen' }}</span>
-                    </label>
-                    <button
-                      v-if="mod.imagen_portada"
-                      type="button"
-                      class="portada-btn portada-btn-danger"
-                      :disabled="mod._portadaUploading"
-                      @click="onModuloPortadaRemove(mod)"
-                    >
-                      Quitar
-                    </button>
-                  </div>
-                  <p v-if="mod._portadaError" class="portada-err">
-                    {{ mod._portadaError }}
-                  </p>
-                  <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
-                </div>
-              </div>
-
-              <!-- Lecciones -->
-              <div class="editor-lessons">
-                <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">
-                  Lecciones ({{ mod.lecciones.length }})
-                </p>
-                <div v-for="(lec, li) in mod.lecciones" :key="lec.id" class="editor-lesson-row">
-                  <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
-                    {{ String(li + 1).padStart(2, '0') }}
-                  </span>
-                  <input
-                    v-model="lec.titulo"
-                    type="text"
-                    placeholder="T\u00edtulo de la lecci\u00f3n"
-                    class="editor-lesson-input"
-                  />
-                  <select v-model="lec.tipo" class="editor-lesson-select">
-                    <option v-for="t in tipoOptions" :key="t" :value="t">
-                      {{ t }}
-                    </option>
-                  </select>
-                  <div class="leccion-fuente">
-                    <label class="leccion-fuente-opt">
-                      <input v-model="lec.fuente" type="radio" :value="'youtube'" /> YouTube
-                    </label>
-                    <label class="leccion-fuente-opt">
-                      <input v-model="lec.fuente" type="radio" :value="'hls'" /> HLS
-                    </label>
-                    <label class="leccion-fuente-opt">
-                      <input v-model="lec.fuente" type="radio" :value="'documento'" />
-                      Documento
-                    </label>
-                    <label class="leccion-fuente-opt">
-                      <input v-model="lec.fuente" type="radio" :value="'ninguno'" /> Sin contenido
-                    </label>
-                    <label v-if="featureEnabled('evaluaciones')" class="leccion-fuente-opt">
-                      <input v-model="lec.fuente" type="radio" :value="'examen'" /> Examen
-                    </label>
-                  </div>
-
-                  <input
-                    v-if="lec.fuente === 'youtube'"
-                    v-model="lec.youtube_url"
-                    type="url"
-                    placeholder="URL de YouTube"
-                    class="editor-lesson-input"
-                    :style="{ flex: '1.5' }"
-                  />
-
-                  <VideoUploadField
-                    v-else-if="lec.fuente === 'hls'"
-                    :leccion-id="lec.id"
-                    :video-id="lec.video_id || null"
-                    @video-id-updated="(id) => (lec.video_id = id)"
-                  />
-                  <DocumentoUploadField
-                    v-else-if="lec.fuente === 'documento'"
-                    :leccion-id="lec.id"
-                    :documento-path="lec.documento_path || null"
-                    :documento-tipo="lec.documento_tipo || null"
-                    @documento-updated="
-                      (data) => {
-                        lec.documento_path = data?.path || null
-                        lec.documento_tipo = data?.tipo || null
-                      }
-                    "
-                  />
-                  <input
-                    v-model="lec.duracion"
-                    type="text"
-                    placeholder="mm:ss"
-                    class="editor-lesson-input"
-                    :style="{ maxWidth: '80px' }"
-                  />
+                    &uarr;
+                  </button>
+                  <button
+                    class="editor-icon-btn"
+                    :disabled="mi === editingCurso.modulos.length - 1"
+                    title="Mover abajo"
+                    @click="moveModule(mi, 1)"
+                  >
+                    &darr;
+                  </button>
                   <button
                     class="editor-icon-btn editor-icon-btn-danger"
-                    :disabled="mod.lecciones.length <= 1"
-                    @click="removeLesson(mi, li)"
+                    :disabled="editingCurso.modulos.length <= 1"
+                    title="Eliminar m\u00f3dulo"
+                    @click="removeModule(mi)"
                   >
                     &times;
                   </button>
+                </div>
+              </div>
 
-                  <!-- Entrega de archivo -->
-                  <div
-                    v-if="featureEnabled('entregas')"
-                    :style="{
-                      flexBasis: '100%',
-                      display: 'flex',
-                      gap: '12px',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                    }"
-                  >
-                    <label class="leccion-fuente-opt">
-                      <input v-model="lec.requiere_entrega" type="checkbox" />
-                      Requiere entrega de archivo
-                    </label>
-                    <template v-if="lec.requiere_entrega">
-                      <input
-                        v-model="lec.entrega_tipos_csv"
-                        type="text"
-                        placeholder="pdf, docx, zip, png, jpg"
-                        title="Extensiones permitidas, separadas por coma"
-                        class="editor-lesson-input"
-                        :style="{ maxWidth: '220px' }"
-                      />
-                      <input
-                        v-model.number="lec.entrega_max_mb"
-                        type="number"
-                        min="1"
-                        max="50"
-                        title="Tamaño máximo en MB"
-                        class="editor-lesson-input"
-                        :style="{ maxWidth: '70px' }"
-                      />
-                      <span class="mono" :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
-                        >MB m&aacute;x</span
-                      >
-                    </template>
-                  </div>
+              <div class="editor-module-body">
+                <div class="field">
+                  <label>T&iacute;tulo del m&oacute;dulo</label>
+                  <input
+                    v-model="mod.titulo"
+                    type="text"
+                    placeholder="Ej. Fundamentos de la transparencia"
+                  />
+                </div>
+                <div class="field">
+                  <label>Descripci&oacute;n</label>
+                  <textarea
+                    v-model="mod.descripcion"
+                    rows="2"
+                    placeholder="Breve descripci\u00f3n del m\u00f3dulo..."
+                    :style="{ resize: 'vertical' }"
+                  />
+                </div>
+                <label class="editor-checkbox">
+                  <input v-model="mod.requiere_previo" type="checkbox" />
+                  <span>Requiere completar m&oacute;dulo previo</span>
+                </label>
 
-                  <!-- Evaluaci&oacute;n -->
-                  <div
-                    v-if="featureEnabled('evaluaciones') && lec.fuente === 'examen'"
-                    :style="{
-                      flexBasis: '100%',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                    }"
-                  >
+                <div class="field">
+                  <label>Portada del m&oacute;dulo</label>
+                  <div class="portada-upload">
                     <div
+                      class="portada-preview"
+                      :class="{
+                        'is-empty': !mod.imagen_portada,
+                        'is-uploading': mod._portadaUploading,
+                      }"
+                      :style="
+                        mod.imagen_portada
+                          ? { backgroundImage: `url(${mod.imagen_portada})` }
+                          : null
+                      "
+                    >
+                      <span
+                        v-if="!mod.imagen_portada && !mod._portadaUploading"
+                        class="portada-preview-empty"
+                      >
+                        Sin portada
+                      </span>
+                      <div v-if="mod._portadaUploading" class="portada-progress">
+                        <div
+                          class="portada-progress-bar"
+                          :style="{
+                            width: Math.round((mod._portadaProgress || 0) * 100) + '%',
+                          }"
+                        />
+                        <span>{{ Math.round((mod._portadaProgress || 0) * 100) }}%</span>
+                      </div>
+                    </div>
+                    <div class="portada-actions">
+                      <label class="portada-btn">
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          :disabled="mod._portadaUploading"
+                          @change="onModuloPortadaFile(mod, $event)"
+                        />
+                        <span>{{ mod.imagen_portada ? 'Reemplazar' : 'Subir imagen' }}</span>
+                      </label>
+                      <button
+                        v-if="mod.imagen_portada"
+                        type="button"
+                        class="portada-btn portada-btn-danger"
+                        :disabled="mod._portadaUploading"
+                        @click="onModuloPortadaRemove(mod)"
+                      >
+                        Quitar
+                      </button>
+                    </div>
+                    <p v-if="mod._portadaError" class="portada-err">
+                      {{ mod._portadaError }}
+                    </p>
+                    <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
+                  </div>
+                </div>
+
+                <!-- Lecciones -->
+                <div class="editor-lessons">
+                  <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">
+                    Lecciones ({{ mod.lecciones.length }})
+                  </p>
+                  <div v-for="(lec, li) in mod.lecciones" :key="lec.id" class="editor-lesson-row">
+                    <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
+                      {{ String(li + 1).padStart(2, '0') }}
+                    </span>
+                    <input
+                      v-model="lec.titulo"
+                      type="text"
+                      placeholder="T\u00edtulo de la lecci\u00f3n"
+                      class="editor-lesson-input"
+                    />
+                    <select v-model="lec.tipo" class="editor-lesson-select">
+                      <option v-for="t in tipoOptions" :key="t" :value="t">
+                        {{ t }}
+                      </option>
+                    </select>
+                    <div class="leccion-fuente">
+                      <label class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'youtube'" /> YouTube
+                      </label>
+                      <label class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'hls'" /> HLS
+                      </label>
+                      <label class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'documento'" />
+                        Documento
+                      </label>
+                      <label class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'ninguno'" /> Sin contenido
+                      </label>
+                      <label v-if="featureEnabled('evaluaciones')" class="leccion-fuente-opt">
+                        <input v-model="lec.fuente" type="radio" :value="'examen'" /> Examen
+                      </label>
+                    </div>
+
+                    <input
+                      v-if="lec.fuente === 'youtube'"
+                      v-model="lec.youtube_url"
+                      type="url"
+                      placeholder="URL de YouTube"
+                      class="editor-lesson-input"
+                      :style="{ flex: '1.5' }"
+                    />
+
+                    <VideoUploadField
+                      v-else-if="lec.fuente === 'hls'"
+                      :leccion-id="lec.id"
+                      :video-id="lec.video_id || null"
+                      @video-id-updated="(id) => (lec.video_id = id)"
+                    />
+                    <DocumentoUploadField
+                      v-else-if="lec.fuente === 'documento'"
+                      :leccion-id="lec.id"
+                      :documento-path="lec.documento_path || null"
+                      :documento-tipo="lec.documento_tipo || null"
+                      @documento-updated="
+                        (data) => {
+                          lec.documento_path = data?.path || null
+                          lec.documento_tipo = data?.tipo || null
+                        }
+                      "
+                    />
+                    <input
+                      v-model="lec.duracion"
+                      type="text"
+                      placeholder="mm:ss"
+                      class="editor-lesson-input"
+                      :style="{ maxWidth: '80px' }"
+                    />
+                    <button
+                      class="editor-icon-btn editor-icon-btn-danger"
+                      :disabled="mod.lecciones.length <= 1"
+                      @click="removeLesson(mi, li)"
+                    >
+                      &times;
+                    </button>
+
+                    <!-- Entrega de archivo -->
+                    <div
+                      v-if="featureEnabled('entregas')"
                       :style="{
+                        flexBasis: '100%',
                         display: 'flex',
                         gap: '12px',
                         alignItems: 'center',
@@ -1174,70 +1204,117 @@ async function publishCurso() {
                       }"
                     >
                       <label class="leccion-fuente-opt">
-                        Puntaje mínimo (%)
-                        <input
-                          v-model.number="lec.eval_puntaje_minimo"
-                          type="number"
-                          min="0"
-                          max="100"
-                          class="editor-lesson-input"
-                          :style="{ maxWidth: '80px' }"
-                        />
+                        <input v-model="lec.requiere_entrega" type="checkbox" />
+                        Requiere entrega de archivo
                       </label>
-                      <label class="leccion-fuente-opt">
-                        Máx. intentos
+                      <template v-if="lec.requiere_entrega">
                         <input
-                          v-model.number="lec.eval_max_intentos"
+                          v-model="lec.entrega_tipos_csv"
+                          type="text"
+                          placeholder="pdf, docx, zip, png, jpg"
+                          title="Extensiones permitidas, separadas por coma"
+                          class="editor-lesson-input"
+                          :style="{ maxWidth: '220px' }"
+                        />
+                        <input
+                          v-model.number="lec.entrega_max_mb"
                           type="number"
                           min="1"
+                          max="50"
+                          title="Tamaño máximo en MB"
                           class="editor-lesson-input"
                           :style="{ maxWidth: '70px' }"
                         />
-                      </label>
+                        <span class="mono" :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
+                          >MB m&aacute;x</span
+                        >
+                      </template>
                     </div>
-                    <EvaluacionEditor :preguntas="lec.preguntas" />
+
+                    <!-- Evaluaci&oacute;n -->
+                    <div
+                      v-if="featureEnabled('evaluaciones') && lec.fuente === 'examen'"
+                      :style="{
+                        flexBasis: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }"
+                    >
+                      <div
+                        :style="{
+                          display: 'flex',
+                          gap: '12px',
+                          alignItems: 'center',
+                          flexWrap: 'wrap',
+                        }"
+                      >
+                        <label class="leccion-fuente-opt">
+                          Puntaje mínimo (%)
+                          <input
+                            v-model.number="lec.eval_puntaje_minimo"
+                            type="number"
+                            min="0"
+                            max="100"
+                            class="editor-lesson-input"
+                            :style="{ maxWidth: '80px' }"
+                          />
+                        </label>
+                        <label class="leccion-fuente-opt">
+                          Máx. intentos
+                          <input
+                            v-model.number="lec.eval_max_intentos"
+                            type="number"
+                            min="1"
+                            class="editor-lesson-input"
+                            :style="{ maxWidth: '70px' }"
+                          />
+                        </label>
+                      </div>
+                      <EvaluacionEditor :preguntas="lec.preguntas" />
+                    </div>
                   </div>
+                  <button
+                    class="btn btn-ghost btn-sm"
+                    :style="{ marginTop: 'calc(var(--unit) * 1)' }"
+                    @click="addLesson(mi)"
+                  >
+                    + Agregar lecci&oacute;n
+                  </button>
                 </div>
-                <button
-                  class="btn btn-ghost btn-sm"
-                  :style="{ marginTop: 'calc(var(--unit) * 1)' }"
-                  @click="addLesson(mi)"
-                >
-                  + Agregar lecci&oacute;n
-                </button>
               </div>
             </div>
+
+            <button class="btn btn-ghost" :style="{ alignSelf: 'flex-start' }" @click="addModule">
+              + Agregar m&oacute;dulo
+            </button>
           </div>
 
-          <button class="btn btn-ghost" :style="{ alignSelf: 'flex-start' }" @click="addModule">
-            + Agregar m&oacute;dulo
-          </button>
-        </div>
-
-        <!-- Sidebar guide -->
-        <div class="editor-guide card">
-          <div :style="{ padding: 'calc(var(--unit) * 2.5)' }">
-            <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
-              Gu&iacute;a de estructura
-            </p>
-            <ul class="editor-guide-list">
-              <li>Cada m&oacute;dulo agrupa lecciones por tema.</li>
-              <li>Ordena los m&oacute;dulos de lo general a lo espec&iacute;fico.</li>
-              <li>Incluye al menos una lecci&oacute;n por m&oacute;dulo.</li>
-              <li>Usa URLs de YouTube para contenido de video.</li>
-              <li>La duraci&oacute;n se ingresa en formato mm:ss.</li>
-              <li>Marca "requiere previo" para secuenciar m&oacute;dulos.</li>
-            </ul>
+          <!-- Sidebar guide -->
+          <div class="editor-guide card">
+            <div :style="{ padding: 'calc(var(--unit) * 2.5)' }">
+              <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
+                Gu&iacute;a de estructura
+              </p>
+              <ul class="editor-guide-list">
+                <li>Cada m&oacute;dulo agrupa lecciones por tema.</li>
+                <li>Ordena los m&oacute;dulos de lo general a lo espec&iacute;fico.</li>
+                <li>Incluye al menos una lecci&oacute;n por m&oacute;dulo.</li>
+                <li>Usa URLs de YouTube para contenido de video.</li>
+                <li>La duraci&oacute;n se ingresa en formato mm:ss.</li>
+                <li>Marca "requiere previo" para secuenciar m&oacute;dulos.</li>
+              </ul>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
 
       <div class="editor-nav">
         <button class="btn btn-ghost btn-sm" @click="editorStep = 0">
           <IconSet name="arrowLeft" />
           B&aacute;sico
         </button>
-        <button class="btn btn-primary btn-sm" @click="editorStep = 2">
+        <button class="btn btn-primary btn-sm" @click="goToStep(2)">
           Siguiente: Revisar
           <IconSet name="arrow" />
         </button>
