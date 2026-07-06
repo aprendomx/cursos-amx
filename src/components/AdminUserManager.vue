@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { listarUsuarios, setPassword } from '@/services/usuarios.js'
+import AdminBulkImport from '@/components/AdminBulkImport.vue'
+import { featureEnabled } from '@/lib/featureFlags.js'
 
 const props = defineProps({
   session: { type: Object, default: null },
@@ -121,36 +123,46 @@ async function confirmarReset() {
 }
 
 onMounted(cargarUsuarios)
+
+const showImport = ref(false)
 </script>
 
 <template>
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          Gesti&oacute;n
-        </p>
-        <h1
-          class="display"
-          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
-        >
+        <p class="eyebrow">Gesti&oacute;n</p>
+        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
           Usuarios
         </h1>
       </div>
+      <button
+        v-if="featureEnabled('bulk_user_import')"
+        type="button"
+        class="btn btn-secondary btn-sm"
+        @click="showImport = !showImport"
+      >
+        {{ showImport ? 'Cerrar importación' : 'Importar CSV' }}
+      </button>
     </div>
 
+    <AdminBulkImport
+      v-if="showImport"
+      @done="
+        showImport = false
+        cargarUsuarios()
+      "
+    />
+
     <!-- Search -->
-    <div
-      class="field"
-      :style="{ maxWidth: '400px', marginBottom: 'calc(var(--unit) * 3)' }"
-    >
+    <div class="field" :style="{ maxWidth: '400px', marginBottom: 'calc(var(--unit) * 3)' }">
       <label>Buscar usuario</label>
       <input
         v-model="usuarioSearch"
         type="text"
         placeholder="Nombre o correo..."
         @input="onUsuarioSearch"
-      >
+      />
     </div>
 
     <p
@@ -161,28 +173,15 @@ onMounted(cargarUsuarios)
       &#9888; {{ usuariosError }}
     </p>
 
-    <div
-      class="card"
-      :style="{ overflow: 'auto' }"
-    >
+    <div class="card" :style="{ overflow: 'auto' }">
       <table class="admin-table admin-table-full">
         <thead>
           <tr>
-            <th class="mono">
-              Nombre
-            </th>
-            <th class="mono">
-              Dependencia
-            </th>
-            <th class="mono">
-              Correo
-            </th>
-            <th class="mono">
-              Rol
-            </th>
-            <th class="mono">
-              &Uacute;ltimo acceso
-            </th>
+            <th class="mono">Nombre</th>
+            <th class="mono">Dependencia</th>
+            <th class="mono">Correo</th>
+            <th class="mono">Rol</th>
+            <th class="mono">&Uacute;ltimo acceso</th>
             <th class="mono" />
           </tr>
         </thead>
@@ -205,47 +204,26 @@ onMounted(cargarUsuarios)
               Sin resultados.
             </td>
           </tr>
-          <tr
-            v-for="u in usuarios"
-            :key="u.id"
-          >
+          <tr v-for="u in usuarios" :key="u.id">
             <td :style="{ fontWeight: '500' }">
               {{ u.nombres_completos || '—' }}
             </td>
             <td>
               <span class="chip">{{ u.dependencias?.siglas || 'N/A' }}</span>
             </td>
-            <td
-              class="mono"
-              :style="{ color: 'var(--ink-3)' }"
-            >
+            <td class="mono" :style="{ color: 'var(--ink-3)' }">
               {{ u.correo }}
             </td>
             <td>
-              <span
-                v-if="u.es_admin"
-                class="chip"
-              >Admin</span>
-              <span
-                v-else-if="u.es_instructor"
-                class="chip"
-              >Instructor</span>
-              <span
-                v-else
-                :style="{ color: 'var(--ink-4)' }"
-              >&mdash;</span>
+              <span v-if="u.es_admin" class="chip">Admin</span>
+              <span v-else-if="u.es_instructor" class="chip">Instructor</span>
+              <span v-else :style="{ color: 'var(--ink-4)' }">&mdash;</span>
             </td>
-            <td
-              class="mono"
-              :style="{ color: 'var(--ink-4)' }"
-            >
+            <td class="mono" :style="{ color: 'var(--ink-4)' }">
               {{ fechaAcceso(u.actualizado_en) }}
             </td>
             <td>
-              <button
-                class="btn btn-ghost btn-sm"
-                @click="abrirReset(u)"
-              >
+              <button class="btn btn-ghost btn-sm" @click="abrirReset(u)">
                 Restablecer contrase&ntilde;a
               </button>
             </td>
@@ -263,10 +241,7 @@ onMounted(cargarUsuarios)
         marginTop: 'calc(var(--unit) * 2)',
       }"
     >
-      <span
-        class="mono"
-        :style="{ color: 'var(--ink-4)', fontSize: '13px' }"
-      >
+      <span class="mono" :style="{ color: 'var(--ink-4)', fontSize: '13px' }">
         {{ usuariosDesde }}&ndash;{{ usuariosHasta }} de {{ usuariosTotal }}
       </span>
       <div :style="{ display: 'flex', gap: '8px' }">
@@ -296,9 +271,7 @@ onMounted(cargarUsuarios)
       @click.self="cerrarReset"
     >
       <div class="pw-modal card">
-        <h3 :style="{ marginBottom: '4px', color: 'var(--ink)' }">
-          Restablecer contrase&ntilde;a
-        </h3>
+        <h3 :style="{ marginBottom: '4px', color: 'var(--ink)' }">Restablecer contrase&ntilde;a</h3>
         <p
           class="mono"
           :style="{
@@ -309,29 +282,23 @@ onMounted(cargarUsuarios)
         >
           {{ pwUser?.nombres_completos || pwUser?.correo }}
         </p>
-        <div
-          class="field"
-          :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-        >
+        <div class="field" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
           <label>Nueva contrase&ntilde;a</label>
           <input
             v-model="pwNew"
             type="password"
             autocomplete="new-password"
             placeholder="M&iacute;nimo 8 caracteres"
-          >
+          />
         </div>
-        <div
-          class="field"
-          :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-        >
+        <div class="field" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
           <label>Confirmar contrase&ntilde;a</label>
           <input
             v-model="pwConfirm"
             type="password"
             autocomplete="new-password"
             @keyup.enter="confirmarReset"
-          >
+          />
         </div>
         <p
           v-if="pwMsg"
@@ -345,18 +312,10 @@ onMounted(cargarUsuarios)
           {{ pwMsg.text }}
         </p>
         <div :style="{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }">
-          <button
-            class="btn btn-ghost btn-sm"
-            :disabled="pwLoading"
-            @click="cerrarReset"
-          >
+          <button class="btn btn-ghost btn-sm" :disabled="pwLoading" @click="cerrarReset">
             Cerrar
           </button>
-          <button
-            class="btn btn-sm"
-            :disabled="pwLoading"
-            @click="confirmarReset"
-          >
+          <button class="btn btn-sm" :disabled="pwLoading" @click="confirmarReset">
             {{ pwLoading ? 'Guardando…' : 'Restablecer' }}
           </button>
         </div>
