@@ -33,7 +33,7 @@ begin
 
   insert into public.log_puntos (usuario_id, fuente_tipo, fuente_id, puntos, descripcion)
   values (p_usuario_id, p_fuente_tipo, p_fuente_id, p_puntos, p_descripcion)
-  on conflict (usuario_id, fuente_tipo, fuente_id) do nothing;
+  on conflict (usuario_id, fuente_tipo, fuente_id) where fuente_id is not null do nothing;
 end;
 $$;
 
