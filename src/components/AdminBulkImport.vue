@@ -83,18 +83,30 @@ function onClear() {
         accept=".csv"
         style="display: none"
         @change="onFileChange"
-      />
+      >
       <p>Arrastra un archivo CSV aquí o haz clic para seleccionar</p>
     </div>
 
     <div v-else>
       <div class="preview-header">
         <span>{{ validRows.length }} válidas · {{ invalidRows.length }} con errores</span>
-        <button type="button" class="btn btn-ghost btn-sm" @click="onClear">Limpiar</button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          @click="onClear"
+        >
+          Limpiar
+        </button>
       </div>
 
-      <div v-if="errors.length" class="alert alert-warn">
-        <p v-for="(err, i) in errors" :key="i">
+      <div
+        v-if="errors.length"
+        class="alert alert-warn"
+      >
+        <p
+          v-for="(err, i) in errors"
+          :key="i"
+        >
           {{ err }}
         </p>
       </div>
@@ -109,18 +121,30 @@ function onClear() {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="r in rows.slice(0, 10)" :key="r.line" :class="{ 'is-error': !r.valid }">
+          <tr
+            v-for="r in rows.slice(0, 10)"
+            :key="r.line"
+            :class="{ 'is-error': !r.valid }"
+          >
             <td>{{ r.line }}</td>
             <td>{{ r.data.nombre }}</td>
             <td>{{ r.data.email }}</td>
             <td>
               <span v-if="r.valid">OK</span>
-              <span v-else :title="r.errors.join(', ')">Error: {{ r.errors.join(', ') }}</span>
+              <span
+                v-else
+                :title="r.errors.join(', ')"
+              >Error: {{ r.errors.join(', ') }}</span>
             </td>
           </tr>
         </tbody>
       </table>
-      <p v-if="rows.length > 10" class="eyebrow">… y {{ rows.length - 10 }} filas más</p>
+      <p
+        v-if="rows.length > 10"
+        class="eyebrow"
+      >
+        … y {{ rows.length - 10 }} filas más
+      </p>
 
       <div class="actions">
         <button
@@ -133,11 +157,17 @@ function onClear() {
         </button>
       </div>
 
-      <div v-if="error" class="alert alert-error">
+      <div
+        v-if="error"
+        class="alert alert-error"
+      >
         {{ error }}
       </div>
 
-      <div v-if="result?.results" class="alert alert-ok">
+      <div
+        v-if="result?.results"
+        class="alert alert-ok"
+      >
         <p>
           {{ result.results.filter((r) => r.status === 'ok').length }} éxitos ·
           {{ result.results.filter((r) => r.status === 'error').length }} errores

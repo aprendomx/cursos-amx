@@ -1,5 +1,10 @@
 <script setup>
+import { watch, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth.js'
+import { featureEnabled } from '@/lib/featureFlags.js'
+import { useGamificacion } from '@/composables/useGamificacion.js'
 import IconSet from '@/components/IconSet.vue'
+import BadgeNotification from '@/components/BadgeNotification.vue'
 
 const props = defineProps({
   lecciones: { type: Array, required: true },
@@ -16,6 +21,25 @@ const emit = defineEmits(['select'])
 function isVertical() {
   return props.variant === 'split' || props.variant === 'stacked'
 }
+
+const auth = useAuthStore()
+const gamificacionHabilitada = featureEnabled('gamificacion')
+const gamificacion = ref(null)
+
+watch(
+  () => props.completedCount,
+  async (newCount, oldCount) => {
+    if (!gamificacionHabilitada) return
+    if (oldCount === undefined) return
+    if (newCount <= oldCount) return
+    const userId = auth.session?.user?.id
+    if (!userId) return
+    if (!gamificacion.value) {
+      gamificacion.value = useGamificacion(userId)
+    }
+    await gamificacion.value.verificarBadges()
+  }
+)
 </script>
 
 <template>
@@ -30,7 +54,9 @@ function isVertical() {
       <h3 class="lesson-list-title">
         {{ moduloTitulo || $t('navigator.fallbackTitle') }}
       </h3>
-      <span class="lesson-list-progress mono">{{ progressFraction }} &middot; {{ progressPct }}%</span>
+      <span class="lesson-list-progress mono"
+        >{{ progressFraction }} &middot; {{ progressPct }}%</span
+      >
     </div>
     <ul class="lesson-items">
       <li
@@ -58,26 +84,19 @@ function isVertical() {
           <span class="lesson-name">{{ l.titulo }}</span>
           <span class="lesson-meta mono">{{ l.duracion }} &middot; {{ l.tipo }}</span>
         </div>
-        <IconSet
-          v-if="l.tipo === 'lectura'"
-          name="doc"
-        />
-        <IconSet
-          v-else
-          name="clock"
-        />
+        <IconSet v-if="l.tipo === 'lectura'" name="doc" />
+        <IconSet v-else name="clock" />
       </li>
     </ul>
   </div>
 
   <!-- Horizontal strip: focus -->
-  <div
-    v-else
-    class="focus-lesson-strip"
-  >
+  <div v-else class="focus-lesson-strip">
     <div class="lesson-strip-header">
       <span class="eyebrow">{{ moduloTitulo || $t('navigator.fallbackTitle') }}</span>
-      <span class="lesson-list-progress mono">{{ progressFraction }} &middot; {{ progressPct }}%</span>
+      <span class="lesson-list-progress mono"
+        >{{ progressFraction }} &middot; {{ progressPct }}%</span
+      >
     </div>
     <div class="lesson-strip-items">
       <div
@@ -108,6 +127,16 @@ function isVertical() {
       </div>
     </div>
   </div>
+
+  <!-- Badge notifications -->
+  <template v-if="gamificacionHabilitada && gamificacion?.nuevosBadges?.length">
+    <BadgeNotification
+      v-for="badge in gamificacion.nuevosBadges"
+      :key="badge.id"
+      :badge="badge"
+      @close="gamificacion.clearNuevos()"
+    />
+  </template>
 </template>
 
 <style scoped>
