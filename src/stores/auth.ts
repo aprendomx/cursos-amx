@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase.js'
 import { USER as MOCK_USER } from '@/data.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { evaluarBadges } from '@/services/badgeEngine.js'
+import { emitirEvento } from '@/services/analytics.js'
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<any>(null)
@@ -61,7 +62,14 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { data } = await supabase.auth.getSession()
       session.value = data.session
-      if (data.session) await fetchPerfil(data.session.user.id)
+      if (data.session) {
+        await fetchPerfil(data.session.user.id)
+        try {
+          await emitirEvento({ verb: 'logged_in', objectType: 'platform' })
+        } catch {
+          /* best effort */
+        }
+      }
     } catch {}
     authLoading.value = false
 
