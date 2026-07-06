@@ -25,7 +25,11 @@ const html = computed(() => {
 <template>
   <div class="texto-surface">
     <!-- eslint-disable-next-line vue/no-v-html : HTML generado por whitelist Tiptap, nunca input crudo -->
-    <div class="texto-body" data-test="texto-body" v-html="html" />
+    <div
+      class="texto-body"
+      data-test="texto-body"
+      v-html="html"
+    />
     <button
       v-if="!completada"
       class="texto-completar"

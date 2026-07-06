@@ -53,36 +53,62 @@ async function onRemove() {
   <div class="duf">
     <div class="duf-row">
       <strong>Documento</strong>
-      <span v-if="documentoPath" class="duf-status">{{ documentoTipo }}</span>
+      <span
+        v-if="documentoPath"
+        class="duf-status"
+      >{{ documentoTipo }}</span>
     </div>
 
-    <div v-if="!leccionEsPersistida" class="duf-info">
+    <div
+      v-if="!leccionEsPersistida"
+      class="duf-info"
+    >
       Guarda el curso primero para poder subir el documento de esta lección.
     </div>
 
     <template v-else>
-      <div v-if="uploading" class="duf-progress">
+      <div
+        v-if="uploading"
+        class="duf-progress"
+      >
         <div class="duf-bar">
-          <div class="duf-fill" :style="{ width: Math.round(progress * 100) + '%' }" />
+          <div
+            class="duf-fill"
+            :style="{ width: Math.round(progress * 100) + '%' }"
+          />
         </div>
         <span>Subiendo… {{ Math.round(progress * 100) }}%</span>
       </div>
 
-      <div v-else-if="documentoPath" class="duf-ok">
+      <div
+        v-else-if="documentoPath"
+        class="duf-ok"
+      >
         ✓ {{ filename }}
-        <button type="button" @click="onRemove">Eliminar</button>
+        <button
+          type="button"
+          @click="onRemove"
+        >
+          Eliminar
+        </button>
       </div>
 
-      <label v-if="!uploading" class="duf-upload">
+      <label
+        v-if="!uploading"
+        class="duf-upload"
+      >
         <input
           type="file"
           accept="application/pdf,image/png,image/jpeg,image/webp"
           @change="onFileChange"
-        />
+        >
         <span>{{ documentoPath ? 'Reemplazar' : 'Subir documento' }}</span>
       </label>
 
-      <div v-if="localErr" class="duf-err">
+      <div
+        v-if="localErr"
+        class="duf-err"
+      >
         {{ localErr }}
       </div>
     </template>

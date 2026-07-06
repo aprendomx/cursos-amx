@@ -196,32 +196,57 @@ function onEnviarMensajeFaq() {
     />
 
     <!-- Sección 3: Lista de cursos con módulos -->
-    <section id="catalogo" class="container cursos-wrap">
+    <section
+      id="catalogo"
+      class="container cursos-wrap"
+    >
       <div class="cursos-head">
-        <p class="eyebrow">CAT&Aacute;LOGO</p>
+        <p class="eyebrow">
+          CAT&Aacute;LOGO
+        </p>
         <h2 class="display cursos-title">
           <template v-if="searchQuery">
-            Resultados para &laquo;<em class="display-italic">{{ searchQuery }}</em
-            >&raquo;
+            Resultados para &laquo;<em class="display-italic">{{ searchQuery }}</em>&raquo;
           </template>
-          <template v-else> Cursos disponibles. </template>
+          <template v-else>
+            Cursos disponibles.
+          </template>
         </h2>
-        <div v-if="searchQuery" class="cursos-search-meta">
-          <span class="mono"
-            >{{ displayCursos.length }} resultado{{ displayCursos.length === 1 ? '' : 's' }}</span
+        <div
+          v-if="searchQuery"
+          class="cursos-search-meta"
+        >
+          <span class="mono">{{ displayCursos.length }} resultado{{ displayCursos.length === 1 ? '' : 's' }}</span>
+          <button
+            class="cursos-search-clear"
+            type="button"
+            @click="limpiarBusqueda"
           >
-          <button class="cursos-search-clear" type="button" @click="limpiarBusqueda">
             Limpiar b&uacute;squeda
           </button>
         </div>
       </div>
 
-      <div v-if="loading" class="cursos-empty">
-        <span class="mono" :style="{ color: 'var(--ink-3)' }">Cargando cursos&hellip;</span>
+      <div
+        v-if="loading"
+        class="cursos-empty"
+      >
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-3)' }"
+        >Cargando cursos&hellip;</span>
       </div>
 
-      <div v-else-if="fetchError" class="cursos-empty">
-        <p class="eyebrow" :style="{ color: 'var(--danger)' }">Error de conexi&oacute;n</p>
+      <div
+        v-else-if="fetchError"
+        class="cursos-empty"
+      >
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--danger)' }"
+        >
+          Error de conexi&oacute;n
+        </p>
         <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
           {{ fetchError }}
         </p>
@@ -231,9 +256,14 @@ function onEnviarMensajeFaq() {
         </p>
       </div>
 
-      <div v-else-if="displayCursos.length === 0" class="cursos-empty">
+      <div
+        v-else-if="displayCursos.length === 0"
+        class="cursos-empty"
+      >
         <template v-if="searchQuery">
-          <p class="eyebrow">Sin coincidencias</p>
+          <p class="eyebrow">
+            Sin coincidencias
+          </p>
           <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
             No encontramos cursos para &laquo;{{ searchQuery }}&raquo;. Prueba con otro
             t&eacute;rmino o
@@ -241,12 +271,13 @@ function onEnviarMensajeFaq() {
               href="#"
               :style="{ color: 'var(--brand-primary)', textDecoration: 'underline' }"
               @click.prevent="limpiarBusqueda"
-              >limpiar la b&uacute;squeda</a
-            >.
+            >limpiar la b&uacute;squeda</a>.
           </p>
         </template>
         <template v-else>
-          <p class="eyebrow">Sin cursos publicados</p>
+          <p class="eyebrow">
+            Sin cursos publicados
+          </p>
           <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
             A&uacute;n no hay cursos publicados. Pide a un administrador que publique uno desde el
             panel.
@@ -254,7 +285,10 @@ function onEnviarMensajeFaq() {
         </template>
       </div>
 
-      <div v-else class="cursos-list">
+      <div
+        v-else
+        class="cursos-list"
+      >
         <LandingCursoBloque
           v-for="(curso, i) in displayCursos"
           :key="curso.id"
@@ -266,18 +300,28 @@ function onEnviarMensajeFaq() {
       </div>
     </section>
 
-    <component :is="section.component" v-for="section in customSections" :key="section.name" />
+    <component
+      :is="section.component"
+      v-for="section in customSections"
+      :key="section.name"
+    />
 
     <LandingComoConstancia
       v-if="sectionEnabled('como-constancia')"
       @descargar-constancia="onDescargarConstancia"
     />
 
-    <LandingNiveles v-if="sectionEnabled('niveles')" :cursos-por-nivel="cursosPorNivel" />
+    <LandingNiveles
+      v-if="sectionEnabled('niveles')"
+      :cursos-por-nivel="cursosPorNivel"
+    />
 
     <LandingConstancia v-if="sectionEnabled('constancia')" />
 
-    <LandingFaq v-if="sectionEnabled('faq')" @enviar-mensaje="onEnviarMensajeFaq" />
+    <LandingFaq
+      v-if="sectionEnabled('faq')"
+      @enviar-mensaje="onEnviarMensajeFaq"
+    />
 
     <LandingFooter :cursos-count="cursos.length" />
   </div>

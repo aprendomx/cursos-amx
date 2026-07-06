@@ -137,7 +137,12 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
       @logout="onLogout"
     />
 
-    <div v-if="auth.authLoading && route.meta?.requiresAuth" class="auth-hydrating">Cargando…</div>
+    <div
+      v-if="auth.authLoading && route.meta?.requiresAuth"
+      class="auth-hydrating"
+    >
+      Cargando…
+    </div>
 
     <router-view
       v-else
@@ -154,7 +159,12 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
     />
 
     <!-- Floating tweaks FAB -->
-    <button v-if="!ui.tweaksOpen" class="tweaks-fab" title="Abrir Tweaks" @click="ui.openTweaks">
+    <button
+      v-if="!ui.tweaksOpen"
+      class="tweaks-fab"
+      title="Abrir Tweaks"
+      @click="ui.openTweaks"
+    >
       TWK
     </button>
 

@@ -843,15 +843,26 @@ async function publishCurso() {
 </script>
 
 <template>
-  <div v-if="editingCurso" class="admin-content fade-in">
+  <div
+    v-if="editingCurso"
+    class="admin-content fade-in"
+  >
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">Editor de curso</p>
-        <h1 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
+        <p class="eyebrow">
+          Editor de curso
+        </p>
+        <h1
+          class="display"
+          :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           {{ editingCurso.titulo || 'Nuevo curso' }}
         </h1>
       </div>
-      <button class="btn btn-ghost btn-sm" @click="$emit('cancel')">
+      <button
+        class="btn btn-ghost btn-sm"
+        @click="$emit('cancel')"
+      >
         <IconSet name="close" />
         Cerrar
       </button>
@@ -872,7 +883,10 @@ async function publishCurso() {
     </div>
 
     <!-- Step 1: Basico -->
-    <div v-if="editorStep === 0" class="editor-panel fade-in">
+    <div
+      v-if="editorStep === 0"
+      class="editor-panel fade-in"
+    >
       <div class="editor-fields">
         <div class="field">
           <label>T&iacute;tulo del curso</label>
@@ -880,7 +894,7 @@ async function publishCurso() {
             v-model="editingCurso.titulo"
             type="text"
             placeholder="Ej. Transparencia y Rendici\u00f3n de Cuentas"
-          />
+          >
         </div>
         <div class="field">
           <label>Slug (auto)</label>
@@ -889,7 +903,7 @@ async function publishCurso() {
             type="text"
             :style="{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', fontSize: '14px' }"
             readonly
-          />
+          >
         </div>
         <div class="field">
           <label>Descripci&oacute;n</label>
@@ -910,7 +924,11 @@ async function publishCurso() {
           <div class="field">
             <label>Nivel</label>
             <select v-model="editingCurso.nivel">
-              <option v-for="n in nivelOptions" :key="n" :value="n">
+              <option
+                v-for="n in nivelOptions"
+                :key="n"
+                :value="n"
+              >
                 {{ n }}
               </option>
             </select>
@@ -918,7 +936,11 @@ async function publishCurso() {
           <div class="field">
             <label>Idioma</label>
             <select v-model="editingCurso.idioma">
-              <option v-for="i in idiomaOptions" :key="i" :value="i">
+              <option
+                v-for="i in idiomaOptions"
+                :key="i"
+                :value="i"
+              >
                 {{ i }}
               </option>
             </select>
@@ -937,10 +959,16 @@ async function publishCurso() {
                 editingCurso.imagen ? { backgroundImage: `url(${editingCurso.imagen})` } : null
               "
             >
-              <span v-if="!editingCurso.imagen && !portadaUploading" class="portada-preview-empty">
+              <span
+                v-if="!editingCurso.imagen && !portadaUploading"
+                class="portada-preview-empty"
+              >
                 Sin portada
               </span>
-              <div v-if="portadaUploading" class="portada-progress">
+              <div
+                v-if="portadaUploading"
+                class="portada-progress"
+              >
                 <div
                   class="portada-progress-bar"
                   :style="{ width: Math.round(portadaProgress * 100) + '%' }"
@@ -956,7 +984,7 @@ async function publishCurso() {
                   accept="image/png,image/jpeg,image/webp"
                   :disabled="portadaUploading"
                   @change="onPortadaFile"
-                />
+                >
                 <span>{{ editingCurso.imagen ? 'Reemplazar' : 'Subir imagen' }}</span>
               </label>
               <button
@@ -969,30 +997,52 @@ async function publishCurso() {
                 Quitar
               </button>
             </div>
-            <p v-if="portadaError" class="portada-err">
+            <p
+              v-if="portadaError"
+              class="portada-err"
+            >
               {{ portadaError }}
             </p>
-            <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
+            <p class="portada-hint">
+              PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.
+            </p>
           </div>
         </div>
         <label class="editor-checkbox">
-          <input v-model="editingCurso.publicado" type="checkbox" />
+          <input
+            v-model="editingCurso.publicado"
+            type="checkbox"
+          >
           <span>Publicar curso inmediatamente</span>
         </label>
       </div>
 
       <div class="editor-nav">
         <div />
-        <button class="btn btn-primary btn-sm" :disabled="creandoBorrador" @click="goToStep(1)">
-          <template v-if="creandoBorrador"> Creando borrador&hellip; </template>
-          <template v-else> Siguiente: Estructura </template>
-          <IconSet v-if="!creandoBorrador" name="arrow" />
+        <button
+          class="btn btn-primary btn-sm"
+          :disabled="creandoBorrador"
+          @click="goToStep(1)"
+        >
+          <template v-if="creandoBorrador">
+            Creando borrador&hellip;
+          </template>
+          <template v-else>
+            Siguiente: Estructura
+          </template>
+          <IconSet
+            v-if="!creandoBorrador"
+            name="arrow"
+          />
         </button>
       </div>
     </div>
 
     <!-- Step 2: Estructura -->
-    <div v-else-if="editorStep === 1" class="editor-panel fade-in">
+    <div
+      v-else-if="editorStep === 1"
+      class="editor-panel fade-in"
+    >
       <CourseBuilder
         v-if="visualBuilder && isUuid(editingCurso.id)"
         :curso-id="editingCurso.id"
@@ -1002,9 +1052,16 @@ async function publishCurso() {
       <template v-else>
         <div class="editor-structure-layout">
           <div class="editor-modules">
-            <div v-for="(mod, mi) in editingCurso.modulos" :key="mod.id" class="editor-module card">
+            <div
+              v-for="(mod, mi) in editingCurso.modulos"
+              :key="mod.id"
+              class="editor-module card"
+            >
               <div class="editor-module-header">
-                <span class="mono" :style="{ color: 'var(--ink-4)' }">
+                <span
+                  class="mono"
+                  :style="{ color: 'var(--ink-4)' }"
+                >
                   M&oacute;dulo {{ mi + 1 }}
                 </span>
                 <div :style="{ display: 'flex', gap: '4px' }">
@@ -1042,7 +1099,7 @@ async function publishCurso() {
                     v-model="mod.titulo"
                     type="text"
                     placeholder="Ej. Fundamentos de la transparencia"
-                  />
+                  >
                 </div>
                 <div class="field">
                   <label>Descripci&oacute;n</label>
@@ -1054,7 +1111,10 @@ async function publishCurso() {
                   />
                 </div>
                 <label class="editor-checkbox">
-                  <input v-model="mod.requiere_previo" type="checkbox" />
+                  <input
+                    v-model="mod.requiere_previo"
+                    type="checkbox"
+                  >
                   <span>Requiere completar m&oacute;dulo previo</span>
                 </label>
 
@@ -1079,7 +1139,10 @@ async function publishCurso() {
                       >
                         Sin portada
                       </span>
-                      <div v-if="mod._portadaUploading" class="portada-progress">
+                      <div
+                        v-if="mod._portadaUploading"
+                        class="portada-progress"
+                      >
                         <div
                           class="portada-progress-bar"
                           :style="{
@@ -1096,7 +1159,7 @@ async function publishCurso() {
                           accept="image/png,image/jpeg,image/webp"
                           :disabled="mod._portadaUploading"
                           @change="onModuloPortadaFile(mod, $event)"
-                        />
+                        >
                         <span>{{ mod.imagen_portada ? 'Reemplazar' : 'Subir imagen' }}</span>
                       </label>
                       <button
@@ -1109,20 +1172,35 @@ async function publishCurso() {
                         Quitar
                       </button>
                     </div>
-                    <p v-if="mod._portadaError" class="portada-err">
+                    <p
+                      v-if="mod._portadaError"
+                      class="portada-err"
+                    >
                       {{ mod._portadaError }}
                     </p>
-                    <p class="portada-hint">PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.</p>
+                    <p class="portada-hint">
+                      PNG, JPEG o WebP · máx 10 MB · recomendado 1600×900.
+                    </p>
                   </div>
                 </div>
 
                 <!-- Lecciones -->
                 <div class="editor-lessons">
-                  <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">
+                  <p
+                    class="eyebrow"
+                    :style="{ marginBottom: 'calc(var(--unit) * 1)' }"
+                  >
                     Lecciones ({{ mod.lecciones.length }})
                   </p>
-                  <div v-for="(lec, li) in mod.lecciones" :key="lec.id" class="editor-lesson-row">
-                    <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
+                  <div
+                    v-for="(lec, li) in mod.lecciones"
+                    :key="lec.id"
+                    class="editor-lesson-row"
+                  >
+                    <span
+                      class="mono"
+                      :style="{ color: 'var(--ink-4)', minWidth: '28px' }"
+                    >
                       {{ String(li + 1).padStart(2, '0') }}
                     </span>
                     <input
@@ -1130,28 +1208,58 @@ async function publishCurso() {
                       type="text"
                       placeholder="T\u00edtulo de la lecci\u00f3n"
                       class="editor-lesson-input"
-                    />
-                    <select v-model="lec.tipo" class="editor-lesson-select">
-                      <option v-for="t in tipoOptions" :key="t" :value="t">
+                    >
+                    <select
+                      v-model="lec.tipo"
+                      class="editor-lesson-select"
+                    >
+                      <option
+                        v-for="t in tipoOptions"
+                        :key="t"
+                        :value="t"
+                      >
                         {{ t }}
                       </option>
                     </select>
                     <div class="leccion-fuente">
                       <label class="leccion-fuente-opt">
-                        <input v-model="lec.fuente" type="radio" :value="'youtube'" /> YouTube
+                        <input
+                          v-model="lec.fuente"
+                          type="radio"
+                          :value="'youtube'"
+                        > YouTube
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input v-model="lec.fuente" type="radio" :value="'hls'" /> HLS
+                        <input
+                          v-model="lec.fuente"
+                          type="radio"
+                          :value="'hls'"
+                        > HLS
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input v-model="lec.fuente" type="radio" :value="'documento'" />
+                        <input
+                          v-model="lec.fuente"
+                          type="radio"
+                          :value="'documento'"
+                        >
                         Documento
                       </label>
                       <label class="leccion-fuente-opt">
-                        <input v-model="lec.fuente" type="radio" :value="'ninguno'" /> Sin contenido
+                        <input
+                          v-model="lec.fuente"
+                          type="radio"
+                          :value="'ninguno'"
+                        > Sin contenido
                       </label>
-                      <label v-if="featureEnabled('evaluaciones')" class="leccion-fuente-opt">
-                        <input v-model="lec.fuente" type="radio" :value="'examen'" /> Examen
+                      <label
+                        v-if="featureEnabled('evaluaciones')"
+                        class="leccion-fuente-opt"
+                      >
+                        <input
+                          v-model="lec.fuente"
+                          type="radio"
+                          :value="'examen'"
+                        > Examen
                       </label>
                     </div>
 
@@ -1162,7 +1270,7 @@ async function publishCurso() {
                       placeholder="URL de YouTube"
                       class="editor-lesson-input"
                       :style="{ flex: '1.5' }"
-                    />
+                    >
 
                     <VideoUploadField
                       v-else-if="lec.fuente === 'hls'"
@@ -1188,7 +1296,7 @@ async function publishCurso() {
                       placeholder="mm:ss"
                       class="editor-lesson-input"
                       :style="{ maxWidth: '80px' }"
-                    />
+                    >
                     <button
                       class="editor-icon-btn editor-icon-btn-danger"
                       :disabled="mod.lecciones.length <= 1"
@@ -1209,7 +1317,10 @@ async function publishCurso() {
                       }"
                     >
                       <label class="leccion-fuente-opt">
-                        <input v-model="lec.requiere_entrega" type="checkbox" />
+                        <input
+                          v-model="lec.requiere_entrega"
+                          type="checkbox"
+                        >
                         Requiere entrega de archivo
                       </label>
                       <template v-if="lec.requiere_entrega">
@@ -1220,7 +1331,7 @@ async function publishCurso() {
                           title="Extensiones permitidas, separadas por coma"
                           class="editor-lesson-input"
                           :style="{ maxWidth: '220px' }"
-                        />
+                        >
                         <input
                           v-model.number="lec.entrega_max_mb"
                           type="number"
@@ -1229,10 +1340,11 @@ async function publishCurso() {
                           title="Tamaño máximo en MB"
                           class="editor-lesson-input"
                           :style="{ maxWidth: '70px' }"
-                        />
-                        <span class="mono" :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
-                          >MB m&aacute;x</span
                         >
+                        <span
+                          class="mono"
+                          :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
+                        >MB m&aacute;x</span>
                       </template>
                     </div>
 
@@ -1263,7 +1375,7 @@ async function publishCurso() {
                             max="100"
                             class="editor-lesson-input"
                             :style="{ maxWidth: '80px' }"
-                          />
+                          >
                         </label>
                         <label class="leccion-fuente-opt">
                           Máx. intentos
@@ -1273,7 +1385,7 @@ async function publishCurso() {
                             min="1"
                             class="editor-lesson-input"
                             :style="{ maxWidth: '70px' }"
-                          />
+                          >
                         </label>
                       </div>
                       <EvaluacionEditor :preguntas="lec.preguntas" />
@@ -1290,7 +1402,11 @@ async function publishCurso() {
               </div>
             </div>
 
-            <button class="btn btn-ghost" :style="{ alignSelf: 'flex-start' }" @click="addModule">
+            <button
+              class="btn btn-ghost"
+              :style="{ alignSelf: 'flex-start' }"
+              @click="addModule"
+            >
               + Agregar m&oacute;dulo
             </button>
           </div>
@@ -1298,7 +1414,10 @@ async function publishCurso() {
           <!-- Sidebar guide -->
           <div class="editor-guide card">
             <div :style="{ padding: 'calc(var(--unit) * 2.5)' }">
-              <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
+              <p
+                class="eyebrow"
+                :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+              >
                 Gu&iacute;a de estructura
               </p>
               <ul class="editor-guide-list">
@@ -1315,11 +1434,17 @@ async function publishCurso() {
       </template>
 
       <div class="editor-nav">
-        <button class="btn btn-ghost btn-sm" @click="editorStep = 0">
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="editorStep = 0"
+        >
           <IconSet name="arrowLeft" />
           B&aacute;sico
         </button>
-        <button class="btn btn-primary btn-sm" @click="goToStep(2)">
+        <button
+          class="btn btn-primary btn-sm"
+          @click="goToStep(2)"
+        >
           Siguiente: Revisar
           <IconSet name="arrow" />
         </button>
@@ -1327,14 +1452,23 @@ async function publishCurso() {
     </div>
 
     <!-- Step 3: Revisar -->
-    <div v-else-if="editorStep === 2" class="editor-panel fade-in">
+    <div
+      v-else-if="editorStep === 2"
+      class="editor-panel fade-in"
+    >
       <div class="editor-review-layout">
         <!-- Preview card -->
         <div>
-          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
+          <p
+            class="eyebrow"
+            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+          >
             Vista previa de tarjeta
           </p>
-          <div class="card" :style="{ maxWidth: '380px' }">
+          <div
+            class="card"
+            :style="{ maxWidth: '380px' }"
+          >
             <img
               v-if="isUrl(editingCurso.imagen)"
               :src="editingCurso.imagen"
@@ -1345,7 +1479,7 @@ async function publishCurso() {
                 objectFit: 'cover',
                 display: 'block',
               }"
-            />
+            >
             <PlaceholderImage
               v-else
               :label="editingCurso.imagen || editingCurso.titulo || 'Sin imagen'"
@@ -1366,7 +1500,10 @@ async function publishCurso() {
                   alignItems: 'center',
                 }"
               >
-                <span class="mono" :style="{ color: 'var(--ink-4)' }">
+                <span
+                  class="mono"
+                  :style="{ color: 'var(--ink-4)' }"
+                >
                   {{ editingCurso.nivel }}
                 </span>
                 <span class="chip chip-accent">
@@ -1389,12 +1526,26 @@ async function publishCurso() {
 
         <!-- Summary + validation -->
         <div>
-          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">Resumen</p>
-          <div class="card" :style="{ marginBottom: 'calc(var(--unit) * 3)' }">
+          <p
+            class="eyebrow"
+            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+          >
+            Resumen
+          </p>
+          <div
+            class="card"
+            :style="{ marginBottom: 'calc(var(--unit) * 3)' }"
+          >
             <table class="admin-table">
               <tbody>
-                <tr v-for="row in editorSummary" :key="row.label">
-                  <td class="mono" :style="{ color: 'var(--ink-3)', width: '120px' }">
+                <tr
+                  v-for="row in editorSummary"
+                  :key="row.label"
+                >
+                  <td
+                    class="mono"
+                    :style="{ color: 'var(--ink-3)', width: '120px' }"
+                  >
                     {{ row.label }}
                   </td>
                   <td>{{ row.value }}</td>
@@ -1403,7 +1554,10 @@ async function publishCurso() {
             </table>
           </div>
 
-          <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
+          <p
+            class="eyebrow"
+            :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+          >
             Validaci&oacute;n
           </p>
           <div class="editor-validation">
@@ -1442,7 +1596,11 @@ async function publishCurso() {
       </div>
 
       <div class="editor-nav">
-        <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="editorStep = 1">
+        <button
+          class="btn btn-ghost btn-sm"
+          :disabled="publishing"
+          @click="editorStep = 1"
+        >
           <IconSet name="arrowLeft" />
           Estructura
         </button>
@@ -1452,10 +1610,19 @@ async function publishCurso() {
           :disabled="publishing"
           @click="publishCurso"
         >
-          <template v-if="publishing"> Guardando&hellip; </template>
-          <template v-else-if="isUuid(editingCurso?.id || '')"> Actualizar curso </template>
-          <template v-else> Publicar curso </template>
-          <IconSet v-if="!publishing" name="arrow" />
+          <template v-if="publishing">
+            Guardando&hellip;
+          </template>
+          <template v-else-if="isUuid(editingCurso?.id || '')">
+            Actualizar curso
+          </template>
+          <template v-else>
+            Publicar curso
+          </template>
+          <IconSet
+            v-if="!publishing"
+            name="arrow"
+          />
         </button>
       </div>
     </div>

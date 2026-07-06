@@ -141,14 +141,26 @@ function goBack() {
   <div class="cnst-page">
     <!-- Top bar (no se exporta al PDF) -->
     <div class="cnst-topbar container">
-      <button class="btn btn-ghost btn-sm" type="button" @click="goBack">
+      <button
+        class="btn btn-ghost btn-sm"
+        type="button"
+        @click="goBack"
+      >
         <IconSet name="arrowLeft" />
         Mis constancias
       </button>
       <div class="cnst-topbar-actions">
-        <button class="btn btn-ghost btn-sm" type="button" @click="compartir">
-          <template v-if="compartido"> ✓ Enlace copiado </template>
-          <template v-else> Compartir </template>
+        <button
+          class="btn btn-ghost btn-sm"
+          type="button"
+          @click="compartir"
+        >
+          <template v-if="compartido">
+            ✓ Enlace copiado
+          </template>
+          <template v-else>
+            Compartir
+          </template>
         </button>
         <button
           class="btn btn-primary btn-sm"
@@ -156,7 +168,9 @@ function goBack() {
           type="button"
           @click="descargarPdf"
         >
-          <template v-if="descargando"> Generando PDF… </template>
+          <template v-if="descargando">
+            Generando PDF…
+          </template>
           <template v-else>
             Descargar PDF
             <IconSet name="arrow" />
@@ -169,27 +183,36 @@ function goBack() {
     <div class="cnst-wrap container">
       <div class="cnst-doc">
         <!-- Fondo decorativo -->
-        <img src="/theme/constancia-fondo.webp" class="cnst-fondo" alt="" aria-hidden="true" />
+        <img
+          src="/theme/constancia-fondo.webp"
+          class="cnst-fondo"
+          alt=""
+          aria-hidden="true"
+        >
         <!-- Pleca superior -->
         <img
           src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-top"
           alt=""
           aria-hidden="true"
-        />
+        >
         <!-- Pleca inferior -->
         <img
           src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-bottom"
           alt=""
           aria-hidden="true"
-        />
+        >
 
         <!-- Contenido -->
         <div class="cnst-content">
           <!-- Logos institucionales -->
           <header class="cnst-head">
-            <img :src="theme.logos.constancia" class="cnst-logos" :alt="theme.constancia.emisor" />
+            <img
+              :src="theme.logos.constancia"
+              class="cnst-logos"
+              :alt="theme.constancia.emisor"
+            >
           </header>
 
           <!-- Cuerpo -->
@@ -197,11 +220,17 @@ function goBack() {
             <p class="cnst-pre">
               {{ theme.constancia.emisor }}
             </p>
-            <p class="cnst-pre cnst-pre-2">Otorga el presente</p>
+            <p class="cnst-pre cnst-pre-2">
+              Otorga el presente
+            </p>
 
-            <h1 class="cnst-titulo">CONSTANCIA</h1>
+            <h1 class="cnst-titulo">
+              CONSTANCIA
+            </h1>
 
-            <p class="cnst-a">A</p>
+            <p class="cnst-a">
+              A
+            </p>
 
             <p class="cnst-nombre">
               {{ fullName }}
@@ -209,11 +238,12 @@ function goBack() {
 
             <p class="cnst-descripcion">
               Por haber acreditado satisfactoriamente el curso de capacitación
-              <em>{{ cursoTitle }}</em
-              >, impartido a través de {{ theme.app.name }}.
+              <em>{{ cursoTitle }}</em>, impartido a través de {{ theme.app.name }}.
             </p>
 
-            <p class="cnst-duracion mono">{{ cursoDuracion || '—' }} · Folio {{ folio }}</p>
+            <p class="cnst-duracion mono">
+              {{ cursoDuracion || '—' }} · Folio {{ folio }}
+            </p>
           </section>
 
           <!-- Firma titular -->
@@ -230,9 +260,14 @@ function goBack() {
           <!-- Pie: lugar/fecha + QR -->
           <footer class="cnst-foot">
             <div class="cnst-foot-lugar">
-              <p class="cnst-lugar">{{ settings.lugar }}, {{ emissionDate }}</p>
+              <p class="cnst-lugar">
+                {{ settings.lugar }}, {{ emissionDate }}
+              </p>
             </div>
-            <div class="cnst-foot-qr" aria-label="Código de verificación">
+            <div
+              class="cnst-foot-qr"
+              aria-label="Código de verificación"
+            >
               <QrcodeVue
                 :value="verificationUrlReal"
                 :size="92"

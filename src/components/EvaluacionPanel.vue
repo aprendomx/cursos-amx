@@ -76,15 +76,29 @@ function reintentar() {
 
 <template>
   <div class="eval-panel">
-    <div v-if="cargando" class="eval-state">Cargando evaluación…</div>
-    <div v-else-if="error" class="eval-state eval-error">
+    <div
+      v-if="cargando"
+      class="eval-state"
+    >
+      Cargando evaluación…
+    </div>
+    <div
+      v-else-if="error"
+      class="eval-state eval-error"
+    >
       {{ error }}
     </div>
 
     <template v-else-if="examen">
       <!-- Resultado -->
-      <div v-if="resultado" class="eval-result">
-        <div class="eval-result-head" :class="resultado.aprobado ? 'is-ok' : 'is-fail'">
+      <div
+        v-if="resultado"
+        class="eval-result"
+      >
+        <div
+          class="eval-result-head"
+          :class="resultado.aprobado ? 'is-ok' : 'is-fail'"
+        >
           <span class="eval-score">{{ resultado.puntaje }}%</span>
           <span class="eval-verdict">{{ resultado.aprobado ? 'Aprobado' : 'No aprobado' }}</span>
         </div>
@@ -109,49 +123,79 @@ function reintentar() {
         >
           Reintentar ({{ resultado.intentos_restantes }} restantes)
         </button>
-        <p v-else-if="!resultado.aprobado" class="eval-state eval-error">Sin intentos restantes.</p>
+        <p
+          v-else-if="!resultado.aprobado"
+          class="eval-state eval-error"
+        >
+          Sin intentos restantes.
+        </p>
       </div>
 
       <!-- Sin intentos disponibles al cargar -->
-      <div v-else-if="examen.intentos_restantes <= 0" class="eval-state eval-error">
+      <div
+        v-else-if="examen.intentos_restantes <= 0"
+        class="eval-state eval-error"
+      >
         Has agotado tus {{ examen.max_intentos }} intentos para esta evaluación.
       </div>
 
       <!-- Formulario -->
-      <form v-else class="eval-form" @submit.prevent="enviar">
+      <form
+        v-else
+        class="eval-form"
+        @submit.prevent="enviar"
+      >
         <p class="eval-meta eyebrow">
           {{ examen.preguntas.length }} preguntas · mínimo {{ examen.puntaje_minimo }}% · intento
           {{ examen.intentos_usados + 1 }} de {{ examen.max_intentos }}
         </p>
 
-        <div v-for="(p, i) in examen.preguntas" :key="p.id" class="eval-q card">
+        <div
+          v-for="(p, i) in examen.preguntas"
+          :key="p.id"
+          class="eval-q card"
+        >
           <p class="eval-q-text">
             <span class="mono">{{ String(i + 1).padStart(2, '0') }}</span>
             {{ p.enunciado }}
-            <span v-if="p.tipo === 'opcion_multiple'" class="eval-hint">(varias respuestas)</span>
+            <span
+              v-if="p.tipo === 'opcion_multiple'"
+              class="eval-hint"
+            >(varias respuestas)</span>
           </p>
-          <label v-for="o in p.opciones" :key="o.id" class="eval-opt">
+          <label
+            v-for="o in p.opciones"
+            :key="o.id"
+            class="eval-opt"
+          >
             <input
               v-if="p.tipo === 'opcion_multiple'"
               type="checkbox"
               :checked="estaSeleccionada(p.id, o.id)"
               @change="toggleMultiple(p.id, o.id)"
-            />
+            >
             <input
               v-else
               type="radio"
               :name="'q-' + p.id"
               :checked="estaSeleccionada(p.id, o.id)"
               @change="toggleUnica(p.id, o.id)"
-            />
+            >
             <span>{{ o.texto }}</span>
           </label>
         </div>
 
-        <button class="btn btn-primary" type="submit" :disabled="!todasRespondidas() || enviando">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          :disabled="!todasRespondidas() || enviando"
+        >
           {{ enviando ? 'Calificando…' : 'Enviar respuestas' }}
         </button>
-        <p v-if="!todasRespondidas()" class="eval-hint">
+        <p
+          v-if="!todasRespondidas()"
+          class="eval-hint"
+        >
           Responde todas las preguntas para enviar.
         </p>
       </form>

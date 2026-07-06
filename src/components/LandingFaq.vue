@@ -35,18 +35,29 @@ function toggle(i) {
 </script>
 
 <template>
-  <section class="faq-section" aria-labelledby="faq-titulo">
+  <section
+    class="faq-section"
+    aria-labelledby="faq-titulo"
+  >
     <!-- Banda superior oro institucional -->
     <header class="faq-band">
       <div class="faq-band-inner">
-        <h2 id="faq-titulo" class="faq-band-title">Preguntas frecuentes</h2>
+        <h2
+          id="faq-titulo"
+          class="faq-band-title"
+        >
+          Preguntas frecuentes
+        </h2>
       </div>
     </header>
 
     <!-- Body crema con lista de preguntas -->
     <div class="faq-body">
       <div class="faq-inner container">
-        <ul class="faq-list" role="list">
+        <ul
+          class="faq-list"
+          role="list"
+        >
           <li
             v-for="(it, i) in items"
             :key="i"
@@ -60,9 +71,15 @@ function toggle(i) {
               type="button"
               @click="toggle(i)"
             >
-              <span class="faq-q-bar" aria-hidden="true" />
+              <span
+                class="faq-q-bar"
+                aria-hidden="true"
+              />
               <span class="faq-q-text">{{ it.q }}</span>
-              <span class="faq-q-icon" aria-hidden="true">
+              <span
+                class="faq-q-icon"
+                aria-hidden="true"
+              >
                 <svg viewBox="0 0 16 16">
                   <path
                     d="M3 5.5l5 5 5-5"
@@ -75,7 +92,12 @@ function toggle(i) {
                 </svg>
               </span>
             </button>
-            <div v-show="openIdx === i" :id="`faq-a-${i}`" class="faq-a" role="region">
+            <div
+              v-show="openIdx === i"
+              :id="`faq-a-${i}`"
+              class="faq-a"
+              role="region"
+            >
               <p>{{ it.a }}</p>
             </div>
           </li>
@@ -86,7 +108,11 @@ function toggle(i) {
           <p class="faq-foot-text">
             Si no encuentras tu respuesta, contáctanos, nuestro equipo está listo para ayudarte.
           </p>
-          <button type="button" class="faq-foot-cta" @click="emit('enviar-mensaje')">
+          <button
+            type="button"
+            class="faq-foot-cta"
+            @click="emit('enviar-mensaje')"
+          >
             Enviar mensaje
           </button>
         </footer>

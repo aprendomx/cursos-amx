@@ -44,20 +44,29 @@ function handleSend() {
         <span class="chat-live-dot pulsing" />
       </div>
     </div>
-    <div ref="chatContainerRef" class="chat-messages">
+    <div
+      ref="chatContainerRef"
+      class="chat-messages"
+    >
       <div
         v-for="c in comentarios"
         :key="c.id"
         class="chat-msg"
         :class="{ 'chat-msg-incoming': c.incoming, 'chat-msg-destacado': c.destacado }"
       >
-        <div class="chat-avatar" :class="{ 'chat-avatar-instructor': c.esInstructor }">
+        <div
+          class="chat-avatar"
+          :class="{ 'chat-avatar-instructor': c.esInstructor }"
+        >
           {{ c.user.charAt(0) }}
         </div>
         <div class="chat-body">
           <div class="chat-meta">
             <span class="chat-name">{{ c.user }}</span>
-            <span v-if="c.esInstructor" class="chat-badge-instructor mono">{{
+            <span
+              v-if="c.esInstructor"
+              class="chat-badge-instructor mono"
+            >{{
               $t('chat.badgeInstructor')
             }}</span>
             <span class="chat-dep mono">{{ c.dep }}</span>
@@ -75,8 +84,11 @@ function handleSend() {
         type="text"
         :placeholder="$t('chat.placeholder')"
         @keydown.enter="handleSend"
-      />
-      <button class="chat-send" @click="handleSend">
+      >
+      <button
+        class="chat-send"
+        @click="handleSend"
+      >
         <IconSet name="send" />
       </button>
     </div>

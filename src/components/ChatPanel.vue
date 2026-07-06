@@ -107,26 +107,51 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 </script>
 
 <template>
-  <div v-if="habilitado && session" class="chatp" :data-tema="tema">
+  <div
+    v-if="habilitado && session"
+    class="chatp"
+    :data-tema="tema"
+  >
     <div class="chatp-header">
       <span class="eyebrow">{{ titulo }}</span>
       <span class="chatp-dot pulsing" />
     </div>
 
-    <p v-if="error" class="chatp-error mono">⚠ {{ error }}</p>
+    <p
+      v-if="error"
+      class="chatp-error mono"
+    >
+      ⚠ {{ error }}
+    </p>
 
-    <div ref="listaRef" class="chatp-mensajes">
-      <p v-if="!mensajes.length && !loading" class="chatp-vacio">
+    <div
+      ref="listaRef"
+      class="chatp-mensajes"
+    >
+      <p
+        v-if="!mensajes.length && !loading"
+        class="chatp-vacio"
+      >
         Sin mensajes todavía. ¡Escribe el primero!
       </p>
-      <div v-for="m in mensajes" :key="m.id" class="chatp-msg">
-        <div class="chatp-avatar" :class="{ 'is-instructor': esDeInstructor(m) }">
+      <div
+        v-for="m in mensajes"
+        :key="m.id"
+        class="chatp-msg"
+      >
+        <div
+          class="chatp-avatar"
+          :class="{ 'is-instructor': esDeInstructor(m) }"
+        >
           {{ nombre(m.perfiles).charAt(0) || '?' }}
         </div>
         <div class="chatp-cuerpo">
           <div class="chatp-meta">
             <strong>{{ nombre(m.perfiles) }}</strong>
-            <span v-if="esDeInstructor(m)" class="chatp-badge mono">Instructor</span>
+            <span
+              v-if="esDeInstructor(m)"
+              class="chatp-badge mono"
+            >Instructor</span>
             <span class="chatp-hora mono">{{ fmtHora(m.creado_en) }}</span>
             <button
               v-if="esInstructorCurso"
@@ -138,8 +163,14 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
             </button>
           </div>
           <p class="chatp-texto">
-            <template v-for="(seg, i) in segmentos(m.contenido)" :key="i">
-              <span v-if="seg.tipo === 'mencion'" class="chatp-mencion">{{ seg.valor }}</span>
+            <template
+              v-for="(seg, i) in segmentos(m.contenido)"
+              :key="i"
+            >
+              <span
+                v-if="seg.tipo === 'mencion'"
+                class="chatp-mencion"
+              >{{ seg.valor }}</span>
               <template v-else>
                 {{ seg.valor }}
               </template>
@@ -151,11 +182,23 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 
     <div class="chatp-input-wrap">
       <!-- Autocompletado de @menciones -->
-      <ul v-if="menuAbierto" class="chatp-menu">
-        <li v-for="p in menuOpciones" :key="p.user_id">
-          <button type="button" @mousedown.prevent="elegirMencion(p)">
+      <ul
+        v-if="menuAbierto"
+        class="chatp-menu"
+      >
+        <li
+          v-for="p in menuOpciones"
+          :key="p.user_id"
+        >
+          <button
+            type="button"
+            @mousedown.prevent="elegirMencion(p)"
+          >
             {{ p.nombre }}
-            <span v-if="p.es_instructor" class="chatp-badge mono">Instructor</span>
+            <span
+              v-if="p.es_instructor"
+              class="chatp-badge mono"
+            >Instructor</span>
           </button>
         </li>
       </ul>
@@ -170,7 +213,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           @input="onInput"
           @keydown="onKeydown"
           @keydown.enter="onEnviar"
-        />
+        >
         <button
           class="chatp-enviar btn btn-primary btn-sm"
           :disabled="enviando || !draft.trim()"

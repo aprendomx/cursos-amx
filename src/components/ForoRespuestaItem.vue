@@ -58,9 +58,18 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   >
     <div class="foro-resp-meta">
       <strong>{{ nombre(respuesta.perfiles) }}</strong>
-      <span v-if="esDeInstructor(respuesta)" class="foro-badge-instructor mono">Instructor</span>
-      <span v-if="respuesta.destacado" class="chip chip-oro">Destacada</span>
-      <span v-if="respuesta.oculto" class="chip">Oculta</span>
+      <span
+        v-if="esDeInstructor(respuesta)"
+        class="foro-badge-instructor mono"
+      >Instructor</span>
+      <span
+        v-if="respuesta.destacado"
+        class="chip chip-oro"
+      >Destacada</span>
+      <span
+        v-if="respuesta.oculto"
+        class="chip"
+      >Oculta</span>
       <span class="mono foro-fecha">{{ fmtFecha(respuesta.creado_en) }}</span>
     </div>
 
@@ -70,18 +79,43 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       </p>
     </template>
     <template v-else>
-      <textarea v-model="draftEdicion" rows="3" class="foro-textarea" />
+      <textarea
+        v-model="draftEdicion"
+        rows="3"
+        class="foro-textarea"
+      />
       <div class="foro-acciones">
-        <button class="btn btn-primary btn-sm" @click="guardarEdicion">Guardar</button>
-        <button class="btn btn-ghost btn-sm" @click="editando = false">Cancelar</button>
+        <button
+          class="btn btn-primary btn-sm"
+          @click="guardarEdicion"
+        >
+          Guardar
+        </button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="editando = false"
+        >
+          Cancelar
+        </button>
       </div>
     </template>
 
-    <div v-if="!editando" class="foro-acciones">
-      <button v-if="nivel === 0" class="btn btn-ghost btn-sm" @click="respondiendo = !respondiendo">
+    <div
+      v-if="!editando"
+      class="foro-acciones"
+    >
+      <button
+        v-if="nivel === 0"
+        class="btn btn-ghost btn-sm"
+        @click="respondiendo = !respondiendo"
+      >
         Responder
       </button>
-      <button v-if="puedeEditar(respuesta)" class="btn btn-ghost btn-sm" @click="empezarEdicion">
+      <button
+        v-if="puedeEditar(respuesta)"
+        class="btn btn-ghost btn-sm"
+        @click="empezarEdicion"
+      >
         Editar
       </button>
 
@@ -123,7 +157,10 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       </template>
     </div>
 
-    <div v-if="respondiendo" class="foro-form-respuesta">
+    <div
+      v-if="respondiendo"
+      class="foro-form-respuesta"
+    >
       <textarea
         v-model="draftRespuesta"
         rows="2"
@@ -131,13 +168,26 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
         placeholder="Escribe tu respuesta…"
       />
       <div class="foro-acciones">
-        <button class="btn btn-primary btn-sm" @click="enviarRespuesta">Publicar</button>
-        <button class="btn btn-ghost btn-sm" @click="respondiendo = false">Cancelar</button>
+        <button
+          class="btn btn-primary btn-sm"
+          @click="enviarRespuesta"
+        >
+          Publicar
+        </button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="respondiendo = false"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
 
     <!-- Hijas (nivel 2, máximo) -->
-    <div v-if="respuesta.hijas?.length" class="foro-hijas">
+    <div
+      v-if="respuesta.hijas?.length"
+      class="foro-hijas"
+    >
       <ForoRespuestaItem
         v-for="h in respuesta.hijas"
         :key="h.id"

@@ -794,11 +794,26 @@ function explainPgError(table, status, body) {
 </script>
 
 <template>
-  <div class="admin-layout" :class="{ 'sidebar-hidden': sidebarHidden }">
-    <aside v-show="!sidebarHidden" id="admin-sidebar" class="admin-sidebar">
+  <div
+    class="admin-layout"
+    :class="{ 'sidebar-hidden': sidebarHidden }"
+  >
+    <aside
+      v-show="!sidebarHidden"
+      id="admin-sidebar"
+      class="admin-sidebar"
+    >
       <div class="admin-sidebar-header">
-        <p class="eyebrow" :style="{ color: 'var(--brand-accent)' }">Panel admin</p>
-        <h2 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--brand-accent)' }"
+        >
+          Panel admin
+        </p>
+        <h2
+          class="display"
+          :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Operaci&oacute;n
         </h2>
       </div>
@@ -849,7 +864,9 @@ function explainPgError(table, status, body) {
           <div class="admin-content fade-in">
             <div class="admin-content-header">
               <div>
-                <p class="eyebrow">Cat&aacute;logo</p>
+                <p class="eyebrow">
+                  Cat&aacute;logo
+                </p>
                 <h1
                   class="display"
                   :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
@@ -857,25 +874,42 @@ function explainPgError(table, status, body) {
                   Cursos
                 </h1>
               </div>
-              <button class="btn btn-primary btn-sm" @click="setSection('nuevo')">
+              <button
+                class="btn btn-primary btn-sm"
+                @click="setSection('nuevo')"
+              >
                 + Nuevo curso
                 <IconSet name="arrow" />
               </button>
             </div>
-            <div class="card" :style="{ overflow: 'auto' }">
+            <div
+              class="card"
+              :style="{ overflow: 'auto' }"
+            >
               <table class="admin-table admin-table-full">
                 <thead>
                   <tr>
                     <th class="mono" />
-                    <th class="mono">Curso</th>
-                    <th class="mono">Nivel</th>
-                    <th class="mono">Inscritos</th>
-                    <th class="mono">Estructura</th>
+                    <th class="mono">
+                      Curso
+                    </th>
+                    <th class="mono">
+                      Nivel
+                    </th>
+                    <th class="mono">
+                      Inscritos
+                    </th>
+                    <th class="mono">
+                      Estructura
+                    </th>
                     <th class="mono" />
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="c in adminCursos" :key="c.id">
+                  <tr
+                    v-for="c in adminCursos"
+                    :key="c.id"
+                  >
                     <td :style="{ width: '56px' }">
                       <img
                         v-if="isUrl(c.imagen)"
@@ -888,7 +922,7 @@ function explainPgError(table, status, body) {
                           objectFit: 'cover',
                           display: 'block',
                         }"
-                      />
+                      >
                       <PlaceholderImage
                         v-else
                         :label="c.imagen"
@@ -898,18 +932,29 @@ function explainPgError(table, status, body) {
                     <td>
                       <div :style="{ display: 'flex', flexDirection: 'column', gap: '2px' }">
                         <span :style="{ fontWeight: '500' }">{{ c.titulo }}</span>
-                        <span class="mono" :style="{ color: 'var(--ink-4)' }"> /{{ c.slug }} </span>
+                        <span
+                          class="mono"
+                          :style="{ color: 'var(--ink-4)' }"
+                        > /{{ c.slug }} </span>
                       </div>
                     </td>
                     <td>
                       <span class="chip">{{ c.nivel }}</span>
                     </td>
                     <td>{{ c.inscritos.toLocaleString() }}</td>
-                    <td class="mono" :style="{ color: 'var(--ink-3)' }">
+                    <td
+                      class="mono"
+                      :style="{ color: 'var(--ink-3)' }"
+                    >
                       {{ c.modulos }} m&oacute;d &middot; {{ c.lecciones }} lec
                     </td>
                     <td :style="{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }">
-                      <button class="btn btn-ghost btn-sm" @click="editCurso(c)">Editar</button>
+                      <button
+                        class="btn btn-ghost btn-sm"
+                        @click="editCurso(c)"
+                      >
+                        Editar
+                      </button>
                       <button
                         class="btn btn-ghost btn-sm btn-danger"
                         :disabled="(c.inscritos || 0) > 0"
@@ -929,13 +974,18 @@ function explainPgError(table, status, body) {
         </template>
       </template>
 
-      <AdminUserManager v-else-if="activeSection === 'usuarios'" :session="session" />
+      <AdminUserManager
+        v-else-if="activeSection === 'usuarios'"
+        :session="session"
+      />
 
       <template v-else-if="activeSection === 'instructores'">
         <div class="admin-content fade-in">
           <div class="admin-content-header">
             <div>
-              <p class="eyebrow">Gesti&oacute;n</p>
+              <p class="eyebrow">
+                Gesti&oacute;n
+              </p>
               <h1
                 class="display"
                 :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
@@ -951,9 +1001,16 @@ function explainPgError(table, status, body) {
           >
             {{ instMsg }}
           </p>
-          <div class="field" :style="{ maxWidth: '420px', marginBottom: 'calc(var(--unit) * 2)' }">
+          <div
+            class="field"
+            :style="{ maxWidth: '420px', marginBottom: 'calc(var(--unit) * 2)' }"
+          >
             <label>Agregar instructor (buscar por nombre o correo)</label>
-            <input v-model="instBusqueda" type="text" placeholder="M\u00ednimo 2 caracteres..." />
+            <input
+              v-model="instBusqueda"
+              type="text"
+              placeholder="M\u00ednimo 2 caracteres..."
+            >
           </div>
           <div
             v-if="instResultados.length"
@@ -966,9 +1023,17 @@ function explainPgError(table, status, body) {
           >
             <table class="admin-table admin-table-full">
               <tbody>
-                <tr v-for="p in instResultados" :key="p.id">
-                  <td :style="{ fontWeight: '500' }">{{ p.nombres }} {{ p.apellido_paterno }}</td>
-                  <td class="mono" :style="{ color: 'var(--ink-3)' }">
+                <tr
+                  v-for="p in instResultados"
+                  :key="p.id"
+                >
+                  <td :style="{ fontWeight: '500' }">
+                    {{ p.nombres }} {{ p.apellido_paterno }}
+                  </td>
+                  <td
+                    class="mono"
+                    :style="{ color: 'var(--ink-3)' }"
+                  >
                     {{ p.correo }}
                   </td>
                   <td>
@@ -979,7 +1044,10 @@ function explainPgError(table, status, body) {
                     >
                       Hacer instructor
                     </button>
-                    <span v-else class="chip">Ya es instructor</span>
+                    <span
+                      v-else
+                      class="chip"
+                    >Ya es instructor</span>
                   </td>
                 </tr>
               </tbody>
@@ -993,19 +1061,29 @@ function explainPgError(table, status, body) {
               alignItems: 'start',
             }"
           >
-            <div class="card" :style="{ overflow: 'auto' }">
+            <div
+              class="card"
+              :style="{ overflow: 'auto' }"
+            >
               <table class="admin-table admin-table-full">
                 <thead>
                   <tr>
-                    <th class="mono">Nombre</th>
-                    <th class="mono">Correo</th>
+                    <th class="mono">
+                      Nombre
+                    </th>
+                    <th class="mono">
+                      Correo
+                    </th>
                     <th class="mono" />
                     <th class="mono" />
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-if="!instructores.length && !instLoading">
-                    <td colspan="4" :style="{ color: 'var(--ink-4)' }">
+                    <td
+                      colspan="4"
+                      :style="{ color: 'var(--ink-4)' }"
+                    >
                       Sin instructores. Busca un perfil arriba para dar de alta.
                     </td>
                   </tr>
@@ -1014,12 +1092,22 @@ function explainPgError(table, status, body) {
                     :key="p.id"
                     :class="{ 'is-selected': instSel?.id === p.id }"
                   >
-                    <td :style="{ fontWeight: '500' }">{{ p.nombres }} {{ p.apellido_paterno }}</td>
-                    <td class="mono" :style="{ color: 'var(--ink-3)' }">
+                    <td :style="{ fontWeight: '500' }">
+                      {{ p.nombres }} {{ p.apellido_paterno }}
+                    </td>
+                    <td
+                      class="mono"
+                      :style="{ color: 'var(--ink-3)' }"
+                    >
                       {{ p.correo }}
                     </td>
                     <td>
-                      <button class="btn btn-ghost btn-sm" @click="selInstructor(p)">Cursos</button>
+                      <button
+                        class="btn btn-ghost btn-sm"
+                        @click="selInstructor(p)"
+                      >
+                        Cursos
+                      </button>
                     </td>
                     <td>
                       <button
@@ -1038,8 +1126,14 @@ function explainPgError(table, status, body) {
                 </tbody>
               </table>
             </div>
-            <div v-if="instSel" class="card" :style="{ padding: 'calc(var(--unit) * 2)' }">
-              <p class="eyebrow">Cursos de {{ instSel.nombres }} {{ instSel.apellido_paterno }}</p>
+            <div
+              v-if="instSel"
+              class="card"
+              :style="{ padding: 'calc(var(--unit) * 2)' }"
+            >
+              <p class="eyebrow">
+                Cursos de {{ instSel.nombres }} {{ instSel.apellido_paterno }}
+              </p>
               <ul
                 :style="{
                   listStyle: 'none',
@@ -1067,7 +1161,10 @@ function explainPgError(table, status, body) {
                   }"
                 >
                   <span>{{ a.cursos?.titulo || a.curso_id }}</span>
-                  <button class="btn btn-ghost btn-sm" @click="quitarCursoSel(a.curso_id)">
+                  <button
+                    class="btn btn-ghost btn-sm"
+                    @click="quitarCursoSel(a.curso_id)"
+                  >
                     Quitar
                   </button>
                 </li>
@@ -1075,8 +1172,16 @@ function explainPgError(table, status, body) {
               <div class="field">
                 <label>Asignar curso</label>
                 <div :style="{ display: 'flex', gap: '8px' }">
-                  <select v-model="instCursoSel" :style="{ flex: '1' }">
-                    <option value="" disabled>Selecciona un curso…</option>
+                  <select
+                    v-model="instCursoSel"
+                    :style="{ flex: '1' }"
+                  >
+                    <option
+                      value=""
+                      disabled
+                    >
+                      Selecciona un curso…
+                    </option>
                     <option
                       v-for="c in instCursosCat.filter(
                         (c) => !instAsignaciones.some((a) => a.curso_id === c.id)
@@ -1103,7 +1208,9 @@ function explainPgError(table, status, body) {
 
       <template v-else-if="activeSection === 'constancias'">
         <div class="admin-content fade-in admin-centered">
-          <p class="eyebrow">Constancias emitidas</p>
+          <p class="eyebrow">
+            Constancias emitidas
+          </p>
           <div
             class="display"
             :style="{
@@ -1127,7 +1234,9 @@ function explainPgError(table, status, body) {
         <div class="admin-content fade-in">
           <div class="admin-content-header">
             <div>
-              <p class="eyebrow">An&aacute;lisis</p>
+              <p class="eyebrow">
+                An&aacute;lisis
+              </p>
               <h1
                 class="display"
                 :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
@@ -1135,7 +1244,11 @@ function explainPgError(table, status, body) {
                 Reportes
               </h1>
             </div>
-            <button v-if="reportRows.length" class="btn btn-ghost btn-sm" @click="exportReportCsv">
+            <button
+              v-if="reportRows.length"
+              class="btn btn-ghost btn-sm"
+              @click="exportReportCsv"
+            >
               Descargar CSV
               <IconSet name="arrow" />
             </button>
@@ -1149,7 +1262,10 @@ function explainPgError(table, status, body) {
               :class="{ active: selectedReport?.key === r.key }"
               @click="runReport(r)"
             >
-              <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
+              <span
+                class="mono"
+                :style="{ color: 'var(--ink-4)', minWidth: '28px' }"
+              >
                 {{ String(i + 1).padStart(2, '0') }}
               </span>
               <span
@@ -1165,16 +1281,25 @@ function explainPgError(table, status, body) {
               />
             </button>
           </div>
-          <div v-if="selectedReport" :style="{ marginTop: 'calc(var(--unit) * 4)' }">
+          <div
+            v-if="selectedReport"
+            :style="{ marginTop: 'calc(var(--unit) * 4)' }"
+          >
             <div :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
               <p class="eyebrow">
                 {{ selectedReport.label }}
               </p>
-              <p class="mono" :style="{ color: 'var(--ink-4)', marginTop: '4px' }">
+              <p
+                class="mono"
+                :style="{ color: 'var(--ink-4)', marginTop: '4px' }"
+              >
                 {{ reportLoading ? 'Generando\u2026' : `${reportRows.length} resultado(s)` }}
               </p>
             </div>
-            <div v-if="reportError" class="publish-status publish-status-error">
+            <div
+              v-if="reportError"
+              class="publish-status publish-status-error"
+            >
               {{ reportError }}
             </div>
             <div
@@ -1199,18 +1324,32 @@ function explainPgError(table, status, body) {
             >
               Sin resultados.
             </div>
-            <div v-else class="card" :style="{ overflow: 'auto' }">
+            <div
+              v-else
+              class="card"
+              :style="{ overflow: 'auto' }"
+            >
               <table class="admin-table admin-table-full">
                 <thead>
                   <tr>
-                    <th v-for="col in reportColumns" :key="col" class="mono">
+                    <th
+                      v-for="col in reportColumns"
+                      :key="col"
+                      class="mono"
+                    >
                       {{ col }}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, i) in reportRows" :key="i">
-                    <td v-for="col in reportColumns" :key="col">
+                  <tr
+                    v-for="(row, i) in reportRows"
+                    :key="i"
+                  >
+                    <td
+                      v-for="col in reportColumns"
+                      :key="col"
+                    >
                       {{ row[col] }}
                     </td>
                   </tr>
@@ -1225,7 +1364,9 @@ function explainPgError(table, status, body) {
         <div class="admin-content fade-in">
           <div class="admin-content-header">
             <div>
-              <p class="eyebrow">Plataforma</p>
+              <p class="eyebrow">
+                Plataforma
+              </p>
               <h1
                 class="display"
                 :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
@@ -1245,10 +1386,20 @@ function explainPgError(table, status, body) {
               </p>
             </div>
           </div>
-          <div v-if="constConfigLoading" class="config-card">
-            <span class="mono" :style="{ color: 'var(--ink-3)' }">Cargando…</span>
+          <div
+            v-if="constConfigLoading"
+            class="config-card"
+          >
+            <span
+              class="mono"
+              :style="{ color: 'var(--ink-3)' }"
+            >Cargando…</span>
           </div>
-          <form v-else class="config-card" @submit.prevent="saveConstConfig">
+          <form
+            v-else
+            class="config-card"
+            @submit.prevent="saveConstConfig"
+          >
             <div class="field">
               <label for="cs-titular">Nombre del titular</label>
               <input
@@ -1257,7 +1408,7 @@ function explainPgError(table, status, body) {
                 type="text"
                 placeholder="Ej. Dr. Juan P\u00e9rez Garc\u00eda"
                 maxlength="120"
-              />
+              >
             </div>
             <div class="field">
               <label for="cs-cargo">Cargo del titular</label>
@@ -1267,7 +1418,7 @@ function explainPgError(table, status, body) {
                 type="text"
                 placeholder="Ej. Titular de la instituci\u00f3n"
                 maxlength="160"
-              />
+              >
             </div>
             <div class="field">
               <label for="cs-lugar">Lugar de emisi\u00f3n</label>
@@ -1277,14 +1428,25 @@ function explainPgError(table, status, body) {
                 type="text"
                 placeholder="Ej. Ciudad de M\u00e9xico"
                 maxlength="80"
-              />
+              >
             </div>
             <div class="config-actions">
-              <button type="submit" class="btn btn-primary" :disabled="constConfigSaving">
-                <template v-if="constConfigSaving"> Guardando… </template>
-                <template v-else> Guardar cambios <IconSet name="arrow" /> </template>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                :disabled="constConfigSaving"
+              >
+                <template v-if="constConfigSaving">
+                  Guardando…
+                </template>
+                <template v-else>
+                  Guardar cambios <IconSet name="arrow" />
+                </template>
               </button>
-              <span v-if="constConfigMsg" class="mono config-msg">{{ constConfigMsg }}</span>
+              <span
+                v-if="constConfigMsg"
+                class="mono config-msg"
+              >{{ constConfigMsg }}</span>
             </div>
           </form>
         </div>

@@ -128,7 +128,10 @@ function guardar() {
   <!-- Finding 1: teleport to body so position:fixed escapes any transform-retaining ancestor -->
   <teleport to="body">
     <template v-if="abierto">
-      <div class="panel-backdrop" @click="onEsc" />
+      <div
+        class="panel-backdrop"
+        @click="onEsc"
+      />
       <aside
         class="panel"
         role="dialog"
@@ -139,8 +142,17 @@ function guardar() {
       >
         <header class="panel-header">
           <h3>{{ t('builder.editLesson') }}</h3>
-          <span v-if="dirty" class="unsaved">{{ t('builder.unsaved') }}</span>
-          <button class="panel-close" :aria-label="t('builder.cancel')" @click="onEsc">✕</button>
+          <span
+            v-if="dirty"
+            class="unsaved"
+          >{{ t('builder.unsaved') }}</span>
+          <button
+            class="panel-close"
+            :aria-label="t('builder.cancel')"
+            @click="onEsc"
+          >
+            ✕
+          </button>
         </header>
 
         <div class="panel-body">
@@ -151,12 +163,16 @@ function guardar() {
               data-test="lesson-titulo"
               type="text"
               @input="marcarDirty"
-            />
+            >
           </label>
 
           <fieldset class="field">
             <legend>{{ t('builder.source') }}</legend>
-            <label v-for="f in FUENTES" :key="f" class="radio">
+            <label
+              v-for="f in FUENTES"
+              :key="f"
+              class="radio"
+            >
               <input
                 v-model="local.fuente"
                 type="radio"
@@ -164,20 +180,23 @@ function guardar() {
                 :value="f"
                 :data-test="`fuente-${f}`"
                 @change="marcarDirty"
-              />
+              >
               {{ t(`builder.source${f.charAt(0).toUpperCase() + f.slice(1)}`) }}
             </label>
           </fieldset>
 
           <!-- Finding 4: i18n keys for hardcoded YouTube literals -->
-          <label v-if="local.fuente === 'youtube'" class="field">
+          <label
+            v-if="local.fuente === 'youtube'"
+            class="field"
+          >
             {{ t('builder.youtubeUrl') }}
             <input
               v-model="local.url_youtube"
               type="url"
               placeholder="https://youtube.com/watch?v=…"
               @input="marcarDirty"
-            />
+            >
             <iframe
               v-if="/youtu\.?be/.test(local.url_youtube || '')"
               class="yt-preview"
@@ -215,7 +234,10 @@ function guardar() {
           />
 
           <!-- EvaluacionEditor: real prop preguntas (mutates in-place, no emits) -->
-          <EvaluacionEditor v-if="local.fuente === 'examen'" :preguntas="local.preguntas" />
+          <EvaluacionEditor
+            v-if="local.fuente === 'examen'"
+            :preguntas="local.preguntas"
+          />
 
           <!-- Fix 3: Eval config fields (only for examen) -->
           <template v-if="local.fuente === 'examen'">
@@ -228,7 +250,7 @@ function guardar() {
                 min="0"
                 max="100"
                 @input="marcarDirty"
-              />
+              >
             </label>
             <label class="field">
               {{ t('builder.maxAttempts') }}
@@ -238,7 +260,7 @@ function guardar() {
                 type="number"
                 min="1"
                 @input="marcarDirty"
-              />
+              >
             </label>
           </template>
 
@@ -251,7 +273,12 @@ function guardar() {
 
           <label class="field">
             {{ t('builder.duration') }}
-            <input v-model="duracionStr" type="text" placeholder="12:30" @input="marcarDirty" />
+            <input
+              v-model="duracionStr"
+              type="text"
+              placeholder="12:30"
+              @input="marcarDirty"
+            >
           </label>
 
           <!-- Fix 3: Entrega fields (always visible) -->
@@ -262,7 +289,7 @@ function guardar() {
                 data-test="requiere-entrega"
                 type="checkbox"
                 @change="marcarDirty"
-              />
+              >
               {{ t('builder.requiresDelivery') }}
             </label>
           </label>
@@ -274,7 +301,7 @@ function guardar() {
               type="text"
               placeholder="pdf, docx, zip, png, jpg"
               @input="marcarDirty"
-            />
+            >
           </label>
           <label class="field">
             {{ t('builder.deliveryMaxMb') }}
@@ -285,15 +312,23 @@ function guardar() {
               min="1"
               max="50"
               @input="marcarDirty"
-            />
+            >
           </label>
         </div>
 
         <footer class="panel-footer">
-          <button class="btn-secondary" data-test="panel-cancel" @click="emit('close')">
+          <button
+            class="btn-secondary"
+            data-test="panel-cancel"
+            @click="emit('close')"
+          >
             {{ t('builder.cancel') }}
           </button>
-          <button class="btn-primary" data-test="panel-save" @click="guardar">
+          <button
+            class="btn-primary"
+            data-test="panel-save"
+            @click="guardar"
+          >
             {{ t('builder.save') }}
           </button>
         </footer>

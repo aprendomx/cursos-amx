@@ -76,11 +76,23 @@ function marcarCorrecta(p, oi) {
 
 <template>
   <div class="qe">
-    <div v-for="(p, i) in preguntas" :key="p.id" class="qe-q card">
+    <div
+      v-for="(p, i) in preguntas"
+      :key="p.id"
+      class="qe-q card"
+    >
       <div class="qe-q-head">
-        <span class="mono" :style="{ color: 'var(--ink-4)' }">Pregunta {{ i + 1 }}</span>
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-4)' }"
+        >Pregunta {{ i + 1 }}</span>
         <div :style="{ display: 'flex', gap: '4px' }">
-          <button type="button" class="qe-icon" :disabled="i === 0" @click="movePregunta(i, -1)">
+          <button
+            type="button"
+            class="qe-icon"
+            :disabled="i === 0"
+            @click="movePregunta(i, -1)"
+          >
             ↑
           </button>
           <button
@@ -91,14 +103,27 @@ function marcarCorrecta(p, oi) {
           >
             ↓
           </button>
-          <button type="button" class="qe-icon qe-icon-danger" @click="removePregunta(i)">×</button>
+          <button
+            type="button"
+            class="qe-icon qe-icon-danger"
+            @click="removePregunta(i)"
+          >
+            ×
+          </button>
         </div>
       </div>
 
       <div class="field">
         <label>Tipo</label>
-        <select v-model="p.tipo" @change="onTipoChange(p)">
-          <option v-for="t in TIPOS" :key="t.v" :value="t.v">
+        <select
+          v-model="p.tipo"
+          @change="onTipoChange(p)"
+        >
+          <option
+            v-for="t in TIPOS"
+            :key="t.v"
+            :value="t.v"
+          >
             {{ t.label }}
           </option>
         </select>
@@ -114,10 +139,17 @@ function marcarCorrecta(p, oi) {
         />
       </div>
 
-      <p class="eyebrow" :style="{ margin: 'calc(var(--unit) * 1) 0' }">
+      <p
+        class="eyebrow"
+        :style="{ margin: 'calc(var(--unit) * 1) 0' }"
+      >
         Opciones — marca la(s) correcta(s)
       </p>
-      <div v-for="(o, oi) in p.opciones" :key="o.id" class="qe-opt">
+      <div
+        v-for="(o, oi) in p.opciones"
+        :key="o.id"
+        class="qe-opt"
+      >
         <button
           type="button"
           class="qe-correct"
@@ -132,7 +164,7 @@ function marcarCorrecta(p, oi) {
           type="text"
           :disabled="p.tipo === 'verdadero_falso'"
           placeholder="Texto de la opción"
-        />
+        >
         <button
           v-if="p.tipo !== 'verdadero_falso'"
           type="button"
@@ -153,7 +185,11 @@ function marcarCorrecta(p, oi) {
       </button>
     </div>
 
-    <button type="button" class="btn btn-secondary btn-sm" @click="addPregunta">
+    <button
+      type="button"
+      class="btn btn-secondary btn-sm"
+      @click="addPregunta"
+    >
       + Agregar pregunta
     </button>
   </div>

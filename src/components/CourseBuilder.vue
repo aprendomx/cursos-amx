@@ -122,8 +122,15 @@ async function duplicarLeccion(lessonIndex) {
 </script>
 
 <template>
-  <div class="course-builder" :class="{ 'dragging-lesson': arrastrandoLeccion }">
-    <p v-if="cb.error.value" class="builder-error" role="alert">
+  <div
+    class="course-builder"
+    :class="{ 'dragging-lesson': arrastrandoLeccion }"
+  >
+    <p
+      v-if="cb.error.value"
+      class="builder-error"
+      role="alert"
+    >
       {{ cb.error.value.message }}
     </p>
     <div class="builder-panels">
@@ -151,7 +158,10 @@ async function duplicarLeccion(lessonIndex) {
         @drag-state="(v) => (arrastrandoLeccion = v)"
       />
     </div>
-    <footer class="validation-bar" data-test="validation-bar">
+    <footer
+      class="validation-bar"
+      data-test="validation-bar"
+    >
       {{
         t('builder.validationSummary', {
           modules: resumen.modulos,

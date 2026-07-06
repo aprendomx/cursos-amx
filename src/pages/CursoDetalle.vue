@@ -307,7 +307,10 @@ async function continueCurso() {
         >
           <IconSet name="arrowLeft" />
         </button>
-        <span class="mono" :style="{ color: 'var(--ink-3)' }">
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-3)' }"
+        >
           Inicio &middot; Cat&aacute;logo &middot; {{ curso.titulo }}
         </span>
       </div>
@@ -326,7 +329,12 @@ async function continueCurso() {
       class="container"
       :style="{ padding: 'calc(var(--unit) * 8) 0', textAlign: 'center' }"
     >
-      <p class="eyebrow" :style="{ color: 'var(--danger)' }">No se pudo cargar el curso</p>
+      <p
+        class="eyebrow"
+        :style="{ color: 'var(--danger)' }"
+      >
+        No se pudo cargar el curso
+      </p>
       <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
         {{ loadError }}
       </p>
@@ -383,26 +391,48 @@ async function continueCurso() {
             }"
           >
             <div>
-              <div class="eyebrow" :style="{ marginBottom: '4px' }">Duraci&oacute;n</div>
+              <div
+                class="eyebrow"
+                :style="{ marginBottom: '4px' }"
+              >
+                Duraci&oacute;n
+              </div>
               <div :style="{ fontSize: '15px', fontWeight: '500' }">
                 {{ curso.duracion }}
               </div>
             </div>
             <div>
-              <div class="eyebrow" :style="{ marginBottom: '4px' }">Nivel</div>
+              <div
+                class="eyebrow"
+                :style="{ marginBottom: '4px' }"
+              >
+                Nivel
+              </div>
               <div :style="{ fontSize: '15px', fontWeight: '500' }">
                 {{ curso.nivel }}
               </div>
             </div>
             <div>
-              <div class="eyebrow" :style="{ marginBottom: '4px' }">Inscritos</div>
+              <div
+                class="eyebrow"
+                :style="{ marginBottom: '4px' }"
+              >
+                Inscritos
+              </div>
               <div :style="{ fontSize: '15px', fontWeight: '500' }">
                 {{ curso.inscritos.toLocaleString() }}
               </div>
             </div>
             <div>
-              <div class="eyebrow" :style="{ marginBottom: '4px' }">Idioma</div>
-              <div :style="{ fontSize: '15px', fontWeight: '500' }">Espa&ntilde;ol</div>
+              <div
+                class="eyebrow"
+                :style="{ marginBottom: '4px' }"
+              >
+                Idioma
+              </div>
+              <div :style="{ fontSize: '15px', fontWeight: '500' }">
+                Espa&ntilde;ol
+              </div>
             </div>
           </div>
         </div>
@@ -425,7 +455,10 @@ async function continueCurso() {
             >
               {{ Math.round(curso.progreso * 100) }}%
             </div>
-            <div class="eyebrow" :style="{ marginTop: 'calc(var(--unit) * 1)' }">
+            <div
+              class="eyebrow"
+              :style="{ marginTop: 'calc(var(--unit) * 1)' }"
+            >
               Progreso del curso
             </div>
           </div>
@@ -441,12 +474,12 @@ async function continueCurso() {
               <span :style="{ color: 'var(--ink-3)' }">Lecciones completadas</span>
               <span :style="{ fontWeight: '500' }">{{ lessonsCompleted }}</span>
             </div>
-            <hr class="hairline" />
+            <hr class="hairline">
             <div :style="{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }">
               <span :style="{ color: 'var(--ink-3)' }">&Uacute;ltima actividad</span>
               <span :style="{ fontWeight: '500' }">Hace 2 d&iacute;as</span>
             </div>
-            <hr class="hairline" />
+            <hr class="hairline">
             <div :style="{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }">
               <span :style="{ color: 'var(--ink-3)' }">Constancia</span>
               <span :style="{ fontWeight: '500' }">
@@ -463,14 +496,24 @@ async function continueCurso() {
             :disabled="inscribiendo"
             @click="handleCtaClick"
           >
-            <template v-if="inscribiendo"> Inscribiendo&hellip; </template>
+            <template v-if="inscribiendo">
+              Inscribiendo&hellip;
+            </template>
             <template v-else-if="inscrito === null">
               Inicia sesi&oacute;n para inscribirte
             </template>
-            <template v-else-if="inscrito === false"> Inscribirme al curso </template>
-            <template v-else-if="curso.progreso === 0"> Comenzar curso </template>
-            <template v-else-if="curso.progreso === 1"> Revisar curso </template>
-            <template v-else> Continuar </template>
+            <template v-else-if="inscrito === false">
+              Inscribirme al curso
+            </template>
+            <template v-else-if="curso.progreso === 0">
+              Comenzar curso
+            </template>
+            <template v-else-if="curso.progreso === 1">
+              Revisar curso
+            </template>
+            <template v-else>
+              Continuar
+            </template>
             <IconSet name="arrow" />
           </button>
 
@@ -519,7 +562,10 @@ async function continueCurso() {
               <div :style="{ fontSize: '14px', fontWeight: '500' }">
                 {{ curso.instructor }}
               </div>
-              <div class="mono" :style="{ color: 'var(--ink-3)' }">
+              <div
+                class="mono"
+                :style="{ color: 'var(--ink-3)' }"
+              >
                 {{ curso.instructor_cargo }}
               </div>
             </div>
@@ -588,32 +634,42 @@ async function continueCurso() {
                     flexShrink: '0',
                     ...(mod.status === 'completed'
                       ? {
-                          background: 'var(--primary)',
-                          color: 'var(--paper)',
-                        }
+                        background: 'var(--primary)',
+                        color: 'var(--paper)',
+                      }
                       : mod.status === 'in-progress'
                         ? {
-                            background: 'transparent',
-                            border: '3px solid var(--primary)',
-                            color: 'var(--primary)',
-                          }
+                          background: 'transparent',
+                          border: '3px solid var(--primary)',
+                          color: 'var(--primary)',
+                        }
                         : mod.status === 'locked'
                           ? {
-                              background: 'var(--paper-3)',
-                              color: 'var(--ink-4)',
-                              border: '1px solid var(--line)',
-                            }
+                            background: 'var(--paper-3)',
+                            color: 'var(--ink-4)',
+                            border: '1px solid var(--line)',
+                          }
                           : {
-                              background: 'var(--paper)',
-                              color: 'var(--ink-2)',
-                              border: '1px solid var(--line)',
-                            }),
+                            background: 'var(--paper)',
+                            color: 'var(--ink-2)',
+                            border: '1px solid var(--line)',
+                          }),
                   }"
                   :class="{ pulsing: mod.status === 'in-progress' }"
                 >
-                  <IconSet v-if="mod.status === 'completed'" name="check" />
-                  <IconSet v-else-if="mod.status === 'locked'" name="lock" />
-                  <span v-else class="display" :style="{ fontSize: '22px' }">{{ mod.orden }}</span>
+                  <IconSet
+                    v-if="mod.status === 'completed'"
+                    name="check"
+                  />
+                  <IconSet
+                    v-else-if="mod.status === 'locked'"
+                    name="lock"
+                  />
+                  <span
+                    v-else
+                    class="display"
+                    :style="{ fontSize: '22px' }"
+                  >{{ mod.orden }}</span>
                 </div>
 
                 <!-- Vertical hairline connecting to next -->
@@ -655,7 +711,7 @@ async function continueCurso() {
                     :alt="mod.titulo"
                     loading="lazy"
                     :style="{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }"
-                  />
+                  >
                 </div>
 
                 <!-- Top row: module label + chips -->
@@ -668,22 +724,37 @@ async function continueCurso() {
                     gap: 'calc(var(--unit))',
                   }"
                 >
-                  <span class="mono" :style="{ color: 'var(--ink-4)' }">
+                  <span
+                    class="mono"
+                    :style="{ color: 'var(--ink-4)' }"
+                  >
                     M&oacute;dulo {{ mod.orden }}
                   </span>
-                  <span v-if="mod.status === 'completed'" class="chip chip-verde">
+                  <span
+                    v-if="mod.status === 'completed'"
+                    class="chip chip-verde"
+                  >
                     <IconSet name="check" />
                     Completado
                   </span>
-                  <span v-else-if="mod.status === 'in-progress'" class="chip chip-primary">
+                  <span
+                    v-else-if="mod.status === 'in-progress'"
+                    class="chip chip-primary"
+                  >
                     <span class="chip-dot" />
                     {{ Math.round(mod.completado * 100) }}%
                   </span>
-                  <span v-else-if="mod.status === 'locked'" class="chip">
+                  <span
+                    v-else-if="mod.status === 'locked'"
+                    class="chip"
+                  >
                     <IconSet name="lock" />
                     Bloqueado
                   </span>
-                  <span v-else class="chip chip-accent">
+                  <span
+                    v-else
+                    class="chip chip-accent"
+                  >
                     <span class="chip-dot" />
                     Disponible
                   </span>
@@ -796,8 +867,8 @@ async function continueCurso() {
       <section
         v-if="
           featureEnabled('chat') &&
-          cursoData &&
-          (inscrito === true || perfilApp?.es_instructor || perfilApp?.es_admin)
+            cursoData &&
+            (inscrito === true || perfilApp?.es_instructor || perfilApp?.es_admin)
         "
         class="chat-curso-wrap"
       >

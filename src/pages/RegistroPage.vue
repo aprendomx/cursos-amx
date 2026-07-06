@@ -105,10 +105,18 @@ const summaryRows = computed(() => [
     <aside class="registro-left">
       <div class="registro-left-content">
         <div class="registro-left-top">
-          <p class="eyebrow" style="color: var(--brand-accent-soft)">Paso {{ step + 1 }} de 4</p>
+          <p
+            class="eyebrow"
+            style="color: var(--brand-accent-soft)"
+          >
+            Paso {{ step + 1 }} de 4
+          </p>
           <h1 class="display registro-headline">
-            Tu cuenta,<br />
-            <em class="display-italic" style="color: var(--brand-accent-soft)">tu constancia.</em>
+            Tu cuenta,<br>
+            <em
+              class="display-italic"
+              style="color: var(--brand-accent-soft)"
+            >tu constancia.</em>
           </h1>
           <p class="registro-privacy">
             Tu información se usa exclusivamente para emitir constancias de
@@ -144,12 +152,19 @@ const summaryRows = computed(() => [
           <p class="eyebrow">
             {{ steps[step].label }}
           </p>
-          <h2 :key="step" class="display registro-form-title">
+          <h2
+            :key="step"
+            class="display registro-form-title"
+          >
             {{ steps[step].title }}
           </h2>
 
           <!-- Step 0: Identidad -->
-          <div v-if="step === 0" key="fields-0" class="registro-fields fade-in">
+          <div
+            v-if="step === 0"
+            key="fields-0"
+            class="registro-fields fade-in"
+          >
             <div class="field">
               <label for="r-nombres">Nombre(s)</label>
               <input
@@ -157,15 +172,25 @@ const summaryRows = computed(() => [
                 v-model="nombres"
                 type="text"
                 placeholder="Ej. María Fernanda"
-              />
+              >
             </div>
             <div class="field">
               <label for="r-ap1">Primer apellido</label>
-              <input id="r-ap1" v-model="apellido_p" type="text" placeholder="Ej. Escalante" />
+              <input
+                id="r-ap1"
+                v-model="apellido_p"
+                type="text"
+                placeholder="Ej. Escalante"
+              >
             </div>
             <div class="field">
               <label for="r-ap2">Segundo apellido</label>
-              <input id="r-ap2" v-model="apellido_s" type="text" placeholder="Opcional" />
+              <input
+                id="r-ap2"
+                v-model="apellido_s"
+                type="text"
+                placeholder="Opcional"
+              >
             </div>
             <div class="field">
               <label for="r-password">Contraseña</label>
@@ -174,29 +199,59 @@ const summaryRows = computed(() => [
                 v-model="password"
                 type="password"
                 placeholder="Mínimo 8 caracteres"
-              />
+              >
             </div>
           </div>
 
           <!-- Step 1: Contacto -->
-          <div v-else-if="step === 1" key="fields-1" class="registro-fields fade-in">
+          <div
+            v-else-if="step === 1"
+            key="fields-1"
+            class="registro-fields fade-in"
+          >
             <div class="field">
               <label for="r-correo">Correo institucional</label>
-              <input id="r-correo" v-model="correo" type="email" placeholder="correo@ejemplo.com" />
+              <input
+                id="r-correo"
+                v-model="correo"
+                type="email"
+                placeholder="correo@ejemplo.com"
+              >
             </div>
             <div class="field">
               <label for="r-tel">Teléfono móvil</label>
-              <input id="r-tel" v-model="telefono" type="tel" placeholder="55 1234 5678" />
+              <input
+                id="r-tel"
+                v-model="telefono"
+                type="tel"
+                placeholder="55 1234 5678"
+              >
             </div>
           </div>
 
           <!-- Step 2: Dependencia -->
-          <div v-else-if="step === 2" key="fields-2" class="registro-fields fade-in">
+          <div
+            v-else-if="step === 2"
+            key="fields-2"
+            class="registro-fields fade-in"
+          >
             <div class="field">
               <label for="r-dep">Dependencia</label>
-              <select id="r-dep" v-model="dependencia">
-                <option value="" disabled>Selecciona tu dependencia</option>
-                <option v-for="d in dependenciasLista" :key="d" :value="d">
+              <select
+                id="r-dep"
+                v-model="dependencia"
+              >
+                <option
+                  value=""
+                  disabled
+                >
+                  Selecciona tu dependencia
+                </option>
+                <option
+                  v-for="d in dependenciasLista"
+                  :key="d"
+                  :value="d"
+                >
                   {{ d }}
                 </option>
               </select>
@@ -208,25 +263,42 @@ const summaryRows = computed(() => [
                 v-model="cargo"
                 type="text"
                 placeholder="Ej. Subdirector(a) de Capacitación"
-              />
+              >
             </div>
           </div>
 
           <!-- Step 3: Confirmar -->
-          <div v-else key="fields-3" class="registro-fields fade-in">
+          <div
+            v-else
+            key="fields-3"
+            class="registro-fields fade-in"
+          >
             <div class="registro-summary card">
-              <div v-for="(row, i) in summaryRows" :key="row.label" class="registro-summary-row">
+              <div
+                v-for="(row, i) in summaryRows"
+                :key="row.label"
+                class="registro-summary-row"
+              >
                 <span class="registro-summary-label mono">{{ row.label }}</span>
                 <span class="registro-summary-value display">{{ row.value }}</span>
-                <hr v-if="i < summaryRows.length - 1" class="hairline" />
+                <hr
+                  v-if="i < summaryRows.length - 1"
+                  class="hairline"
+                >
               </div>
             </div>
 
             <label class="registro-accept">
-              <input v-model="acepta" type="checkbox" />
+              <input
+                v-model="acepta"
+                type="checkbox"
+              >
               <span>
                 He leído y acepto el
-                <a href="#" style="text-decoration: underline">aviso de privacidad</a>
+                <a
+                  href="#"
+                  style="text-decoration: underline"
+                >aviso de privacidad</a>
                 de {{ theme.constancia.emisor }}.
               </span>
             </label>
@@ -235,11 +307,19 @@ const summaryRows = computed(() => [
 
         <!-- Bottom navigation -->
         <footer class="registro-nav">
-          <button v-if="step > 0" class="btn btn-ghost btn-sm" @click="prev">
+          <button
+            v-if="step > 0"
+            class="btn btn-ghost btn-sm"
+            @click="prev"
+          >
             <IconSet name="arrowLeft" />
             Anterior
           </button>
-          <button v-else class="btn btn-ghost btn-sm" @click="router.push({ name: 'home' })">
+          <button
+            v-else
+            class="btn btn-ghost btn-sm"
+            @click="router.push({ name: 'home' })"
+          >
             Cancelar
           </button>
 
@@ -251,11 +331,16 @@ const summaryRows = computed(() => [
             :disabled="!canAdvance || loading"
             @click="next"
           >
-            <template v-if="loading"> Creando cuenta... </template>
+            <template v-if="loading">
+              Creando cuenta...
+            </template>
             <template v-else>
               {{ step < 3 ? 'Siguiente' : 'Crear cuenta' }}
             </template>
-            <IconSet v-if="!loading" name="arrow" />
+            <IconSet
+              v-if="!loading"
+              name="arrow"
+            />
           </button>
         </footer>
 

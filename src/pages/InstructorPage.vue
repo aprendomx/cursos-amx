@@ -101,40 +101,80 @@ const fmtBytes = (b) =>
 <template>
   <main class="instructor-page">
     <!-- Guards: flag apagado / sin rol / sin cursos -->
-    <div v-if="!habilitado" class="inst-empty">
-      <p class="eyebrow">Instructor</p>
+    <div
+      v-if="!habilitado"
+      class="inst-empty"
+    >
+      <p class="eyebrow">
+        Instructor
+      </p>
       <p>Esta función no está habilitada.</p>
     </div>
 
-    <div v-else-if="!esInstructor" class="inst-empty">
-      <p class="eyebrow">Instructor</p>
+    <div
+      v-else-if="!esInstructor"
+      class="inst-empty"
+    >
+      <p class="eyebrow">
+        Instructor
+      </p>
       <p>Tu cuenta no tiene el rol de instructor.</p>
-      <button class="btn btn-ghost" @click="router.push({ name: 'home' })">Volver al inicio</button>
+      <button
+        class="btn btn-ghost"
+        @click="router.push({ name: 'home' })"
+      >
+        Volver al inicio
+      </button>
     </div>
 
     <template v-else>
       <header class="inst-header">
         <div>
-          <p class="eyebrow">Panel de instructor</p>
+          <p class="eyebrow">
+            Panel de instructor
+          </p>
           <h1 class="display">
             {{ cursoActivo?.titulo || 'Mis cursos' }}
           </h1>
         </div>
-        <div v-if="misCursos.length > 1" class="field inst-curso-select">
+        <div
+          v-if="misCursos.length > 1"
+          class="field inst-curso-select"
+        >
           <label>Curso</label>
-          <select :value="cursoActivo?.id" @change="seleccionarCurso($event.target.value)">
-            <option v-for="c in misCursos" :key="c.id" :value="c.id">
+          <select
+            :value="cursoActivo?.id"
+            @change="seleccionarCurso($event.target.value)"
+          >
+            <option
+              v-for="c in misCursos"
+              :key="c.id"
+              :value="c.id"
+            >
               {{ c.titulo }}
             </option>
           </select>
         </div>
       </header>
 
-      <p v-if="error" class="inst-error mono">⚠ {{ error }}</p>
+      <p
+        v-if="error"
+        class="inst-error mono"
+      >
+        ⚠ {{ error }}
+      </p>
 
-      <div v-if="loading && !cursoActivo" class="inst-empty">Cargando…</div>
+      <div
+        v-if="loading && !cursoActivo"
+        class="inst-empty"
+      >
+        Cargando…
+      </div>
 
-      <div v-else-if="!tieneCursos" class="inst-empty">
+      <div
+        v-else-if="!tieneCursos"
+        class="inst-empty"
+      >
         <p>Aún no tienes cursos asignados. Pide a un administrador que te asigne desde el panel.</p>
       </div>
 
@@ -162,9 +202,19 @@ const fmtBytes = (b) =>
         <div class="inst-grid">
           <!-- Comentarios / moderación -->
           <section class="card inst-panel">
-            <h2 class="inst-panel-titulo">Comentarios recientes</h2>
-            <p v-if="!comentarios.length" class="inst-vacio">Sin comentarios en este curso.</p>
-            <ul v-else class="inst-comentarios">
+            <h2 class="inst-panel-titulo">
+              Comentarios recientes
+            </h2>
+            <p
+              v-if="!comentarios.length"
+              class="inst-vacio"
+            >
+              Sin comentarios en este curso.
+            </p>
+            <ul
+              v-else
+              class="inst-comentarios"
+            >
               <li
                 v-for="c in comentarios"
                 :key="c.id"
@@ -175,8 +225,14 @@ const fmtBytes = (b) =>
                   <strong>{{ nombreCorto(c.perfiles) }}</strong>
                   <span class="mono">{{ c.lecciones?.titulo }}</span>
                   <span class="mono inst-fecha">{{ fmtFecha(c.creado_en) }}</span>
-                  <span v-if="c.oculto" class="chip">Oculto</span>
-                  <span v-if="c.destacado" class="chip chip-oro">Destacado</span>
+                  <span
+                    v-if="c.oculto"
+                    class="chip"
+                  >Oculto</span>
+                  <span
+                    v-if="c.destacado"
+                    class="chip chip-oro"
+                  >Destacado</span>
                 </div>
                 <p class="inst-comentario-texto">
                   {{ c.contenido }}
@@ -189,7 +245,11 @@ const fmtBytes = (b) =>
                   >
                     Ocultar
                   </button>
-                  <button v-else class="btn btn-ghost btn-sm" @click="onModerar(c, 'mostrar')">
+                  <button
+                    v-else
+                    class="btn btn-ghost btn-sm"
+                    @click="onModerar(c, 'mostrar')"
+                  >
                     Mostrar
                   </button>
                   <button
@@ -219,44 +279,85 @@ const fmtBytes = (b) =>
 
           <div class="inst-col">
             <!-- Entregas por revisar (módulo LMS 3) -->
-            <section v-if="entregasHabilitadas" class="card inst-panel">
+            <section
+              v-if="entregasHabilitadas"
+              class="card inst-panel"
+            >
               <div class="inst-panel-head">
-                <h2 class="inst-panel-titulo">Entregas</h2>
-                <select v-model="filtroEntregas" class="inst-filtro mono">
-                  <option value="">Todas</option>
-                  <option value="pendiente">Pendientes</option>
-                  <option value="revisada">Revisadas</option>
-                  <option value="aprobada">Aprobadas</option>
-                  <option value="rechazada">Rechazadas</option>
+                <h2 class="inst-panel-titulo">
+                  Entregas
+                </h2>
+                <select
+                  v-model="filtroEntregas"
+                  class="inst-filtro mono"
+                >
+                  <option value="">
+                    Todas
+                  </option>
+                  <option value="pendiente">
+                    Pendientes
+                  </option>
+                  <option value="revisada">
+                    Revisadas
+                  </option>
+                  <option value="aprobada">
+                    Aprobadas
+                  </option>
+                  <option value="rechazada">
+                    Rechazadas
+                  </option>
                 </select>
               </div>
-              <p v-if="!entregasFiltradas.length" class="inst-vacio">
+              <p
+                v-if="!entregasFiltradas.length"
+                class="inst-vacio"
+              >
                 Sin entregas{{ filtroEntregas ? ' en este estado' : '' }}.
               </p>
-              <ul v-else class="inst-entregas">
-                <li v-for="e in entregasFiltradas" :key="e.id" class="inst-entrega">
+              <ul
+                v-else
+                class="inst-entregas"
+              >
+                <li
+                  v-for="e in entregasFiltradas"
+                  :key="e.id"
+                  class="inst-entrega"
+                >
                   <div class="inst-entrega-meta">
                     <strong>{{ nombreCorto(e.perfiles) }}</strong>
                     <span class="mono">{{ e.lecciones?.titulo }}</span>
-                    <span class="chip" :data-estado="e.estado">{{
+                    <span
+                      class="chip"
+                      :data-estado="e.estado"
+                    >{{
                       ESTADO_LABEL[e.estado] || e.estado
                     }}</span>
                   </div>
                   <div class="inst-entrega-archivo">
-                    <a href="#" @click.prevent="descargarEntrega(e)">📎 {{ e.archivo_nombre }}</a>
-                    <span class="mono inst-fecha"
-                      >v{{ e.version }} · {{ fmtBytes(e.archivo_bytes) }} ·
-                      {{ fmtFecha(e.creado_en) }}</span
-                    >
+                    <a
+                      href="#"
+                      @click.prevent="descargarEntrega(e)"
+                    >📎 {{ e.archivo_nombre }}</a>
+                    <span class="mono inst-fecha">v{{ e.version }} · {{ fmtBytes(e.archivo_bytes) }} ·
+                      {{ fmtFecha(e.creado_en) }}</span>
                   </div>
-                  <p v-if="e.comentario_instructor" class="inst-entrega-comentario">
+                  <p
+                    v-if="e.comentario_instructor"
+                    class="inst-entrega-comentario"
+                  >
                     {{ e.comentario_instructor }}
                   </p>
                   <div class="inst-acciones">
-                    <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'aprobada')">
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      @click="onRevisar(e, 'aprobada')"
+                    >
                       Aprobar
                     </button>
-                    <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'revisada')">
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      @click="onRevisar(e, 'revisada')"
+                    >
                       Revisada
                     </button>
                     <button
@@ -272,21 +373,43 @@ const fmtBytes = (b) =>
 
             <!-- Alumnos -->
             <section class="card inst-panel">
-              <h2 class="inst-panel-titulo">Alumnos inscritos</h2>
-              <p v-if="!alumnos.length" class="inst-vacio">Nadie se ha inscrito todavía.</p>
-              <table v-else class="inst-tabla">
+              <h2 class="inst-panel-titulo">
+                Alumnos inscritos
+              </h2>
+              <p
+                v-if="!alumnos.length"
+                class="inst-vacio"
+              >
+                Nadie se ha inscrito todavía.
+              </p>
+              <table
+                v-else
+                class="inst-tabla"
+              >
                 <thead>
                   <tr>
-                    <th class="mono">Nombre</th>
-                    <th class="mono">Dependencia</th>
-                    <th class="mono">Inscrito</th>
+                    <th class="mono">
+                      Nombre
+                    </th>
+                    <th class="mono">
+                      Dependencia
+                    </th>
+                    <th class="mono">
+                      Inscrito
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="a in alumnos" :key="a.user_id">
+                  <tr
+                    v-for="a in alumnos"
+                    :key="a.user_id"
+                  >
                     <td>{{ nombreCorto(a.perfiles) }}</td>
                     <td>
-                      <span v-if="a.perfiles?.dependencias?.siglas" class="chip">{{
+                      <span
+                        v-if="a.perfiles?.dependencias?.siglas"
+                        class="chip"
+                      >{{
                         a.perfiles.dependencias.siglas
                       }}</span>
                     </td>
@@ -300,10 +423,24 @@ const fmtBytes = (b) =>
 
             <!-- Log de moderación -->
             <section class="card inst-panel">
-              <h2 class="inst-panel-titulo">Log de moderación</h2>
-              <p v-if="!log.length" class="inst-vacio">Sin acciones registradas.</p>
-              <ul v-else class="inst-log">
-                <li v-for="l in log" :key="l.id" class="mono">
+              <h2 class="inst-panel-titulo">
+                Log de moderación
+              </h2>
+              <p
+                v-if="!log.length"
+                class="inst-vacio"
+              >
+                Sin acciones registradas.
+              </p>
+              <ul
+                v-else
+                class="inst-log"
+              >
+                <li
+                  v-for="l in log"
+                  :key="l.id"
+                  class="mono"
+                >
                   <span class="inst-fecha">{{ fmtFecha(l.creado_en) }}</span>
                   — {{ nombreCorto(l.perfiles) }} · {{ ACCION_LABEL[l.accion] || l.accion }}
                   {{ l.tipo_objetivo }}

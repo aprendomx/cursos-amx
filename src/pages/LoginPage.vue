@@ -27,9 +27,14 @@ function submit() {
 <template>
   <div class="auth-shell">
     <!-- Lado izquierdo: panel institucional -->
-    <aside class="auth-aside" aria-hidden="true">
+    <aside
+      class="auth-aside"
+      aria-hidden="true"
+    >
       <div class="auth-aside-inner">
-        <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
+        <p class="eyebrow auth-aside-kicker">
+          {{ theme.nav.title }} · {{ theme.app.name }}
+        </p>
         <h2 class="auth-aside-quote">
           Formación oficial,
           <em>constancia verificable</em>, servicio público profesional.
@@ -41,12 +46,24 @@ function submit() {
     </aside>
 
     <!-- Lado derecho: formulario -->
-    <section class="auth-form-wrap fade-in" aria-labelledby="login-titulo">
+    <section
+      class="auth-form-wrap fade-in"
+      aria-labelledby="login-titulo"
+    >
       <div class="auth-form">
         <header class="auth-header">
-          <p class="eyebrow">Inicio de sesión</p>
-          <h1 id="login-titulo" class="display">Accede a tu plataforma</h1>
-          <p class="auth-subtitle">Para servidoras y servidores públicos registrados.</p>
+          <p class="eyebrow">
+            Inicio de sesión
+          </p>
+          <h1
+            id="login-titulo"
+            class="display"
+          >
+            Accede a tu plataforma
+          </h1>
+          <p class="auth-subtitle">
+            Para servidoras y servidores públicos registrados.
+          </p>
         </header>
 
         <div class="auth-fields">
@@ -60,7 +77,7 @@ function submit() {
               autocomplete="email"
               autofocus
               @keydown.enter="submit"
-            />
+            >
           </div>
 
           <div class="field">
@@ -72,11 +89,15 @@ function submit() {
               placeholder="••••••••"
               autocomplete="current-password"
               @keydown.enter="submit"
-            />
+            >
           </div>
         </div>
 
-        <div v-if="error" class="auth-error" role="alert">
+        <div
+          v-if="error"
+          class="auth-error"
+          role="alert"
+        >
           {{ error }}
         </div>
 
@@ -86,13 +107,20 @@ function submit() {
           type="button"
           @click="submit"
         >
-          <template v-if="loading"> Iniciando sesión… </template>
-          <template v-else> Entrar <IconSet name="arrow" /> </template>
+          <template v-if="loading">
+            Iniciando sesión…
+          </template>
+          <template v-else>
+            Entrar <IconSet name="arrow" />
+          </template>
         </button>
 
         <p class="auth-alt">
           ¿No tienes cuenta?
-          <a href="#" @click.prevent="router.push({ name: 'registro' })">Crear cuenta</a>
+          <a
+            href="#"
+            @click.prevent="router.push({ name: 'registro' })"
+          >Crear cuenta</a>
         </p>
       </div>
     </section>

@@ -562,7 +562,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="player-page" :class="`variant-${variant}`">
+  <div
+    class="player-page"
+    :class="`variant-${variant}`"
+  >
     <!-- Top bar -->
     <header class="player-topbar">
       <div class="topbar-left">
@@ -581,17 +584,33 @@ onUnmounted(() => {
       </div>
       <div class="topbar-right">
         <div class="topbar-variants tweaks-segment">
-          <button :class="{ on: variant === 'split' }" @click="setVariant('split')">Split</button>
-          <button :class="{ on: variant === 'stacked' }" @click="setVariant('stacked')">
+          <button
+            :class="{ on: variant === 'split' }"
+            @click="setVariant('split')"
+          >
+            Split
+          </button>
+          <button
+            :class="{ on: variant === 'stacked' }"
+            @click="setVariant('stacked')"
+          >
             Chat inferior
           </button>
-          <button :class="{ on: variant === 'focus' }" @click="setVariant('focus')">Enfoque</button>
+          <button
+            :class="{ on: variant === 'focus' }"
+            @click="setVariant('focus')"
+          >
+            Enfoque
+          </button>
         </div>
       </div>
     </header>
 
     <!-- Split -->
-    <div v-if="variant === 'split'" class="layout-split">
+    <div
+      v-if="variant === 'split'"
+      class="layout-split"
+    >
       <div class="split-left">
         <PlayerVideoSurface
           :source="source"
@@ -631,11 +650,18 @@ onUnmounted(() => {
           @select="selectLesson"
         />
       </div>
-      <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
+      <PlayerChatPane
+        v-model:draft="draft"
+        :comentarios="comentarios"
+        @send="sendComment"
+      />
     </div>
 
     <!-- Stacked -->
-    <div v-else-if="variant === 'stacked'" class="layout-stacked">
+    <div
+      v-else-if="variant === 'stacked'"
+      class="layout-stacked"
+    >
       <div class="stacked-top">
         <PlayerVideoSurface
           :source="source"
@@ -699,12 +725,19 @@ onUnmounted(() => {
             </p>
           </div>
         </div>
-        <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
+        <PlayerChatPane
+          v-model:draft="draft"
+          :comentarios="comentarios"
+          @send="sendComment"
+        />
       </div>
     </div>
 
     <!-- Focus -->
-    <div v-else class="layout-focus">
+    <div
+      v-else
+      class="layout-focus"
+    >
       <div class="focus-center">
         <PlayerVideoSurface
           :source="source"
@@ -742,13 +775,25 @@ onUnmounted(() => {
             </h2>
           </div>
           <div class="focus-actions">
-            <button class="btn btn-ghost btn-sm" title="Notas (proximamente)" @click="() => {}">
+            <button
+              class="btn btn-ghost btn-sm"
+              title="Notas (proximamente)"
+              @click="() => {}"
+            >
               <IconSet name="doc" /> Notas
             </button>
-            <button class="btn btn-ghost btn-sm" title="Chat (proximamente)" @click="() => {}">
+            <button
+              class="btn btn-ghost btn-sm"
+              title="Chat (proximamente)"
+              @click="() => {}"
+            >
               <IconSet name="chat" /> Chat
             </button>
-            <button v-if="completada" class="btn btn-primary btn-sm" @click="goToNextLesson">
+            <button
+              v-if="completada"
+              class="btn btn-primary btn-sm"
+              @click="goToNextLesson"
+            >
               Siguiente leccion <IconSet name="arrow" />
             </button>
           </div>

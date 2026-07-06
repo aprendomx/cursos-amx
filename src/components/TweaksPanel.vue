@@ -31,10 +31,16 @@ function toggleChat() {
 </script>
 
 <template>
-  <div v-if="visible" class="tweaks-panel">
+  <div
+    v-if="visible"
+    class="tweaks-panel"
+  >
     <div class="tweaks-header">
       <h4>Ajustes de vista</h4>
-      <button class="tweaks-close" @click="emit('close')">
+      <button
+        class="tweaks-close"
+        @click="emit('close')"
+      >
         <IconSet name="close" />
       </button>
     </div>
@@ -43,9 +49,24 @@ function toggleChat() {
     <div class="tweaks-row">
       <label>Tema</label>
       <div class="tweaks-segment">
-        <button :class="{ on: theme === 'light' }" @click="setTheme('light')">Claro</button>
-        <button :class="{ on: theme === 'dark' }" @click="setTheme('dark')">Oscuro</button>
-        <button :class="{ on: theme === 'system' }" @click="setTheme('system')">Sistema</button>
+        <button
+          :class="{ on: theme === 'light' }"
+          @click="setTheme('light')"
+        >
+          Claro
+        </button>
+        <button
+          :class="{ on: theme === 'dark' }"
+          @click="setTheme('dark')"
+        >
+          Oscuro
+        </button>
+        <button
+          :class="{ on: theme === 'system' }"
+          @click="setTheme('system')"
+        >
+          Sistema
+        </button>
       </div>
     </div>
 
@@ -53,7 +74,10 @@ function toggleChat() {
     <div class="tweaks-row">
       <label>Color primario</label>
       <div class="tweaks-segment">
-        <button :class="{ on: tweaks.primary === 'brand' }" @click="set('primary', 'brand')">
+        <button
+          :class="{ on: tweaks.primary === 'brand' }"
+          @click="set('primary', 'brand')"
+        >
           Principal
         </button>
         <button
@@ -69,13 +93,22 @@ function toggleChat() {
     <div class="tweaks-row">
       <label>Densidad</label>
       <div class="tweaks-segment">
-        <button :class="{ on: tweaks.density === 'compact' }" @click="set('density', 'compact')">
+        <button
+          :class="{ on: tweaks.density === 'compact' }"
+          @click="set('density', 'compact')"
+        >
           Compacto
         </button>
-        <button :class="{ on: tweaks.density === 'cozy' }" @click="set('density', 'cozy')">
+        <button
+          :class="{ on: tweaks.density === 'cozy' }"
+          @click="set('density', 'cozy')"
+        >
           Normal
         </button>
-        <button :class="{ on: tweaks.density === 'spacious' }" @click="set('density', 'spacious')">
+        <button
+          :class="{ on: tweaks.density === 'spacious' }"
+          @click="set('density', 'spacious')"
+        >
           Amplio
         </button>
       </div>
@@ -110,7 +143,11 @@ function toggleChat() {
     <div class="tweaks-row">
       <div class="tweaks-toggle">
         <span>Chat en vivo</span>
-        <div class="tweaks-switch" :class="{ on: tweaks.liveChat }" @click="toggleChat" />
+        <div
+          class="tweaks-switch"
+          :class="{ on: tweaks.liveChat }"
+          @click="toggleChat"
+        />
       </div>
     </div>
   </div>

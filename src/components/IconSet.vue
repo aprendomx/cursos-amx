@@ -64,19 +64,45 @@ const sizes = {
 
     <!-- lock -->
     <template v-else-if="name === 'lock'">
-      <rect x="2.5" y="6" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.2" />
-      <path d="M4.5 6V4a2.5 2.5 0 015 0v2" stroke="currentColor" stroke-width="1.2" />
+      <rect
+        x="2.5"
+        y="6"
+        width="9"
+        height="6"
+        rx="1"
+        stroke="currentColor"
+        stroke-width="1.2"
+      />
+      <path
+        d="M4.5 6V4a2.5 2.5 0 015 0v2"
+        stroke="currentColor"
+        stroke-width="1.2"
+      />
     </template>
 
     <!-- play -->
     <template v-else-if="name === 'play'">
-      <path d="M3 2l7 4-7 4V2z" fill="currentColor" />
+      <path
+        d="M3 2l7 4-7 4V2z"
+        fill="currentColor"
+      />
     </template>
 
     <!-- clock -->
     <template v-else-if="name === 'clock'">
-      <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1" />
-      <path d="M6 3.5V6l1.5 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round" />
+      <circle
+        cx="6"
+        cy="6"
+        r="4.5"
+        stroke="currentColor"
+        stroke-width="1"
+      />
+      <path
+        d="M6 3.5V6l1.5 1.5"
+        stroke="currentColor"
+        stroke-width="1"
+        stroke-linecap="round"
+      />
     </template>
 
     <!-- doc -->
@@ -86,12 +112,22 @@ const sizes = {
         stroke="currentColor"
         stroke-width="1"
       />
-      <path d="M7 1.5v2h2" stroke="currentColor" stroke-width="1" />
+      <path
+        d="M7 1.5v2h2"
+        stroke="currentColor"
+        stroke-width="1"
+      />
     </template>
 
     <!-- user -->
     <template v-else-if="name === 'user'">
-      <circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2" />
+      <circle
+        cx="7"
+        cy="5"
+        r="2.5"
+        stroke="currentColor"
+        stroke-width="1.2"
+      />
       <path
         d="M2 12c1-2.5 3-3.5 5-3.5s4 1 5 3.5"
         stroke="currentColor"
@@ -102,7 +138,12 @@ const sizes = {
 
     <!-- dot -->
     <template v-else-if="name === 'dot'">
-      <circle cx="3" cy="3" r="3" fill="currentColor" />
+      <circle
+        cx="3"
+        cy="3"
+        r="3"
+        fill="currentColor"
+      />
     </template>
 
     <!-- send -->
@@ -147,8 +188,20 @@ const sizes = {
 
     <!-- search / lupa -->
     <template v-else-if="name === 'search'">
-      <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.4" fill="none" />
-      <path d="M9.5 9.5l3.5 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      <circle
+        cx="6.5"
+        cy="6.5"
+        r="4"
+        stroke="currentColor"
+        stroke-width="1.4"
+        fill="none"
+      />
+      <path
+        d="M9.5 9.5l3.5 3.5"
+        stroke="currentColor"
+        stroke-width="1.4"
+        stroke-linecap="round"
+      />
     </template>
   </svg>
 </template>

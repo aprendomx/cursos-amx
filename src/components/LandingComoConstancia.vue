@@ -20,11 +20,19 @@ const pasos = [
 </script>
 
 <template>
-  <section class="cc-section" aria-labelledby="cc-titulo">
+  <section
+    class="cc-section"
+    aria-labelledby="cc-titulo"
+  >
     <!-- Banda superior del color primario con título -->
     <header class="cc-band">
       <div class="cc-band-inner">
-        <h2 id="cc-titulo" class="cc-band-title">Como obtener tu constancia</h2>
+        <h2
+          id="cc-titulo"
+          class="cc-band-title"
+        >
+          Como obtener tu constancia
+        </h2>
       </div>
     </header>
 
@@ -33,14 +41,20 @@ const pasos = [
       <article class="cc-card">
         <!-- Lado izquierdo: pasos + descripción -->
         <div class="cc-left">
-          <h3 class="cc-headline">Obtén tu constancia</h3>
+          <h3 class="cc-headline">
+            Obtén tu constancia
+          </h3>
           <p class="cc-intro">
             Para recibir tu constancia de participación en el curso, debes cumplir los siguientes
             pasos:
           </p>
 
           <div class="cc-pasos">
-            <div v-for="p in pasos" :key="p.n" class="cc-paso">
+            <div
+              v-for="p in pasos"
+              :key="p.n"
+              class="cc-paso"
+            >
               <span class="cc-paso-num">{{ p.n }}</span>
               <div class="cc-paso-body">
                 <strong>{{ p.titulo }}</strong>
@@ -54,7 +68,11 @@ const pasos = [
           </p>
 
           <div class="cc-actions">
-            <button type="button" class="cc-pill" @click="emit('descargar-constancia')">
+            <button
+              type="button"
+              class="cc-pill"
+              @click="emit('descargar-constancia')"
+            >
               Descargar Constancia
             </button>
           </div>
@@ -69,7 +87,7 @@ const pasos = [
             loading="lazy"
             width="1200"
             height="1610"
-          />
+          >
         </div>
       </article>
     </div>

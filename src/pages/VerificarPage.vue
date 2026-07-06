@@ -68,45 +68,83 @@ function goHome() {
   <div class="verificar-page">
     <header class="verificar-header container">
       <AppLogo />
-      <span class="mono" :style="{ color: 'var(--ink-4)' }">
+      <span
+        class="mono"
+        :style="{ color: 'var(--ink-4)' }"
+      >
         Verificaci&oacute;n oficial &middot; {{ theme.constancia.emisor }}
       </span>
     </header>
 
     <main class="verificar-main container">
       <!-- Loading -->
-      <div v-if="loading" class="verificar-state">
-        <span class="mono" :style="{ color: 'var(--ink-3)' }">Verificando&hellip;</span>
+      <div
+        v-if="loading"
+        class="verificar-state"
+      >
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-3)' }"
+        >Verificando&hellip;</span>
       </div>
 
       <!-- Error de red -->
-      <div v-else-if="fetchError" class="verificar-state">
-        <p class="eyebrow" :style="{ color: 'var(--danger)' }">Error de conexi&oacute;n</p>
+      <div
+        v-else-if="fetchError"
+        class="verificar-state"
+      >
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--danger)' }"
+        >
+          Error de conexi&oacute;n
+        </p>
         <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
           {{ fetchError }}
         </p>
-        <button class="btn btn-ghost btn-sm verificar-cta" @click="goHome">
+        <button
+          class="btn btn-ghost btn-sm verificar-cta"
+          @click="goHome"
+        >
           Volver al inicio
           <IconSet name="arrow" />
         </button>
       </div>
 
       <!-- No encontrada -->
-      <div v-else-if="notFound" class="verificar-state">
-        <p class="eyebrow" :style="{ color: 'var(--danger)' }">Constancia no encontrada</p>
-        <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
-          No existe una constancia con folio <span class="mono">{{ folio }}</span
-          >.
+      <div
+        v-else-if="notFound"
+        class="verificar-state"
+      >
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--danger)' }"
+        >
+          Constancia no encontrada
         </p>
-        <button class="btn btn-ghost btn-sm verificar-cta" @click="goHome">
+        <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
+          No existe una constancia con folio <span class="mono">{{ folio }}</span>.
+        </p>
+        <button
+          class="btn btn-ghost btn-sm verificar-cta"
+          @click="goHome"
+        >
           Volver al inicio
           <IconSet name="arrow" />
         </button>
       </div>
 
       <!-- Encontrada -->
-      <div v-else class="verificar-card">
-        <p class="eyebrow" :style="{ color: 'var(--ink-3)' }">VERIFICACI&Oacute;N OFICIAL</p>
+      <div
+        v-else
+        class="verificar-card"
+      >
+        <p
+          class="eyebrow"
+          :style="{ color: 'var(--ink-3)' }"
+        >
+          VERIFICACI&Oacute;N OFICIAL
+        </p>
 
         <span class="chip chip-verde verificar-chip">
           <IconSet name="check" />
@@ -117,7 +155,9 @@ function goHome() {
           {{ data.nombre_persona }}
         </h1>
 
-        <p :style="{ color: 'var(--ink-2)', fontSize: '15px' }">acredit&oacute; el curso de</p>
+        <p :style="{ color: 'var(--ink-2)', fontSize: '15px' }">
+          acredit&oacute; el curso de
+        </p>
 
         <h2 class="display-italic verificar-curso">
           {{ data.titulo_curso }}
@@ -125,26 +165,41 @@ function goHome() {
 
         <div class="verificar-meta">
           <div>
-            <p class="eyebrow">Emitida</p>
+            <p class="eyebrow">
+              Emitida
+            </p>
             <p :style="{ fontSize: '14px', fontWeight: '500' }">
               {{ fechaFormateada }}
             </p>
           </div>
           <div>
-            <p class="eyebrow">Folio</p>
-            <p class="mono" :style="{ fontSize: '14px' }">
+            <p class="eyebrow">
+              Folio
+            </p>
+            <p
+              class="mono"
+              :style="{ fontSize: '14px' }"
+            >
               {{ data.folio }}
             </p>
           </div>
           <div>
-            <p class="eyebrow">Hash de verificaci&oacute;n</p>
-            <p class="mono" :style="{ fontSize: '14px' }">
+            <p class="eyebrow">
+              Hash de verificaci&oacute;n
+            </p>
+            <p
+              class="mono"
+              :style="{ fontSize: '14px' }"
+            >
               {{ hashTruncado }}
             </p>
           </div>
         </div>
 
-        <button class="btn btn-ghost btn-sm verificar-cta" @click="goHome">
+        <button
+          class="btn btn-ghost btn-sm verificar-cta"
+          @click="goHome"
+        >
           Volver al inicio
           <IconSet name="arrow" />
         </button>

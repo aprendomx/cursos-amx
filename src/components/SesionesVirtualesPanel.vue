@@ -132,20 +132,39 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 </script>
 
 <template>
-  <section v-if="habilitado && session" class="sesiones-panel">
+  <section
+    v-if="habilitado && session"
+    class="sesiones-panel"
+  >
     <div class="sesiones-head">
       <div>
-        <p class="eyebrow">Aulas virtuales</p>
-        <h2 class="display sesiones-titulo">Sesiones en vivo</h2>
+        <p class="eyebrow">
+          Aulas virtuales
+        </p>
+        <h2 class="display sesiones-titulo">
+          Sesiones en vivo
+        </h2>
       </div>
-      <button v-if="esInstructorCurso" class="btn btn-ghost btn-sm" @click="creando = !creando">
+      <button
+        v-if="esInstructorCurso"
+        class="btn btn-ghost btn-sm"
+        @click="creando = !creando"
+      >
         + Programar sesión
       </button>
     </div>
 
-    <p v-if="error" class="mono sesiones-error">⚠ {{ error }}</p>
+    <p
+      v-if="error"
+      class="mono sesiones-error"
+    >
+      ⚠ {{ error }}
+    </p>
 
-    <div v-if="creando && esInstructorCurso" class="card sesiones-form">
+    <div
+      v-if="creando && esInstructorCurso"
+      class="card sesiones-form"
+    >
       <div class="field">
         <label>Título</label>
         <input
@@ -153,11 +172,14 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           type="text"
           maxlength="200"
           placeholder="p. ej. Sesión de dudas — Módulo 2"
-        />
+        >
       </div>
       <div class="field">
         <label>Fecha y hora</label>
-        <input v-model="nuevaFecha" type="datetime-local" />
+        <input
+          v-model="nuevaFecha"
+          type="datetime-local"
+        >
       </div>
       <div class="sesiones-acciones">
         <button
@@ -167,11 +189,19 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
         >
           Programar
         </button>
-        <button class="btn btn-ghost btn-sm" @click="creando = false">Cancelar</button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="creando = false"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
 
-    <p v-if="!sesiones.length && !loading" class="sesiones-vacio">
+    <p
+      v-if="!sesiones.length && !loading"
+      class="sesiones-vacio"
+    >
       No hay sesiones programadas en este curso.
     </p>
 
@@ -184,8 +214,14 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       >
         <div class="sesion-info">
           <div class="sesion-meta">
-            <span class="sesion-estado mono" :data-estado="s.estado">
-              <span v-if="s.estado === 'en_vivo'" class="sesion-dot" />
+            <span
+              class="sesion-estado mono"
+              :data-estado="s.estado"
+            >
+              <span
+                v-if="s.estado === 'en_vivo'"
+                class="sesion-dot"
+              />
               {{ SESION_ESTADO_LABEL[s.estado] }}
             </span>
             <strong>{{ s.titulo }}</strong>
@@ -197,7 +233,11 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 
         <div class="sesion-acciones">
           <!-- Alumno e instructor: unirse cuando está en vivo -->
-          <button v-if="s.estado === 'en_vivo'" class="btn btn-primary btn-sm" @click="unirse(s)">
+          <button
+            v-if="s.estado === 'en_vivo'"
+            class="btn btn-primary btn-sm"
+            @click="unirse(s)"
+          >
             Unirse
           </button>
 
@@ -207,8 +247,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
             :href="s.grabacion_url"
             target="_blank"
             rel="noopener"
-            >Ver grabación</a
-          >
+          >Ver grabación</a>
 
           <!-- Instructor -->
           <template v-if="esInstructorCurso">

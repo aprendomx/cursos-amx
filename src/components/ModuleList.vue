@@ -27,14 +27,26 @@ function onEnd(evt) {
 </script>
 
 <template>
-  <aside class="module-list" role="list" :aria-label="t('builder.modules')">
+  <aside
+    class="module-list"
+    role="list"
+    :aria-label="t('builder.modules')"
+  >
     <h3 class="module-list-title">
       {{ t('builder.modules') }}
     </h3>
-    <p v-if="!modules.length" class="module-empty">
+    <p
+      v-if="!modules.length"
+      class="module-empty"
+    >
       {{ t('builder.emptyModules') }}
     </p>
-    <VueDraggable v-model="local" handle=".drag-handle" :animation="150" @end="onEnd">
+    <VueDraggable
+      v-model="local"
+      handle=".drag-handle"
+      :animation="150"
+      @end="onEnd"
+    >
       <ModuleListItem
         v-for="(m, i) in local"
         :key="m.id"
@@ -52,7 +64,11 @@ function onEnd(evt) {
         @drop-lesson="(lessonOldIndex) => emit('drop-lesson', i, lessonOldIndex)"
       />
     </VueDraggable>
-    <button class="add-module" data-test="add-module" @click="emit('add')">
+    <button
+      class="add-module"
+      data-test="add-module"
+      @click="emit('add')"
+    >
       + {{ t('builder.addModule') }}
     </button>
   </aside>

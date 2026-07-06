@@ -8,11 +8,20 @@ import { theme } from '@/lib/theme.js'
   <section class="container constancia">
     <div class="constancia-grid">
       <!-- Mockup decorativo -->
-      <div class="constancia-mock" aria-hidden="true">
+      <div
+        class="constancia-mock"
+        aria-hidden="true"
+      >
         <div class="constancia-paper">
-          <p class="eyebrow">{{ theme.constancia.emisor }} &middot; CONSTANCIA</p>
-          <p class="display constancia-paper-title">Se otorga a</p>
-          <p class="display-italic constancia-paper-name">Nombre de la persona</p>
+          <p class="eyebrow">
+            {{ theme.constancia.emisor }} &middot; CONSTANCIA
+          </p>
+          <p class="display constancia-paper-title">
+            Se otorga a
+          </p>
+          <p class="display-italic constancia-paper-name">
+            Nombre de la persona
+          </p>
           <p class="constancia-paper-curso">
             por concluir el curso de Capacitaci&oacute;n B&aacute;sica.
           </p>
@@ -25,12 +34,15 @@ import { theme } from '@/lib/theme.js'
 
       <!-- Texto -->
       <div class="constancia-text">
-        <p class="eyebrow">TU CONSTANCIA OFICIAL</p>
+        <p class="eyebrow">
+          TU CONSTANCIA OFICIAL
+        </p>
         <h2 class="display constancia-title">
           Una constancia con
-          <span class="display-italic" :style="{ color: 'var(--primary)' }"
-            >validez verificable</span
-          >.
+          <span
+            class="display-italic"
+            :style="{ color: 'var(--primary)' }"
+          >validez verificable</span>.
         </h2>
 
         <ul class="constancia-bullets">
@@ -40,10 +52,8 @@ import { theme } from '@/lib/theme.js'
           </li>
           <li>
             <IconSet name="check" />
-            <span
-              ><strong>Hash criptogr&aacute;fico</strong> de integridad para validar
-              autenticidad.</span
-            >
+            <span><strong>Hash criptogr&aacute;fico</strong> de integridad para validar
+              autenticidad.</span>
           </li>
           <li>
             <IconSet name="check" />

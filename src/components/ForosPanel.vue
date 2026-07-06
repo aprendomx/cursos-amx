@@ -181,11 +181,18 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 </script>
 
 <template>
-  <section v-if="visible" class="foros-panel">
+  <section
+    v-if="visible"
+    class="foros-panel"
+  >
     <div class="foros-head">
       <div>
-        <p class="eyebrow">Comunidad del curso</p>
-        <h2 class="display foros-titulo">Foros</h2>
+        <p class="eyebrow">
+          Comunidad del curso
+        </p>
+        <h2 class="display foros-titulo">
+          Foros
+        </h2>
       </div>
       <button
         v-if="esInstructorCurso && !foroActivo"
@@ -196,10 +203,18 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       </button>
     </div>
 
-    <p v-if="error" class="mono foros-error">⚠ {{ error }}</p>
+    <p
+      v-if="error"
+      class="mono foros-error"
+    >
+      ⚠ {{ error }}
+    </p>
 
     <!-- Crear foro (instructor) -->
-    <div v-if="creandoForo && esInstructorCurso" class="card foros-form">
+    <div
+      v-if="creandoForo && esInstructorCurso"
+      class="card foros-form"
+    >
       <div class="field">
         <label>Título del foro</label>
         <input
@@ -207,26 +222,50 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           type="text"
           placeholder="p. ej. Dudas generales"
           maxlength="120"
-        />
+        >
       </div>
       <div class="field">
         <label>Descripción (opcional)</label>
-        <input v-model="foroDescripcion" type="text" placeholder="¿De qué trata este foro?" />
+        <input
+          v-model="foroDescripcion"
+          type="text"
+          placeholder="¿De qué trata este foro?"
+        >
       </div>
       <div class="foros-acciones">
-        <button class="btn btn-primary btn-sm" @click="onCrearForo">Crear foro</button>
-        <button class="btn btn-ghost btn-sm" @click="creandoForo = false">Cancelar</button>
+        <button
+          class="btn btn-primary btn-sm"
+          @click="onCrearForo"
+        >
+          Crear foro
+        </button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="creandoForo = false"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
 
     <!-- ── Vista 1: lista de foros ── -->
     <template v-if="!foroActivo">
-      <p v-if="!foros.length && !loading" class="foros-vacio">
+      <p
+        v-if="!foros.length && !loading"
+        class="foros-vacio"
+      >
         Aún no hay foros en este curso.
-        <template v-if="esInstructorCurso"> Crea el primero con "+ Nuevo foro". </template>
+        <template v-if="esInstructorCurso">
+          Crea el primero con "+ Nuevo foro".
+        </template>
       </p>
       <div class="foros-lista">
-        <div v-for="f in foros" :key="f.id" class="card foro-card" @click="abrirForo(f)">
+        <div
+          v-for="f in foros"
+          :key="f.id"
+          class="card foro-card"
+          @click="abrirForo(f)"
+        >
           <div class="foro-card-info">
             <h3>{{ f.titulo }}</h3>
             <p v-if="f.descripcion">
@@ -234,9 +273,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
             </p>
           </div>
           <div class="foro-card-side">
-            <span class="chip"
-              >{{ f.hilos_count }} {{ f.hilos_count === 1 ? 'hilo' : 'hilos' }}</span
-            >
+            <span class="chip">{{ f.hilos_count }} {{ f.hilos_count === 1 ? 'hilo' : 'hilos' }}</span>
             <button
               v-if="esInstructorCurso"
               class="btn btn-ghost btn-sm foros-eliminar"
@@ -252,16 +289,27 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
     <!-- ── Vista 2: hilos del foro ── -->
     <template v-else-if="!hiloActivo">
       <div class="foros-breadcrumb">
-        <button class="btn btn-ghost btn-sm" @click="cerrarForo">← Foros</button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="cerrarForo"
+        >
+          ← Foros
+        </button>
         <h3 class="foros-sub">
           {{ foroActivo.titulo }}
         </h3>
-        <button class="btn btn-primary btn-sm" @click="creandoHilo = !creandoHilo">
+        <button
+          class="btn btn-primary btn-sm"
+          @click="creandoHilo = !creandoHilo"
+        >
           + Nuevo hilo
         </button>
       </div>
 
-      <div v-if="creandoHilo" class="card foros-form">
+      <div
+        v-if="creandoHilo"
+        class="card foros-form"
+      >
         <div class="field">
           <label>Título</label>
           <input
@@ -269,7 +317,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
             type="text"
             maxlength="200"
             placeholder="Resume tu duda o tema"
-          />
+          >
         </div>
         <div class="field">
           <label>Mensaje</label>
@@ -281,12 +329,25 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           />
         </div>
         <div class="foros-acciones">
-          <button class="btn btn-primary btn-sm" @click="onCrearHilo">Publicar hilo</button>
-          <button class="btn btn-ghost btn-sm" @click="creandoHilo = false">Cancelar</button>
+          <button
+            class="btn btn-primary btn-sm"
+            @click="onCrearHilo"
+          >
+            Publicar hilo
+          </button>
+          <button
+            class="btn btn-ghost btn-sm"
+            @click="creandoHilo = false"
+          >
+            Cancelar
+          </button>
         </div>
       </div>
 
-      <p v-if="!hilos.length && !loading" class="foros-vacio">
+      <p
+        v-if="!hilos.length && !loading"
+        class="foros-vacio"
+      >
         Sin hilos todavía. ¡Abre la conversación!
       </p>
       <div class="foros-lista">
@@ -299,13 +360,22 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
         >
           <div class="foro-card-info">
             <div class="foro-hilo-meta">
-              <span v-if="h.fijado" class="chip chip-oro">Fijado</span>
-              <span v-if="h.oculto" class="chip">Oculto</span>
+              <span
+                v-if="h.fijado"
+                class="chip chip-oro"
+              >Fijado</span>
+              <span
+                v-if="h.oculto"
+                class="chip"
+              >Oculto</span>
               <strong>{{ h.titulo }}</strong>
             </div>
             <p class="foro-hilo-autor mono">
               {{ nombre(h.perfiles) }}
-              <span v-if="esDeInstructor(h)" class="foro-badge-instructor">Instructor</span>
+              <span
+                v-if="esDeInstructor(h)"
+                class="foro-badge-instructor"
+              >Instructor</span>
               · {{ fmtFecha(h.creado_en) }}
             </p>
           </div>
@@ -333,7 +403,11 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
               >
                 Ocultar
               </button>
-              <button v-else class="btn btn-ghost btn-sm" @click.stop="onModerarHilo(h, 'mostrar')">
+              <button
+                v-else
+                class="btn btn-ghost btn-sm"
+                @click.stop="onModerarHilo(h, 'mostrar')"
+              >
                 Mostrar
               </button>
               <button
@@ -351,19 +425,36 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
     <!-- ── Vista 3: hilo abierto ── -->
     <template v-else>
       <div class="foros-breadcrumb">
-        <button class="btn btn-ghost btn-sm" @click="cerrarHilo">← {{ foroActivo.titulo }}</button>
+        <button
+          class="btn btn-ghost btn-sm"
+          @click="cerrarHilo"
+        >
+          ← {{ foroActivo.titulo }}
+        </button>
       </div>
 
-      <article class="card foro-hilo-abierto" :class="{ 'is-oculto': hiloActivo.oculto }">
+      <article
+        class="card foro-hilo-abierto"
+        :class="{ 'is-oculto': hiloActivo.oculto }"
+      >
         <template v-if="!editandoHilo">
           <div class="foro-hilo-meta">
-            <span v-if="hiloActivo.fijado" class="chip chip-oro">Fijado</span>
-            <span v-if="hiloActivo.oculto" class="chip">Oculto</span>
+            <span
+              v-if="hiloActivo.fijado"
+              class="chip chip-oro"
+            >Fijado</span>
+            <span
+              v-if="hiloActivo.oculto"
+              class="chip"
+            >Oculto</span>
             <h3>{{ hiloActivo.titulo }}</h3>
           </div>
           <p class="foro-hilo-autor mono">
             {{ nombre(hiloActivo.perfiles) }}
-            <span v-if="esDeInstructor(hiloActivo)" class="foro-badge-instructor">Instructor</span>
+            <span
+              v-if="esDeInstructor(hiloActivo)"
+              class="foro-badge-instructor"
+            >Instructor</span>
             · {{ fmtFecha(hiloActivo.creado_en) }}
           </p>
           <p class="foro-hilo-cuerpo">
@@ -382,15 +473,33 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
         <template v-else>
           <div class="field">
             <label>Título</label>
-            <input v-model="hiloEditTitulo" type="text" maxlength="200" />
+            <input
+              v-model="hiloEditTitulo"
+              type="text"
+              maxlength="200"
+            >
           </div>
           <div class="field">
             <label>Mensaje</label>
-            <textarea v-model="hiloEditCuerpo" rows="4" class="foros-textarea" />
+            <textarea
+              v-model="hiloEditCuerpo"
+              rows="4"
+              class="foros-textarea"
+            />
           </div>
           <div class="foros-acciones">
-            <button class="btn btn-primary btn-sm" @click="onGuardarHilo">Guardar</button>
-            <button class="btn btn-ghost btn-sm" @click="editandoHilo = false">Cancelar</button>
+            <button
+              class="btn btn-primary btn-sm"
+              @click="onGuardarHilo"
+            >
+              Guardar
+            </button>
+            <button
+              class="btn btn-ghost btn-sm"
+              @click="editandoHilo = false"
+            >
+              Cancelar
+            </button>
           </div>
         </template>
       </article>
@@ -421,7 +530,10 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           />
         </div>
         <div class="foros-acciones">
-          <button class="btn btn-primary btn-sm" @click="onResponderRaiz">
+          <button
+            class="btn btn-primary btn-sm"
+            @click="onResponderRaiz"
+          >
             Publicar respuesta
           </button>
         </div>

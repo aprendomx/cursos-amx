@@ -30,9 +30,7 @@ function isVertical() {
       <h3 class="lesson-list-title">
         {{ moduloTitulo || $t('navigator.fallbackTitle') }}
       </h3>
-      <span class="lesson-list-progress mono"
-        >{{ progressFraction }} &middot; {{ progressPct }}%</span
-      >
+      <span class="lesson-list-progress mono">{{ progressFraction }} &middot; {{ progressPct }}%</span>
     </div>
     <ul class="lesson-items">
       <li
@@ -60,19 +58,26 @@ function isVertical() {
           <span class="lesson-name">{{ l.titulo }}</span>
           <span class="lesson-meta mono">{{ l.duracion }} &middot; {{ l.tipo }}</span>
         </div>
-        <IconSet v-if="l.tipo === 'lectura'" name="doc" />
-        <IconSet v-else name="clock" />
+        <IconSet
+          v-if="l.tipo === 'lectura'"
+          name="doc"
+        />
+        <IconSet
+          v-else
+          name="clock"
+        />
       </li>
     </ul>
   </div>
 
   <!-- Horizontal strip: focus -->
-  <div v-else class="focus-lesson-strip">
+  <div
+    v-else
+    class="focus-lesson-strip"
+  >
     <div class="lesson-strip-header">
       <span class="eyebrow">{{ moduloTitulo || $t('navigator.fallbackTitle') }}</span>
-      <span class="lesson-list-progress mono"
-        >{{ progressFraction }} &middot; {{ progressPct }}%</span
-      >
+      <span class="lesson-list-progress mono">{{ progressFraction }} &middot; {{ progressPct }}%</span>
     </div>
     <div class="lesson-strip-items">
       <div

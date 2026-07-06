@@ -50,18 +50,35 @@ const fmtBytes = (b) =>
 </script>
 
 <template>
-  <div v-if="habilitado && leccion?.requiere_entrega" class="entrega-field card">
+  <div
+    v-if="habilitado && leccion?.requiere_entrega"
+    class="entrega-field card"
+  >
     <div class="entrega-head">
-      <p class="eyebrow">Entrega de la lección</p>
-      <span v-if="entrega" class="entrega-estado mono" :data-estado="entrega.estado">
+      <p class="eyebrow">
+        Entrega de la lección
+      </p>
+      <span
+        v-if="entrega"
+        class="entrega-estado mono"
+        :data-estado="entrega.estado"
+      >
         {{ ESTADO_LABEL[entrega.estado] || entrega.estado }}
       </span>
     </div>
 
-    <p v-if="error" class="entrega-error mono">⚠ {{ error }}</p>
+    <p
+      v-if="error"
+      class="entrega-error mono"
+    >
+      ⚠ {{ error }}
+    </p>
 
     <!-- Entrega vigente -->
-    <div v-if="entrega" class="entrega-actual">
+    <div
+      v-if="entrega"
+      class="entrega-actual"
+    >
       <button
         class="entrega-archivo"
         type="button"
@@ -70,13 +87,14 @@ const fmtBytes = (b) =>
       >
         📎 {{ entrega.archivo_nombre }}
       </button>
-      <span class="mono entrega-meta"
-        >v{{ entrega.version }} · {{ fmtBytes(entrega.archivo_bytes) }} ·
-        {{ fmtFecha(entrega.creado_en) }}</span
-      >
+      <span class="mono entrega-meta">v{{ entrega.version }} · {{ fmtBytes(entrega.archivo_bytes) }} ·
+        {{ fmtFecha(entrega.creado_en) }}</span>
     </div>
 
-    <p v-if="entrega?.comentario_instructor" class="entrega-comentario">
+    <p
+      v-if="entrega?.comentario_instructor"
+      class="entrega-comentario"
+    >
       <strong>Comentario del instructor:</strong> {{ entrega.comentario_instructor }}
     </p>
 
@@ -89,11 +107,21 @@ const fmtBytes = (b) =>
         :disabled="subiendo"
         style="display: none"
         @change="onFile"
-      />
-      <button class="btn btn-primary btn-sm" :disabled="subiendo" @click="inputRef?.click()">
-        <template v-if="subiendo"> Subiendo… </template>
-        <template v-else-if="entrega"> Resubir archivo </template>
-        <template v-else> Subir archivo </template>
+      >
+      <button
+        class="btn btn-primary btn-sm"
+        :disabled="subiendo"
+        @click="inputRef?.click()"
+      >
+        <template v-if="subiendo">
+          Subiendo…
+        </template>
+        <template v-else-if="entrega">
+          Resubir archivo
+        </template>
+        <template v-else>
+          Subir archivo
+        </template>
       </button>
       <span class="mono entrega-hint">
         {{ tiposPermitidos.join(', ').toUpperCase() }} · máx {{ maxMb }} MB
@@ -101,7 +129,10 @@ const fmtBytes = (b) =>
     </div>
 
     <!-- Historial de versiones -->
-    <div v-if="historial.length > 1" class="entrega-historial">
+    <div
+      v-if="historial.length > 1"
+      class="entrega-historial"
+    >
       <button
         class="btn btn-ghost btn-sm"
         type="button"
@@ -112,9 +143,16 @@ const fmtBytes = (b) =>
         }})
       </button>
       <ul v-if="mostrarHistorial">
-        <li v-for="h in historial.filter((x) => !x.vigente)" :key="h.id" class="mono">
+        <li
+          v-for="h in historial.filter((x) => !x.vigente)"
+          :key="h.id"
+          class="mono"
+        >
           v{{ h.version }} · {{ h.archivo_nombre }} · {{ fmtFecha(h.creado_en) }}
-          <a href="#" @click.prevent="descargar(h)">descargar</a>
+          <a
+            href="#"
+            @click.prevent="descargar(h)"
+          >descargar</a>
         </li>
       </ul>
     </div>

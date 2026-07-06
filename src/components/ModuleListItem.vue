@@ -43,8 +43,15 @@ function confirmarRenombrar() {
 </script>
 
 <template>
-  <div class="module-item" :class="{ active: isActive }" data-test="module-item">
-    <span class="drag-handle" aria-hidden="true">≡</span>
+  <div
+    class="module-item"
+    :class="{ active: isActive }"
+    data-test="module-item"
+  >
+    <span
+      class="drag-handle"
+      aria-hidden="true"
+    >≡</span>
     <div class="module-info">
       <input
         v-if="renombrando"
@@ -57,11 +64,12 @@ function confirmarRenombrar() {
         @keydown.enter="confirmarRenombrar"
         @keydown.esc="renombrando = false"
         @blur="confirmarRenombrar"
-      />
-      <span v-else class="module-title">{{ module.titulo || t('builder.newModule') }}</span>
-      <span class="module-count"
-        >{{ module.lecciones?.length || 0 }} {{ t('builder.lessons') }}</span
       >
+      <span
+        v-else
+        class="module-title"
+      >{{ module.titulo || t('builder.newModule') }}</span>
+      <span class="module-count">{{ module.lecciones?.length || 0 }} {{ t('builder.lessons') }}</span>
     </div>
     <div class="module-actions">
       <button

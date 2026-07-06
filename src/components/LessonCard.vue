@@ -59,8 +59,15 @@ function doMoveTo(mi) {
 </script>
 
 <template>
-  <article class="lesson-card" data-test="lesson-card" @click="emit('edit')">
-    <span class="lesson-drag" aria-hidden="true">≡</span>
+  <article
+    class="lesson-card"
+    data-test="lesson-card"
+    @click="emit('edit')"
+  >
+    <span
+      class="lesson-drag"
+      aria-hidden="true"
+    >≡</span>
     <div class="lesson-thumb">
       <IconSet :name="ICONS[lesson.fuente] || 'doc'" />
     </div>
@@ -69,12 +76,24 @@ function doMoveTo(mi) {
         {{ lesson.titulo || t('builder.newLesson') }}
       </h4>
       <div class="lesson-meta">
-        <span v-if="lesson.duracion_seg" class="lesson-duration">
+        <span
+          v-if="lesson.duracion_seg"
+          class="lesson-duration"
+        >
           {{ segToDuracion(lesson.duracion_seg) }}
         </span>
-        <span v-if="lesson.fuente === 'examen'" class="badge">📝 {{ t('builder.exam') }}</span>
-        <span v-if="lesson.requiere_entrega" class="badge">📎 {{ t('builder.delivery') }}</span>
-        <span v-if="lesson.fuente === 'ninguno'" class="badge warn">
+        <span
+          v-if="lesson.fuente === 'examen'"
+          class="badge"
+        >📝 {{ t('builder.exam') }}</span>
+        <span
+          v-if="lesson.requiere_entrega"
+          class="badge"
+        >📎 {{ t('builder.delivery') }}</span>
+        <span
+          v-if="lesson.fuente === 'ninguno'"
+          class="badge warn"
+        >
           ⚠️ {{ t('builder.noContent') }}
         </span>
       </div>
@@ -89,11 +108,23 @@ function doMoveTo(mi) {
     >
       ⋯
     </button>
-    <div v-if="menuOpen" class="lesson-menu" role="menu" @click.stop>
-      <button role="menuitem" @click="doEdit">
+    <div
+      v-if="menuOpen"
+      class="lesson-menu"
+      role="menu"
+      @click.stop
+    >
+      <button
+        role="menuitem"
+        @click="doEdit"
+      >
         {{ t('builder.edit') }}
       </button>
-      <button role="menuitem" data-test="lesson-duplicate" @click="doDuplicate">
+      <button
+        role="menuitem"
+        data-test="lesson-duplicate"
+        @click="doDuplicate"
+      >
         {{ t('builder.duplicate') }}
       </button>
       <button
@@ -105,7 +136,12 @@ function doMoveTo(mi) {
       >
         {{ t('builder.moveTo') }} {{ title }}
       </button>
-      <button role="menuitem" class="danger" data-test="lesson-delete" @click="confirmarDelete">
+      <button
+        role="menuitem"
+        class="danger"
+        data-test="lesson-delete"
+        @click="confirmarDelete"
+      >
         {{ t('builder.delete') }}
       </button>
     </div>

@@ -59,7 +59,12 @@ function onTerminar() {
 </script>
 
 <template>
-  <div class="aula-overlay" role="dialog" aria-modal="true" :aria-label="sesion.titulo">
+  <div
+    class="aula-overlay"
+    role="dialog"
+    aria-modal="true"
+    :aria-label="sesion.titulo"
+  >
     <div class="aula-modal">
       <header class="aula-header">
         <div class="aula-title">
@@ -74,20 +79,45 @@ function onTerminar() {
           >
             {{ chatVisible ? 'Ocultar chat' : 'Mostrar chat' }}
           </button>
-          <button v-if="esInstructor" class="btn btn-primary btn-sm" @click="onTerminar">
+          <button
+            v-if="esInstructor"
+            class="btn btn-primary btn-sm"
+            @click="onTerminar"
+          >
             Terminar sesión
           </button>
-          <button class="btn btn-ghost btn-sm aula-cerrar" @click="emit('close')">Salir</button>
+          <button
+            class="btn btn-ghost btn-sm aula-cerrar"
+            @click="emit('close')"
+          >
+            Salir
+          </button>
         </div>
       </header>
 
       <div class="aula-body">
         <div class="aula-video">
-          <p v-if="cargando" class="aula-estado mono">Conectando al aula…</p>
-          <p v-else-if="error" class="aula-estado aula-error mono">⚠ {{ error }}</p>
-          <div ref="jitsiContainer" class="aula-jitsi" />
+          <p
+            v-if="cargando"
+            class="aula-estado mono"
+          >
+            Conectando al aula…
+          </p>
+          <p
+            v-else-if="error"
+            class="aula-estado aula-error mono"
+          >
+            ⚠ {{ error }}
+          </p>
+          <div
+            ref="jitsiContainer"
+            class="aula-jitsi"
+          />
         </div>
-        <aside v-if="chatActivo && session && chatVisible" class="aula-chat">
+        <aside
+          v-if="chatActivo && session && chatVisible"
+          class="aula-chat"
+        >
           <ChatPanel
             :curso-id="sesion.curso_id"
             :sesion-id="sesion.id"

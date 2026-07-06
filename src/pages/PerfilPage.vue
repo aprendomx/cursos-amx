@@ -179,7 +179,10 @@ function goToHome() {
       <div class="perfil-hero-text">
         <h1 class="display perfil-greeting">
           Hola,
-          <em class="display-italic" :style="{ color: 'var(--primary)' }">{{ user?.nombre }}.</em>
+          <em
+            class="display-italic"
+            :style="{ color: 'var(--primary)' }"
+          >{{ user?.nombre }}.</em>
         </h1>
         <p :style="{ fontSize: '14px', color: 'var(--ink-3)', marginTop: 'calc(var(--unit) * 1)' }">
           {{ user?.dependencia }} &middot; {{ user?.correo }}
@@ -188,11 +191,18 @@ function goToHome() {
 
       <!-- KPI grid -->
       <div class="perfil-kpi-grid">
-        <div v-for="kpi in kpis" :key="kpi.label" class="perfil-kpi">
+        <div
+          v-for="kpi in kpis"
+          :key="kpi.label"
+          class="perfil-kpi"
+        >
           <div class="display perfil-kpi-number">
             {{ kpi.value }}
           </div>
-          <div class="eyebrow" :style="{ marginTop: '6px' }">
+          <div
+            class="eyebrow"
+            :style="{ marginTop: '6px' }"
+          >
             {{ kpi.label }}
           </div>
         </div>
@@ -200,8 +210,16 @@ function goToHome() {
     </section>
 
     <!-- Error block (global) -->
-    <div v-if="fetchError" class="container perfil-error">
-      <p class="eyebrow" :style="{ color: 'var(--danger)' }">Error de conexi&oacute;n</p>
+    <div
+      v-if="fetchError"
+      class="container perfil-error"
+    >
+      <p
+        class="eyebrow"
+        :style="{ color: 'var(--danger)' }"
+      >
+        Error de conexi&oacute;n
+      </p>
       <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
         {{ fetchError }}
       </p>
@@ -211,30 +229,53 @@ function goToHome() {
     </div>
 
     <!-- Divider -->
-    <hr class="hairline" />
+    <hr class="hairline">
 
     <!-- En curso section (01) -->
     <section class="container perfil-section">
       <div class="perfil-section-header">
-        <span class="mono" :style="{ color: 'var(--ink-4)' }">01</span>
-        <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">En curso</h2>
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-4)' }"
+        >01</span>
+        <h2
+          class="display"
+          :style="{ fontSize: '32px', color: 'var(--ink)' }"
+        >
+          En curso
+        </h2>
       </div>
 
-      <div v-if="loading" class="perfil-empty">
-        <span class="mono" :style="{ color: 'var(--ink-3)' }">Cargando&hellip;</span>
+      <div
+        v-if="loading"
+        class="perfil-empty"
+      >
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-3)' }"
+        >Cargando&hellip;</span>
       </div>
 
-      <div v-else-if="cursosEnCurso.length === 0" class="perfil-empty">
+      <div
+        v-else-if="cursosEnCurso.length === 0"
+        class="perfil-empty"
+      >
         <p :style="{ color: 'var(--ink-2)', marginBottom: 'calc(var(--unit) * 2)' }">
           A&uacute;n no tienes cursos en curso.
         </p>
-        <button class="btn btn-primary btn-sm" @click="goToHome">
+        <button
+          class="btn btn-primary btn-sm"
+          @click="goToHome"
+        >
           Explora el cat&aacute;logo
           <IconSet name="arrow" />
         </button>
       </div>
 
-      <div v-else class="perfil-progress-grid">
+      <div
+        v-else
+        class="perfil-progress-grid"
+      >
         <div
           v-for="(curso, i) in cursosEnCurso"
           :key="curso.id"
@@ -243,7 +284,9 @@ function goToHome() {
         >
           <div class="perfil-progress-body">
             <!-- Eyebrow -->
-            <p class="eyebrow">{{ curso.nivel }} &middot; {{ curso.duracion }}</p>
+            <p class="eyebrow">
+              {{ curso.nivel }} &middot; {{ curso.duracion }}
+            </p>
 
             <!-- Title -->
             <h3
@@ -262,10 +305,16 @@ function goToHome() {
                 marginTop: 'calc(var(--unit) * 1)',
               }"
             >
-              <span class="display" :style="{ fontSize: '36px', color: 'var(--primary)' }">
+              <span
+                class="display"
+                :style="{ fontSize: '36px', color: 'var(--primary)' }"
+              >
                 {{ Math.round(curso.progreso * 100) }}%
               </span>
-              <span class="mono" :style="{ color: 'var(--ink-4)' }">completado</span>
+              <span
+                class="mono"
+                :style="{ color: 'var(--ink-4)' }"
+              >completado</span>
             </div>
 
             <!-- ProgressBar -->
@@ -305,19 +354,41 @@ function goToHome() {
     <section class="perfil-completados">
       <div class="container perfil-section">
         <div class="perfil-section-header">
-          <span class="mono" :style="{ color: 'var(--ink-4)' }">02</span>
-          <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">Completados</h2>
+          <span
+            class="mono"
+            :style="{ color: 'var(--ink-4)' }"
+          >02</span>
+          <h2
+            class="display"
+            :style="{ fontSize: '32px', color: 'var(--ink)' }"
+          >
+            Completados
+          </h2>
         </div>
 
-        <div v-if="loading" class="perfil-empty">
-          <span class="mono" :style="{ color: 'var(--ink-3)' }">Cargando&hellip;</span>
+        <div
+          v-if="loading"
+          class="perfil-empty"
+        >
+          <span
+            class="mono"
+            :style="{ color: 'var(--ink-3)' }"
+          >Cargando&hellip;</span>
         </div>
 
-        <div v-else-if="cursosCompletados.length === 0" class="perfil-empty">
-          <p :style="{ color: 'var(--ink-2)' }">A&uacute;n no has completado cursos.</p>
+        <div
+          v-else-if="cursosCompletados.length === 0"
+          class="perfil-empty"
+        >
+          <p :style="{ color: 'var(--ink-2)' }">
+            A&uacute;n no has completado cursos.
+          </p>
         </div>
 
-        <div v-else class="perfil-cert-grid">
+        <div
+          v-else
+          class="perfil-cert-grid"
+        >
           <div
             v-for="(curso, i) in cursosCompletados"
             :key="curso.id"
@@ -392,20 +463,28 @@ function goToHome() {
 
             <!-- Info -->
             <div class="perfil-cert-info">
-              <p class="eyebrow">Constancia &middot; Emitida</p>
+              <p class="eyebrow">
+                Constancia &middot; Emitida
+              </p>
               <h3
                 class="display"
                 :style="{ fontSize: '20px', lineHeight: '1.15', color: 'var(--ink)' }"
               >
                 {{ curso.titulo }}
               </h3>
-              <p class="mono" :style="{ color: 'var(--ink-4)', marginTop: '4px' }">
+              <p
+                class="mono"
+                :style="{ color: 'var(--ink-4)', marginTop: '4px' }"
+              >
                 Folio {{ curso.folio }}
               </p>
             </div>
 
             <!-- Action -->
-            <button class="btn btn-ghost btn-sm" @click="goToConstancia(curso)">
+            <button
+              class="btn btn-ghost btn-sm"
+              @click="goToConstancia(curso)"
+            >
               Ver
               <IconSet name="arrow" />
             </button>
@@ -415,10 +494,21 @@ function goToHome() {
     </section>
 
     <!-- Recomendados section (03) -->
-    <section v-if="!loading && cursosRecomendados.length > 0" class="container perfil-section">
+    <section
+      v-if="!loading && cursosRecomendados.length > 0"
+      class="container perfil-section"
+    >
       <div class="perfil-section-header">
-        <span class="mono" :style="{ color: 'var(--ink-4)' }">03</span>
-        <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">Recomendados</h2>
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-4)' }"
+        >03</span>
+        <h2
+          class="display"
+          :style="{ fontSize: '32px', color: 'var(--ink)' }"
+        >
+          Recomendados
+        </h2>
       </div>
 
       <div class="perfil-rec-grid">
@@ -429,9 +519,14 @@ function goToHome() {
           :style="{ animationDelay: i * 60 + 'ms', cursor: 'pointer' }"
           @click="goToCurso(curso)"
         >
-          <PlaceholderImage :label="curso.imagen" :style="{ aspectRatio: '16/9', width: '100%' }" />
+          <PlaceholderImage
+            :label="curso.imagen"
+            :style="{ aspectRatio: '16/9', width: '100%' }"
+          />
           <div class="perfil-rec-body">
-            <p class="eyebrow">{{ curso.nivel }} &middot; {{ curso.duracion }}</p>
+            <p class="eyebrow">
+              {{ curso.nivel }} &middot; {{ curso.duracion }}
+            </p>
             <h3
               class="display"
               :style="{ fontSize: '20px', lineHeight: '1.1', color: 'var(--ink)' }"
@@ -450,7 +545,10 @@ function goToHome() {
         :style="{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }"
       >
         <AppLogo />
-        <span class="mono" :style="{ color: 'var(--ink-4)' }">
+        <span
+          class="mono"
+          :style="{ color: 'var(--ink-4)' }"
+        >
           {{ theme.app.name }} &middot; {{ theme.nav.title }}
         </span>
       </div>

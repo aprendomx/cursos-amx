@@ -165,10 +165,8 @@ function onEnded() {
           <div class="video-radial" />
         </div>
         <div class="slide-content">
-          <span class="slide-eyebrow eyebrow"
-            >{{ moduloTitulo || 'Lección' }} &middot;
-            {{ String(leccion.orden || 1).padStart(2, '0') }}</span
-          >
+          <span class="slide-eyebrow eyebrow">{{ moduloTitulo || 'Lección' }} &middot;
+            {{ String(leccion.orden || 1).padStart(2, '0') }}</span>
           <h2 class="slide-heading display">
             {{ leccion.titulo || 'Lección' }}
           </h2>
@@ -194,7 +192,11 @@ function onEnded() {
       </div>
 
       <!-- Completion overlay -->
-      <div v-if="source.kind === 'none' && completada" class="completion-overlay" @click.stop>
+      <div
+        v-if="source.kind === 'none' && completada"
+        class="completion-overlay"
+        @click.stop
+      >
         <div class="completion-inner">
           <div class="completion-circle">
             <IconSet name="check" />
@@ -204,17 +206,28 @@ function onEnded() {
       </div>
 
       <!-- Bottom controls (solo si no hay iframe real) -->
-      <div v-if="source.kind === 'none'" class="video-controls" @click.stop>
-        <div class="controls-progress" @click="onSeek">
-          <div class="controls-progress-fill" :style="{ width: progress * 100 + '%' }" />
+      <div
+        v-if="source.kind === 'none'"
+        class="video-controls"
+        @click.stop
+      >
+        <div
+          class="controls-progress"
+          @click="onSeek"
+        >
+          <div
+            class="controls-progress-fill"
+            :style="{ width: progress * 100 + '%' }"
+          />
         </div>
         <div class="controls-bar">
-          <button class="controls-play" @click="emit('togglePlay')">
+          <button
+            class="controls-play"
+            @click="emit('togglePlay')"
+          >
             <IconSet :name="playing ? 'close' : 'play'" />
           </button>
-          <span class="controls-time mono"
-            >{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span
-          >
+          <span class="controls-time mono">{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span>
           <span class="controls-status mono">{{
             source.kind === 'hls' ? 'HLS' : 'Simulador (sin URL)'
           }}</span>
@@ -222,15 +235,24 @@ function onEnded() {
       </div>
     </div>
 
-    <div v-if="source.kind === 'documento'" class="doc-actions">
+    <div
+      v-if="source.kind === 'documento'"
+      class="doc-actions"
+    >
       <button
         class="btn btn-primary doc-mark-btn"
         :disabled="!llegoAlFinal || completada"
         @click="emit('marcarLecturaCompletada')"
       >
-        <template v-if="completada"> ✓ Lección completada </template>
-        <template v-else-if="llegoAlFinal"> Marcar como leída </template>
-        <template v-else> Desliza hasta el final para habilitar </template>
+        <template v-if="completada">
+          ✓ Lección completada
+        </template>
+        <template v-else-if="llegoAlFinal">
+          Marcar como leída
+        </template>
+        <template v-else>
+          Desliza hasta el final para habilitar
+        </template>
       </button>
     </div>
   </div>

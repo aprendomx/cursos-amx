@@ -35,15 +35,21 @@ function isUrl(v) {
 <template>
   <article class="curso-bloque">
     <!-- Header vertical: imagen full-width + meta -->
-    <div class="curso-cover" @click="emit('ver-curso', curso)">
+    <div
+      class="curso-cover"
+      @click="emit('ver-curso', curso)"
+    >
       <img
         v-if="isUrl(curso.imagen)"
         :src="curso.imagen"
         :alt="curso.titulo"
         class="curso-cover-img"
         loading="lazy"
+      >
+      <PlaceholderImage
+        v-else
+        :label="curso.imagen || curso.titulo"
       />
-      <PlaceholderImage v-else :label="curso.imagen || curso.titulo" />
     </div>
 
     <div class="curso-body">
@@ -52,10 +58,16 @@ function isUrl(v) {
           {{ String(index + 1).padStart(2, '0') }} &middot; {{ curso.nivel }}
         </span>
         <span :class="statusChip().cls">
-          <span v-if="curso.progreso === 1" :style="{ display: 'inline-flex' }">
+          <span
+            v-if="curso.progreso === 1"
+            :style="{ display: 'inline-flex' }"
+          >
             <IconSet name="check" />
           </span>
-          <span v-else class="chip-dot" />
+          <span
+            v-else
+            class="chip-dot"
+          />
           {{ statusChip().label }}
         </span>
       </div>
@@ -82,14 +94,20 @@ function isUrl(v) {
         </span>
       </div>
 
-      <button class="btn btn-primary curso-btn" @click="emit('ver-curso', curso)">
+      <button
+        class="btn btn-primary curso-btn"
+        @click="emit('ver-curso', curso)"
+      >
         {{ btnLabel() }}
         <IconSet name="arrow" />
       </button>
     </div>
 
     <!-- Grid de módulos -->
-    <div v-if="curso.modulos.length > 0" class="modulos">
+    <div
+      v-if="curso.modulos.length > 0"
+      class="modulos"
+    >
       <div class="modulos-label">
         <span class="eyebrow">M&oacute;dulos</span>
       </div>
@@ -107,8 +125,11 @@ function isUrl(v) {
               :alt="m.titulo"
               class="modulo-cover-img"
               loading="lazy"
+            >
+            <PlaceholderImage
+              v-else
+              :label="m.imagen_portada || m.titulo"
             />
-            <PlaceholderImage v-else :label="m.imagen_portada || m.titulo" />
           </div>
           <div class="modulo-body">
             <span class="mono modulo-meta">
