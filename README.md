@@ -66,6 +66,7 @@
 - **Rúbricas de evaluación** — editor visual de criterios y niveles de desempeño, asignables a evaluaciones o preguntas individuales
 - **Cohortes (grupos)** — agrupa alumnos por curso con cupo máximo, fechas y foro privado exclusivo
 - **Importación masiva de usuarios** — carga por CSV con validación en tiempo real y Edge Function `bulk-invite`
+- **Gamificación** — sistema de puntos automáticos por actividad (lecciones, quizzes, foros), niveles de usuario (Novato → Leyenda), insignias desbloqueables con criterios configurables, tabla de clasificación por curso y árbol de desbloqueo de módulos con prerequisitos
 - **Personalización completa** vía `theme/theme.config.js` (ver [THEMING.md](THEMING.md))
 - **Dark mode** con selector Claro / Oscuro / Sistema
 - **i18n base** con `vue-i18n` (es/en listos para extender)
@@ -75,6 +76,15 @@
 - **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
+
+## Novedades v0.6.0 — Fase 2 Gamificación y Engagement
+
+- **Sistema de puntos automáticos** — Gana puntos al completar lecciones (10 pts), aprobar evaluaciones (50 pts) y participar en foros (5 pts). Triggers PostgreSQL garantizan que no se pueda farmear puntos duplicados.
+- **Niveles de usuario** — 6 niveles desde Novato hasta Leyenda, con barra de progreso visual en el perfil. Cada nivel requiere más puntos acumulados.
+- **Insignias (badges) desbloqueables** — 5 badges predefinidos (Bienvenida, Primer paso, Social, Aprobado, Constante) con criterios configurables. El admin puede crear nuevos badges con criterios personalizados desde el panel.
+- **Tabla de clasificación** — Leaderboard por curso que muestra el ranking de alumnos por puntos totales.
+- **Árbol de desbloqueo** — Visualización de progreso por módulo con prerequisitos condicionales (completar módulo previo, aprobar evaluación, obtener badge).
+- **Notificaciones toast** — Al desbloquear una insignia, aparece una notificación animada en la esquina inferior derecha con los puntos ganados.
 
 ## Novedades v0.5.0 — Fase 1 Núcleo Educativo
 
@@ -128,7 +138,7 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–038)
+  migrations/   Esquema versionado en SQL (001–041)
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite)
 
 services/
@@ -141,7 +151,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 118 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 156 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
