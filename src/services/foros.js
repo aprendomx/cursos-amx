@@ -10,13 +10,14 @@ export function dentroDeVentanaEdicion(item) {
 
 /* ── Foros ─────────────────────────────────────────── */
 
-export async function fetchForosCurso(cursoId) {
-  const { data, error } = await supabase
-    .from('foros')
-    .select('*, foro_hilos(count)')
-    .eq('curso_id', cursoId)
-    .order('orden')
-    .order('creado_en')
+export async function fetchForosCurso(cursoId, cohorteId = null) {
+  let q = supabase.from('foros').select('*, foro_hilos(count)').eq('curso_id', cursoId)
+  if (cohorteId) {
+    q = q.or(`cohorte_id.is.null,cohorte_id.eq.${cohorteId}`)
+  } else {
+    q = q.is('cohorte_id', null)
+  }
+  const { data, error } = await q.order('orden').order('creado_en')
   if (error) throw error
   return (data || []).map((f) => ({
     ...f,

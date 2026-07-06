@@ -14,6 +14,7 @@ import {
   dentroDeVentanaEdicion,
 } from '@/services/foros.js'
 import { fetchInstructoresDeCurso } from '@/services/instructores.js'
+import { obtenerCohorteUsuario } from '@/services/cohortes.js'
 
 /**
  * Estado del módulo de foros para un curso: lista de foros, hilos del
@@ -34,13 +35,18 @@ export function useForos(cursoId, { userId = null, esAdmin = false } = {}) {
 
   const esInstructorCurso = computed(() => esAdmin || (userId && instructorIds.value.has(userId)))
 
+  const cohorteId = ref(null)
+
   async function init() {
     if (!habilitado) return
     loading.value = true
     error.value = ''
     try {
+      if (userId) {
+        cohorteId.value = await obtenerCohorteUsuario(cursoId, userId)
+      }
       const [f, ids] = await Promise.all([
-        fetchForosCurso(cursoId),
+        fetchForosCurso(cursoId, cohorteId.value),
         fetchInstructoresDeCurso(cursoId),
       ])
       foros.value = f
