@@ -34,6 +34,7 @@ export function useAdminNavigation() {
     ...(featureEnabled('instructor') ? [{ key: 'instructores', label: 'Instructores' }] : []),
     ...(featureEnabled('rubrics') ? [{ key: 'rubricas', label: 'Rúbricas' }] : []),
     ...(featureEnabled('cohorts') ? [{ key: 'cohortes', label: 'Cohortes' }] : []),
+    ...(featureEnabled('gamificacion') ? [{ key: 'gamificacion', label: 'Gamificación' }] : []),
     { key: 'constancias', label: 'Constancias' },
     { key: 'reportes', label: 'Reportes' },
     { key: 'config', label: 'Configuraci\u00f3n' },
