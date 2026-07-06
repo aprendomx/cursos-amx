@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase.js'
 import { USER as MOCK_USER } from '@/data.js'
+import { featureEnabled } from '@/lib/featureFlags.js'
+import { evaluarBadges } from '@/services/badgeEngine.js'
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<any>(null)
@@ -44,6 +46,13 @@ export const useAuthStore = defineStore('auth', () => {
         constancias: 0,
       }
       hasRegistered.value = true
+      if (featureEnabled('gamificacion')) {
+        try {
+          await evaluarBadges(userId)
+        } catch (e) {
+          console.error('Error evaluando badges en login:', e)
+        }
+      }
     }
   }
 
