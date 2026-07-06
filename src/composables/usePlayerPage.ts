@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useUiStore } from '@/stores/ui.js'
@@ -11,8 +11,31 @@ import { getPlayback } from '@/services/videos.js'
 import { actualizarSegundosVistos, marcarLeccionCompletada } from '@/services/progreso.js'
 import { fetchInstructoresDeCurso } from '@/services/instructores.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
+import type { Leccion } from '@/types/database.ts'
 
-export function usePlayerPage(props) {
+export interface PlayerPageProps {
+  cursoId: string
+  leccionId?: string
+}
+
+export interface PlayerLesson extends Leccion {
+  duracion: string
+  duracion_seg: number
+  youtube_url: string
+  video_id: string | null
+  documento_path: string | null
+  documento_tipo: string | null
+  contenido: Record<string, unknown> | null
+  tipo: string
+  completado: boolean
+  modulo_titulo: string
+  modulo_orden: number
+  requiere_entrega: boolean
+  entrega_tipos: string[] | null
+  entrega_max_mb: number
+}
+
+export function usePlayerPage(props: PlayerPageProps) {
   const router = useRouter()
   const auth = useAuthStore()
   const ui = useUiStore()
@@ -46,7 +69,7 @@ export function usePlayerPage(props) {
   const hlsPoster = ref(null)
   const hlsDuration = ref(0)
 
-  const lecciones = ref([])
+  const lecciones: Ref<PlayerLesson[]> = ref([])
   const cursoTitulo = ref('')
   const moduloTitulo = ref('')
   const loadingLecciones = ref(true)
