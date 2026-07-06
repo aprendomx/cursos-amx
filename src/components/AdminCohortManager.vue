@@ -152,8 +152,13 @@ onMounted(cargarCursos)
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">Gesti&oacute;n</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <p class="eyebrow">
+          Gesti&oacute;n
+        </p>
+        <h1
+          class="display"
+          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Cohortes
         </h1>
       </div>
@@ -167,11 +172,20 @@ onMounted(cargarCursos)
       </button>
     </div>
 
-    <div class="field" :style="{ maxWidth: '400px', marginBottom: 'calc(var(--unit) * 3)' }">
+    <div
+      class="field"
+      :style="{ maxWidth: '400px', marginBottom: 'calc(var(--unit) * 3)' }"
+    >
       <label>Curso</label>
       <select v-model="cursoId">
-        <option value="">Selecciona un curso</option>
-        <option v-for="c in cursos" :key="c.id" :value="c.id">
+        <option value="">
+          Selecciona un curso
+        </option>
+        <option
+          v-for="c in cursos"
+          :key="c.id"
+          :value="c.id"
+        >
           {{ c.titulo }}
         </option>
       </select>
@@ -193,29 +207,65 @@ onMounted(cargarCursos)
       <h3>{{ editing ? 'Editar cohorte' : 'Nuevo cohorte' }}</h3>
       <div class="field">
         <label>Nombre</label>
-        <input v-model="form.nombre" type="text" />
+        <input
+          v-model="form.nombre"
+          type="text"
+        >
       </div>
       <div class="field">
         <label>Descripci&oacute;n</label>
-        <textarea v-model="form.descripcion" rows="2" />
+        <textarea
+          v-model="form.descripcion"
+          rows="2"
+        />
       </div>
       <div class="field">
         <label>Cupo m&aacute;ximo</label>
-        <input v-model.number="form.cupo_max" type="number" />
+        <input
+          v-model.number="form.cupo_max"
+          type="number"
+        >
       </div>
-      <div class="field-row" :style="{ display: 'flex', gap: 'calc(var(--unit) * 2)' }">
-        <div class="field" style="flex: 1">
+      <div
+        class="field-row"
+        :style="{ display: 'flex', gap: 'calc(var(--unit) * 2)' }"
+      >
+        <div
+          class="field"
+          style="flex: 1"
+        >
           <label>Fecha inicio</label>
-          <input v-model="form.fecha_inicio" type="date" />
+          <input
+            v-model="form.fecha_inicio"
+            type="date"
+          >
         </div>
-        <div class="field" style="flex: 1">
+        <div
+          class="field"
+          style="flex: 1"
+        >
           <label>Fecha fin</label>
-          <input v-model="form.fecha_fin" type="date" />
+          <input
+            v-model="form.fecha_fin"
+            type="date"
+          >
         </div>
       </div>
       <div class="actions">
-        <button type="button" class="btn btn-primary" @click="onGuardar">Guardar</button>
-        <button type="button" class="btn btn-ghost" @click="showForm = false">Cancelar</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="onGuardar"
+        >
+          Guardar
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost"
+          @click="showForm = false"
+        >
+          Cancelar
+        </button>
       </div>
     </div>
 
@@ -228,13 +278,22 @@ onMounted(cargarCursos)
         gap: 'calc(var(--unit) * 2)',
       }"
     >
-      <div class="card" :style="{ overflow: 'auto' }">
+      <div
+        class="card"
+        :style="{ overflow: 'auto' }"
+      >
         <table class="admin-table admin-table-full">
           <thead>
             <tr>
-              <th class="mono">Nombre</th>
-              <th class="mono">Miembros</th>
-              <th class="mono">Cupo</th>
+              <th class="mono">
+                Nombre
+              </th>
+              <th class="mono">
+                Miembros
+              </th>
+              <th class="mono">
+                Cupo
+              </th>
               <th class="mono" />
             </tr>
           </thead>
@@ -249,7 +308,11 @@ onMounted(cargarCursos)
               <td>-</td>
               <td>{{ c.cupo_max ?? '—' }}</td>
               <td :style="{ textAlign: 'right' }">
-                <button type="button" class="btn btn-ghost btn-sm" @click.stop="onEditar(c)">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-sm"
+                  @click.stop="onEditar(c)"
+                >
                   Editar
                 </button>
                 <button
@@ -275,32 +338,58 @@ onMounted(cargarCursos)
         </table>
       </div>
 
-      <div v-if="selectedCohorte" class="card">
+      <div
+        v-if="selectedCohorte"
+        class="card"
+      >
         <h4>{{ selectedCohorte.nombre }} — Miembros</h4>
-        <div class="field" :style="{ display: 'flex', gap: 'calc(var(--unit) * 1)' }">
+        <div
+          class="field"
+          :style="{ display: 'flex', gap: 'calc(var(--unit) * 1)' }"
+        >
           <input
             v-model="usuarioSearch"
             type="text"
             placeholder="Buscar usuario..."
             @keyup.enter="buscarUsuarios"
-          />
-          <button type="button" class="btn btn-secondary btn-sm" @click="buscarUsuarios">
+          >
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            @click="buscarUsuarios"
+          >
             Buscar
           </button>
         </div>
-        <ul v-if="usuarios.length" class="user-suggestions">
-          <li v-for="u in usuarios" :key="u.id">
+        <ul
+          v-if="usuarios.length"
+          class="user-suggestions"
+        >
+          <li
+            v-for="u in usuarios"
+            :key="u.id"
+          >
             {{ u.nombres }} {{ u.apellido_paterno }} ({{ u.email }})
-            <button type="button" class="btn btn-ghost btn-sm" @click="addMiembro(u)">
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              @click="addMiembro(u)"
+            >
               Agregar
             </button>
           </li>
         </ul>
         <table class="admin-table admin-table-full">
           <tbody>
-            <tr v-for="m in miembros" :key="m.id">
+            <tr
+              v-for="m in miembros"
+              :key="m.id"
+            >
               <td>{{ m.usuario?.nombres }} {{ m.usuario?.apellido_paterno }}</td>
-              <td class="mono" :style="{ textTransform: 'capitalize' }">
+              <td
+                class="mono"
+                :style="{ textTransform: 'capitalize' }"
+              >
                 {{ m.rol }}
               </td>
               <td :style="{ textAlign: 'right' }">

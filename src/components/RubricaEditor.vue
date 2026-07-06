@@ -115,25 +115,40 @@ async function onSave() {
 
     <div class="field">
       <label>Nombre</label>
-      <input v-model="nombre" type="text" placeholder="Ej. Rúbrica de ensayo" />
+      <input
+        v-model="nombre"
+        type="text"
+        placeholder="Ej. Rúbrica de ensayo"
+      >
     </div>
 
     <div class="field">
       <label>Descripción</label>
-      <textarea v-model="descripcion" rows="2" />
+      <textarea
+        v-model="descripcion"
+        rows="2"
+      />
     </div>
 
     <div class="criterios">
       <h4>Criterios</h4>
-      <div v-for="(c, ci) in criterios" :key="ci" class="criterio-card">
+      <div
+        v-for="(c, ci) in criterios"
+        :key="ci"
+        class="criterio-card"
+      >
         <div class="criterio-header">
           <input
             v-model="c.nombre"
             type="text"
             placeholder="Nombre del criterio"
             class="criterio-name"
-          />
-          <button type="button" class="btn btn-ghost btn-sm" @click="removeCriterio(ci)">
+          >
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            @click="removeCriterio(ci)"
+          >
             Eliminar
           </button>
         </div>
@@ -145,40 +160,72 @@ async function onSave() {
         />
 
         <div class="niveles">
-          <div v-for="(n, ni) in c.niveles" :key="ni" class="nivel-row">
+          <div
+            v-for="(n, ni) in c.niveles"
+            :key="ni"
+            class="nivel-row"
+          >
             <input
               v-model.number="n.puntaje"
               type="number"
               class="nivel-puntaje"
               placeholder="Pts"
-            />
+            >
             <input
               v-model="n.descripcion"
               type="text"
               placeholder="Descripción del nivel"
               class="nivel-desc"
-            />
-            <button type="button" class="btn btn-ghost btn-sm" @click="removeNivel(ci, ni)">
+            >
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              @click="removeNivel(ci, ni)"
+            >
               ×
             </button>
           </div>
-          <button type="button" class="btn btn-ghost btn-sm" @click="addNivel(ci)">+ Nivel</button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            @click="addNivel(ci)"
+          >
+            + Nivel
+          </button>
         </div>
       </div>
-      <button type="button" class="btn btn-secondary btn-sm" @click="addCriterio">
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm"
+        @click="addCriterio"
+      >
         + Criterio
       </button>
     </div>
 
-    <p v-if="error" class="alert alert-error">
+    <p
+      v-if="error"
+      class="alert alert-error"
+    >
       {{ error }}
     </p>
 
     <div class="actions">
-      <button type="button" class="btn btn-primary" :disabled="saving" @click="onSave">
+      <button
+        type="button"
+        class="btn btn-primary"
+        :disabled="saving"
+        @click="onSave"
+      >
         {{ saving ? 'Guardando…' : 'Guardar rúbrica' }}
       </button>
-      <button type="button" class="btn btn-ghost" @click="emit('cancel')">Cancelar</button>
+      <button
+        type="button"
+        class="btn btn-ghost"
+        @click="emit('cancel')"
+      >
+        Cancelar
+      </button>
     </div>
   </div>
 </template>
