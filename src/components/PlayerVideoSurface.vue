@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import DocumentoViewer from '@/components/DocumentoViewer.vue'
 import EvaluacionPanel from '@/components/EvaluacionPanel.vue'
+import PlayerTextoSurface from '@/components/PlayerTextoSurface.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 
 const props = defineProps({
@@ -10,7 +11,7 @@ const props = defineProps({
     type: Object,
     required: true,
     validator(v) {
-      return ['youtube', 'hls', 'documento', 'examen', 'none'].includes(v?.kind)
+      return ['youtube', 'hls', 'documento', 'examen', 'texto', 'none'].includes(v?.kind)
     },
   },
   leccion: {
@@ -145,6 +146,12 @@ function onEnded() {
         v-else-if="source.kind === 'documento'"
         :leccion-id="source.leccionId"
         @fin-de-lectura="emit('finLectura')"
+      />
+      <PlayerTextoSurface
+        v-else-if="source.kind === 'texto'"
+        :contenido="leccion.contenido"
+        :completada="completada"
+        @completada="emit('marcarLecturaCompletada')"
       />
       <EvaluacionPanel
         v-else-if="source.kind === 'examen' && featureEnabled('evaluaciones')"

@@ -147,6 +147,7 @@ const source = computed(() => {
   if (leccion.value?.tipo === 'examen') return { kind: 'examen', leccionId: leccion.value.id }
   if (leccion.value?.documento_path) return { kind: 'documento', leccionId: leccion.value.id }
   if (leccion.value?.video_id) return { kind: 'hls', videoId: leccion.value.video_id }
+  if (leccion.value?.contenido) return { kind: 'texto', leccionId: leccion.value.id }
   if (youtubeId.value) return { kind: 'youtube', id: youtubeId.value }
   return { kind: 'none' }
 })
@@ -493,6 +494,7 @@ onMounted(async () => {
           video_id: l.video_id || null,
           documento_path: l.documento_path || null,
           documento_tipo: l.documento_tipo || null,
+          contenido: l.contenido ?? null,
           tipo: l.tipo_material || 'video',
           completado: completedIds.has(l.id),
           modulo_titulo: l.modulos.titulo,
