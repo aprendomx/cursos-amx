@@ -1,8 +1,5 @@
 // src/services/evaluaciones.js
 // Evaluaciones (lecciones tipo examen).
-//  - Alumno: lee y califica vía RPC (las respuestas correctas viven solo
-//    en el servidor).
-//  - Admin: lee/guarda preguntas y opciones directamente (policy admin).
 import { supabase } from '@/lib/supabase.js'
 
 /** Lee el examen para el alumno (sin es_correcta). */
@@ -15,7 +12,7 @@ export async function obtenerEvaluacion(leccionId) {
 /**
  * Envía las respuestas y obtiene la calificación.
  * @param {string} leccionId
- * @param {Record<string, string[]>} respuestas  preguntaId -> [opcionId,...]
+ * @param {Record<string, any>} respuestas  preguntaId -> respuesta (formato depende del tipo)
  */
 export async function calificarEvaluacion(leccionId, respuestas) {
   const { data, error } = await supabase.rpc('calificar_evaluacion', {
@@ -30,7 +27,7 @@ export async function calificarEvaluacion(leccionId, respuestas) {
 export async function cargarPreguntasAdmin(leccionId) {
   const { data, error } = await supabase
     .from('preguntas')
-    .select('id, orden, tipo, enunciado, pregunta_opciones(id, orden, texto, es_correcta)')
+    .select('id, orden, tipo, enunciado, config, pregunta_opciones(id, orden, texto, es_correcta)')
     .eq('leccion_id', leccionId)
     .order('orden')
   if (error) throw error
@@ -38,6 +35,7 @@ export async function cargarPreguntasAdmin(leccionId) {
     id: p.id,
     tipo: p.tipo,
     enunciado: p.enunciado || '',
+    config: p.config || {},
     opciones: (p.pregunta_opciones || [])
       .slice()
       .sort((a, b) => a.orden - b.orden)
@@ -46,9 +44,7 @@ export async function cargarPreguntasAdmin(leccionId) {
 }
 
 /**
- * Reemplazo total de las preguntas de una lección examen. Borra las
- * existentes (cascade a opciones) y reinserta desde el formulario. Los
- * snapshots en intentos_evaluacion son jsonb y no se ven afectados.
+ * Reemplazo total de las preguntas de una lección examen.
  */
 export async function guardarEvaluacionAdmin(leccionId, preguntas) {
   const { error: delErr } = await supabase.from('preguntas').delete().eq('leccion_id', leccionId)
@@ -58,20 +54,29 @@ export async function guardarEvaluacionAdmin(leccionId, preguntas) {
     const p = preguntas[i]
     const { data: pRow, error: pErr } = await supabase
       .from('preguntas')
-      .insert({ leccion_id: leccionId, orden: i + 1, tipo: p.tipo, enunciado: p.enunciado || '' })
+      .insert({
+        leccion_id: leccionId,
+        orden: i + 1,
+        tipo: p.tipo,
+        enunciado: p.enunciado || '',
+        config: p.config || {},
+      })
       .select('id')
       .single()
     if (pErr) throw pErr
 
-    const opciones = (p.opciones || []).map((o, j) => ({
-      pregunta_id: pRow.id,
-      orden: j + 1,
-      texto: o.texto || '',
-      es_correcta: !!o.es_correcta,
-    }))
-    if (opciones.length) {
-      const { error: oErr } = await supabase.from('pregunta_opciones').insert(opciones)
-      if (oErr) throw oErr
+    // Solo insertar opciones para tipos que las usan
+    if (['opcion_unica', 'opcion_multiple', 'verdadero_falso'].includes(p.tipo)) {
+      const opciones = (p.opciones || []).map((o, j) => ({
+        pregunta_id: pRow.id,
+        orden: j + 1,
+        texto: o.texto || '',
+        es_correcta: !!o.es_correcta,
+      }))
+      if (opciones.length) {
+        const { error: oErr } = await supabase.from('pregunta_opciones').insert(opciones)
+        if (oErr) throw oErr
+      }
     }
   }
 }

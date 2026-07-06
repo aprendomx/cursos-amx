@@ -10,10 +10,10 @@ const emit = defineEmits(['aprobada'])
 
 const cargando = ref(true)
 const error = ref('')
-const examen = ref(null) // { puntaje_minimo, max_intentos, intentos_restantes, preguntas }
-const seleccion = reactive({}) // preguntaId -> Set-like array de opcionId
+const examen = ref(null)
+const seleccion = reactive({}) // preguntaId -> respuesta (formato depende del tipo)
 const enviando = ref(false)
-const resultado = ref(null) // { puntaje, aprobado, numero, intentos_restantes, detalle }
+const resultado = ref(null)
 
 async function cargar() {
   cargando.value = true
@@ -22,7 +22,19 @@ async function cargar() {
   for (const k of Object.keys(seleccion)) delete seleccion[k]
   try {
     examen.value = await obtenerEvaluacion(props.leccionId)
-    for (const p of examen.value.preguntas) seleccion[p.id] = []
+    for (const p of examen.value.preguntas) {
+      if (p.tipo === 'emparejamiento') {
+        // Inicializar con array vacío o con pares desordenados para que el alumno los ordene
+        seleccion[p.id] = []
+      } else if (p.tipo === 'rellenar_huecos') {
+        const count = (p.config?.respuestas?.length) || 1
+        seleccion[p.id] = Array(count).fill('')
+      } else if (p.tipo === 'ensayo') {
+        seleccion[p.id] = ''
+      } else {
+        seleccion[p.id] = []
+      }
+    }
   } catch (e) {
     error.value = String(e?.message || e)
   } finally {
@@ -33,6 +45,7 @@ async function cargar() {
 onMounted(cargar)
 watch(() => props.leccionId, cargar)
 
+/* ── Opciones clásicas ── */
 function toggleUnica(preguntaId, opcionId) {
   seleccion[preguntaId] = [opcionId]
 }
@@ -46,8 +59,42 @@ function estaSeleccionada(preguntaId, opcionId) {
   return (seleccion[preguntaId] || []).includes(opcionId)
 }
 
+/* ── Emparejamiento ── */
+function emparejar(preguntaId, izq, der) {
+  const arr = seleccion[preguntaId]
+  const existing = arr.find((pair) => pair.izq === izq)
+  if (existing) {
+    existing.der = der
+  } else {
+    arr.push({ izq, der })
+  }
+}
+function emparejamientoDe(preguntaId, izq) {
+  const pair = (seleccion[preguntaId] || []).find((x) => x.izq === izq)
+  return pair?.der || ''
+}
+
+/* ── Validación de respuestas completas ── */
+function estaRespondida(p) {
+  const s = seleccion[p.id]
+  if (p.tipo === 'opcion_unica' || p.tipo === 'opcion_multiple' || p.tipo === 'verdadero_falso') {
+    return Array.isArray(s) && s.length > 0
+  }
+  if (p.tipo === 'emparejamiento') {
+    const pares = p.config?.pares || []
+    return Array.isArray(s) && s.length === pares.length && s.every((pair) => pair.der)
+  }
+  if (p.tipo === 'rellenar_huecos') {
+    return Array.isArray(s) && s.every((h) => String(h).trim().length > 0)
+  }
+  if (p.tipo === 'ensayo') {
+    return String(s || '').trim().length > 0
+  }
+  return false
+}
+
 const todasRespondidas = () =>
-  !!examen.value && examen.value.preguntas.every((p) => (seleccion[p.id] || []).length > 0)
+  !!examen.value && examen.value.preguntas.every(estaRespondida)
 
 function detalleDe(preguntaId) {
   return resultado.value?.detalle?.find((d) => d.pregunta_id === preguntaId) || null
@@ -59,7 +106,9 @@ async function enviar() {
   error.value = ''
   try {
     const payload = {}
-    for (const p of examen.value.preguntas) payload[p.id] = seleccion[p.id]
+    for (const p of examen.value.preguntas) {
+      payload[p.id] = seleccion[p.id]
+    }
     resultado.value = await calificarEvaluacion(props.leccionId, payload)
     if (resultado.value.aprobado) emit('aprobada')
   } catch (e) {
@@ -162,27 +211,95 @@ function reintentar() {
               v-if="p.tipo === 'opcion_multiple'"
               class="eval-hint"
             >(varias respuestas)</span>
+            <span
+              v-if="p.tipo === 'ensayo'"
+              class="eval-hint"
+            >(respuesta libre)</span>
           </p>
-          <label
-            v-for="o in p.opciones"
-            :key="o.id"
-            class="eval-opt"
-          >
-            <input
-              v-if="p.tipo === 'opcion_multiple'"
-              type="checkbox"
-              :checked="estaSeleccionada(p.id, o.id)"
-              @change="toggleMultiple(p.id, o.id)"
+
+          <!-- Opciones clásicas -->
+          <template v-if="['opcion_unica','opcion_multiple','verdadero_falso'].includes(p.tipo)">
+            <label
+              v-for="o in p.opciones"
+              :key="o.id"
+              class="eval-opt"
             >
-            <input
-              v-else
-              type="radio"
-              :name="'q-' + p.id"
-              :checked="estaSeleccionada(p.id, o.id)"
-              @change="toggleUnica(p.id, o.id)"
+              <input
+                v-if="p.tipo === 'opcion_multiple'"
+                type="checkbox"
+                :checked="estaSeleccionada(p.id, o.id)"
+                @change="toggleMultiple(p.id, o.id)"
+              >
+              <input
+                v-else
+                type="radio"
+                :name="'q-' + p.id"
+                :checked="estaSeleccionada(p.id, o.id)"
+                @change="toggleUnica(p.id, o.id)"
+              >
+              <span>{{ o.texto }}</span>
+            </label>
+          </template>
+
+          <!-- Emparejamiento -->
+          <template v-if="p.tipo === 'emparejamiento'">
+            <div
+              v-for="(par, pi) in p.config?.pares"
+              :key="pi"
+              class="eval-opt"
+              :style="{ gap: '12px', padding: '8px 0' }"
             >
-            <span>{{ o.texto }}</span>
-          </label>
+              <span :style="{ flex: 1, fontWeight: 500 }">{{ par.izq }}</span>
+              <select
+                :value="emparejamientoDe(p.id, par.izq)"
+                @change="emparejar(p.id, par.izq, $event.target.value)"
+              >
+                <option value="">
+                  Selecciona…
+                </option>
+                <option
+                  v-for="opt in p.config.pares"
+                  :key="opt.der"
+                  :value="opt.der"
+                >
+                  {{ opt.der }}
+                </option>
+              </select>
+            </div>
+          </template>
+
+          <!-- Rellenar huecos -->
+          <template v-if="p.tipo === 'rellenar_huecos'">
+            <div
+              v-for="(h, hi) in p.config?.respuestas"
+              :key="hi"
+              class="eval-opt"
+              :style="{ gap: '8px' }"
+            >
+              <span class="mono">{{ hi + 1 }}.</span>
+              <input
+                v-model="seleccion[p.id][hi]"
+                type="text"
+                placeholder="Tu respuesta"
+                :style="{ flex: 1 }"
+              >
+            </div>
+          </template>
+
+          <!-- Ensayo -->
+          <template v-if="p.tipo === 'ensayo'">
+            <textarea
+              v-model="seleccion[p.id]"
+              rows="6"
+              :maxlength="p.config?.max_caracteres || 2000"
+              placeholder="Escribe tu respuesta…"
+              :style="{ width: '100%', resize: 'vertical' }"
+            />
+            <p class="eval-hint">
+              {{ (seleccion[p.id] || '').length }} / {{ p.config?.max_caracteres || 2000 }} caracteres
+              <span v-if="p.config?.guia">· {{ p.config.guia }}</span>
+            </p>
+          </template>
         </div>
 
         <button
