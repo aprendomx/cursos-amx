@@ -32,6 +32,8 @@ export function useAdminNavigation() {
     { key: 'nuevo', label: '+ Nuevo curso', primary: true },
     { key: 'usuarios', label: 'Usuarios' },
     ...(featureEnabled('instructor') ? [{ key: 'instructores', label: 'Instructores' }] : []),
+    ...(featureEnabled('rubrics') ? [{ key: 'rubricas', label: 'Rúbricas' }] : []),
+    ...(featureEnabled('cohorts') ? [{ key: 'cohortes', label: 'Cohortes' }] : []),
     { key: 'constancias', label: 'Constancias' },
     { key: 'reportes', label: 'Reportes' },
     { key: 'config', label: 'Configuraci\u00f3n' },
