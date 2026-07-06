@@ -10,7 +10,7 @@
 -- ---------- Función para otorgar puntos ----------
 create or replace function public.otorgar_puntos(
   p_usuario_id   uuid,
-  p_fuente_tipo  public.fuente_tipo_puntos,
+  p_fuente_tipo  text,
   p_fuente_id    uuid,
   p_puntos       int,
   p_descripcion  text default null
@@ -29,7 +29,7 @@ begin
   return r;
 end $$;
 
-grant execute on function public.otorgar_puntos(uuid, public.fuente_tipo_puntos, uuid, int, text) to authenticated;
+grant execute on function public.otorgar_puntos(uuid, text, uuid, int, text) to authenticated;
 
 -- ---------- Trigger: puntos por completar lección (10 pts) ----------
 create or replace function public.trg_puntos_leccion_fn()
@@ -42,7 +42,7 @@ begin
   if old.completado is false and new.completado is true then
     perform public.otorgar_puntos(
       new.user_id,
-      'leccion'::public.fuente_tipo_puntos,
+      'leccion_completada',
       new.leccion_id,
       10,
       'Lección completada'
@@ -69,7 +69,7 @@ begin
   if old.aprobado is false and new.aprobado is true then
     perform public.otorgar_puntos(
       new.user_id,
-      'evaluacion'::public.fuente_tipo_puntos,
+      'quiz_aprobado',
       new.leccion_id,
       50,
       'Evaluación aprobada'
@@ -94,7 +94,7 @@ as $$
 begin
   perform public.otorgar_puntos(
     new.autor_id,
-    'foro_hilo'::public.fuente_tipo_puntos,
+    'foro_post',
     new.id,
     5,
     'Nuevo hilo en foro'
@@ -118,7 +118,7 @@ as $$
 begin
   perform public.otorgar_puntos(
     new.autor_id,
-    'foro_respuesta'::public.fuente_tipo_puntos,
+    'foro_post',
     new.id,
     5,
     'Respuesta en foro'

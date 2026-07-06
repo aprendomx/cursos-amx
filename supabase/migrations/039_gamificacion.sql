@@ -8,32 +8,6 @@
 --  * condiciones_desbloqueo: reglas para desbloquear módulos
 -- =========================================================
 
--- ---------- Tipos enumerados ----------
-do $$
-begin
-  if not exists (select 1 from pg_type where typname = 'tipo_criterio_badge') then
-    create type public.tipo_criterio_badge as enum (
-      'primer_login', 'completar_leccion', 'aprobar_evaluacion',
-      'crear_hilo_foro', 'responder_foro', 'completar_curso',
-      'dias_consecutivos', 'puntaje_total', 'personalizado'
-    );
-  end if;
-
-  if not exists (select 1 from pg_type where typname = 'fuente_tipo_puntos') then
-    create type public.fuente_tipo_puntos as enum (
-      'leccion', 'evaluacion', 'foro_hilo', 'foro_respuesta',
-      'badge', 'inicio_sesion', 'completar_curso', 'manual'
-    );
-  end if;
-
-  if not exists (select 1 from pg_type where typname = 'tipo_condicion_desbloqueo') then
-    create type public.tipo_condicion_desbloqueo as enum (
-      'leccion_previa', 'evaluacion_aprobada', 'puntos_minimos',
-      'badge_obtenido', 'dias_desde_inscripcion', 'manual'
-    );
-  end if;
-end $$;
-
 -- ---------- Niveles ----------
 create table if not exists public.niveles (
   id          serial primary key,
@@ -61,7 +35,10 @@ create table if not exists public.badges (
   nombre           text not null,
   descripcion      text,
   icono_svg        text,
-  criterio_tipo    public.tipo_criterio_badge not null default 'personalizado',
+  criterio_tipo    text not null check (criterio_tipo in (
+    'completar_curso', 'calificacion_minima', 'entregar_tiempo',
+    'participar_foros', 'streak_dias', 'completar_modulo', 'primer_login'
+  )),
   criterio_config  jsonb not null default '{}',
   puntos_otorga    int not null default 0,
   activo           boolean not null default true,
@@ -71,12 +48,13 @@ create table if not exists public.badges (
 comment on table public.badges is 'Logros desbloqueables del sistema de gamificación';
 comment on column public.badges.criterio_config is 'Configuración específica del criterio (JSONB flexible)';
 
-insert into public.badges (nombre, descripcion, icono_svg, criterio_tipo, criterio_config, puntos_otorga, activo) values
-  ('Bienvenida', '¡Bienvenido a Cursos AMX!', '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>', 'primer_login', '{}', 10, true),
-  ('Primer paso', 'Completaste tu primera lección.', '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>', 'completar_leccion', '{"cantidad": 1}', 20, true),
-  ('Social', 'Participaste activamente en los foros.', '<svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h10c.55 0 1-.45 1-1z"/></svg>', 'crear_hilo_foro', '{"cantidad": 1}', 15, true),
-  ('Aprobado', 'Aprobaste tu primera evaluación.', '<svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>', 'aprobar_evaluacion', '{"cantidad": 1}', 30, true),
-  ('Constante', 'Mantuviste una racha de 7 días consecutivos.', '<svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/></svg>', 'dias_consecutivos', '{"dias": 7}', 50, true)
+insert into public.badges (nombre, descripcion, criterio_tipo, criterio_config, puntos_otorga)
+values
+  ('Bienvenida', 'Iniciaste tu primera sesión', 'primer_login', '{}', 10),
+  ('Primer paso', 'Completaste tu primera lección', 'completar_modulo', '{"modulo_orden": 1}', 20),
+  ('Social', 'Participaste en 5 foros', 'participar_foros', '{"cantidad_min": 5}', 30),
+  ('Aprobado', 'Obtuviste 70+ en una evaluación', 'calificacion_minima', '{"puntaje_min": 70}', 50),
+  ('Constante', '7 días consecutivos de actividad', 'streak_dias', '{"dias_consecutivos": 7}', 100)
 on conflict do nothing;
 
 -- ---------- Badge-Usuarios ----------
@@ -94,7 +72,10 @@ comment on table public.badge_usuarios is 'Relación de badges desbloqueados por
 create table if not exists public.log_puntos (
   id           uuid primary key default gen_random_uuid(),
   usuario_id   uuid not null references auth.users(id) on delete cascade,
-  fuente_tipo  public.fuente_tipo_puntos not null,
+  fuente_tipo  text not null check (fuente_tipo in (
+    'leccion_completada', 'quiz_aprobado', 'foro_post', 'entrega_tiempo',
+    'badge_desbloqueado', 'login_diario', 'streak'
+  )),
   fuente_id    uuid,
   puntos       int not null,
   descripcion  text,
@@ -109,7 +90,10 @@ comment on table public.log_puntos is 'Registro inmutable de puntos otorgados a 
 create table if not exists public.condiciones_desbloqueo (
   id              uuid primary key default gen_random_uuid(),
   modulo_id       uuid not null references public.modulos(id) on delete cascade,
-  tipo_condicion  public.tipo_condicion_desbloqueo not null,
+  tipo_condicion  text not null check (tipo_condicion in (
+    'completar_modulo_previo', 'calificacion_minima', 'entregar_leccion',
+    'dias_desde_inscripcion', 'badges_requeridos'
+  )),
   config          jsonb not null default '{}',
   orden           int not null default 0,
   created_at      timestamptz not null default now()
@@ -131,6 +115,12 @@ create policy "niveles_select_all"
   on public.niveles for select
   to authenticated
   using (true);
+
+create policy "niveles_mod_admin"
+  on public.niveles for all
+  to authenticated
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- Badges: lectura pública; modificación solo admin
 create policy "badges_select_all"
