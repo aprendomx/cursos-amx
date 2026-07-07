@@ -25,6 +25,9 @@ export const FEATURES: Record<string, boolean> = {
   evaluaciones: flag('VITE_FEATURE_EVALUACIONES'),
   gamificacion: flag('VITE_FEATURE_GAMIFICACION'),
   analytics: flag('VITE_FEATURE_ANALYTICS'),
+  ai_quiz_generator: flag('VITE_FEATURE_AI_QUIZ'),
+  ai_summaries: flag('VITE_FEATURE_AI_SUMMARIES'),
+  ai_study_assistant: flag('VITE_FEATURE_AI_CHAT'),
 }
 
 export function featureEnabled(nombre: string): boolean {

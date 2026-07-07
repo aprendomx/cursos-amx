@@ -1,9 +1,14 @@
 <!-- src/components/EvaluacionEditor.vue -->
 <script setup>
 /* eslint-disable vue/no-mutating-props */
+import { featureEnabled } from '@/lib/featureFlags.js'
+import AiQuizGenerator from '@/components/AiQuizGenerator.vue'
+
 const props = defineProps({
   preguntas: { type: Array, required: true },
 })
+
+const aiQuizEnabled = featureEnabled('ai_quiz_generator')
 
 const TIPOS = [
   { v: 'opcion_unica', label: 'Opción única' },
@@ -34,6 +39,29 @@ function removePregunta(i) {
   props.preguntas.splice(i, 1)
 }
 
+function onAddAiPreguntas(aiPreguntas) {
+  for (const p of aiPreguntas) {
+    const opciones = (p.opciones || []).map((texto, idx) => ({
+      id: nuevoId(),
+      texto,
+      es_correcta: idx === p.respuesta_correcta,
+    }))
+    props.preguntas.push({
+      id: nuevoId(),
+      tipo: 'opcion_unica',
+      enunciado: p.enunciado || '',
+      opciones:
+        opciones.length >= 2
+          ? opciones
+          : [
+              { id: nuevoId(), texto: '', es_correcta: false },
+              { id: nuevoId(), texto: '', es_correcta: false },
+            ],
+      config: {},
+    })
+  }
+}
+
 function movePregunta(i, dir) {
   const j = i + dir
   if (j < 0 || j >= props.preguntas.length) return
@@ -50,7 +78,12 @@ function onTipoChange(p) {
     ]
   } else if (p.tipo === 'emparejamiento') {
     p.opciones = []
-    p.config = { pares: [{ izq: '', der: '' }, { izq: '', der: '' }] }
+    p.config = {
+      pares: [
+        { izq: '', der: '' },
+        { izq: '', der: '' },
+      ],
+    }
   } else if (p.tipo === 'rellenar_huecos') {
     p.opciones = []
     p.config = { respuestas: [''] }
@@ -105,23 +138,11 @@ function removeHueco(p, hi) {
 
 <template>
   <div class="qe">
-    <div
-      v-for="(p, i) in preguntas"
-      :key="p.id"
-      class="qe-q card"
-    >
+    <div v-for="(p, i) in preguntas" :key="p.id" class="qe-q card">
       <div class="qe-q-head">
-        <span
-          class="mono"
-          :style="{ color: 'var(--ink-4)' }"
-        >Pregunta {{ i + 1 }}</span>
+        <span class="mono" :style="{ color: 'var(--ink-4)' }">Pregunta {{ i + 1 }}</span>
         <div :style="{ display: 'flex', gap: '4px' }">
-          <button
-            type="button"
-            class="qe-icon"
-            :disabled="i === 0"
-            @click="movePregunta(i, -1)"
-          >
+          <button type="button" class="qe-icon" :disabled="i === 0" @click="movePregunta(i, -1)">
             ↑
           </button>
           <button
@@ -132,27 +153,14 @@ function removeHueco(p, hi) {
           >
             ↓
           </button>
-          <button
-            type="button"
-            class="qe-icon qe-icon-danger"
-            @click="removePregunta(i)"
-          >
-            ×
-          </button>
+          <button type="button" class="qe-icon qe-icon-danger" @click="removePregunta(i)">×</button>
         </div>
       </div>
 
       <div class="field">
         <label>Tipo</label>
-        <select
-          v-model="p.tipo"
-          @change="onTipoChange(p)"
-        >
-          <option
-            v-for="t in TIPOS"
-            :key="t.v"
-            :value="t.v"
-          >
+        <select v-model="p.tipo" @change="onTipoChange(p)">
+          <option v-for="t in TIPOS" :key="t.v" :value="t.v">
             {{ t.label }}
           </option>
         </select>
@@ -169,18 +177,11 @@ function removeHueco(p, hi) {
       </div>
 
       <!-- Opciones clásicas -->
-      <template v-if="['opcion_unica','opcion_multiple','verdadero_falso'].includes(p.tipo)">
-        <p
-          class="eyebrow"
-          :style="{ margin: 'calc(var(--unit) * 1) 0' }"
-        >
+      <template v-if="['opcion_unica', 'opcion_multiple', 'verdadero_falso'].includes(p.tipo)">
+        <p class="eyebrow" :style="{ margin: 'calc(var(--unit) * 1) 0' }">
           Opciones — marca la(s) correcta(s)
         </p>
-        <div
-          v-for="(o, oi) in p.opciones"
-          :key="o.id"
-          class="qe-opt"
-        >
+        <div v-for="(o, oi) in p.opciones" :key="o.id" class="qe-opt">
           <button
             type="button"
             class="qe-correct"
@@ -195,7 +196,7 @@ function removeHueco(p, hi) {
             type="text"
             :disabled="p.tipo === 'verdadero_falso'"
             placeholder="Texto de la opción"
-          >
+          />
           <button
             v-if="p.tipo !== 'verdadero_falso'"
             type="button"
@@ -218,34 +219,13 @@ function removeHueco(p, hi) {
 
       <!-- Emparejamiento -->
       <template v-if="p.tipo === 'emparejamiento'">
-        <p
-          class="eyebrow"
-          :style="{ margin: 'calc(var(--unit) * 1) 0' }"
-        >
+        <p class="eyebrow" :style="{ margin: 'calc(var(--unit) * 1) 0' }">
           Pares — escribe el elemento izquierdo y su correspondiente derecho
         </p>
-        <div
-          v-for="(par, pi) in p.config.pares"
-          :key="pi"
-          class="qe-opt"
-          :style="{ gap: '8px' }"
-        >
-          <input
-            v-model="par.izq"
-            type="text"
-            placeholder="Izquierda"
-            :style="{ flex: 1 }"
-          >
-          <span
-            class="mono"
-            :style="{ color: 'var(--ink-3)' }"
-          >↔</span>
-          <input
-            v-model="par.der"
-            type="text"
-            placeholder="Derecha"
-            :style="{ flex: 1 }"
-          >
+        <div v-for="(par, pi) in p.config.pares" :key="pi" class="qe-opt" :style="{ gap: '8px' }">
+          <input v-model="par.izq" type="text" placeholder="Izquierda" :style="{ flex: 1 }" />
+          <span class="mono" :style="{ color: 'var(--ink-3)' }">↔</span>
+          <input v-model="par.der" type="text" placeholder="Derecha" :style="{ flex: 1 }" />
           <button
             type="button"
             class="qe-icon qe-icon-danger"
@@ -255,38 +235,22 @@ function removeHueco(p, hi) {
             ×
           </button>
         </div>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm"
-          @click="addPar(p)"
-        >
-          + Par
-        </button>
+        <button type="button" class="btn btn-ghost btn-sm" @click="addPar(p)">+ Par</button>
       </template>
 
       <!-- Rellenar huecos -->
       <template v-if="p.tipo === 'rellenar_huecos'">
-        <p
-          class="eyebrow"
-          :style="{ margin: 'calc(var(--unit) * 1) 0' }"
-        >
+        <p class="eyebrow" :style="{ margin: 'calc(var(--unit) * 1) 0' }">
           Respuestas — en orden de aparición en el enunciado (usa ____ para marcar huecos)
         </p>
-        <div
-          v-for="(resp, hi) in p.config.respuestas"
-          :key="hi"
-          class="qe-opt"
-        >
-          <span
-            class="mono"
-            :style="{ color: 'var(--ink-3)', width: '28px' }"
-          >{{ hi + 1 }}</span>
+        <div v-for="(resp, hi) in p.config.respuestas" :key="hi" class="qe-opt">
+          <span class="mono" :style="{ color: 'var(--ink-3)', width: '28px' }">{{ hi + 1 }}</span>
           <input
             v-model="p.config.respuestas[hi]"
             type="text"
             placeholder="Respuesta correcta"
             :style="{ flex: 1 }"
-          >
+          />
           <button
             type="button"
             class="qe-icon qe-icon-danger"
@@ -296,13 +260,7 @@ function removeHueco(p, hi) {
             ×
           </button>
         </div>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm"
-          @click="addHueco(p)"
-        >
-          + Hueco
-        </button>
+        <button type="button" class="btn btn-ghost btn-sm" @click="addHueco(p)">+ Hueco</button>
       </template>
 
       <!-- Ensayo -->
@@ -315,7 +273,7 @@ function removeHueco(p, hi) {
             min="100"
             max="10000"
             :style="{ width: '120px' }"
-          >
+          />
         </div>
         <div class="field">
           <label>Guía de calificación (visible para el alumno)</label>
@@ -329,13 +287,16 @@ function removeHueco(p, hi) {
       </template>
     </div>
 
-    <button
-      type="button"
-      class="btn btn-secondary btn-sm"
-      @click="addPregunta"
-    >
-      + Agregar pregunta
-    </button>
+    <div :style="{ display: 'flex', gap: '8px', flexWrap: 'wrap' }">
+      <button type="button" class="btn btn-secondary btn-sm" @click="addPregunta">
+        + Agregar pregunta
+      </button>
+      <AiQuizGenerator
+        v-if="aiQuizEnabled"
+        :preguntas="props.preguntas"
+        @add-preguntas="onAddAiPreguntas"
+      />
+    </div>
   </div>
 </template>
 

@@ -11,6 +11,7 @@ import AdminRubricaManager from '@/components/AdminRubricaManager.vue'
 import AdminCohortManager from '@/components/AdminCohortManager.vue'
 import AdminBadgeManager from '@/components/AdminBadgeManager.vue'
 import AnalyticsDashboard from '@/components/AnalyticsDashboard.vue'
+import AdminAiConfig from '@/components/AdminAiConfig.vue'
 import { useAdminNavigation } from '@/composables/useAdminNavigation.js'
 import { useAdminDashboard } from '@/composables/useAdminDashboard.js'
 
@@ -123,6 +124,8 @@ function handleDeleted(curso) {
       <AdminBadgeManager v-else-if="activeSection === 'gamificacion'" />
 
       <AnalyticsDashboard v-else-if="activeSection === 'analytics'" />
+
+      <AdminAiConfig v-else-if="activeSection === 'ai_config'" />
     </main>
   </div>
 </template>

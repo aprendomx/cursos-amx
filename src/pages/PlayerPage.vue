@@ -1,10 +1,12 @@
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, computed } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import PlayerVideoSurface from '@/components/PlayerVideoSurface.vue'
 import PlayerChatPane from '@/components/PlayerChatPane.vue'
 import PlayerLessonNavigator from '@/components/PlayerLessonNavigator.vue'
 import EntregaUploadField from '@/components/EntregaUploadField.vue'
+import AiSummarizeButton from '@/components/AiSummarizeButton.vue'
+import AiChatWidget from '@/components/AiChatWidget.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { usePlayerPage } from '@/composables/usePlayerPage.js'
 const props = defineProps({
@@ -45,12 +47,27 @@ const {
   marcarLecturaCompletada,
   goToNextLesson,
 } = usePlayerPage(props)
+
+const aiSummariesEnabled = featureEnabled('ai_summaries')
+const aiChatEnabled = featureEnabled('ai_study_assistant')
+
+function extractTextFromContenido(contenido) {
+  if (!contenido) return ''
+  if (typeof contenido === 'string') return contenido
+  // Simple Tiptap text extraction
+  let text = ''
+  function walk(node) {
+    if (node.text) text += node.text + ' '
+    if (node.content) node.content.forEach(walk)
+  }
+  if (contenido.content) contenido.content.forEach(walk)
+  return text.trim()
+}
+
+const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.contenido))
 </script>
 <template>
-  <div
-    class="player-page"
-    :class="`variant-${variant}`"
-  >
+  <div class="player-page" :class="`variant-${variant}`">
     <!-- Top bar -->
     <header class="player-topbar">
       <div class="topbar-left">
@@ -69,33 +86,17 @@ const {
       </div>
       <div class="topbar-right">
         <div class="topbar-variants tweaks-segment">
-          <button
-            :class="{ on: variant === 'split' }"
-            @click="setVariant('split')"
-          >
-            Split
-          </button>
-          <button
-            :class="{ on: variant === 'stacked' }"
-            @click="setVariant('stacked')"
-          >
+          <button :class="{ on: variant === 'split' }" @click="setVariant('split')">Split</button>
+          <button :class="{ on: variant === 'stacked' }" @click="setVariant('stacked')">
             Chat inferior
           </button>
-          <button
-            :class="{ on: variant === 'focus' }"
-            @click="setVariant('focus')"
-          >
-            Enfoque
-          </button>
+          <button :class="{ on: variant === 'focus' }" @click="setVariant('focus')">Enfoque</button>
         </div>
       </div>
     </header>
 
     <!-- Split -->
-    <div
-      v-if="variant === 'split'"
-      class="layout-split"
-    >
+    <div v-if="variant === 'split'" class="layout-split">
       <div class="split-left">
         <PlayerVideoSurface
           :source="source"
@@ -125,6 +126,12 @@ const {
           :curso-id="cursoId"
           :leccion="leccion"
         />
+        <AiSummarizeButton
+          v-if="aiSummariesEnabled && leccionTexto"
+          :content="leccionTexto"
+          content-type="text"
+          :leccion-id="leccion.id"
+        />
         <PlayerLessonNavigator
           :lecciones="lecciones"
           :current-leccion-id="currentLeccion"
@@ -135,18 +142,11 @@ const {
           @select="selectLesson"
         />
       </div>
-      <PlayerChatPane
-        v-model:draft="draft"
-        :comentarios="comentarios"
-        @send="sendComment"
-      />
+      <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
     </div>
 
     <!-- Stacked -->
-    <div
-      v-else-if="variant === 'stacked'"
-      class="layout-stacked"
-    >
+    <div v-else-if="variant === 'stacked'" class="layout-stacked">
       <div class="stacked-top">
         <PlayerVideoSurface
           :source="source"
@@ -175,6 +175,12 @@ const {
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
+        />
+        <AiSummarizeButton
+          v-if="aiSummariesEnabled && leccionTexto"
+          :content="leccionTexto"
+          content-type="text"
+          :leccion-id="leccion.id"
         />
         <PlayerLessonNavigator
           variant="stacked"
@@ -210,19 +216,12 @@ const {
             </p>
           </div>
         </div>
-        <PlayerChatPane
-          v-model:draft="draft"
-          :comentarios="comentarios"
-          @send="sendComment"
-        />
+        <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
       </div>
     </div>
 
     <!-- Focus -->
-    <div
-      v-else
-      class="layout-focus"
-    >
+    <div v-else class="layout-focus">
       <div class="focus-center">
         <PlayerVideoSurface
           :source="source"
@@ -252,6 +251,12 @@ const {
           :curso-id="cursoId"
           :leccion="leccion"
         />
+        <AiSummarizeButton
+          v-if="aiSummariesEnabled && leccionTexto"
+          :content="leccionTexto"
+          content-type="text"
+          :leccion-id="leccion.id"
+        />
         <div class="focus-below">
           <div class="focus-title-block">
             <span class="eyebrow">Modulo 02 &middot; Leccion {{ leccion.orden }}</span>
@@ -260,25 +265,13 @@ const {
             </h2>
           </div>
           <div class="focus-actions">
-            <button
-              class="btn btn-ghost btn-sm"
-              title="Notas (proximamente)"
-              @click="() => {}"
-            >
+            <button class="btn btn-ghost btn-sm" title="Notas (proximamente)" @click="() => {}">
               <IconSet name="doc" /> Notas
             </button>
-            <button
-              class="btn btn-ghost btn-sm"
-              title="Chat (proximamente)"
-              @click="() => {}"
-            >
+            <button class="btn btn-ghost btn-sm" title="Chat (proximamente)" @click="() => {}">
               <IconSet name="chat" /> Chat
             </button>
-            <button
-              v-if="completada"
-              class="btn btn-primary btn-sm"
-              @click="goToNextLesson"
-            >
+            <button v-if="completada" class="btn btn-primary btn-sm" @click="goToNextLesson">
               Siguiente leccion <IconSet name="arrow" />
             </button>
           </div>
@@ -295,5 +288,7 @@ const {
         @select="selectLesson"
       />
     </div>
+
+    <AiChatWidget v-if="aiChatEnabled && leccionTexto" :context="leccionTexto" />
   </div>
 </template>

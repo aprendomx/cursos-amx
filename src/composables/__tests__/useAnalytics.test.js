@@ -3,8 +3,8 @@ import { useAnalytics } from '@/composables/useAnalytics.js'
 import * as analytics from '@/services/analytics.js'
 
 vi.mock('@/services/analytics.js', () => ({
-  obtenerAlumnosRiesgo: vi.fn(),
-  obtenerEngagement: vi.fn(),
+  obtenerRiesgoAlumnos: vi.fn(),
+  obtenerEngagementDiario: vi.fn(),
   generarReporteCSV: vi.fn(),
 }))
 
@@ -22,7 +22,7 @@ describe('useAnalytics', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('cargarRiesgo fetches risk students and stores them', async () => {
-    analytics.obtenerAlumnosRiesgo.mockResolvedValue(mockAlumnosRiesgo)
+    analytics.obtenerRiesgoAlumnos.mockResolvedValue(mockAlumnosRiesgo)
 
     const a = useAnalytics()
     await a.cargarRiesgo('c1', 50)
@@ -30,20 +30,20 @@ describe('useAnalytics', () => {
     expect(a.loading.value).toBe(false)
     expect(a.error.value).toBeNull()
     expect(a.alumnosRiesgo.value).toEqual(mockAlumnosRiesgo)
-    expect(analytics.obtenerAlumnosRiesgo).toHaveBeenCalledWith('c1', 50)
+    expect(analytics.obtenerRiesgoAlumnos).toHaveBeenCalledWith('c1', 50)
   })
 
   it('cargarRiesgo uses default minRiesgo when not provided', async () => {
-    analytics.obtenerAlumnosRiesgo.mockResolvedValue(mockAlumnosRiesgo)
+    analytics.obtenerRiesgoAlumnos.mockResolvedValue(mockAlumnosRiesgo)
 
     const a = useAnalytics()
     await a.cargarRiesgo('c1')
 
-    expect(analytics.obtenerAlumnosRiesgo).toHaveBeenCalledWith('c1', 50)
+    expect(analytics.obtenerRiesgoAlumnos).toHaveBeenCalledWith('c1', 50)
   })
 
   it('cargarRiesgo sets loading and error on failure', async () => {
-    analytics.obtenerAlumnosRiesgo.mockRejectedValue(new Error('network'))
+    analytics.obtenerRiesgoAlumnos.mockRejectedValue(new Error('network'))
 
     const a = useAnalytics()
     const p = a.cargarRiesgo('c1', 50)
@@ -58,12 +58,12 @@ describe('useAnalytics', () => {
   it('cargarRiesgo is a no-op when cursoId is falsy', async () => {
     const a = useAnalytics()
     await a.cargarRiesgo(null, 50)
-    expect(analytics.obtenerAlumnosRiesgo).not.toHaveBeenCalled()
+    expect(analytics.obtenerRiesgoAlumnos).not.toHaveBeenCalled()
     expect(a.loading.value).toBe(false)
   })
 
   it('cargarEngagement fetches engagement data and stores it', async () => {
-    analytics.obtenerEngagement.mockResolvedValue(mockEngagement)
+    analytics.obtenerEngagementDiario.mockResolvedValue(mockEngagement)
 
     const a = useAnalytics()
     await a.cargarEngagement('c1', 30)
@@ -71,20 +71,20 @@ describe('useAnalytics', () => {
     expect(a.loading.value).toBe(false)
     expect(a.error.value).toBeNull()
     expect(a.engagement.value).toEqual(mockEngagement)
-    expect(analytics.obtenerEngagement).toHaveBeenCalledWith('c1', 30)
+    expect(analytics.obtenerEngagementDiario).toHaveBeenCalledWith('c1', 30)
   })
 
   it('cargarEngagement uses default dias when not provided', async () => {
-    analytics.obtenerEngagement.mockResolvedValue(mockEngagement)
+    analytics.obtenerEngagementDiario.mockResolvedValue(mockEngagement)
 
     const a = useAnalytics()
     await a.cargarEngagement('c1')
 
-    expect(analytics.obtenerEngagement).toHaveBeenCalledWith('c1', 30)
+    expect(analytics.obtenerEngagementDiario).toHaveBeenCalledWith('c1', 30)
   })
 
   it('cargarEngagement sets loading and error on failure', async () => {
-    analytics.obtenerEngagement.mockRejectedValue(new Error('engagement error'))
+    analytics.obtenerEngagementDiario.mockRejectedValue(new Error('engagement error'))
 
     const a = useAnalytics()
     const p = a.cargarEngagement('c1', 30)
@@ -99,7 +99,7 @@ describe('useAnalytics', () => {
   it('cargarEngagement is a no-op when cursoId is falsy', async () => {
     const a = useAnalytics()
     await a.cargarEngagement(null, 30)
-    expect(analytics.obtenerEngagement).not.toHaveBeenCalled()
+    expect(analytics.obtenerEngagementDiario).not.toHaveBeenCalled()
     expect(a.loading.value).toBe(false)
   })
 

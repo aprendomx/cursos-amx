@@ -36,6 +36,11 @@ export function useAdminNavigation() {
     ...(featureEnabled('cohorts') ? [{ key: 'cohortes', label: 'Cohortes' }] : []),
     ...(featureEnabled('gamificacion') ? [{ key: 'gamificacion', label: 'Gamificación' }] : []),
     ...(featureEnabled('analytics') ? [{ key: 'analytics', label: 'Analytics' }] : []),
+    ...(featureEnabled('ai_quiz_generator') ||
+    featureEnabled('ai_summaries') ||
+    featureEnabled('ai_study_assistant')
+      ? [{ key: 'ai_config', label: 'Configuración IA' }]
+      : []),
     { key: 'constancias', label: 'Constancias' },
     { key: 'reportes', label: 'Reportes' },
     { key: 'config', label: 'Configuraci\u00f3n' },
