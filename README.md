@@ -135,6 +135,18 @@
   - Feature flag: reportes_avanzados
   - Release: v0.10.0
 
+- **Phase H2: Reportes por Instructor + Análisis de Contenido** ✅
+  - Dashboard de instructor: métricas resumidas de cursos asignados
+  - Tabla de alumnos por curso: progreso, calificaciones, tiempo dedicado
+  - Análisis por lección: completitud, tiempo visto, engagement
+  - Vistas SQL: v_instructor_cursos, v_instructor_alumnos, v_leccion_analytics
+  - Edge Function analytics con endpoints instructor_dashboard, instructor_alumnos, leccion_analytics
+  - Composable: useReportes extendido con instructor y lección
+  - Componentes: InstructorReportPanel, InstructorAlumnosTable, LessonAnalyticsTable
+  - Integración en InstructorPage.vue
+  - Feature flag: reportes_avanzados
+  - Release: v0.11.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
