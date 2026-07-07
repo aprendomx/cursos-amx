@@ -135,6 +135,51 @@ Deno.serve(async (req) => {
         })
       }
 
+      case 'instructor_dashboard': {
+        const { instructor_id } = body
+        const { data, error } = await supabase
+          .from('v_instructor_cursos')
+          .select('*')
+          .eq('instructor_id', instructor_id)
+          .order('total_alumnos', { ascending: false })
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ cursos: data || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      case 'instructor_alumnos': {
+        const { curso_id } = body
+        const { data, error } = await supabase
+          .from('v_instructor_alumnos')
+          .select('*')
+          .eq('curso_id', curso_id)
+          .order('pct_progreso', { ascending: false })
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ alumnos: data || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      case 'leccion_analytics': {
+        const { curso_id } = body
+        const { data, error } = await supabase
+          .from('v_leccion_analytics')
+          .select('*')
+          .eq('curso_id', curso_id)
+          .order('tasa_completitud', { ascending: false })
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ lecciones: data || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
       default:
         return new Response(JSON.stringify({ error: 'Acción no válida' }), {
           status: 400,
