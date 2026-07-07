@@ -6,11 +6,23 @@ import {
   obtenerInstructorDashboard,
   obtenerInstructorAlumnos,
   obtenerLeccionAnalytics,
+  obtenerCostos,
+  obtenerInscripcionesTiempo,
+  obtenerCursosPopulares,
+  guardarFavorito,
+  cargarFavoritos,
+  eliminarFavorito,
+  programarReporte,
+  cargarProgramados,
 } from '../reportes.js'
 
 const mockInvoke = vi.fn()
+const mockFrom = vi.fn()
 vi.mock('@/lib/supabase.js', () => ({
-  supabase: { functions: { invoke: (...args) => mockInvoke(...args) } },
+  supabase: {
+    functions: { invoke: (...args) => mockInvoke(...args) },
+    from: (...args) => mockFrom(...args),
+  },
 }))
 
 describe('obtenerFunnel', () => {
@@ -132,5 +144,108 @@ describe('obtenerLeccionAnalytics', () => {
     const result = await obtenerLeccionAnalytics('c1')
     expect(result).toHaveLength(1)
     expect(result[0].leccion_titulo).toBe('Intro')
+  })
+})
+
+describe('obtenerCostos', () => {
+  it('retorna datos de costos', async () => {
+    mockInvoke.mockResolvedValue({
+      data: { almacenamiento_videos_gb: 10, costo_total_estimado_usd: 5 },
+    })
+    const result = await obtenerCostos()
+    expect(result.costo_total_estimado_usd).toBe(5)
+  })
+})
+
+describe('obtenerInscripcionesTiempo', () => {
+  it('retorna serie temporal', async () => {
+    mockInvoke.mockResolvedValue({
+      data: { puntos: [{ fecha: '2026-01-01', total_inscripciones: 10 }] },
+    })
+    const result = await obtenerInscripcionesTiempo('2026-01-01', '2026-01-31')
+    expect(result).toHaveLength(1)
+  })
+})
+
+describe('obtenerCursosPopulares', () => {
+  it('retorna cursos populares', async () => {
+    mockInvoke.mockResolvedValue({
+      data: { cursos: [{ curso_id: 'c1', titulo: 'Curso A', total_inscripciones: 100 }] },
+    })
+    const result = await obtenerCursosPopulares()
+    expect(result[0].titulo).toBe('Curso A')
+  })
+})
+
+describe('guardarFavorito', () => {
+  it('inserta y retorna el favorito', async () => {
+    mockFrom.mockReturnValue({
+      insert: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: { id: 'f1', nombre: 'Fav 1' }, error: null }),
+        }),
+      }),
+    })
+    const result = await guardarFavorito('Fav 1', 'comparativa', { desde: '2026-01-01' })
+    expect(mockFrom).toHaveBeenCalledWith('reportes_favoritos')
+    expect(result.nombre).toBe('Fav 1')
+  })
+})
+
+describe('cargarFavoritos', () => {
+  it('retorna lista de favoritos ordenada', async () => {
+    mockFrom.mockReturnValue({
+      select: () => ({
+        order: () => Promise.resolve({ data: [{ id: 'f1', nombre: 'Fav 1' }], error: null }),
+      }),
+    })
+    const result = await cargarFavoritos()
+    expect(mockFrom).toHaveBeenCalledWith('reportes_favoritos')
+    expect(result).toHaveLength(1)
+  })
+})
+
+describe('eliminarFavorito', () => {
+  it('elimina favorito por id', async () => {
+    mockFrom.mockReturnValue({
+      delete: () => ({
+        eq: () => Promise.resolve({ error: null }),
+      }),
+    })
+    await eliminarFavorito('f1')
+    expect(mockFrom).toHaveBeenCalledWith('reportes_favoritos')
+  })
+})
+
+describe('programarReporte', () => {
+  it('inserta y retorna el reporte programado', async () => {
+    mockFrom.mockReturnValue({
+      insert: () => ({
+        select: () => ({
+          single: () => Promise.resolve({ data: { id: 'p1', nombre: 'Prog 1' }, error: null }),
+        }),
+      }),
+    })
+    const result = await programarReporte(
+      'Prog 1',
+      'comparativa',
+      { desde: '2026-01-01' },
+      'semanal'
+    )
+    expect(mockFrom).toHaveBeenCalledWith('reportes_programados')
+    expect(result.nombre).toBe('Prog 1')
+  })
+})
+
+describe('cargarProgramados', () => {
+  it('retorna lista de reportes programados ordenada', async () => {
+    mockFrom.mockReturnValue({
+      select: () => ({
+        order: () => Promise.resolve({ data: [{ id: 'p1', nombre: 'Prog 1' }], error: null }),
+      }),
+    })
+    const result = await cargarProgramados()
+    expect(mockFrom).toHaveBeenCalledWith('reportes_programados')
+    expect(result).toHaveLength(1)
   })
 })
