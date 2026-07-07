@@ -1,5 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
-import { obtenerFunnel, obtenerRetencion, obtenerComparativa } from '../reportes.js'
+import {
+  obtenerFunnel,
+  obtenerRetencion,
+  obtenerComparativa,
+  obtenerInstructorDashboard,
+  obtenerInstructorAlumnos,
+  obtenerLeccionAnalytics,
+} from '../reportes.js'
 
 const mockInvoke = vi.fn()
 vi.mock('@/lib/supabase.js', () => ({
@@ -85,5 +92,45 @@ describe('obtenerComparativa', () => {
       body: { action: 'comparativa', desde: undefined, hasta: undefined },
     })
     expect(result[0].curso_titulo).toBe('Curso A')
+  })
+})
+
+describe('obtenerInstructorDashboard', () => {
+  it('retorna cursos del instructor', async () => {
+    mockInvoke.mockResolvedValue({
+      data: {
+        cursos: [
+          { curso_id: 'c1', curso_titulo: 'Curso A', total_alumnos: 50, tasa_aprobacion: 80 },
+        ],
+      },
+    })
+    const result = await obtenerInstructorDashboard('inst-1')
+    expect(mockInvoke).toHaveBeenCalledWith('analytics', {
+      body: { action: 'instructor_dashboard', instructor_id: 'inst-1' },
+    })
+    expect(result).toHaveLength(1)
+    expect(result[0].curso_titulo).toBe('Curso A')
+  })
+})
+
+describe('obtenerInstructorAlumnos', () => {
+  it('retorna alumnos del curso', async () => {
+    mockInvoke.mockResolvedValue({
+      data: { alumnos: [{ user_id: 'u1', nombres_completos: 'Ana', pct_progreso: 75 }] },
+    })
+    const result = await obtenerInstructorAlumnos('c1')
+    expect(result).toHaveLength(1)
+    expect(result[0].nombres_completos).toBe('Ana')
+  })
+})
+
+describe('obtenerLeccionAnalytics', () => {
+  it('retorna analytics por lección', async () => {
+    mockInvoke.mockResolvedValue({
+      data: { lecciones: [{ leccion_id: 'l1', leccion_titulo: 'Intro', tasa_completitud: 90 }] },
+    })
+    const result = await obtenerLeccionAnalytics('c1')
+    expect(result).toHaveLength(1)
+    expect(result[0].leccion_titulo).toBe('Intro')
   })
 })
