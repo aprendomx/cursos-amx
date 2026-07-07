@@ -147,6 +147,19 @@
   - Feature flag: reportes_avanzados
   - Release: v0.11.0
 
+- **Phase H3: Financieros + Reportes Personalizables** ✅
+  - Dashboard de costos: almacenamiento videos/documentos, tokens IA, costo estimado
+  - Gráfico de inscripciones por tiempo
+  - Ranking de cursos populares
+  - Reportes favoritos: guardar configuraciones de reportes
+  - Reportes programados: ejecución automática diaria/semanal/mensual
+  - Historial de ejecuciones
+  - Vistas SQL: v_costos_infraestructura, v_inscripciones_tiempo, v_cursos_populares
+  - Tablas: reportes_favoritos, reportes_programados, reportes_historial
+  - Componentes: CostosDashboard, InscripcionesTimeline, ReporteFavoritosManager, ReporteProgramadoForm, ReporteProgramadoList
+  - Feature flag: reportes_avanzados
+  - Release: v0.12.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
