@@ -7,8 +7,10 @@ import PlayerLessonNavigator from '@/components/PlayerLessonNavigator.vue'
 import EntregaUploadField from '@/components/EntregaUploadField.vue'
 import AiSummarizeButton from '@/components/AiSummarizeButton.vue'
 import AiChatWidget from '@/components/AiChatWidget.vue'
+import DownloadButton from '@/components/DownloadButton.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { usePlayerPage } from '@/composables/usePlayerPage.js'
+import { useOffline } from '@/composables/useOffline'
 const props = defineProps({
   cursoId: { type: String, default: 'c1' },
   leccionId: { type: String, default: '' },
@@ -27,6 +29,7 @@ const {
   handleFinLectura,
   videoEl,
   hlsPoster,
+  hlsMasterUrl,
   leccion,
   lecciones,
   moduloTitulo,
@@ -50,6 +53,8 @@ const {
 
 const aiSummariesEnabled = featureEnabled('ai_summaries')
 const aiChatEnabled = featureEnabled('ai_study_assistant')
+
+const { offlineEnabled } = useOffline()
 
 function extractTextFromContenido(contenido) {
   if (!contenido) return ''
@@ -271,6 +276,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
             <button class="btn btn-ghost btn-sm" title="Chat (proximamente)" @click="() => {}">
               <IconSet name="chat" /> Chat
             </button>
+            <DownloadButton
+              v-if="offlineEnabled && source?.kind === 'hls'"
+              :video-id="source.videoId"
+              :leccion-id="leccion.id"
+              :playlist-url="hlsMasterUrl"
+            />
             <button v-if="completada" class="btn btn-primary btn-sm" @click="goToNextLesson">
               Siguiente leccion <IconSet name="arrow" />
             </button>

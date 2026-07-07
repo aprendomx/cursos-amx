@@ -5,16 +5,27 @@ import { useAuthStore } from '@/stores/auth.js'
 import { useUiStore } from '@/stores/ui.js'
 import TopNav from '@/components/TopNav.vue'
 import TweaksPanel from '@/components/TweaksPanel.vue'
+import OfflineBanner from '@/components/OfflineBanner.vue'
 import { supabase } from '@/lib/supabase.js'
 import { storageKey } from '@/lib/theme.js'
+import { featureEnabled } from '@/lib/featureFlags'
+import { registerSW } from 'virtual:pwa-register'
 
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
 const ui = useUiStore()
 
+const offlineEnabled = featureEnabled('pwa_offline')
+
 onMounted(() => {
   auth.init()
+  if (offlineEnabled) {
+    registerSW({
+      onNeedRefresh() {},
+      onOfflineReady() {},
+    })
+  }
 })
 
 const registroLoading = ref(false)
@@ -137,34 +148,26 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
       @logout="onLogout"
     />
 
-    <div
-      v-if="auth.authLoading && route.meta?.requiresAuth"
-      class="auth-hydrating"
-    >
-      Cargando…
-    </div>
+    <div v-if="auth.authLoading && route.meta?.requiresAuth" class="auth-hydrating">Cargando…</div>
 
-    <router-view
-      v-else
-      :session="auth.session"
-      :tweaks="ui.tweaks"
-      :has-registered="auth.hasRegistered"
-      :loading="loginLoading"
-      :error="loginError"
-      :registro-loading="registroLoading"
-      :registro-error="registroError"
-      @login="onLogin"
-      @complete="onRegistroComplete"
-      @update:tweaks="ui.updateTweaks"
-    />
+    <template v-else>
+      <OfflineBanner />
+      <router-view
+        :session="auth.session"
+        :tweaks="ui.tweaks"
+        :has-registered="auth.hasRegistered"
+        :loading="loginLoading"
+        :error="loginError"
+        :registro-loading="registroLoading"
+        :registro-error="registroError"
+        @login="onLogin"
+        @complete="onRegistroComplete"
+        @update:tweaks="ui.updateTweaks"
+      />
+    </template>
 
     <!-- Floating tweaks FAB -->
-    <button
-      v-if="!ui.tweaksOpen"
-      class="tweaks-fab"
-      title="Abrir Tweaks"
-      @click="ui.openTweaks"
-    >
+    <button v-if="!ui.tweaksOpen" class="tweaks-fab" title="Abrir Tweaks" @click="ui.openTweaks">
       TWK
     </button>
 
