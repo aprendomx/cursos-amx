@@ -77,6 +77,55 @@
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
+## Novedades v0.12.0 — Fase H3: Financieros + Reportes Personalizables
+
+- **Dashboard de costos** — Métricas de almacenamiento (videos y documentos), tokens de IA consumidos y costo estimado en USD. Cálculos basados en tamaños reales de archivos y precios de OpenAI/Claude.
+- **Gráfico de inscripciones por tiempo** — Línea temporal de inscripciones diarias/semanales/mensuales con Chart.js. Filtros por curso y rango de fechas.
+- **Ranking de cursos populares** — Tabla sortable con métricas de inscripciones, tasa de finalización, calificación promedio y tiempo de visualización.
+- **Reportes favoritos** — Guarda configuraciones de reportes con nombre personalizado. Acceso rápido desde el panel de reportes.
+- **Reportes programados** — Ejecución automática diaria, semanal o mensual. Notificación por email con resultados. Historial de ejecuciones con estado (pendiente, completado, fallido).
+- **Tablas SQL:** `reportes_favoritos`, `reportes_programados`, `reportes_historial` con políticas RLS.
+- **Vistas SQL:** `v_costos_infraestructura`, `v_inscripciones_tiempo`, `v_cursos_populares`.
+- **Edge Function** analytics con endpoints `costos`, `inscripciones_tiempo`, `cursos_populares`.
+- **Componentes:** `CostosDashboard`, `InscripcionesTimeline`, `ReporteFavoritosManager`, `ReporteProgramadoForm`, `ReporteProgramadoList`.
+- **Feature flag:** `reportes_avanzados`.
+
+## Novedades v0.11.0 — Fase H2: Reportes por Instructor + Análisis de Contenido
+
+- **Dashboard de instructor** — Métricas resumidas de cursos asignados: total de alumnos, tasa de finalización, calificación promedio, tiempo total de visualización.
+- **Tabla de alumnos por curso** — Progreso porcentual, calificación promedio, tiempo dedicado y última actividad. Filtros por curso y búsqueda por nombre/email.
+- **Análisis por lección** — Completitud (% de alumnos que terminaron), tiempo promedio visto, engagement score (interacciones/minuto).
+- **Vistas SQL:** `v_instructor_cursos`, `v_instructor_alumnos`, `v_leccion_analytics`.
+- **Edge Function** analytics con endpoints `instructor_dashboard`, `instructor_alumnos`, `leccion_analytics`.
+- **Composable:** `useReportes` extendido con estados para instructor y lección.
+- **Componentes:** `InstructorReportPanel`, `InstructorAlumnosTable`, `LessonAnalyticsTable`.
+- **Integración** en `InstructorPage.vue` (panel condicional para instructores).
+- **Feature flag:** `reportes_avanzados`.
+
+## Novedades v0.10.0 — Fase H1: Reportes Administrativos Avanzados (Core)
+
+- **Funnel de conversión** — 5 etapas (visitas → inscripciones → primer progreso → evaluación → certificación) con tasas de conversión entre cada etapa.
+- **Retención de cohortes** — Tabla tipo heatmap con tasas de retención en día 7, 14, 30, 60 y 90. Cálculo por cohorte de inscripción mensual.
+- **Comparativa entre cursos** — Ranking sortable con métricas clave: inscripciones, tasa de finalización, calificación promedio, NPS (Net Promoter Score).
+- **Vistas SQL:** `v_funnel_curso`, `v_retencion_cohorte`, `v_comparativa_cursos`.
+- **Edge Function** analytics con endpoints `funnel`, `retencion`, `comparativa`.
+- **Composable:** `useReportes` con carga paralela de múltiples reportes.
+- **Componentes:** `FunnelChart`, `RetentionMatrix`, `CourseComparisonTable`.
+- **Integración** en `AdminReportes.vue` con pestañas de navegación.
+- **Feature flag:** `reportes_avanzados`.
+
+## Novedades v0.9.0 — Fase G: PWA y Offline
+
+- **Service Worker con VitePWA** — `injectManifest` con `src/sw.js` personalizado. Precache de 21 assets (3083 KiB).
+- **Modo offline completo** — Los alumnos pueden navegar, ver progreso y continuar cursos sin conexión.
+- **Cola de sincronización** — `SyncQueue` con FIFO, reintentos con backoff exponencial y deduplicación. Sincroniza acciones offline (progreso, foros, evaluaciones) al recuperar conexión.
+- **Cache de videos HLS** — Almacenamiento en IndexedDB con política LRU y límite de 2 GB. Descarga selectiva de lecciones para offline.
+- **Detector de estado de red** — Composable `useNetworkStatus` con eventos `online`/`offline` y heartbeat periódico.
+- **Notificaciones push** — Suscripción vía `push_subscriptions`, Edge Function `push-notify` para envío masivo. Soporte para títulos, cuerpo, icono y URL de acción.
+- **Composables:** `useOffline`, `useSyncStatus`, `useVideoCache`.
+- **Componentes:** `OfflineBanner`, `DownloadButton`, `OfflineStatusPanel`.
+- **Base de datos offline** — `offline-db.ts` con 5 stores (cursos, lecciones, progreso, evaluaciones, foros) usando `idb`.
+
 ## Novedades v0.8.0 — Fase 4 Inteligencia Artificial
 
 - **Generador de quizzes con IA** — Desde el editor de evaluaciones, los instructores pueden generar preguntas de opción múltiple automáticamente indicando tema, nivel (básico/intermedio/avanzado) y cantidad. Las preguntas se insertan directamente en el editor y son editables antes de publicar.
@@ -204,8 +253,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–046)
-  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite)
+  migrations/   Esquema versionado en SQL (001–050)
+  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password)
 
 services/
   video-worker/ Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
@@ -217,7 +266,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 205 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 251 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
