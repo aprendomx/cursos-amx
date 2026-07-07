@@ -6,6 +6,11 @@ import {
   obtenerInstructorDashboard,
   obtenerInstructorAlumnos,
   obtenerLeccionAnalytics,
+  obtenerCostos,
+  obtenerInscripcionesTiempo,
+  obtenerCursosPopulares,
+  cargarFavoritos as cargarFavoritosService,
+  cargarProgramados as cargarProgramadosService,
 } from '@/services/reportes.js'
 
 export function useReportes() {
@@ -15,6 +20,11 @@ export function useReportes() {
   const instructorDashboard = ref([])
   const instructorAlumnos = ref([])
   const leccionAnalytics = ref([])
+  const costos = ref(null)
+  const inscripcionesTiempo = ref([])
+  const cursosPopulares = ref([])
+  const favoritos = ref([])
+  const programados = ref([])
   const loading = ref({
     funnel: false,
     retencion: false,
@@ -22,6 +32,9 @@ export function useReportes() {
     instructorDashboard: false,
     instructorAlumnos: false,
     leccionAnalytics: false,
+    costos: false,
+    inscripcionesTiempo: false,
+    cursosPopulares: false,
   })
   const error = ref({
     funnel: null,
@@ -30,6 +43,9 @@ export function useReportes() {
     instructorDashboard: null,
     instructorAlumnos: null,
     leccionAnalytics: null,
+    costos: null,
+    inscripcionesTiempo: null,
+    cursosPopulares: null,
   })
 
   async function cargarFunnel(cursoId, desde, hasta) {
@@ -112,6 +128,58 @@ export function useReportes() {
     }
   }
 
+  async function cargarCostos() {
+    loading.value.costos = true
+    error.value.costos = null
+    try {
+      costos.value = await obtenerCostos()
+    } catch (e) {
+      error.value.costos = e?.message || 'Error'
+    } finally {
+      loading.value.costos = false
+    }
+  }
+
+  async function cargarInscripcionesTiempo(desde, hasta) {
+    loading.value.inscripcionesTiempo = true
+    error.value.inscripcionesTiempo = null
+    try {
+      inscripcionesTiempo.value = await obtenerInscripcionesTiempo(desde, hasta)
+    } catch (e) {
+      error.value.inscripcionesTiempo = e?.message || 'Error'
+    } finally {
+      loading.value.inscripcionesTiempo = false
+    }
+  }
+
+  async function cargarCursosPopulares(limite) {
+    loading.value.cursosPopulares = true
+    error.value.cursosPopulares = null
+    try {
+      cursosPopulares.value = await obtenerCursosPopulares(limite)
+    } catch (e) {
+      error.value.cursosPopulares = e?.message || 'Error'
+    } finally {
+      loading.value.cursosPopulares = false
+    }
+  }
+
+  async function cargarFavoritos() {
+    try {
+      favoritos.value = await cargarFavoritosService()
+    } catch (e) {
+      /* silent */
+    }
+  }
+
+  async function cargarProgramados() {
+    try {
+      programados.value = await cargarProgramadosService()
+    } catch (e) {
+      /* silent */
+    }
+  }
+
   return {
     funnel,
     retencion,
@@ -119,6 +187,11 @@ export function useReportes() {
     instructorDashboard,
     instructorAlumnos,
     leccionAnalytics,
+    costos,
+    inscripcionesTiempo,
+    cursosPopulares,
+    favoritos,
+    programados,
     loading,
     error,
     cargarFunnel,
@@ -128,5 +201,10 @@ export function useReportes() {
     cargarInstructorDashboard,
     cargarInstructorAlumnos,
     cargarLeccionAnalytics,
+    cargarCostos,
+    cargarInscripcionesTiempo,
+    cargarCursosPopulares,
+    cargarFavoritos,
+    cargarProgramados,
   }
 }

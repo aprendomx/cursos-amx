@@ -4,6 +4,11 @@ import IconSet from '@/components/IconSet.vue'
 import FunnelChart from '@/components/FunnelChart.vue'
 import RetentionMatrix from '@/components/RetentionMatrix.vue'
 import CourseComparisonTable from '@/components/CourseComparisonTable.vue'
+import CostosDashboard from './CostosDashboard.vue'
+import InscripcionesTimeline from './InscripcionesTimeline.vue'
+import ReporteFavoritosManager from './ReporteFavoritosManager.vue'
+import ReporteProgramadoForm from './ReporteProgramadoForm.vue'
+import ReporteProgramadoList from './ReporteProgramadoList.vue'
 import { useReportes } from '@/composables/useReportes.js'
 import { sbSelect } from '@/lib/sbRest.js'
 import { formatearDuracion } from '@/services/tiempo.js'
@@ -12,13 +17,28 @@ const props = defineProps({
   session: { type: Object, default: null },
 })
 
-const { funnel, retencion, comparativa, loading, error, cargarTodo } = useReportes()
+const {
+  funnel,
+  retencion,
+  comparativa,
+  costos,
+  inscripcionesTiempo,
+  cursosPopulares,
+  favoritos,
+  programados,
+  loading,
+  error,
+  cargarTodo,
+  cargarProgramados,
+} = useReportes()
 
 const tabs = [
   { key: 'resumen', label: 'Resumen' },
   { key: 'funnel', label: 'Funnel' },
   { key: 'retencion', label: 'Retención' },
   { key: 'comparativa', label: 'Comparativa' },
+  { key: 'financieros', label: 'Financieros' },
+  { key: 'personalizados', label: 'Personalizados' },
 ]
 const activeTab = ref('resumen')
 
@@ -33,6 +53,10 @@ async function aplicarFiltros() {
     filterDesde.value || null,
     filterHasta.value || null
   )
+}
+
+async function recargarProgramados() {
+  await cargarProgramados()
 }
 
 const reportTypes = [
@@ -489,6 +513,31 @@ function exportReportCsv() {
         Cargando comparativa&hellip;
       </div>
       <CourseComparisonTable v-else :data="comparativa" />
+    </div>
+
+    <!-- Financieros tab -->
+    <div v-else-if="activeTab === 'financieros'" class="tab-content">
+      <p class="eyebrow">Costos de infraestructura</p>
+      <div v-if="loading.costos" class="skeleton">Cargando...</div>
+      <div v-else-if="error.costos" class="error">
+        {{ error.costos }}
+      </div>
+      <CostosDashboard v-else-if="costos" :data="costos" />
+
+      <p class="eyebrow" style="margin-top: calc(var(--unit) * 3)">Inscripciones por tiempo</p>
+      <div v-if="loading.inscripcionesTiempo" class="skeleton">Cargando...</div>
+      <div v-else-if="error.inscripcionesTiempo" class="error">
+        {{ error.inscripcionesTiempo }}
+      </div>
+      <InscripcionesTimeline v-else-if="inscripcionesTiempo.length" :data="inscripcionesTiempo" />
+      <p v-else class="caption">Sin datos de inscripciones.</p>
+    </div>
+
+    <!-- Personalizados tab -->
+    <div v-else-if="activeTab === 'personalizados'" class="tab-content">
+      <ReporteFavoritosManager />
+      <ReporteProgramadoList />
+      <ReporteProgramadoForm @guardado="recargarProgramados" />
     </div>
   </div>
 </template>

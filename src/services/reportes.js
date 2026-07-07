@@ -77,3 +77,70 @@ export async function obtenerLeccionAnalytics(cursoId) {
   if (error) throw error
   return data.lecciones || []
 }
+
+export async function obtenerCostos() {
+  const { data, error } = await supabase.functions.invoke('analytics', {
+    body: { action: 'costos' },
+  })
+  if (error) throw error
+  return data
+}
+
+export async function obtenerInscripcionesTiempo(desde, hasta, agrupacion) {
+  const { data, error } = await supabase.functions.invoke('analytics', {
+    body: { action: 'inscripciones_tiempo', desde, hasta, agrupacion },
+  })
+  if (error) throw error
+  return data.puntos || []
+}
+
+export async function obtenerCursosPopulares(limite = 10) {
+  const { data, error } = await supabase.functions.invoke('analytics', {
+    body: { action: 'cursos_populares', limite },
+  })
+  if (error) throw error
+  return data.cursos || []
+}
+
+export async function guardarFavorito(nombre, tipoReporte, filtros) {
+  const { data, error } = await supabase
+    .from('reportes_favoritos')
+    .insert({ nombre, tipo_reporte: tipoReporte, filtros })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function cargarFavoritos() {
+  const { data, error } = await supabase
+    .from('reportes_favoritos')
+    .select('*')
+    .order('creado_en', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function eliminarFavorito(id) {
+  const { error } = await supabase.from('reportes_favoritos').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function programarReporte(nombre, tipoReporte, filtros, frecuencia) {
+  const { data, error } = await supabase
+    .from('reportes_programados')
+    .insert({ nombre, tipo_reporte: tipoReporte, filtros, frecuencia })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function cargarProgramados() {
+  const { data, error } = await supabase
+    .from('reportes_programados')
+    .select('*')
+    .order('creado_en', { ascending: false })
+  if (error) throw error
+  return data || []
+}
