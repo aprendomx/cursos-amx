@@ -61,7 +61,7 @@
 - **Backend Supabase self-hosted** (Postgres 15, Auth, Storage, Edge Functions, Realtime)
 - **Video HLS** con worker de transcodificación (ffmpeg) y subida reanudable (tus)
 - **Constancias PDF** con folio y verificación pública por QR
-- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones, rúbricas, cohortes, importación masiva
+- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones, rúbricas, cohortes, importación masiva, gamificación, analytics, IA (quiz generator, resúmenes, chatbot)
 - **Evaluaciones avanzadas** — 6 tipos de pregunta: opción única, múltiple, verdadero/falso, emparejamiento, rellenar huecos y ensayo
 - **Rúbricas de evaluación** — editor visual de criterios y niveles de desempeño, asignables a evaluaciones o preguntas individuales
 - **Cohortes (grupos)** — agrupa alumnos por curso con cupo máximo, fechas y foro privado exclusivo
@@ -76,6 +76,23 @@
 - **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
+
+## Novedades v0.8.0 — Fase 4 Inteligencia Artificial
+
+- **Generador de quizzes con IA** — Desde el editor de evaluaciones, los instructores pueden generar preguntas de opción múltiple automáticamente indicando tema, nivel (básico/intermedio/avanzado) y cantidad. Las preguntas se insertan directamente en el editor y son editables antes de publicar.
+- **Resumen de lecciones con IA** — Botón "✨ Resumir esta lección" en el reproductor. Extrae el texto del contenido de la lección (Tiptap) y genera 5 bullet points claros. Usa caché en `ai_summaries` para no repetir llamadas.
+- **Asistente de estudio (chatbot)** — Chat flotante en el reproductor con contexto de la lección actual. El alumno puede hacer preguntas y la IA responde basándose ÚNICAMENTE en el contenido de la lección, evitando alucinaciones.
+- **Configuración de IA en admin** — Panel para elegir proveedor (OpenAI / Claude), modelo, API key y límite de tokens diarios. Todo se oculta del frontend vía Edge Function `ai-proxy`.
+- **Tracking de costos** — Tabla `ai_usage_logs` registra tokens consumidos y costo estimado por cada llamada, separado por feature (quiz, summary, chat).
+- **Feature flags** — `ai_quiz_generator`, `ai_summaries`, `ai_study_assistant` activables/desactivables en runtime.
+
+## Novedades v0.7.0 — Fase 3 Analytics de Aprendizaje
+
+- **Eventos xAPI (Experience API)** — Emisión automática de statements al LRS (`lrs_statements`) cuando el alumno completa lecciones, aprueba evaluaciones y participa en foros.
+- **Dashboard de analytics** — Panel admin con métricas de engagement, progreso y riesgo académico. Filtros por curso, rango de fechas y vista de tabla con alumnos en riesgo.
+- **Tabla de alumnos en riesgo** — Identifica alumnos con bajo progreso, baja calificación o inactividad. Score ponderado de 0-100 con umbral configurable.
+- **Mapa de calor de actividad** — Visualización tipo GitHub-contributions de la actividad diaria de un alumno en un curso.
+- **Descarga de reportes CSV** — Exporta datos de engagement, riesgo y progreso en CSV desde el panel de analytics.
 
 ## Novedades v0.6.0 — Fase 2 Gamificación y Engagement
 
@@ -138,7 +155,7 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–041)
+  migrations/   Esquema versionado en SQL (001–046)
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite)
 
 services/
@@ -151,7 +168,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 156 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 205 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
