@@ -111,6 +111,19 @@
 - **Importación masiva de usuarios** — Sube un CSV con nombre, email, apellidos, teléfono y cargo. Validación en tiempo real y creación masiva vía Edge Function `bulk-invite`.
 - **Feature flags runtime** — Todos los nuevos módulos se activan/desactivan desde la tabla `feature_toggles` en Supabase, sin redeploy.
 
+## Roadmap
+
+- **Phase G: PWA y Offline** ✅
+  - Service Worker con VitePWA
+  - Cache de contenido estático y assets
+  - Descarga de videos HLS para offline
+  - Cola de sincronización de acciones offline
+  - Detector de estado de red
+  - Notificaciones push
+  - Composables: useOffline, useSyncStatus, useVideoCache
+  - Componentes: OfflineBanner, DownloadButton, OfflineStatusPanel
+  - Release: v0.9.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
