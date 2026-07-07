@@ -5,6 +5,9 @@ vi.mock('@/services/reportes.js', () => ({
   obtenerFunnel: vi.fn(),
   obtenerRetencion: vi.fn(),
   obtenerComparativa: vi.fn(),
+  obtenerInstructorDashboard: vi.fn(),
+  obtenerInstructorAlumnos: vi.fn(),
+  obtenerLeccionAnalytics: vi.fn(),
 }))
 
 import { obtenerFunnel, obtenerRetencion, obtenerComparativa } from '@/services/reportes.js'
@@ -34,5 +37,29 @@ describe('useReportes', () => {
 
     expect(r.error.value.funnel).toBe('funnel error')
     expect(r.error.value.retencion).toBeNull()
+  })
+})
+
+describe('useReportes - instructor', () => {
+  it('carga dashboard del instructor', async () => {
+    const { obtenerInstructorDashboard } = await import('@/services/reportes.js')
+    obtenerInstructorDashboard.mockResolvedValue([{ curso_id: 'c1', total_alumnos: 50 }])
+
+    const r = useReportes()
+    await r.cargarInstructorDashboard('inst-1')
+
+    expect(r.instructorDashboard.value).toHaveLength(1)
+    expect(r.instructorDashboard.value[0].total_alumnos).toBe(50)
+  })
+
+  it('carga alumnos del curso', async () => {
+    const { obtenerInstructorAlumnos } = await import('@/services/reportes.js')
+    obtenerInstructorAlumnos.mockResolvedValue([{ user_id: 'u1', pct_progreso: 75 }])
+
+    const r = useReportes()
+    await r.cargarInstructorAlumnos('c1')
+
+    expect(r.instructorAlumnos.value).toHaveLength(1)
+    expect(r.instructorAlumnos.value[0].pct_progreso).toBe(75)
   })
 })

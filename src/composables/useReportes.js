@@ -1,12 +1,36 @@
 import { ref } from 'vue'
-import { obtenerFunnel, obtenerRetencion, obtenerComparativa } from '@/services/reportes.js'
+import {
+  obtenerFunnel,
+  obtenerRetencion,
+  obtenerComparativa,
+  obtenerInstructorDashboard,
+  obtenerInstructorAlumnos,
+  obtenerLeccionAnalytics,
+} from '@/services/reportes.js'
 
 export function useReportes() {
   const funnel = ref(null)
   const retencion = ref([])
   const comparativa = ref([])
-  const loading = ref({ funnel: false, retencion: false, comparativa: false })
-  const error = ref({ funnel: null, retencion: null, comparativa: null })
+  const instructorDashboard = ref([])
+  const instructorAlumnos = ref([])
+  const leccionAnalytics = ref([])
+  const loading = ref({
+    funnel: false,
+    retencion: false,
+    comparativa: false,
+    instructorDashboard: false,
+    instructorAlumnos: false,
+    leccionAnalytics: false,
+  })
+  const error = ref({
+    funnel: null,
+    retencion: null,
+    comparativa: null,
+    instructorDashboard: null,
+    instructorAlumnos: null,
+    leccionAnalytics: null,
+  })
 
   async function cargarFunnel(cursoId, desde, hasta) {
     loading.value.funnel = true
@@ -52,15 +76,57 @@ export function useReportes() {
     ])
   }
 
+  async function cargarInstructorDashboard(instructorId) {
+    loading.value.instructorDashboard = true
+    error.value.instructorDashboard = null
+    try {
+      instructorDashboard.value = await obtenerInstructorDashboard(instructorId)
+    } catch (e) {
+      error.value.instructorDashboard = e?.message || 'Error al cargar dashboard'
+    } finally {
+      loading.value.instructorDashboard = false
+    }
+  }
+
+  async function cargarInstructorAlumnos(cursoId) {
+    loading.value.instructorAlumnos = true
+    error.value.instructorAlumnos = null
+    try {
+      instructorAlumnos.value = await obtenerInstructorAlumnos(cursoId)
+    } catch (e) {
+      error.value.instructorAlumnos = e?.message || 'Error al cargar alumnos'
+    } finally {
+      loading.value.instructorAlumnos = false
+    }
+  }
+
+  async function cargarLeccionAnalytics(cursoId) {
+    loading.value.leccionAnalytics = true
+    error.value.leccionAnalytics = null
+    try {
+      leccionAnalytics.value = await obtenerLeccionAnalytics(cursoId)
+    } catch (e) {
+      error.value.leccionAnalytics = e?.message || 'Error al cargar analytics'
+    } finally {
+      loading.value.leccionAnalytics = false
+    }
+  }
+
   return {
     funnel,
     retencion,
     comparativa,
+    instructorDashboard,
+    instructorAlumnos,
+    leccionAnalytics,
     loading,
     error,
     cargarFunnel,
     cargarRetencion,
     cargarComparativa,
     cargarTodo,
+    cargarInstructorDashboard,
+    cargarInstructorAlumnos,
+    cargarLeccionAnalytics,
   }
 }
