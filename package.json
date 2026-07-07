@@ -1,6 +1,6 @@
 {
   "name": "cursos-amx",
-  "version": "0.8.0",
+  "version": "0.12.0",
   "description": "LMS open source con video HLS, evaluaciones y constancias verificables. Personalizable por capa de tema.",
   "license": "AGPL-3.0-only",
   "author": "Julio Adrián <jadrian.s@gmail.com>",
@@ -29,6 +29,7 @@
     "@tiptap/extension-placeholder": "^3.27.1",
     "@tiptap/starter-kit": "^3.27.1",
     "@tiptap/vue-3": "^3.27.1",
+    "chart.js": "^4.5.1",
     "hls.js": "^1.6.16",
     "html2pdf.js": "^0.14.0",
     "idb": "^8.0.3",
