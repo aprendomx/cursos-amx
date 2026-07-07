@@ -28,6 +28,10 @@ export const FEATURES: Record<string, boolean> = {
   ai_quiz_generator: flag('VITE_FEATURE_AI_QUIZ'),
   ai_summaries: flag('VITE_FEATURE_AI_SUMMARIES'),
   ai_study_assistant: flag('VITE_FEATURE_AI_CHAT'),
+  pwa_offline: flag('VITE_FEATURE_PWA_OFFLINE'),
+  offline_video_cache: flag('VITE_FEATURE_OFFLINE_VIDEO_CACHE'),
+  offline_sync: flag('VITE_FEATURE_OFFLINE_SYNC'),
+  push_notifications: flag('VITE_FEATURE_PUSH_NOTIFICATIONS'),
 }
 
 export function featureEnabled(nombre: string): boolean {
