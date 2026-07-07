@@ -47,6 +47,11 @@ function onUsuarioSearch() {
   }, 350)
 }
 
+function onImportDone() {
+  showImport.value = false
+  cargarUsuarios()
+}
+
 const usuariosDesde = computed(() =>
   usuariosTotal.value === 0 ? 0 : usuariosPage.value * usuariosPageSize.value + 1
 )
@@ -146,13 +151,7 @@ const showImport = ref(false)
       </button>
     </div>
 
-    <AdminBulkImport
-      v-if="showImport"
-      @done="
-        showImport = false
-        cargarUsuarios()
-      "
-    />
+    <AdminBulkImport v-if="showImport" @done="onImportDone" />
 
     <!-- Search -->
     <div class="field" :style="{ maxWidth: '400px', marginBottom: 'calc(var(--unit) * 3)' }">

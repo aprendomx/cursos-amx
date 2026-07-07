@@ -47,6 +47,11 @@ function onSaved() {
   cargar()
 }
 
+function onCancel() {
+  showEditor.value = false
+  editing.value = null
+}
+
 onMounted(cargar)
 </script>
 
@@ -72,15 +77,7 @@ onMounted(cargar)
       &#9888; {{ error }}
     </p>
 
-    <RubricaEditor
-      v-if="showEditor"
-      :rubrica="editing"
-      @saved="onSaved"
-      @cancel="
-        showEditor = false
-        editing = null
-      "
-    />
+    <RubricaEditor v-if="showEditor" :rubrica="editing" @saved="onSaved" @cancel="onCancel" />
 
     <div v-else class="card" :style="{ overflow: 'auto' }">
       <table class="admin-table admin-table-full">
