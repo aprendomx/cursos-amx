@@ -61,6 +61,11 @@ onMounted(() => {
 function onSeleccionarCurso(id) {
   selectedCursoId.value = id
 }
+
+function onSeleccionarCursoYTab(id) {
+  onSeleccionarCurso(id)
+  activeTab.value = 'alumnos'
+}
 </script>
 
 <template>
@@ -138,10 +143,7 @@ function onSeleccionarCurso(id) {
           :key="c.curso_id"
           class="card"
           :style="{ padding: 'calc(var(--unit) * 3)', cursor: 'pointer' }"
-          @click="
-            onSeleccionarCurso(c.curso_id)
-            activeTab = 'alumnos'
-          "
+          @click="onSeleccionarCursoYTab(c.curso_id)"
         >
           <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1.5)' }">
             {{ c.curso_titulo || 'Curso' }}
