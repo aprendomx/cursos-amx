@@ -124,6 +124,17 @@
   - Componentes: OfflineBanner, DownloadButton, OfflineStatusPanel
   - Release: v0.9.0
 
+- **Phase H1: Reportes Administrativos Avanzados (Core)** ✅
+  - Funnel de conversión: 5 etapas con tasas de conversión
+  - Retención de cohortes: tabla con heatmap (día 7, 14, 30, 60, 90)
+  - Comparativa entre cursos: ranking sortable con métricas clave
+  - Vistas SQL: v_funnel_curso, v_retencion_cohorte, v_comparativa_cursos
+  - Edge Function analytics con endpoints funnel, retencion, comparativa
+  - Composable: useReportes con carga paralela
+  - Componentes: FunnelChart, RetentionMatrix, CourseComparisonTable
+  - Feature flag: reportes_avanzados
+  - Release: v0.10.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
