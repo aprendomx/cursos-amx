@@ -8,6 +8,7 @@ vi.mock('@/services/reportes.js', () => ({
   obtenerInstructorDashboard: vi.fn(),
   obtenerInstructorAlumnos: vi.fn(),
   obtenerLeccionAnalytics: vi.fn(),
+  obtenerCostos: vi.fn(),
 }))
 
 import { obtenerFunnel, obtenerRetencion, obtenerComparativa } from '@/services/reportes.js'
@@ -61,5 +62,13 @@ describe('useReportes - instructor', () => {
 
     expect(r.instructorAlumnos.value).toHaveLength(1)
     expect(r.instructorAlumnos.value[0].pct_progreso).toBe(75)
+  })
+
+  it('carga costos', async () => {
+    const { obtenerCostos } = await import('@/services/reportes.js')
+    obtenerCostos.mockResolvedValue({ almacenamiento_videos_gb: 10 })
+    const r = useReportes()
+    await r.cargarCostos()
+    expect(r.costos.value.almacenamiento_videos_gb).toBe(10)
   })
 })
