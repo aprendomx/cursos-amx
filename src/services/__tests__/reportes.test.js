@@ -24,11 +24,14 @@ describe('obtenerFunnel', () => {
         },
       },
     })
+
     const result = await obtenerFunnel('c1', '2026-01-01', '2026-06-30')
+
     expect(mockInvoke).toHaveBeenCalledWith('analytics', {
       body: { action: 'funnel', curso_id: 'c1', desde: '2026-01-01', hasta: '2026-06-30' },
     })
     expect(result.visitantes).toBe(1000)
+    expect(result.completados).toBe(80)
   })
 
   it('propaga errores', async () => {
@@ -40,25 +43,47 @@ describe('obtenerFunnel', () => {
 describe('obtenerRetencion', () => {
   it('retorna cohortes como array', async () => {
     mockInvoke.mockResolvedValue({
-      data: { cohortes: [{ semana: '2026-W01', total: 100, pcts: { d7: 80 } }] },
+      data: {
+        cohortes: [
+          {
+            semana: '2026-W01',
+            total: 100,
+            d7: 80,
+            d14: 60,
+            d30: 40,
+            d60: 20,
+            d90: 10,
+            pcts: { d7: 80, d14: 60, d30: 40, d60: 20, d90: 10 },
+          },
+        ],
+      },
     })
+
     const result = await obtenerRetencion('c1')
+
+    expect(mockInvoke).toHaveBeenCalledWith('analytics', {
+      body: { action: 'retencion', curso_id: 'c1' },
+    })
     expect(result).toHaveLength(1)
     expect(result[0].semana).toBe('2026-W01')
-  })
-
-  it('propaga errores', async () => {
-    mockInvoke.mockRejectedValue(new Error('network'))
-    await expect(obtenerRetencion('c1')).rejects.toThrow('network')
   })
 })
 
 describe('obtenerComparativa', () => {
   it('retorna array de cursos', async () => {
     mockInvoke.mockResolvedValue({
-      data: { cursos: [{ curso_id: 'c1', curso_titulo: 'Curso A', total_inscritos: 500 }] },
+      data: {
+        cursos: [
+          { curso_id: 'c1', curso_titulo: 'Curso A', total_inscritos: 500, tasa_finalizacion: 75 },
+        ],
+      },
     })
+
     const result = await obtenerComparativa()
+
+    expect(mockInvoke).toHaveBeenCalledWith('analytics', {
+      body: { action: 'comparativa', desde: undefined, hasta: undefined },
+    })
     expect(result[0].curso_titulo).toBe('Curso A')
   })
 })

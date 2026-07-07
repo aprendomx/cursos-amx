@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase.js'
 
 /**
  * Obtiene el funnel de conversión para un curso.
+ *
  * @param {string} cursoId
  * @param {string} [desde] — ISO date
  * @param {string} [hasta] — ISO date
@@ -16,6 +17,7 @@ export async function obtenerFunnel(cursoId, desde, hasta) {
 
 /**
  * Obtiene la retención de cohortes para un curso.
+ *
  * @param {string} cursoId
  */
 export async function obtenerRetencion(cursoId) {
@@ -28,6 +30,7 @@ export async function obtenerRetencion(cursoId) {
 
 /**
  * Obtiene la comparativa entre cursos.
+ *
  * @param {string} [desde] — ISO date
  * @param {string} [hasta] — ISO date
  */

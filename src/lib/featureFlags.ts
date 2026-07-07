@@ -32,6 +32,7 @@ export const FEATURES: Record<string, boolean> = {
   offline_video_cache: flag('VITE_FEATURE_OFFLINE_VIDEO_CACHE'),
   offline_sync: flag('VITE_FEATURE_OFFLINE_SYNC'),
   push_notifications: flag('VITE_FEATURE_PUSH_NOTIFICATIONS'),
+  reportes_avanzados: flag('VITE_FEATURE_REPORTES_AVANZADOS'),
 }
 
 export function featureEnabled(nombre: string): boolean {
