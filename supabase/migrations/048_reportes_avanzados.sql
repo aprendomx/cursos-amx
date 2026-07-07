@@ -70,11 +70,12 @@ drop view if exists public.v_retencion_cohorte;
 create view public.v_retencion_cohorte as
 with inscripciones_cohorte as (
   select
-    date_trunc('week', inscrito_en) as semana_inicio,
-    to_char(date_trunc('week', inscrito_en), 'IYYY-IW') as semana,
-    user_id,
-    inscrito_en
-  from public.inscripciones
+    i.curso_id,
+    date_trunc('week', i.inscrito_en) as semana_inicio,
+    to_char(date_trunc('week', i.inscrito_en), 'IYYY-IW') as semana,
+    i.user_id,
+    i.inscrito_en
+  from public.inscripciones i
 ),
 logins as (
   select actor_id as user_id, timestamp
@@ -83,6 +84,7 @@ logins as (
 ),
 retencion as (
   select
+    ic.curso_id,
     ic.semana_inicio,
     ic.semana,
     ic.user_id,
@@ -93,9 +95,10 @@ retencion as (
     max(case when l.timestamp between ic.inscrito_en and ic.inscrito_en + interval '90 days' then 1 else 0 end) as d90
   from inscripciones_cohorte ic
   left join logins l on l.user_id = ic.user_id
-  group by ic.semana_inicio, ic.semana, ic.user_id
+  group by ic.curso_id, ic.semana_inicio, ic.semana, ic.user_id
 )
 select
+  curso_id,
   semana,
   count(*) as total_inscritos,
   sum(d7) as activos_d7,
@@ -109,7 +112,7 @@ select
   round(coalesce(sum(d60)::numeric / nullif(count(*), 0) * 100, 0), 1) as pct_d60,
   round(coalesce(sum(d90)::numeric / nullif(count(*), 0) * 100, 0), 1) as pct_d90
 from retencion
-group by semana_inicio, semana
+group by curso_id, semana_inicio, semana
 order by semana_inicio desc;
 
 -- ---------- Métricas agregadas por curso ----------
