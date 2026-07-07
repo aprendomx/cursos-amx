@@ -212,6 +212,15 @@ select {
 .btn-ink:hover {
   background: var(--ink-2);
 }
+.btn-secondary {
+  background: transparent;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.btn-secondary:hover {
+  background: var(--paper-2);
+  border-color: var(--ink-3);
+}
 .btn-sm {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
   font-size: 13px;

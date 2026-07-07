@@ -1,68 +1,68 @@
-import { ref } from 'vue'
-import { obtenerAlumnosRiesgo, obtenerEngagement, generarReporteCSV } from '@/services/analytics.js'
+import { ref, computed, watch } from 'vue'
+import { fetchAllCursosAdmin } from '@/services/cursos.js'
 
-export function useAnalytics() {
-  const alumnosRiesgo = ref([])
+export function useAnalytics(getSession) {
+  const cursos = ref([])
+  const selectedCursoId = ref('')
+  const minRisk = ref(50)
+  const alumnos = ref([])
   const engagement = ref([])
   const loading = ref(false)
   const error = ref(null)
 
-  async function cargarRiesgo(cursoId, minRiesgo = 50) {
-    if (!cursoId) return
+  const selectedCurso = computed(
+    () => cursos.value.find((c) => String(c.id) === String(selectedCursoId.value)) || null
+  )
+
+  async function loadCursos() {
+    const session = getSession()
+    if (!session?.access_token) return
+    try {
+      cursos.value = await fetchAllCursosAdmin()
+      if (cursos.value.length && !selectedCursoId.value) {
+        selectedCursoId.value = cursos.value[0].id
+      }
+    } catch (err) {
+      console.error('Error loading cursos for analytics:', err)
+      error.value = err?.message || 'Error al cargar cursos'
+    }
+  }
+
+  async function loadAnalytics() {
+    const session = getSession()
+    if (!session?.access_token || !selectedCursoId.value) return
     loading.value = true
     error.value = null
     try {
-      const data = await obtenerAlumnosRiesgo(cursoId, minRiesgo)
-      alumnosRiesgo.value = data
-    } catch (e) {
-      error.value = e
+      // TODO: replace with real analytics endpoints when available
+      alumnos.value = []
+      engagement.value = []
+    } catch (err) {
+      console.error('Error loading analytics:', err)
+      error.value = err?.message || 'Error al cargar analytics'
     } finally {
       loading.value = false
     }
   }
 
-  async function cargarEngagement(cursoId, dias = 30) {
-    if (!cursoId) return
-    loading.value = true
-    error.value = null
-    try {
-      const data = await obtenerEngagement(cursoId, dias)
-      engagement.value = data
-    } catch (e) {
-      error.value = e
-    } finally {
-      loading.value = false
-    }
-  }
+  watch(selectedCursoId, loadAnalytics, { immediate: false })
 
-  async function descargarReporte(tipo, cursoId) {
-    if (!tipo || !cursoId) return
-    loading.value = true
-    error.value = null
-    try {
-      const blob = await generarReporteCSV(tipo, cursoId)
-      const url = window.URL.createObjectURL(new Blob([blob], { type: 'text/csv' }))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `${tipo}_${cursoId}.csv`)
-      document.body.appendChild(link)
-      link.click()
-      link.remove()
-      window.URL.revokeObjectURL(url)
-    } catch (e) {
-      error.value = e
-    } finally {
-      loading.value = false
-    }
-  }
+  const filteredAlumnos = computed(() => {
+    if (!minRisk.value && minRisk.value !== 0) return alumnos.value
+    return alumnos.value.filter((a) => (a.score ?? 0) >= minRisk.value)
+  })
 
   return {
-    alumnosRiesgo,
+    cursos,
+    selectedCursoId,
+    selectedCurso,
+    minRisk,
+    alumnos,
+    filteredAlumnos,
     engagement,
     loading,
     error,
-    cargarRiesgo,
-    cargarEngagement,
-    descargarReporte,
+    loadCursos,
+    loadAnalytics,
   }
 }
