@@ -180,6 +180,51 @@ Deno.serve(async (req) => {
         })
       }
 
+      case 'costos': {
+        const { data, error } = await supabase
+          .from('v_costos_infraestructura')
+          .select('*')
+          .single()
+
+        if (error) throw error
+
+        return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      case 'inscripciones_tiempo': {
+        const { desde, hasta, agrupacion } = body
+        let query = supabase
+          .from('v_inscripciones_tiempo')
+          .select('*')
+          .order('fecha', { ascending: true })
+
+        if (desde) query = query.gte('fecha', desde)
+        if (hasta) query = query.lte('fecha', hasta)
+
+        const { data, error } = await query
+        if (error) throw error
+
+        return new Response(JSON.stringify({ puntos: data || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      case 'cursos_populares': {
+        const { limite } = body
+        const { data, error } = await supabase
+          .from('v_cursos_populares')
+          .select('*')
+          .limit(limite || 10)
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ cursos: data || [] }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
       default:
         return new Response(JSON.stringify({ error: 'Acción no válida' }), {
           status: 400,
