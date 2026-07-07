@@ -9,6 +9,8 @@ const props = defineProps({
   session: { type: Object, default: null },
 })
 
+const emit = defineEmits(['navigate'])
+
 const {
   cursos,
   selectedCursoId,
@@ -103,5 +105,53 @@ onMounted(loadCursos)
 
     <!-- Report downloader -->
     <ReportDownloader :curso-id="selectedCursoId" @download="handleDownload" />
+
+    <!-- Summary cards linking to reportes -->
+    <div
+      :style="{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 'calc(var(--unit) * 3)',
+        marginTop: 'calc(var(--unit) * 4)',
+      }"
+    >
+      <div
+        class="card"
+        :style="{ cursor: 'pointer', padding: 'calc(var(--unit) * 3)' }"
+        @click="emit('navigate', 'reportes')"
+      >
+        <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">Reportes</p>
+        <p class="h4" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">Funnel de conversión</p>
+        <p class="caption" :style="{ color: 'var(--text-secondary)' }">
+          Visualiza el embudo de inscripción y finalización de cursos.
+        </p>
+      </div>
+
+      <div
+        class="card"
+        :style="{ cursor: 'pointer', padding: 'calc(var(--unit) * 3)' }"
+        @click="emit('navigate', 'reportes')"
+      >
+        <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">Reportes</p>
+        <p class="h4" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">Retención de cohortes</p>
+        <p class="caption" :style="{ color: 'var(--text-secondary)' }">
+          Analiza la retención de usuarios por cohorte a lo largo del tiempo.
+        </p>
+      </div>
+
+      <div
+        class="card"
+        :style="{ cursor: 'pointer', padding: 'calc(var(--unit) * 3)' }"
+        @click="emit('navigate', 'reportes')"
+      >
+        <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">Reportes</p>
+        <p class="h4" :style="{ marginBottom: 'calc(var(--unit) * 1)' }">
+          Comparativa entre cursos
+        </p>
+        <p class="caption" :style="{ color: 'var(--text-secondary)' }">
+          Compara métricas clave entre diferentes cursos.
+        </p>
+      </div>
+    </div>
   </div>
 </template>

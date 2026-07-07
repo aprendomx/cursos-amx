@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 import IconSet from '@/components/IconSet.vue'
+import FunnelChart from '@/components/FunnelChart.vue'
+import RetentionMatrix from '@/components/RetentionMatrix.vue'
+import CourseComparisonTable from '@/components/CourseComparisonTable.vue'
+import { useReportes } from '@/composables/useReportes.js'
 import { sbSelect } from '@/lib/sbRest.js'
 import { formatearDuracion } from '@/services/tiempo.js'
 
@@ -8,14 +12,37 @@ const props = defineProps({
   session: { type: Object, default: null },
 })
 
+const { funnel, retencion, comparativa, loading, error, cargarTodo } = useReportes()
+
+const tabs = [
+  { key: 'resumen', label: 'Resumen' },
+  { key: 'funnel', label: 'Funnel' },
+  { key: 'retencion', label: 'Retención' },
+  { key: 'comparativa', label: 'Comparativa' },
+]
+const activeTab = ref('resumen')
+
+const filterCursoId = ref('')
+const filterDesde = ref('')
+const filterHasta = ref('')
+
+async function aplicarFiltros() {
+  if (!props.session?.access_token) return
+  await cargarTodo(
+    filterCursoId.value || null,
+    filterDesde.value || null,
+    filterHasta.value || null
+  )
+}
+
 const reportTypes = [
   { key: 'inscripciones-dep', label: 'Inscripciones por dependencia' },
   { key: 'avance-periodo', label: 'Avance de cursos por periodo' },
   { key: 'constancias-mes', label: 'Constancias emitidas mensual' },
-  { key: 'tasa-curso', label: 'Tasa de aprobaci\u00f3n por curso' },
-  { key: 'horas-acumuladas', label: 'Horas de capacitaci\u00f3n acumuladas' },
+  { key: 'tasa-curso', label: 'Tasa de aprobación por curso' },
+  { key: 'horas-acumuladas', label: 'Horas de capacitación acumuladas' },
   { key: 'usuarios-actividad', label: 'Usuarios activos vs inactivos' },
-  { key: 'top-lecciones', label: 'Top lecciones m\u00e1s vistas' },
+  { key: 'top-lecciones', label: 'Top lecciones más vistas' },
   { key: 'tiempo-curso', label: 'Tiempo activo por usuario/curso' },
 ]
 
@@ -27,7 +54,7 @@ const reportColumns = ref([])
 
 async function runReport(report) {
   if (!props.session?.access_token) {
-    reportError.value = 'Necesitas iniciar sesi\u00f3n.'
+    reportError.value = 'Necesitas iniciar sesión.'
     return
   }
   selectedReport.value = report
@@ -64,7 +91,7 @@ async function reportInscripcionesDep(t) {
   const map = new Map()
   for (const r of data || []) {
     const dep = r.perfiles?.dependencias?.nombre || 'Sin dependencia'
-    const sig = r.perfiles?.dependencias?.siglas || '\u2014'
+    const sig = r.perfiles?.dependencias?.siglas || '—'
     const cur = map.get(dep) || { dependencia: dep, siglas: sig, inscripciones: 0 }
     cur.inscripciones++
     map.set(dep, cur)
@@ -132,10 +159,10 @@ async function reportTasaCurso(t) {
       const k = consBy[c.id] || 0
       return {
         curso: c.titulo,
-        nivel: c.nivel || '\u2014',
+        nivel: c.nivel || '—',
         inscritos: i,
         constancias: k,
-        tasa: i > 0 ? ((k / i) * 100).toFixed(1) + '%' : '\u2014',
+        tasa: i > 0 ? ((k / i) * 100).toFixed(1) + '%' : '—',
       }
     })
     .sort((a, b) => b.inscritos - a.inscritos)
@@ -150,7 +177,7 @@ async function reportHoras(t) {
   const byUser = new Map()
   for (const r of data || []) {
     const nombre = r.perfiles?.nombres_completos || 'Usuario'
-    const dep = r.perfiles?.dependencias?.siglas || '\u2014'
+    const dep = r.perfiles?.dependencias?.siglas || '—'
     const cur = byUser.get(nombre) || { usuario: nombre, dependencia: dep, segundos: 0 }
     cur.segundos += r.segundos_vistos || 0
     byUser.set(nombre, cur)
@@ -178,14 +205,14 @@ async function reportUsuariosActividad(t) {
     columns: ['categoria', 'cantidad', 'porcentaje'],
     rows: [
       {
-        categoria: 'Activos (\u00faltimos 30 d\u00edas)',
+        categoria: 'Activos (últimos 30 días)',
         cantidad: activos,
-        porcentaje: total ? ((activos / total) * 100).toFixed(1) + '%' : '\u2014',
+        porcentaje: total ? ((activos / total) * 100).toFixed(1) + '%' : '—',
       },
       {
         categoria: 'Inactivos',
         cantidad: total - activos,
-        porcentaje: total ? (((total - activos) / total) * 100).toFixed(1) + '%' : '\u2014',
+        porcentaje: total ? (((total - activos) / total) * 100).toFixed(1) + '%' : '—',
       },
       { categoria: 'Total registrados', cantidad: total, porcentaje: '100%' },
     ],
@@ -199,8 +226,8 @@ async function reportTopLecciones(t) {
   )
   const map = new Map()
   for (const r of data || []) {
-    const tit = r.lecciones?.titulo || 'Lecci\u00f3n'
-    const cur = r.lecciones?.modulos?.cursos?.titulo || '\u2014'
+    const tit = r.lecciones?.titulo || 'Lección'
+    const cur = r.lecciones?.modulos?.cursos?.titulo || '—'
     const key = `${cur}||${tit}`
     const e = map.get(key) || { leccion: tit, curso: cur, vistas: 0 }
     e.vistas++
@@ -217,8 +244,8 @@ async function reportTiempoCurso(t) {
   )
   const rows = (data || []).map((r) => ({
     usuario: r.perfiles?.nombres_completos || 'Usuario',
-    dependencia: r.perfiles?.dependencias?.siglas || '\u2014',
-    curso: r.cursos?.titulo || '\u2014',
+    dependencia: r.perfiles?.dependencias?.siglas || '—',
+    curso: r.cursos?.titulo || '—',
     tiempo: formatearDuracion(r.segundos_activos),
     horas: ((r.segundos_activos || 0) / 3600).toFixed(2),
   }))
@@ -252,18 +279,13 @@ function exportReportCsv() {
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          An&aacute;lisis
-        </p>
-        <h1
-          class="display"
-          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
-        >
+        <p class="eyebrow">Análisis</p>
+        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
           Reportes
         </h1>
       </div>
       <button
-        v-if="reportRows.length"
+        v-if="reportRows.length && activeTab === 'resumen'"
         class="btn btn-ghost btn-sm"
         @click="exportReportCsv"
       >
@@ -271,57 +293,146 @@ function exportReportCsv() {
         <IconSet name="arrow" />
       </button>
     </div>
-    <div class="admin-reports-list">
+
+    <!-- Tabs -->
+    <div
+      :style="{
+        display: 'flex',
+        gap: 'calc(var(--unit) * 1)',
+        borderBottom: '1px solid var(--line)',
+        marginBottom: 'calc(var(--unit) * 3)',
+      }"
+    >
       <button
-        v-for="(r, i) in reportTypes"
-        :key="r.key"
-        type="button"
-        class="admin-report-item"
-        :class="{ active: selectedReport?.key === r.key }"
-        @click="runReport(r)"
+        v-for="tab in tabs"
+        :key="tab.key"
+        class="btn btn-sm"
+        :class="{ 'btn-primary': activeTab === tab.key, 'btn-ghost': activeTab !== tab.key }"
+        @click="activeTab = tab.key"
       >
-        <span
-          class="mono"
-          :style="{ color: 'var(--ink-4)', minWidth: '28px' }"
-        >
-          {{ String(i + 1).padStart(2, '0') }}
-        </span>
-        <span
-          class="mono"
-          :style="{ color: 'var(--ink-2)', fontSize: '13px', letterSpacing: '0.04em' }"
-        >
-          {{ r.label }}
-        </span>
-        <IconSet
-          v-if="selectedReport?.key === r.key && reportLoading"
-          name="clock"
-          :style="{ marginLeft: 'auto', color: 'var(--ink-4)' }"
-        />
+        {{ tab.label }}
       </button>
     </div>
+
+    <!-- Filters -->
     <div
-      v-if="selectedReport"
-      :style="{ marginTop: 'calc(var(--unit) * 4)' }"
+      v-if="activeTab !== 'resumen'"
+      :style="{
+        display: 'flex',
+        gap: 'calc(var(--unit) * 2)',
+        flexWrap: 'wrap',
+        alignItems: 'flex-end',
+        marginBottom: 'calc(var(--unit) * 3)',
+      }"
     >
-      <div :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
-        <p class="eyebrow">
-          {{ selectedReport.label }}
-        </p>
-        <p
-          class="mono"
-          :style="{ color: 'var(--ink-4)', marginTop: '4px' }"
+      <div class="field" :style="{ minWidth: '180px' }">
+        <label for="filter-curso">Curso ID</label>
+        <input id="filter-curso" v-model="filterCursoId" type="text" placeholder="uuid del curso" />
+      </div>
+      <div class="field" :style="{ minWidth: '160px' }">
+        <label for="filter-desde">Desde</label>
+        <input id="filter-desde" v-model="filterDesde" type="date" />
+      </div>
+      <div class="field" :style="{ minWidth: '160px' }">
+        <label for="filter-hasta">Hasta</label>
+        <input id="filter-hasta" v-model="filterHasta" type="date" />
+      </div>
+      <button class="btn btn-primary btn-sm" @click="aplicarFiltros">Aplicar</button>
+    </div>
+
+    <!-- Resumen tab -->
+    <div v-if="activeTab === 'resumen'">
+      <div class="admin-reports-list">
+        <button
+          v-for="(r, i) in reportTypes"
+          :key="r.key"
+          type="button"
+          class="admin-report-item"
+          :class="{ active: selectedReport?.key === r.key }"
+          @click="runReport(r)"
         >
-          {{ reportLoading ? 'Generando\u2026' : `${reportRows.length} resultado(s)` }}
-        </p>
+          <span class="mono" :style="{ color: 'var(--ink-4)', minWidth: '28px' }">
+            {{ String(i + 1).padStart(2, '0') }}
+          </span>
+          <span
+            class="mono"
+            :style="{ color: 'var(--ink-2)', fontSize: '13px', letterSpacing: '0.04em' }"
+          >
+            {{ r.label }}
+          </span>
+          <IconSet
+            v-if="selectedReport?.key === r.key && reportLoading"
+            name="clock"
+            :style="{ marginLeft: 'auto', color: 'var(--ink-4)' }"
+          />
+        </button>
       </div>
+      <div v-if="selectedReport" :style="{ marginTop: 'calc(var(--unit) * 4)' }">
+        <div :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
+          <p class="eyebrow">
+            {{ selectedReport.label }}
+          </p>
+          <p class="mono" :style="{ color: 'var(--ink-4)', marginTop: '4px' }">
+            {{ reportLoading ? 'Generando…' : `${reportRows.length} resultado(s)` }}
+          </p>
+        </div>
+        <div v-if="reportError" class="publish-status publish-status-error">
+          {{ reportError }}
+        </div>
+        <div
+          v-else-if="reportLoading"
+          class="card"
+          :style="{
+            padding: 'calc(var(--unit) * 4)',
+            textAlign: 'center',
+            color: 'var(--ink-3)',
+          }"
+        >
+          Cargando datos&hellip;
+        </div>
+        <div
+          v-else-if="!reportRows.length"
+          class="card"
+          :style="{
+            padding: 'calc(var(--unit) * 4)',
+            textAlign: 'center',
+            color: 'var(--ink-3)',
+          }"
+        >
+          Sin resultados.
+        </div>
+        <div v-else class="card" :style="{ overflow: 'auto' }">
+          <table class="admin-table admin-table-full">
+            <thead>
+              <tr>
+                <th v-for="col in reportColumns" :key="col" class="mono">
+                  {{ col }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, i) in reportRows" :key="i">
+                <td v-for="col in reportColumns" :key="col">
+                  {{ row[col] }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Funnel tab -->
+    <div v-else-if="activeTab === 'funnel'">
       <div
-        v-if="reportError"
+        v-if="error.funnel"
         class="publish-status publish-status-error"
+        :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
       >
-        {{ reportError }}
+        {{ error.funnel }}
       </div>
       <div
-        v-else-if="reportLoading"
+        v-else-if="loading.funnel"
         class="card"
         :style="{
           padding: 'calc(var(--unit) * 4)',
@@ -329,10 +440,22 @@ function exportReportCsv() {
           color: 'var(--ink-3)',
         }"
       >
-        Cargando datos&hellip;
+        Cargando funnel&hellip;
+      </div>
+      <FunnelChart v-else :data="funnel" />
+    </div>
+
+    <!-- Retención tab -->
+    <div v-else-if="activeTab === 'retencion'">
+      <div
+        v-if="error.retencion"
+        class="publish-status publish-status-error"
+        :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+      >
+        {{ error.retencion }}
       </div>
       <div
-        v-else-if="!reportRows.length"
+        v-else-if="loading.retencion"
         class="card"
         :style="{
           padding: 'calc(var(--unit) * 4)',
@@ -340,40 +463,32 @@ function exportReportCsv() {
           color: 'var(--ink-3)',
         }"
       >
-        Sin resultados.
+        Cargando retención&hellip;
+      </div>
+      <RetentionMatrix v-else :data="retencion" />
+    </div>
+
+    <!-- Comparativa tab -->
+    <div v-else-if="activeTab === 'comparativa'">
+      <div
+        v-if="error.comparativa"
+        class="publish-status publish-status-error"
+        :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
+      >
+        {{ error.comparativa }}
       </div>
       <div
-        v-else
+        v-else-if="loading.comparativa"
         class="card"
-        :style="{ overflow: 'auto' }"
+        :style="{
+          padding: 'calc(var(--unit) * 4)',
+          textAlign: 'center',
+          color: 'var(--ink-3)',
+        }"
       >
-        <table class="admin-table admin-table-full">
-          <thead>
-            <tr>
-              <th
-                v-for="col in reportColumns"
-                :key="col"
-                class="mono"
-              >
-                {{ col }}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(row, i) in reportRows"
-              :key="i"
-            >
-              <td
-                v-for="col in reportColumns"
-                :key="col"
-              >
-                {{ row[col] }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        Cargando comparativa&hellip;
       </div>
+      <CourseComparisonTable v-else :data="comparativa" />
     </div>
   </div>
 </template>
