@@ -77,6 +77,25 @@
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
+## Novedades v0.13.0 — Fase I: Notificaciones y Alertas Automáticas
+
+- **Sistema de notificaciones completo** — In-app, push y email para 11 eventos del LMS: curso asignado, evaluación calificada, insignia desbloqueada, respuesta en foro, certificación lista, deadline próximo, anuncio del instructor, reporte listo, alerta de riesgo académico, SLA de respuesta.
+- **Triggers PostgreSQL** — 7 eventos automáticos vía triggers (`curso_asignado`, `evaluacion_calificada`, `badge_desbloqueado`, `foro_respuesta`, `anuncio_instructor`, `certificacion_lista`, `reporte_listo`).
+- **Alertas programadas** — 3 funciones cron diarias: deadline próximo (08:00), alerta de riesgo académico (09:00), SLA de respuesta (09:00).
+- **Edge Function `notifications-worker`** — Procesa cola de notificaciones cada minuto, envía push/email según preferencias del usuario.
+- **Panel de notificaciones** — Historial con filtros (Todas/No leídas), agrupación por fecha (Hoy/Ayer/Anteriores), marcar leídas.
+- **Campana de notificaciones** — Badge con count unread, dropdown preview de últimas 5 notificaciones.
+- **Preferencias por usuario** — Silenciar tipos de notificación, elegir canal default (Todos/Push/Email/Solo app).
+- **Panel admin** — Configurar plantillas de notificación, canales globales, proveedor de email (Resend/SMTP/SendGrid) con API key.
+- **Tabla `anuncios`** — Instructores pueden enviar broadcast a toda la cohorte.
+- **Tablas SQL:** `notificaciones`, `notificacion_plantillas`, `email_configuracion`, `notificacion_preferencias`, `anuncios`.
+- **Feature flags:** `notificaciones`, `notificaciones_email`.
+- **Componentes:** `NotificationBell`, `NotificationPanel`, `NotificationPreferences`, `AdminNotificaciones`.
+- **Composable:** `useNotificaciones` con suscripción realtime.
+- **Servicio:** `notificaciones.js` con 9 funciones CRUD.
+- **Tests:** 24 nuevos tests (275 totales).
+- **Release:** v0.13.0
+
 ## Novedades v0.12.0 — Fase H3: Financieros + Reportes Personalizables
 
 - **Dashboard de costos** — Métricas de almacenamiento (videos y documentos), tokens de IA consumidos y costo estimado en USD. Cálculos basados en tamaños reales de archivos y precios de OpenAI/Claude.
@@ -266,7 +285,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 251 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 275 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
