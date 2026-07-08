@@ -317,6 +317,33 @@
   - Feature flags: entregas, entregas_rubricas
   - Release: v0.15.0
 
+- **Phase L: Calendario y Sesiones en Vivo** ✅
+  - Calendario unificado: sesiones, tareas, cursos, anuncios
+  - Soporte dual Jitsi / Zoom con Server-to-Server OAuth
+  - RSVP y asistencia para alumnos
+  - Edge Functions: zoom-meeting, zoom-webhook
+  - Tablas: sesiones_rsvp, zoom_configuracion
+  - Vista: v_calendario_curso
+  - Servicios: zoom.js, sesionesVirtuales.js (actualizado)
+  - Composables: useCalendario.js, useSesiones.js
+  - Componentes: CrearSesionPanel, SesionesCalendario, SesionCard, AsistenciaPanel, CalendarioCurso, MiCalendario, AdminZoomConfig
+  - Feature flags: sesiones_virtuales, zoom_integration
+
+- **Phase M: Grabaciones y Transcripción** ✅
+  - Grabaciones automáticas Zoom via webhook
+  - Transcripción con OpenAI Whisper API (~$0.006/min)
+  - Búsqueda full-text en español sobre transcripciones
+  - Reproductor sincronizado con transcripción
+  - Edge Function: transcribir-sesion
+  - Tablas: sesiones_grabaciones, sesiones_transcripciones
+  - Función RPC: buscar_transcripciones(text)
+  - Servicios: grabaciones.js, transcripcion.js
+  - Composables: useGrabaciones.js, useReproductor.js
+  - Componentes: ArchivoSesiones, ReproductorGrabacion, BuscadorSesiones, AdminGrabaciones
+  - Feature flags: sesiones_grabaciones, transcripcion_whisper
+  - Badges: asistir_sesion, primera_sesion
+  - Release: v0.16.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
@@ -361,8 +388,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–053)
-  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics)
+  migrations/   Esquema versionado en SQL (001–055)
+  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics, zoom-meeting, zoom-webhook, transcribir-sesion)
 
 services/
   video-worker/ Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
@@ -374,7 +401,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 340 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 408 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
