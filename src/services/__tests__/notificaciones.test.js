@@ -111,11 +111,9 @@ describe('guardarPreferencias', () => {
 })
 
 describe('cargarPlantillas', () => {
-  it('filters activas', async () => {
+  it('returns all templates', async () => {
     mockFrom.mockReturnValue({
-      select: () => ({
-        eq: () => Promise.resolve({ data: [{ id: 1, tipo: 'bienvenida' }], error: null }),
-      }),
+      select: () => Promise.resolve({ data: [{ id: 1, tipo: 'bienvenida' }], error: null }),
     })
 
     const result = await cargarPlantillas()

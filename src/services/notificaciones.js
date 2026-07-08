@@ -80,7 +80,6 @@ export async function cargarPlantillas() {
   const { data, error } = await supabase
     .from('notificacion_plantillas')
     .select('*')
-    .eq('activa', true)
   if (error) throw error
   return data || []
 }
