@@ -83,6 +83,39 @@ async function evaluarCriterio(userId, tipo, config) {
       })
       return data === true
     }
+    case 'primera_entrega': {
+      const { count } = await supabase
+        .from('entregas')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      return (count || 0) >= 1
+    }
+    case 'entrega_a_tiempo': {
+      const { data } = await supabase
+        .from('entregas')
+        .select('id, entregado_en, tarea_id')
+        .eq('user_id', userId)
+      if (!data?.length) return false
+      const tareaIds = data.map((e) => e.tarea_id)
+      const { data: tareas } = await supabase
+        .from('tareas')
+        .select('id, fecha_limite')
+        .in('id', tareaIds)
+      const tareaMap = new Map(tareas?.map((t) => [t.id, t.fecha_limite]) || [])
+      return data.some((e) => {
+        const limite = tareaMap.get(e.tarea_id)
+        return limite && new Date(e.entregado_en) <= new Date(limite)
+      })
+    }
+    case 'calificacion_perfecta': {
+      const { data } = await supabase
+        .from('entregas')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('puntaje_final', 100)
+        .limit(1)
+      return (data?.length || 0) >= 1
+    }
     default:
       return false
   }
