@@ -21,6 +21,20 @@ export async function crearRubrica(tareaId, { tipo, titulo, puntaje_maximo, crit
   return rubrica
 }
 
+export async function listarRubricas() {
+  const { data, error: err } = await supabase
+    .from('rubricas')
+    .select('*, rubrica_criterios(*), rubrica_niveles(*)')
+    .order('creado_en', { ascending: false })
+  if (err) throw err
+  return data || []
+}
+
+export async function eliminarRubrica(id) {
+  const { error: err } = await supabase.from('rubricas').delete().eq('id', id)
+  if (err) throw err
+}
+
 export async function obtenerRubrica(tareaId) {
   const { data: rubrica, error: err1 } = await supabase
     .from('rubricas')

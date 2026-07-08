@@ -21,6 +21,7 @@ export const FEATURES: Record<string, boolean> = {
   foros: flag('VITE_FEATURE_FOROS'),
   chat: flag('VITE_FEATURE_CHAT'),
   entregas: flag('VITE_FEATURE_ENTREGAS'),
+  entregas_rubricas: flag('VITE_FEATURE_ENTREGAS_RUBRICAS'),
   aulas: flag('VITE_FEATURE_AULAS'),
   evaluaciones: flag('VITE_FEATURE_EVALUACIONES'),
   gamificacion: flag('VITE_FEATURE_GAMIFICACION'),

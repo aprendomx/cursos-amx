@@ -7,158 +7,121 @@ const props = defineProps({
   puntajeFinal: { type: Number, default: 0 },
 })
 
-const criterios = computed(() => props.rubrica?.criterios || props.rubrica?.rubrica_criterios || [])
-const niveles = computed(() => props.rubrica?.niveles || props.rubrica?.rubrica_niveles || [])
-
-function calificacionDeCriterio(criterioId) {
-  return props.calificaciones.find((c) => c.criterio_id === criterioId) || null
-}
-
-function nivelDeCriterio(criterioId) {
-  const cal = calificacionDeCriterio(criterioId)
-  if (!cal || !cal.nivel_id) return null
-  return niveles.value.find((n) => n.id === cal.nivel_id) || null
-}
-
-const scoreColor = computed(() => {
-  const p = props.puntajeFinal
-  if (p >= 80) return 'var(--brand-secondary)'
-  if (p >= 60) return 'var(--brand-accent)'
-  return 'var(--primary)'
+const calificacionesMap = computed(() => {
+  const map = new Map()
+  for (const c of props.calificaciones) {
+    map.set(c.criterio_id, c)
+  }
+  return map
 })
+
+function puntajeColor(p) {
+  if (p >= 80) return 'color: var(--success)'
+  if (p >= 60) return 'color: var(--warning)'
+  return 'color: var(--danger)'
+}
+
+function getNivelParaCriterio(criterioId) {
+  const cal = calificacionesMap.value.get(criterioId)
+  if (!cal || !cal.nivel_id) return null
+  return props.rubrica.rubrica_niveles?.find((n) => n.id === cal.nivel_id)
+}
+
+function getPuntajeParaCriterio(criterioId) {
+  const cal = calificacionesMap.value.get(criterioId)
+  return cal?.puntaje ?? null
+}
+
+function getComentarioParaCriterio(criterioId) {
+  const cal = calificacionesMap.value.get(criterioId)
+  return cal?.comentario ?? ''
+}
 </script>
 
 <template>
   <div class="rubrica-view card">
-    <div :style="{ padding: 'calc(var(--unit) * 2.5)', borderBottom: '1px solid var(--line)' }">
-      <p class="eyebrow">Rúbrica de calificación</p>
-      <h3
-        v-if="rubrica.titulo || rubrica.nombre"
-        :style="{ marginTop: '4px', fontSize: '16px', fontWeight: '600' }"
-      >
-        {{ rubrica.titulo || rubrica.nombre }}
-      </h3>
-    </div>
+    <h4 class="eyebrow">Rúbrica: {{ rubrica.titulo }}</h4>
 
-    <div
-      :style="{
-        padding: 'calc(var(--unit) * 2)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 'calc(var(--unit) * 2.5)',
-      }"
-    >
-      <div
-        v-for="c in criterios"
-        :key="c.id"
-        :style="{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--unit) * 1)' }"
-      >
-        <div
-          :style="{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            gap: '8px',
-          }"
-        >
-          <h4 :style="{ fontSize: '14px', fontWeight: '600' }">
-            {{ c.nombre }}
-          </h4>
-          <span class="mono" :style="{ color: 'var(--ink-3)' }">
-            {{
-              calificacionDeCriterio(c.id)?.puntaje != null
-                ? calificacionDeCriterio(c.id).puntaje + ' pts'
-                : '—'
-            }}
-          </span>
-        </div>
-
-        <p
-          v-if="c.descripcion"
-          :style="{ fontSize: '13px', color: 'var(--ink-3)', margin: '4px 0 8px' }"
-        >
-          {{ c.descripcion }}
-        </p>
-
-        <!-- Nivel destacado (tipo niveles) -->
-        <div
-          v-if="rubrica.tipo === 'niveles' && nivelDeCriterio(c.id)"
-          :style="{
-            background: 'var(--paper-2)',
-            padding: '10px 12px',
-            borderRadius: '6px',
-            borderLeft: '3px solid var(--primary)',
-          }"
-        >
-          <span :style="{ fontWeight: '500', fontSize: '13px' }">
-            {{
-              nivelDeCriterio(c.id).nombre ||
-              nivelDeCriterio(c.id).descripcion ||
-              'Nivel seleccionado'
-            }}
-          </span>
-          <span
-            v-if="nivelDeCriterio(c.id).puntaje != null"
-            class="mono"
-            :style="{ marginLeft: '8px', color: 'var(--ink-3)' }"
-          >
-            {{ nivelDeCriterio(c.id).puntaje }} pts
-          </span>
-        </div>
-
-        <!-- Puntaje libre -->
-        <div
-          v-else-if="
-            rubrica.tipo === 'puntaje_libre' && calificacionDeCriterio(c.id)?.puntaje != null
-          "
-          :style="{
-            background: 'var(--paper-2)',
-            padding: '10px 12px',
-            borderRadius: '6px',
-            borderLeft: '3px solid var(--primary)',
-          }"
-        >
-          <span :style="{ fontWeight: '500', fontSize: '13px' }"> Puntaje asignado </span>
-          <span class="mono" :style="{ marginLeft: '8px', color: 'var(--ink-3)' }">
-            {{ calificacionDeCriterio(c.id).puntaje }} pts
-          </span>
-        </div>
-
-        <!-- Comentario instructor -->
-        <p
-          v-if="calificacionDeCriterio(c.id)?.comentario"
-          :style="{
-            fontSize: '12px',
-            color: 'var(--ink-3)',
-            marginTop: '6px',
-            fontStyle: 'italic',
-          }"
-        >
-          “{{ calificacionDeCriterio(c.id).comentario }}”
-        </p>
+    <div v-for="c in rubrica.rubrica_criterios" :key="c.id" class="criterio-row">
+      <div class="criterio-header">
+        <strong>{{ c.titulo }}</strong>
+        <span v-if="c.descripcion" class="text-muted"> — {{ c.descripcion }}</span>
       </div>
 
-      <div
-        :style="{
-          borderTop: '1px solid var(--line)',
-          paddingTop: 'calc(var(--unit) * 2)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
-        }"
-      >
-        <span class="eyebrow">Puntaje final</span>
-        <span :style="{ fontSize: '28px', fontWeight: '600', color: scoreColor }">
-          {{ puntajeFinal }}
+      <div v-if="rubrica.tipo === 'niveles'" class="niveles-row">
+        <div
+          v-for="n in rubrica.rubrica_niveles"
+          :key="n.id"
+          class="nivel-chip"
+          :class="{ 'nivel-selected': getNivelParaCriterio(c.id)?.id === n.id }"
+        >
+          {{ n.etiqueta }} ({{ n.puntaje }})
+        </div>
+      </div>
+
+      <div v-else class="puntaje-row">
+        <span class="mono" :style="puntajeColor(getPuntajeParaCriterio(c.id) || 0)">
+          {{ getPuntajeParaCriterio(c.id) ?? '-' }} / {{ c.puntaje_maximo }}
         </span>
       </div>
+
+      <p v-if="getComentarioParaCriterio(c.id)" class="comentario">
+        {{ getComentarioParaCriterio(c.id) }}
+      </p>
+    </div>
+
+    <div class="puntaje-final">
+      <strong>Puntaje final:</strong>
+      <span class="display" :style="puntajeColor(puntajeFinal)">{{ puntajeFinal }}</span>
+      <span class="text-muted">/ {{ rubrica.puntaje_maximo }}</span>
     </div>
   </div>
 </template>
 
 <style scoped>
 .rubrica-view {
+  padding: 1.5rem;
+}
+.criterio-row {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--paper-3);
+}
+.criterio-header {
+  margin-bottom: 0.5rem;
+}
+.niveles-row {
   display: flex;
-  flex-direction: column;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.nivel-chip {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--paper-3);
+  font-size: 0.875rem;
+}
+.nivel-selected {
+  background: var(--primary);
+  color: white;
+}
+.puntaje-row {
+  font-size: 1.125rem;
+}
+.comentario {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+  font-style: italic;
+}
+.puntaje-final {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.puntaje-final .display {
+  font-size: 2rem;
+  font-weight: 700;
 }
 </style>

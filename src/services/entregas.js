@@ -105,3 +105,184 @@ export async function revisarEntrega(entregaId, estado, comentario = null) {
   if (error) throw error
   return data
 }
+
+/* ── Tareas (Fase K) ───────────────────────────────── */
+
+export async function crearTarea(tarea) {
+  const { data, error } = await supabase.from('tareas').insert(tarea).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function actualizarTarea(tareaId, datos) {
+  const { data, error } = await supabase
+    .from('tareas')
+    .update({ ...datos, actualizado_en: new Date().toISOString() })
+    .eq('id', tareaId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function eliminarTarea(tareaId) {
+  const { error } = await supabase.from('tareas').delete().eq('id', tareaId)
+  if (error) throw error
+}
+
+export async function listarTareasPorCurso(cursoId) {
+  const { data, error } = await supabase
+    .from('tareas')
+    .select('*')
+    .eq('curso_id', cursoId)
+    .order('creado_en', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+/* ── Entregas (Fase K) ──────────────────────────────── */
+
+export async function crearEntrega(tareaId, userId, { texto, archivos, comentario }) {
+  const { data: entrega, error: err1 } = await supabase
+    .from('entregas')
+    .insert({
+      tarea_id: tareaId,
+      user_id: userId,
+      estado: 'entregada',
+      version_actual: 1,
+      entregado_en: new Date().toISOString(),
+    })
+    .select()
+    .single()
+  if (err1) throw err1
+
+  const { error: err2 } = await supabase.from('entrega_versiones').insert({
+    entrega_id: entrega.id,
+    numero_version: 1,
+    texto,
+    archivos,
+    comentario_alumno: comentario,
+    entregado_en: new Date().toISOString(),
+  })
+  if (err2) throw err2
+
+  return entrega
+}
+
+export async function nuevaVersion(entregaId, { texto, archivos, comentario }) {
+  const { data: entrega, error: err1 } = await supabase
+    .from('entregas')
+    .select('version_actual')
+    .eq('id', entregaId)
+    .single()
+  if (err1) throw err1
+
+  const nuevaVersion = (entrega.version_actual || 0) + 1
+
+  const { error: err2 } = await supabase.from('entrega_versiones').insert({
+    entrega_id: entregaId,
+    numero_version: nuevaVersion,
+    texto,
+    archivos,
+    comentario_alumno: comentario,
+    entregado_en: new Date().toISOString(),
+  })
+  if (err2) throw err2
+
+  const { data, error: err3 } = await supabase
+    .from('entregas')
+    .update({
+      version_actual: nuevaVersion,
+      estado: 'entregada',
+      entregado_en: new Date().toISOString(),
+      actualizado_en: new Date().toISOString(),
+    })
+    .eq('id', entregaId)
+    .select()
+    .single()
+  if (err3) throw err3
+
+  return data
+}
+
+export async function obtenerEntrega(tareaId, userId) {
+  const { data, error } = await supabase
+    .from('entregas')
+    .select('*, entrega_versiones(*), calificaciones(*)')
+    .eq('tarea_id', tareaId)
+    .eq('user_id', userId)
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function listarEntregasPorTarea(tareaId) {
+  const { data, error } = await supabase
+    .from('entregas')
+    .select(
+      '*, perfiles!entregas_user_id_fkey(nombres, apellido_paterno, correo), entrega_versiones(*)'
+    )
+    .eq('tarea_id', tareaId)
+    .order('creado_en', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function calificarEntrega(
+  entregaId,
+  { calificaciones: cals, comentario, puntajeFinal }
+) {
+  const { error: err1 } = await supabase.from('calificaciones').upsert(
+    cals.map((c) => ({
+      entrega_id: entregaId,
+      criterio_id: c.criterio_id,
+      nivel_id: c.nivel_id || null,
+      puntaje: c.puntaje,
+      comentario: c.comentario || null,
+    }))
+  )
+  if (err1) throw err1
+
+  const { data, error: err2 } = await supabase
+    .from('entregas')
+    .update({
+      estado: 'calificada',
+      calificado_en: new Date().toISOString(),
+      puntaje_final: puntajeFinal,
+      comentario_instructor: comentario ? { comentario } : null,
+      actualizado_en: new Date().toISOString(),
+    })
+    .eq('id', entregaId)
+    .select()
+    .single()
+  if (err2) throw err2
+
+  return data
+}
+
+export async function devolverEntrega(entregaId, comentario) {
+  const { data, error } = await supabase
+    .from('entregas')
+    .update({
+      estado: 'devuelta',
+      comentario_instructor: comentario ? { comentario } : null,
+      actualizado_en: new Date().toISOString(),
+    })
+    .eq('id', entregaId)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function subirArchivo(tareaId, userId, version, file) {
+  const limpio = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_')
+  const path = `entregas/${tareaId}/${userId}/v${version}/${limpio}`
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, { contentType: file.type || 'application/octet-stream' })
+  if (error) throw error
+
+  return path
+}

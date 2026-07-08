@@ -1,415 +1,433 @@
--- =========================================================
--- Migration 053: Entregas y Rúbricas (Fase K)
--- =========================================================
---  * tareas: asignaciones creadas por instructores
---  * entregas: una por alumno por tarea
---  * entrega_versiones: cada intento de entrega
---  * rubricas: rúbrica asociada a una tarea
---  * rubrica_criterios: criterios individuales
---  * rubrica_niveles: niveles cualitativos (solo tipo='niveles')
---  * calificaciones: calificación por criterio por entrega
---  * Vistas, índices, RLS y triggers de notificación
--- =========================================================
+-- Migration 053: Entregas, Rúbricas y Calificaciones (Fase K)
+-- ============================================================
 
--- Renombra tablas legacy de la migración 037 para evitar conflictos
-alter table if exists public.asignaciones_rubrica rename to asignaciones_rubrica_legacy;
-alter table if exists public.rubricas rename to rubricas_legacy;
+-- 1. Enum type
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'entrega_estado') THEN
+    CREATE TYPE entrega_estado AS ENUM ('pendiente', 'entregada', 'calificada', 'devuelta');
+  END IF;
+END$$;
 
-
--- ==========================================================
--- Step 1 — Enum y tipos
--- ==========================================================
-
-do $$
-begin
-  if not exists (select 1 from pg_type where typname = 'estado_entrega') then
-    create type estado_entrega as enum ('pendiente', 'entregada', 'calificada', 'devuelta');
-  end if;
-end $$;
-
-
--- ==========================================================
--- Step 2 — Tablas base
--- ==========================================================
-
--- ---------- Tareas ----------
-create table if not exists public.tareas (
-  id                      uuid primary key default gen_random_uuid(),
-  curso_id                uuid not null references public.cursos(id) on delete cascade,
-  modulo_id               uuid references public.modulos(id) on delete set null,
-  titulo                  text not null,
-  instrucciones           jsonb,
-  fecha_apertura          timestamptz,
-  fecha_limite            timestamptz,
-  maximo_archivos         int not null default 5 check (maximo_archivos between 1 and 10),
-  peso_maximo_mb          int not null default 10 check (peso_maximo_mb between 1 and 100),
-  permitir_retraso        boolean not null default false,
-  penalizacion_retraso_pct int not null default 0 check (penalizacion_retraso_pct between 0 and 100),
-  creado_en               timestamptz not null default now(),
-  actualizado_en          timestamptz not null default now()
+-- 2. Table: tareas
+CREATE TABLE IF NOT EXISTS tareas (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  curso_id uuid NOT NULL REFERENCES cursos(id) ON DELETE CASCADE,
+  modulo_id uuid REFERENCES modulos(id) ON DELETE SET NULL,
+  titulo text NOT NULL,
+  instrucciones jsonb,
+  fecha_apertura timestamptz,
+  fecha_limite timestamptz,
+  maximo_archivos int DEFAULT 5 CHECK (maximo_archivos > 0 AND maximo_archivos <= 10),
+  peso_maximo_mb int DEFAULT 10 CHECK (peso_maximo_mb > 0 AND peso_maximo_mb <= 100),
+  permitir_retraso boolean DEFAULT false,
+  penalizacion_retraso_pct int DEFAULT 0 CHECK (penalizacion_retraso_pct >= 0 AND penalizacion_retraso_pct <= 100),
+  creado_en timestamptz DEFAULT now(),
+  actualizado_en timestamptz DEFAULT now()
 );
 
-comment on table public.tareas is 'Asignaciones creadas por instructores';
-comment on column public.tareas.instrucciones is 'Contenido Tiptap en formato JSONB';
-
-
--- ---------- Entregas ----------
-create table if not exists public.entregas (
-  id                      uuid primary key default gen_random_uuid(),
-  tarea_id                uuid not null references public.tareas(id) on delete cascade,
-  user_id                 uuid not null references public.perfiles(id) on delete cascade,
-  estado                  estado_entrega not null default 'pendiente',
-  entregado_en            timestamptz,
-  calificado_en           timestamptz,
-  calificado_por          uuid references public.perfiles(id) on delete set null,
-  puntaje_final           numeric(5,2) check (puntaje_final between 0 and 100),
-  comentario_instructor   jsonb,
-  version_actual          int not null default 0,
-  creado_en               timestamptz not null default now(),
-  actualizado_en          timestamptz not null default now(),
-  unique (tarea_id, user_id)
+-- 3. Table: entregas
+CREATE TABLE IF NOT EXISTS entregas (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tarea_id uuid NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  estado entrega_estado NOT NULL DEFAULT 'pendiente',
+  entregado_en timestamptz,
+  calificado_en timestamptz,
+  calificado_por uuid REFERENCES auth.users(id),
+  puntaje_final numeric(5,2) CHECK (puntaje_final >= 0 AND puntaje_final <= 100),
+  comentario_instructor jsonb,
+  version_actual int DEFAULT 0,
+  creado_en timestamptz DEFAULT now(),
+  actualizado_en timestamptz DEFAULT now(),
+  UNIQUE(tarea_id, user_id)
 );
 
-comment on table public.entregas is 'Entrega única por alumno por tarea';
-comment on column public.entregas.comentario_instructor is 'Comentario del instructor en formato Tiptap JSONB';
-
-
--- ---------- Versiones de entrega ----------
-create table if not exists public.entrega_versiones (
-  id              uuid primary key default gen_random_uuid(),
-  entrega_id      uuid not null references public.entregas(id) on delete cascade,
-  numero_version  int not null,
-  texto           jsonb,
-  archivos        text[] not null default '{}',
-  entregado_en    timestamptz not null default now(),
+-- 4. Table: entrega_versiones
+CREATE TABLE IF NOT EXISTS entrega_versiones (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  entrega_id uuid NOT NULL REFERENCES entregas(id) ON DELETE CASCADE,
+  numero_version int NOT NULL,
+  texto jsonb,
+  archivos text[],
+  entregado_en timestamptz DEFAULT now(),
   comentario_alumno text,
-  unique (entrega_id, numero_version)
+  UNIQUE(entrega_id, numero_version)
 );
 
-comment on table public.entrega_versiones is 'Cada intento de entrega por parte del alumno';
-comment on column public.entrega_versiones.texto is 'Contenido Tiptap en formato JSONB';
-
-
--- ---------- Rúbricas ----------
-create table if not exists public.rubricas (
-  id              uuid primary key default gen_random_uuid(),
-  tarea_id        uuid not null references public.tareas(id) on delete cascade,
-  tipo            text not null check (tipo in ('niveles', 'puntaje_libre')),
-  titulo          text not null,
-  puntaje_maximo  int not null default 100,
-  creado_en       timestamptz not null default now()
+-- 5. Table: rubricas
+CREATE TABLE IF NOT EXISTS rubricas (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  tarea_id uuid NOT NULL REFERENCES tareas(id) ON DELETE CASCADE,
+  tipo text NOT NULL CHECK (tipo IN ('niveles', 'puntaje_libre')),
+  titulo text NOT NULL,
+  puntaje_maximo int DEFAULT 100,
+  creado_en timestamptz DEFAULT now()
 );
 
-comment on table public.rubricas is 'Rúbrica asociada a una tarea (evaluación con criterios)';
-
-
--- ---------- Criterios de rúbrica ----------
-create table if not exists public.rubrica_criterios (
-  id              uuid primary key default gen_random_uuid(),
-  rubrica_id      uuid not null references public.rubricas(id) on delete cascade,
-  titulo          text not null,
-  descripcion     text,
-  orden           int not null,
-  peso            numeric(3,2) not null default 1.0 check (peso > 0),
-  puntaje_maximo  int not null,
-  unique (rubrica_id, orden)
+-- 6. Table: rubrica_criterios
+CREATE TABLE IF NOT EXISTS rubrica_criterios (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  rubrica_id uuid NOT NULL REFERENCES rubricas(id) ON DELETE CASCADE,
+  titulo text NOT NULL,
+  descripcion text,
+  orden int NOT NULL,
+  peso numeric(3,2) DEFAULT 1.0 CHECK (peso > 0),
+  puntaje_maximo int,
+  UNIQUE(rubrica_id, orden)
 );
 
-comment on table public.rubrica_criterios is 'Criterios individuales de una rúbrica';
-
-
--- ---------- Niveles de rúbrica ----------
-create table if not exists public.rubrica_niveles (
-  id          uuid primary key default gen_random_uuid(),
-  rubrica_id  uuid not null references public.rubricas(id) on delete cascade,
-  etiqueta    text not null,
-  puntaje     int not null check (puntaje >= 0),
-  orden       int not null,
-  unique (rubrica_id, orden)
+-- 7. Table: rubrica_niveles
+CREATE TABLE IF NOT EXISTS rubrica_niveles (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  rubrica_id uuid NOT NULL REFERENCES rubricas(id) ON DELETE CASCADE,
+  etiqueta text NOT NULL,
+  puntaje int NOT NULL CHECK (puntaje >= 0),
+  orden int NOT NULL,
+  UNIQUE(rubrica_id, orden)
 );
 
-comment on table public.rubrica_niveles is 'Niveles cualitativos de desempeño (solo para tipo=niveles)';
-
-
--- ---------- Calificaciones ----------
-create table if not exists public.calificaciones (
-  id          uuid primary key default gen_random_uuid(),
-  entrega_id  uuid not null references public.entregas(id) on delete cascade,
-  criterio_id uuid not null references public.rubrica_criterios(id) on delete cascade,
-  nivel_id    uuid references public.rubrica_niveles(id) on delete set null,
-  puntaje     numeric(5,2) not null check (puntaje >= 0),
-  comentario  text,
-  unique (entrega_id, criterio_id)
+-- 8. Table: calificaciones
+CREATE TABLE IF NOT EXISTS calificaciones (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  entrega_id uuid NOT NULL REFERENCES entregas(id) ON DELETE CASCADE,
+  criterio_id uuid NOT NULL REFERENCES rubrica_criterios(id) ON DELETE CASCADE,
+  nivel_id uuid REFERENCES rubrica_niveles(id) ON DELETE SET NULL,
+  puntaje numeric(5,2) CHECK (puntaje >= 0),
+  comentario text,
+  UNIQUE(entrega_id, criterio_id)
 );
 
-comment on table public.calificaciones is 'Calificación por criterio por entrega';
+-- 9. Indexes
+CREATE INDEX IF NOT EXISTS idx_entregas_tarea_user ON entregas(tarea_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_entregas_estado ON entregas(estado);
+CREATE INDEX IF NOT EXISTS idx_entrega_versiones_entrega ON entrega_versiones(entrega_id);
+CREATE INDEX IF NOT EXISTS idx_calificaciones_entrega ON calificaciones(entrega_id);
 
-
--- ==========================================================
--- Step 3 — Índices
--- ==========================================================
-
-create index if not exists idx_entregas_tarea_user
-  on public.entregas(tarea_id, user_id);
-
-create index if not exists idx_entregas_estado
-  on public.entregas(estado);
-
-create index if not exists idx_entrega_versiones_entrega
-  on public.entrega_versiones(entrega_id, numero_version);
-
-create index if not exists idx_calificaciones_entrega
-  on public.calificaciones(entrega_id);
-
-
--- ==========================================================
--- Step 4 — Vista para instructores
--- ==========================================================
-
-create or replace view public.v_entregas_pendientes_instructor as
-select
-  e.id as entrega_id,
+-- 10. View: v_entregas_pendientes_instructor
+CREATE OR REPLACE VIEW v_entregas_pendientes_instructor
+  WITH (security_invoker = on) AS
+SELECT
+  e.id AS entrega_id,
   e.tarea_id,
-  t.titulo as tarea_titulo,
-  t.curso_id,
-  c.titulo as curso_titulo,
   e.user_id,
-  p.nombres_completos as alumno_nombre,
+  e.estado,
   e.entregado_en,
-  e.estado
-from public.entregas e
-join public.tareas t on t.id = e.tarea_id
-join public.cursos c on c.id = t.curso_id
-join public.perfiles p on p.id = e.user_id
-where e.estado = 'entregada';
+  t.titulo AS tarea_titulo,
+  t.curso_id,
+  c.titulo AS curso_titulo,
+  p.nombres AS alumno_nombres,
+  p.apellidos AS alumno_apellidos,
+  p.email AS alumno_email
+FROM entregas e
+JOIN tareas t ON t.id = e.tarea_id
+JOIN cursos c ON c.id = t.curso_id
+JOIN perfiles p ON p.id = e.user_id
+WHERE e.estado = 'entregada';
 
+-- 11. RLS
+-- Enable RLS on all tables
+ALTER TABLE tareas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE entregas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE entrega_versiones ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rubricas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rubrica_criterios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE rubrica_niveles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE calificaciones ENABLE ROW LEVEL SECURITY;
 
--- ==========================================================
--- Step 5 — RLS
--- ==========================================================
+-- Helper function: is_instructor_of_course(curso_id)
+CREATE OR REPLACE FUNCTION is_instructor_of_course(p_curso_id uuid)
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM cursos
+    WHERE id = p_curso_id AND instructor_id = auth.uid()
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ---------- tareas ----------
-alter table public.tareas enable row level security;
+-- Helper function: is_instructor_of_entrega(entrega_id)
+CREATE OR REPLACE FUNCTION is_instructor_of_entrega(p_entrega_id uuid)
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1
+    FROM entregas e
+    JOIN tareas t ON t.id = e.tarea_id
+    WHERE e.id = p_entrega_id AND t.curso_id IN (
+      SELECT id FROM cursos WHERE instructor_id = auth.uid()
+    )
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-drop policy if exists "tareas: select public" on public.tareas;
-create policy "tareas: select public"
-  on public.tareas for select to authenticated
-  using (true);
+-- tareas policies
+DROP POLICY IF EXISTS tareas_select_public ON tareas;
+CREATE POLICY tareas_select_public ON tareas
+  FOR SELECT TO authenticated USING (true);
 
-drop policy if exists "tareas: write instructor" on public.tareas;
-create policy "tareas: write instructor"
-  on public.tareas for all to authenticated
-  using (public.is_instructor_de(curso_id))
-  with check (public.is_instructor_de(curso_id));
+DROP POLICY IF EXISTS tareas_insert_instructor ON tareas;
+CREATE POLICY tareas_insert_instructor ON tareas
+  FOR INSERT TO authenticated WITH CHECK (is_instructor_of_course(curso_id));
 
+DROP POLICY IF EXISTS tareas_update_instructor ON tareas;
+CREATE POLICY tareas_update_instructor ON tareas
+  FOR UPDATE TO authenticated USING (is_instructor_of_course(curso_id));
 
--- ---------- entregas ----------
-alter table public.entregas enable row level security;
+DROP POLICY IF EXISTS tareas_delete_instructor ON tareas;
+CREATE POLICY tareas_delete_instructor ON tareas
+  FOR DELETE TO authenticated USING (is_instructor_of_course(curso_id));
 
-drop policy if exists "entregas: select own or instructor" on public.entregas;
-create policy "entregas: select own or instructor"
-  on public.entregas for select to authenticated
-  using (
-    user_id = auth.uid()
-    or public.is_instructor_de((select curso_id from public.tareas where id = entregas.tarea_id))
+-- entregas policies
+DROP POLICY IF EXISTS entregas_select_own_or_instructor ON entregas;
+CREATE POLICY entregas_select_own_or_instructor ON entregas
+  FOR SELECT TO authenticated USING (
+    user_id = auth.uid() OR is_instructor_of_entrega(id)
   );
 
-drop policy if exists "entregas: insert own" on public.entregas;
-create policy "entregas: insert own"
-  on public.entregas for insert to authenticated
-  with check (user_id = auth.uid());
+DROP POLICY IF EXISTS entregas_insert_own ON entregas;
+CREATE POLICY entregas_insert_own ON entregas
+  FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
 
-drop policy if exists "entregas: update instructor" on public.entregas;
-create policy "entregas: update instructor"
-  on public.entregas for update to authenticated
-  using (public.is_instructor_de((select curso_id from public.tareas where id = entregas.tarea_id)))
-  with check (public.is_instructor_de((select curso_id from public.tareas where id = entregas.tarea_id)));
+DROP POLICY IF EXISTS entregas_update_instructor ON entregas;
+CREATE POLICY entregas_update_instructor ON entregas
+  FOR UPDATE TO authenticated USING (is_instructor_of_entrega(id));
 
+DROP POLICY IF EXISTS entregas_update_own ON entregas;
+CREATE POLICY entregas_update_own ON entregas
+  FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
--- ---------- entrega_versiones ----------
-alter table public.entrega_versiones enable row level security;
-
-drop policy if exists "entrega_versiones: select own or instructor" on public.entrega_versiones;
-create policy "entrega_versiones: select own or instructor"
-  on public.entrega_versiones for select to authenticated
-  using (
-    exists (
-      select 1 from public.entregas e
-      where e.id = entrega_versiones.entrega_id
-      and (
-        e.user_id = auth.uid()
-        or public.is_instructor_de((select curso_id from public.tareas where id = e.tarea_id))
-      )
+-- entrega_versiones policies
+DROP POLICY IF EXISTS entrega_versiones_select_own_or_instructor ON entrega_versiones;
+CREATE POLICY entrega_versiones_select_own_or_instructor ON entrega_versiones
+  FOR SELECT TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM entregas e
+      WHERE e.id = entrega_versiones.entrega_id
+      AND (e.user_id = auth.uid() OR is_instructor_of_entrega(e.id))
     )
   );
 
-drop policy if exists "entrega_versiones: insert own" on public.entrega_versiones;
-create policy "entrega_versiones: insert own"
-  on public.entrega_versiones for insert to authenticated
-  with check (
-    exists (
-      select 1 from public.entregas e
-      where e.id = entrega_versiones.entrega_id
-      and e.user_id = auth.uid()
+DROP POLICY IF EXISTS entrega_versiones_insert_own ON entrega_versiones;
+CREATE POLICY entrega_versiones_insert_own ON entrega_versiones
+  FOR INSERT TO authenticated WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM entregas e
+      WHERE e.id = entrega_versiones.entrega_id
+      AND e.user_id = auth.uid()
     )
   );
 
+-- rubricas policies
+DROP POLICY IF EXISTS rubricas_select_public ON rubricas;
+CREATE POLICY rubricas_select_public ON rubricas
+  FOR SELECT TO authenticated USING (true);
 
--- ---------- rubricas ----------
-alter table public.rubricas enable row level security;
-
-drop policy if exists "rubricas: select public" on public.rubricas;
-create policy "rubricas: select public"
-  on public.rubricas for select to authenticated
-  using (true);
-
-drop policy if exists "rubricas: write instructor" on public.rubricas;
-create policy "rubricas: write instructor"
-  on public.rubricas for all to authenticated
-  using (public.is_instructor_de((select curso_id from public.tareas where id = rubricas.tarea_id)))
-  with check (public.is_instructor_de((select curso_id from public.tareas where id = rubricas.tarea_id)));
-
-
--- ---------- rubrica_criterios ----------
-alter table public.rubrica_criterios enable row level security;
-
-drop policy if exists "rubrica_criterios: select public" on public.rubrica_criterios;
-create policy "rubrica_criterios: select public"
-  on public.rubrica_criterios for select to authenticated
-  using (true);
-
-drop policy if exists "rubrica_criterios: write instructor" on public.rubrica_criterios;
-create policy "rubrica_criterios: write instructor"
-  on public.rubrica_criterios for all to authenticated
-  using (public.is_instructor_de((select t.curso_id from public.rubricas r join public.tareas t on t.id = r.tarea_id where r.id = rubrica_criterios.rubrica_id)))
-  with check (public.is_instructor_de((select t.curso_id from public.rubricas r join public.tareas t on t.id = r.tarea_id where r.id = rubrica_criterios.rubrica_id)));
-
-
--- ---------- rubrica_niveles ----------
-alter table public.rubrica_niveles enable row level security;
-
-drop policy if exists "rubrica_niveles: select public" on public.rubrica_niveles;
-create policy "rubrica_niveles: select public"
-  on public.rubrica_niveles for select to authenticated
-  using (true);
-
-drop policy if exists "rubrica_niveles: write instructor" on public.rubrica_niveles;
-create policy "rubrica_niveles: write instructor"
-  on public.rubrica_niveles for all to authenticated
-  using (public.is_instructor_de((select t.curso_id from public.rubricas r join public.tareas t on t.id = r.tarea_id where r.id = rubrica_niveles.rubrica_id)))
-  with check (public.is_instructor_de((select t.curso_id from public.rubricas r join public.tareas t on t.id = r.tarea_id where r.id = rubrica_niveles.rubrica_id)));
-
-
--- ---------- calificaciones ----------
-alter table public.calificaciones enable row level security;
-
-drop policy if exists "calificaciones: select own or instructor" on public.calificaciones;
-create policy "calificaciones: select own or instructor"
-  on public.calificaciones for select to authenticated
-  using (
-    exists (
-      select 1 from public.entregas e
-      where e.id = calificaciones.entrega_id
-      and (
-        e.user_id = auth.uid()
-        or public.is_instructor_de((select curso_id from public.tareas where id = e.tarea_id))
-      )
+DROP POLICY IF EXISTS rubricas_insert_instructor ON rubricas;
+CREATE POLICY rubricas_insert_instructor ON rubricas
+  FOR INSERT TO authenticated WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM tareas t
+      WHERE t.id = rubricas.tarea_id AND is_instructor_of_course(t.curso_id)
     )
   );
 
-drop policy if exists "calificaciones: write instructor" on public.calificaciones;
-create policy "calificaciones: write instructor"
-  on public.calificaciones for all to authenticated
-  using (public.is_instructor_de((select t.curso_id from public.entregas e join public.tareas t on t.id = e.tarea_id where e.id = calificaciones.entrega_id)))
-  with check (public.is_instructor_de((select t.curso_id from public.entregas e join public.tareas t on t.id = e.tarea_id where e.id = calificaciones.entrega_id)));
+DROP POLICY IF EXISTS rubricas_update_instructor ON rubricas;
+CREATE POLICY rubricas_update_instructor ON rubricas
+  FOR UPDATE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM tareas t
+      WHERE t.id = rubricas.tarea_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
 
+DROP POLICY IF EXISTS rubricas_delete_instructor ON rubricas;
+CREATE POLICY rubricas_delete_instructor ON rubricas
+  FOR DELETE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM tareas t
+      WHERE t.id = rubricas.tarea_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
 
--- ==========================================================
--- Step 6 — Triggers de notificación
--- ==========================================================
+-- rubrica_criterios policies
+DROP POLICY IF EXISTS rubrica_criterios_select_public ON rubrica_criterios;
+CREATE POLICY rubrica_criterios_select_public ON rubrica_criterios
+  FOR SELECT TO authenticated USING (true);
 
--- ---------- trg_nueva_entrega ----------
-create or replace function public.trg_nueva_entrega_fn()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_curso_id     uuid;
+DROP POLICY IF EXISTS rubrica_criterios_insert_instructor ON rubrica_criterios;
+CREATE POLICY rubrica_criterios_insert_instructor ON rubrica_criterios
+  FOR INSERT TO authenticated WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_criterios.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+DROP POLICY IF EXISTS rubrica_criterios_update_instructor ON rubrica_criterios;
+CREATE POLICY rubrica_criterios_update_instructor ON rubrica_criterios
+  FOR UPDATE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_criterios.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+DROP POLICY IF EXISTS rubrica_criterios_delete_instructor ON rubrica_criterios;
+CREATE POLICY rubrica_criterios_delete_instructor ON rubrica_criterios
+  FOR DELETE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_criterios.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+-- rubrica_niveles policies
+DROP POLICY IF EXISTS rubrica_niveles_select_public ON rubrica_niveles;
+CREATE POLICY rubrica_niveles_select_public ON rubrica_niveles
+  FOR SELECT TO authenticated USING (true);
+
+DROP POLICY IF EXISTS rubrica_niveles_insert_instructor ON rubrica_niveles;
+CREATE POLICY rubrica_niveles_insert_instructor ON rubrica_niveles
+  FOR INSERT TO authenticated WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_niveles.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+DROP POLICY IF EXISTS rubrica_niveles_update_instructor ON rubrica_niveles;
+CREATE POLICY rubrica_niveles_update_instructor ON rubrica_niveles
+  FOR UPDATE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_niveles.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+DROP POLICY IF EXISTS rubrica_niveles_delete_instructor ON rubrica_niveles;
+CREATE POLICY rubrica_niveles_delete_instructor ON rubrica_niveles
+  FOR DELETE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM rubricas r
+      JOIN tareas t ON t.id = r.tarea_id
+      WHERE r.id = rubrica_niveles.rubrica_id AND is_instructor_of_course(t.curso_id)
+    )
+  );
+
+-- calificaciones policies
+DROP POLICY IF EXISTS calificaciones_select_own_or_instructor ON calificaciones;
+CREATE POLICY calificaciones_select_own_or_instructor ON calificaciones
+  FOR SELECT TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM entregas e
+      WHERE e.id = calificaciones.entrega_id
+      AND (e.user_id = auth.uid() OR is_instructor_of_entrega(e.id))
+    )
+  );
+
+DROP POLICY IF EXISTS calificaciones_insert_instructor ON calificaciones;
+CREATE POLICY calificaciones_insert_instructor ON calificaciones
+  FOR INSERT TO authenticated WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM entregas e
+      WHERE e.id = calificaciones.entrega_id AND is_instructor_of_entrega(e.id)
+    )
+  );
+
+DROP POLICY IF EXISTS calificaciones_update_instructor ON calificaciones;
+CREATE POLICY calificaciones_update_instructor ON calificaciones
+  FOR UPDATE TO authenticated USING (
+    EXISTS (
+      SELECT 1 FROM entregas e
+      WHERE e.id = calificaciones.entrega_id AND is_instructor_of_entrega(e.id)
+    )
+  );
+
+-- 12. Trigger: trg_nueva_entrega (notify instructor when student submits)
+CREATE OR REPLACE FUNCTION fn_trg_nueva_entrega()
+RETURNS trigger AS $$
+DECLARE
+  v_curso_id uuid;
+  v_instructor_id uuid;
+  v_curso_titulo text;
   v_tarea_titulo text;
-  r              record;
-begin
-  if old.estado = 'pendiente' and new.estado = 'entregada' then
-    select t.curso_id, t.titulo into v_curso_id, v_tarea_titulo
-    from public.tareas t where t.id = new.tarea_id;
+BEGIN
+  SELECT t.curso_id, c.titulo, t.titulo
+  INTO v_curso_id, v_curso_titulo, v_tarea_titulo
+  FROM tareas t
+  JOIN cursos c ON c.id = t.curso_id
+  WHERE t.id = NEW.tarea_id;
 
-    for r in
-      select ci.user_id as instructor_id
-      from public.cursos_instructores ci
-      where ci.curso_id = v_curso_id
-    loop
-      perform public.crear_notificacion(
-        r.instructor_id,
-        'nueva_entrega',
-        'Nueva entrega: ' || coalesce(v_tarea_titulo, 'Tarea'),
-        'Un alumno ha entregado la tarea "' || coalesce(v_tarea_titulo, 'Sin título') || '"',
-        jsonb_build_object(
-          'entrega_id', new.id,
-          'tarea_id', new.tarea_id,
-          'curso_id', v_curso_id,
-          'alumno_id', new.user_id
-        ),
-        'in_app'
-      );
-    end loop;
-  end if;
-  return new;
-end;
-$$;
+  SELECT instructor_id INTO v_instructor_id
+  FROM cursos WHERE id = v_curso_id;
 
-drop trigger if exists trg_nueva_entrega on public.entregas;
-create trigger trg_nueva_entrega
-  after update of estado on public.entregas
-  for each row
-  execute function public.trg_nueva_entrega_fn();
+  INSERT INTO notificaciones (user_id, tipo, titulo, contenido, metadata, leida)
+  VALUES (
+    v_instructor_id,
+    'nueva_entrega',
+    'Nueva entrega recibida',
+    format('El alumno ha entregado la tarea "%s" del curso "%s".', v_tarea_titulo, v_curso_titulo),
+    jsonb_build_object(
+      'entrega_id', NEW.id,
+      'tarea_id', NEW.tarea_id,
+      'curso_id', (SELECT curso_id FROM tareas WHERE id = NEW.tarea_id),
+      'alumno_id', NEW.user_id
+    ),
+    false
+  );
 
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- ---------- trg_entrega_calificada ----------
-create or replace function public.trg_entrega_calificada_fn()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-declare
-  v_curso_id     uuid;
+DROP TRIGGER IF EXISTS trg_nueva_entrega ON entregas;
+CREATE TRIGGER trg_nueva_entrega
+  AFTER UPDATE OF estado ON entregas
+  FOR EACH ROW
+  WHEN (OLD.estado = 'pendiente' AND NEW.estado = 'entregada')
+  EXECUTE FUNCTION fn_trg_nueva_entrega();
+
+-- 13. Trigger: trg_entrega_calificada (notify student when graded)
+CREATE OR REPLACE FUNCTION fn_trg_entrega_calificada()
+RETURNS trigger AS $$
+DECLARE
   v_tarea_titulo text;
-begin
-  if old.estado = 'entregada' and new.estado = 'calificada' then
-    select t.curso_id, t.titulo into v_curso_id, v_tarea_titulo
-    from public.tareas t where t.id = new.tarea_id;
+  v_curso_titulo text;
+BEGIN
+  SELECT t.titulo, c.titulo
+  INTO v_tarea_titulo, v_curso_titulo
+  FROM tareas t
+  JOIN cursos c ON c.id = t.curso_id
+  WHERE t.id = NEW.tarea_id;
 
-    perform public.crear_notificacion(
-      new.user_id,
-      'entrega_calificada',
-      'Entrega calificada: ' || coalesce(v_tarea_titulo, 'Tarea'),
-      'Tu entrega para "' || coalesce(v_tarea_titulo, 'Sin título') || '" ha sido calificada con ' || coalesce(new.puntaje_final::text, '0') || '/100',
-      jsonb_build_object(
-        'entrega_id', new.id,
-        'tarea_id', new.tarea_id,
-        'curso_id', v_curso_id,
-        'puntaje', new.puntaje_final
-      ),
-      'in_app'
-    );
-  end if;
-  return new;
-end;
-$$;
+  INSERT INTO notificaciones (user_id, tipo, titulo, contenido, metadata, leida)
+  VALUES (
+    NEW.user_id,
+    'entrega_calificada',
+    'Tu entrega ha sido calificada',
+    format('La tarea "%s" del curso "%s" ha sido calificada.', v_tarea_titulo, v_curso_titulo),
+    jsonb_build_object(
+      'entrega_id', NEW.id,
+      'tarea_id', NEW.tarea_id,
+      'curso_id', (SELECT curso_id FROM tareas WHERE id = NEW.tarea_id),
+      'puntaje_final', NEW.puntaje_final
+    ),
+    false
+  );
 
-drop trigger if exists trg_entrega_calificada on public.entregas;
-create trigger trg_entrega_calificada
-  after update of estado on public.entregas
-  for each row
-  execute function public.trg_entrega_calificada_fn();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_entrega_calificada ON entregas;
+CREATE TRIGGER trg_entrega_calificada
+  AFTER UPDATE OF estado ON entregas
+  FOR EACH ROW
+  WHEN (OLD.estado = 'entregada' AND NEW.estado = 'calificada')
+  EXECUTE FUNCTION fn_trg_entrega_calificada();

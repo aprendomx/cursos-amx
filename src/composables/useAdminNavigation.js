@@ -35,6 +35,9 @@ export function useAdminNavigation() {
     ...(featureEnabled('rubrics') ? [{ key: 'rubricas', label: 'Rúbricas' }] : []),
     ...(featureEnabled('cohorts') ? [{ key: 'cohortes', label: 'Cohortes' }] : []),
     ...(featureEnabled('gamificacion') ? [{ key: 'gamificacion', label: 'Gamificación' }] : []),
+    ...(featureEnabled('entregas')
+      ? [{ key: 'entregas', label: 'Entregas', icon: 'clipboard' }]
+      : []),
     ...(featureEnabled('analytics') ? [{ key: 'analytics', label: 'Analytics' }] : []),
     ...(featureEnabled('video_analytics')
       ? [{ key: 'video_analytics', label: 'Analytics Video' }]

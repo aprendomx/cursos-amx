@@ -9,6 +9,7 @@ import AiSummarizeButton from '@/components/AiSummarizeButton.vue'
 import AiChatWidget from '@/components/AiChatWidget.vue'
 import DownloadButton from '@/components/DownloadButton.vue'
 import VideoHeatmap from '@/components/VideoHeatmap.vue'
+import EntregaAlumnoPanel from '@/components/EntregaAlumnoPanel.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { usePlayerPage } from '@/composables/usePlayerPage.js'
 import { useOffline } from '@/composables/useOffline'
@@ -170,6 +171,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :curso-id="cursoId"
           :leccion="leccion"
         />
+        <!-- Fase K: panel de entrega por tarea vinculada a la lección -->
+        <EntregaAlumnoPanel
+          v-if="leccion?.tarea_id && session?.user?.id"
+          :tarea-id="leccion.tarea_id"
+          :user-id="session.user.id"
+        />
         <AiSummarizeButton
           v-if="aiSummariesEnabled && leccionTexto"
           :content="leccionTexto"
@@ -224,6 +231,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
+        />
+        <!-- Fase K: panel de entrega por tarea vinculada a la lección -->
+        <EntregaAlumnoPanel
+          v-if="leccion?.tarea_id && session?.user?.id"
+          :tarea-id="leccion.tarea_id"
+          :user-id="session.user.id"
         />
         <AiSummarizeButton
           v-if="aiSummariesEnabled && leccionTexto"
@@ -304,6 +317,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :key="leccion.id"
           :curso-id="cursoId"
           :leccion="leccion"
+        />
+        <!-- Fase K: panel de entrega por tarea vinculada a la lección -->
+        <EntregaAlumnoPanel
+          v-if="leccion?.tarea_id && session?.user?.id"
+          :tarea-id="leccion.tarea_id"
+          :user-id="session.user.id"
         />
         <AiSummarizeButton
           v-if="aiSummariesEnabled && leccionTexto"

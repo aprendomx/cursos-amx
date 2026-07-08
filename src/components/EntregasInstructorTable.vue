@@ -1,102 +1,59 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
-  entregas: {
-    type: Array,
-    default: () => [],
-  },
+  entregas: { type: Array, default: () => [] },
 })
 
 const emit = defineEmits(['calificar', 'ver'])
 
-const estadoFiltro = ref('')
+const filtroEstado = ref('')
 const busqueda = ref('')
-
-const ESTADO_LABEL = {
-  pendiente: 'Pendiente',
-  entregada: 'Entregada',
-  calificada: 'Calificada',
-  devuelta: 'Devuelta',
-}
 
 const entregasFiltradas = computed(() => {
   let list = props.entregas
-  if (estadoFiltro.value) {
-    list = list.filter((e) => e.estado === estadoFiltro.value)
+  if (filtroEstado.value) {
+    list = list.filter((e) => e.estado === filtroEstado.value)
   }
   if (busqueda.value.trim()) {
-    const q = busqueda.value.trim().toLowerCase()
-    list = list.filter((e) => {
-      const nombre =
-        `${e.perfiles?.nombres || ''} ${e.perfiles?.apellido_paterno || ''}`.toLowerCase()
-      return nombre.includes(q)
-    })
+    const q = busqueda.value.toLowerCase()
+    list = list.filter(
+      (e) =>
+        (e.perfiles?.nombres?.toLowerCase() || '').includes(q) ||
+        (e.perfiles?.apellido_paterno?.toLowerCase() || '').includes(q)
+    )
   }
   return list
 })
 
-function nombreAlumno(e) {
-  const p = e.perfiles || {}
-  return `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim() || '—'
-}
+const estadoClass = (estado) =>
+  ({
+    pendiente: 'badge',
+    entregada: 'badge badge-info',
+    calificada: 'badge badge-success',
+    devuelta: 'badge badge-warning',
+  })[estado] || 'badge'
 
 function fmtFecha(iso) {
-  if (!iso) return '—'
-  return new Date(iso).toLocaleDateString('es-MX', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
+  if (!iso) return '-'
+  return new Date(iso).toLocaleDateString('es-MX')
 }
 </script>
 
 <template>
-  <div class="card" :style="{ overflow: 'auto' }">
-    <div
-      :style="{
-        padding: 'calc(var(--unit) * 2.5)',
-        borderBottom: '1px solid var(--line)',
-        display: 'flex',
-        gap: '12px',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }"
-    >
-      <p class="eyebrow">Entregas</p>
-      <div :style="{ display: 'flex', gap: '8px', flexWrap: 'wrap' }">
-        <input
-          v-model="busqueda"
-          type="text"
-          placeholder="Buscar alumno…"
-          :style="{
-            padding: '6px 10px',
-            border: '1px solid var(--line)',
-            borderRadius: '4px',
-            fontSize: '13px',
-          }"
-        />
-        <select
-          v-model="estadoFiltro"
-          :style="{
-            padding: '6px 10px',
-            border: '1px solid var(--line)',
-            borderRadius: '4px',
-            fontSize: '13px',
-            background: 'var(--paper)',
-          }"
-        >
-          <option value="">Todos</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="entregada">Entregada</option>
-          <option value="calificada">Calificada</option>
-          <option value="devuelta">Devuelta</option>
-        </select>
-      </div>
+  <div class="entregas-table">
+    <div class="filters">
+      <input v-model="busqueda" type="text" placeholder="Buscar alumno..." class="input" />
+      <select v-model="filtroEstado" class="select">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="entregada">Entregada</option>
+        <option value="calificada">Calificada</option>
+        <option value="devuelta">Devuelta</option>
+      </select>
     </div>
 
-    <table v-if="entregasFiltradas.length" class="admin-table admin-table-full">
+    <table class="admin-table">
       <thead>
         <tr>
           <th>Alumno</th>
@@ -104,63 +61,51 @@ function fmtFecha(iso) {
           <th>Versión</th>
           <th>Fecha</th>
           <th>Puntaje</th>
-          <th>Días retraso</th>
-          <th :style="{ textAlign: 'right' }">Acciones</th>
+          <th>Retraso</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="e in entregasFiltradas" :key="e.id">
+          <td>{{ e.perfiles?.nombres }} {{ e.perfiles?.apellido_paterno }}</td>
           <td>
-            <span :style="{ fontWeight: '500' }">
-              {{ nombreAlumno(e) }}
-            </span>
+            <span :class="estadoClass(e.estado)">{{ e.estado }}</span>
           </td>
+          <td>{{ e.version_actual }}</td>
+          <td>{{ fmtFecha(e.entregado_en) }}</td>
+          <td>{{ e.puntaje_final ?? '-' }}</td>
+          <td>{{ e.dias_retraso ?? 0 }} días</td>
           <td>
-            <span
-              class="chip"
-              :class="{
-                'chip-primary': e.estado === 'entregada',
-                'chip-verde': e.estado === 'calificada',
-                'chip-accent': e.estado === 'devuelta',
-              }"
-              :style="{ fontSize: '10px' }"
+            <button
+              v-if="e.estado === 'entregada'"
+              class="btn btn-primary btn-sm"
+              @click="emit('calificar', e)"
             >
-              {{ ESTADO_LABEL[e.estado] || e.estado }}
-            </span>
+              Calificar
+            </button>
+            <button class="btn btn-ghost btn-sm" @click="emit('ver', e)">Ver</button>
           </td>
-          <td class="mono">
-            {{ e.version != null ? e.version : '—' }}
-          </td>
-          <td class="mono">
-            {{ fmtFecha(e.creado_en || e.fecha_entrega) }}
-          </td>
-          <td class="mono">
-            {{ e.puntaje != null ? e.puntaje : '—' }}
-          </td>
-          <td class="mono">
-            {{ e.dias_retraso != null ? e.dias_retraso : '—' }}
-          </td>
-          <td :style="{ textAlign: 'right' }">
-            <div :style="{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }">
-              <button class="btn btn-sm btn-primary" @click="emit('calificar', e)">
-                Calificar
-              </button>
-              <button class="btn btn-sm btn-ghost" @click="emit('ver', e)">Ver</button>
-            </div>
-          </td>
+        </tr>
+        <tr v-if="!entregasFiltradas.length">
+          <td colspan="7" class="text-center text-muted">No hay entregas</td>
         </tr>
       </tbody>
     </table>
-
-    <p
-      v-else
-      :style="{
-        padding: 'calc(var(--unit) * 2.5)',
-        color: 'var(--ink-3)',
-        fontSize: '13px',
-      }"
-    >
-      Sin entregas registradas.
-    </p>
   </div>
 </template>
+
+<style scoped>
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.filters input,
+.filters select {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--paper-3);
+  background: var(--paper-1);
+  color: var(--ink-1);
+}
+</style>

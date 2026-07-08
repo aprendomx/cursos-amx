@@ -1,102 +1,103 @@
 import { ref, computed } from 'vue'
-import { featureEnabled } from '@/lib/featureFlags.js'
-import {
-  subirEntrega,
-  fetchMiEntrega,
-  fetchMiHistorial,
-  urlDescargaEntrega,
-} from '@/services/entregas.js'
+import { supabase } from '@/lib/supabase.js'
+import { obtenerEntrega, crearEntrega, nuevaVersion } from '@/services/entregas.js'
+import { obtenerRubrica } from '@/services/rubricas.js'
 
 export const ESTADO_LABEL = {
-  pendiente: 'Pendiente de revisión',
+  pendiente: 'Pendiente',
   revisada: 'Revisada',
   aprobada: 'Aprobada',
-  rechazada: 'Rechazada — vuelve a subir',
+  rechazada: 'Rechazada',
 }
 
-/**
- * Estado de la entrega del alumno para una lección que la requiere:
- * entrega vigente, historial de versiones y subida con validación
- * client-side (la validación dura la hace la RPC registrar_entrega).
- */
-export function useEntregas(cursoId, leccion) {
-  const habilitado = featureEnabled('entregas')
-
-  const entrega = ref(null) // vigente, o null
-  const historial = ref([])
-  const subiendo = ref(false)
+export function useEntregas(tareaId, userId) {
+  const entrega = ref(null)
+  const tarea = ref(null)
+  const rubrica = ref(null)
   const loading = ref(false)
-  const error = ref('')
+  const error = ref(null)
 
-  const tiposPermitidos = computed(
-    () => leccion?.entrega_tipos || ['pdf', 'docx', 'zip', 'png', 'jpg']
-  )
-  const maxMb = computed(() => leccion?.entrega_max_mb || 10)
-  const accept = computed(() => tiposPermitidos.value.map((t) => '.' + t).join(','))
+  const estado = computed(() => entrega.value?.estado || 'pendiente')
+  const versionActual = computed(() => entrega.value?.version_actual || 0)
+
+  const diasRestantes = computed(() => {
+    if (!tarea.value?.fecha_limite) return null
+    const diff = new Date(tarea.value.fecha_limite) - new Date()
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  })
+
+  const diasRetraso = computed(() => {
+    if (!tarea.value?.fecha_limite || !entrega.value?.entregado_en) return 0
+    const diff = new Date(entrega.value.entregado_en) - new Date(tarea.value.fecha_limite)
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+  })
+
+  const puedeEntregar = computed(() => {
+    if (!tarea.value) return false
+    const ahora = new Date()
+    if (tarea.value.fecha_apertura && new Date(tarea.value.fecha_apertura) > ahora) return false
+    if (estado.value === 'calificada') return false
+    if (diasRestantes.value !== null && diasRestantes.value < 0 && !tarea.value.permitir_retraso)
+      return false
+    return true
+  })
 
   async function cargar() {
-    if (!habilitado || !leccion?.id) return
     loading.value = true
-    error.value = ''
+    error.value = null
     try {
-      entrega.value = await fetchMiEntrega(leccion.id)
-      historial.value = await fetchMiHistorial(leccion.id)
+      const { data: tareaData, error: tareaError } = await supabase
+        .from('tareas')
+        .select('*')
+        .eq('id', tareaId)
+        .single()
+      if (tareaError) throw tareaError
+      tarea.value = tareaData
+
+      const [entregaData, rubricaData] = await Promise.all([
+        obtenerEntrega(tareaId, userId).catch(() => null),
+        obtenerRubrica(tareaId).catch(() => null),
+      ])
+      entrega.value = entregaData
+      rubrica.value = rubricaData
     } catch (e) {
-      error.value = e?.message || String(e)
+      error.value = e
     } finally {
       loading.value = false
     }
   }
 
-  function validarArchivo(file) {
-    const ext = (file.name.split('.').pop() || '').toLowerCase()
-    if (!tiposPermitidos.value.includes(ext)) {
-      return `Tipo .${ext} no permitido. Acepta: ${tiposPermitidos.value.join(', ')}`
-    }
-    if (file.size > maxMb.value * 1024 * 1024) {
-      return `El archivo pesa ${(file.size / 1024 / 1024).toFixed(1)} MB; el máximo es ${maxMb.value} MB`
-    }
-    return null
-  }
-
-  async function subir(file) {
-    const problema = validarArchivo(file)
-    if (problema) {
-      error.value = problema
-      return null
-    }
-    subiendo.value = true
-    error.value = ''
+  async function subirVersion({ texto, archivos, comentario }) {
+    loading.value = true
+    error.value = null
     try {
-      const nueva = await subirEntrega({ cursoId, leccionId: leccion.id, file })
-      entrega.value = nueva
-      historial.value = [nueva, ...historial.value.map((h) => ({ ...h, vigente: false }))]
-      return nueva
+      if (!entrega.value) {
+        entrega.value = await crearEntrega(tareaId, userId, { texto, archivos, comentario })
+      } else {
+        entrega.value = await nuevaVersion(entrega.value.id, { texto, archivos, comentario })
+      }
+      await cargar()
+      return entrega.value
     } catch (e) {
-      error.value = e?.message || String(e)
-      return null
+      error.value = e
+      throw e
     } finally {
-      subiendo.value = false
+      loading.value = false
     }
-  }
-
-  async function descargar(item) {
-    const url = await urlDescargaEntrega(item.archivo_path)
-    window.open(url, '_blank', 'noopener')
   }
 
   return {
-    habilitado,
     entrega,
-    historial,
-    subiendo,
+    tarea,
+    rubrica,
     loading,
     error,
-    tiposPermitidos,
-    maxMb,
-    accept,
+    estado,
+    versionActual,
+    diasRestantes,
+    diasRetraso,
+    puedeEntregar,
     cargar,
-    subir,
-    descargar,
+    subirVersion,
   }
 }

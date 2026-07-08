@@ -6,6 +6,7 @@ import { ESTADO_LABEL } from '@/composables/useEntregas.js'
 import SesionesVirtualesPanel from '@/components/SesionesVirtualesPanel.vue'
 import InstructorReportPanel from '@/components/InstructorReportPanel.vue'
 import InstructorVideoDashboard from '@/components/InstructorVideoDashboard.vue'
+import EntregasInstructorTable from '@/components/EntregasInstructorTable.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 
 const props = defineProps({
@@ -98,6 +99,28 @@ async function onRevisar(e, estado) {
 
 const fmtBytes = (b) =>
   b > 1024 * 1024 ? (b / 1024 / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'
+
+/* ── Entregas Fase K (tareas/rúbricas) ── */
+const mockPendingEntregas = ref([
+  {
+    id: 'mock-1',
+    perfiles: { nombres: 'Ana', apellido_paterno: 'López' },
+    estado: 'entregada',
+    version_actual: 1,
+    entregado_en: new Date().toISOString(),
+    puntaje_final: null,
+    dias_retraso: 0,
+  },
+  {
+    id: 'mock-2',
+    perfiles: { nombres: 'Carlos', apellido_paterno: 'Ruiz' },
+    estado: 'entregada',
+    version_actual: 2,
+    entregado_en: new Date(Date.now() - 86400000).toISOString(),
+    puntaje_final: null,
+    dias_retraso: 1,
+  },
+])
 </script>
 
 <template>
@@ -270,6 +293,12 @@ const fmtBytes = (b) =>
                   </div>
                 </li>
               </ul>
+            </section>
+
+            <!-- Entregas pendientes de calificar (Fase K) -->
+            <section v-if="entregasHabilitadas" class="card inst-panel">
+              <h2 class="inst-panel-titulo">Entregas pendientes de calificar</h2>
+              <EntregasInstructorTable :entregas="mockPendingEntregas" />
             </section>
 
             <!-- Alumnos -->

@@ -2,6 +2,20 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.15.0] — 2026-07-07
+
+### Añadido
+
+- **Entregas y Rúbricas (Fase K)**:
+  - Tablas: `tareas`, `entregas`, `entrega_versiones`, `rubricas`, `rubrica_criterios`, `rubrica_niveles`, `calificaciones`
+  - Vistas: `v_entregas_pendientes_instructor`
+  - Servicios: `entregas.js`, `rubricas.js`
+  - Composables: `useEntregas.js`, `useEntregasInstructor.js`
+  - Componentes: `CrearTareaPanel`, `RubricaEditor`, `CalificarEntregaModal`, `EntregasInstructorTable`, `EntregaAlumnoPanel`, `RubricaAlumnoView`, `AdminEntregas`, `EntregaUploader`
+  - Feature flags: `entregas`, `entregas_rubricas`
+  - Integración con notificaciones (Fase I) y gamificación
+  - Badges: `primera_entrega`, `entrega_a_tiempo`, `calificacion_perfecta`
+
 ## [0.14.0] — 2026-07-07
 
 ### Añadido
