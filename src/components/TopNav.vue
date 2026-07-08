@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { theme } from '@/lib/theme.js'
+import NotificationBell from '@/components/NotificationBell.vue'
+import NotificationPanel from '@/components/NotificationPanel.vue'
 
 const props = defineProps({
   user: { type: Object, default: () => ({}) },
@@ -33,6 +35,7 @@ function linkVisible(link) {
 }
 
 const drawerOpen = ref(false)
+const showPanel = ref(false)
 
 function isActive(linkName) {
   if (linkName === 'home') return ['home', 'curso', 'player'].includes(route.name)
@@ -95,6 +98,15 @@ watch(
 
       <div class="nav-actions">
         <template v-if="session">
+          <NotificationBell
+            v-if="featureEnabled('notificaciones')"
+            :on-open-panel="() => showPanel = true"
+          />
+          <NotificationPanel
+            v-if="featureEnabled('notificaciones')"
+            :visible="showPanel"
+            @close="showPanel = false"
+          />
           <div
             class="nav-avatar"
             :title="user.nombre || ''"

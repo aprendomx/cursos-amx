@@ -43,6 +43,7 @@ export function useAdminNavigation() {
       : []),
     { key: 'constancias', label: 'Constancias' },
     ...(featureEnabled('reportes_avanzados') ? [{ key: 'reportes', label: 'Reportes' }] : []),
+    ...(featureEnabled('notificaciones') ? [{ key: 'notificaciones', label: 'Notificaciones' }] : []),
     { key: 'config', label: 'Configuraci\u00f3n' },
   ])
 
