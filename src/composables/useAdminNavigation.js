@@ -36,6 +36,9 @@ export function useAdminNavigation() {
     ...(featureEnabled('cohorts') ? [{ key: 'cohortes', label: 'Cohortes' }] : []),
     ...(featureEnabled('gamificacion') ? [{ key: 'gamificacion', label: 'Gamificación' }] : []),
     ...(featureEnabled('analytics') ? [{ key: 'analytics', label: 'Analytics' }] : []),
+    ...(featureEnabled('video_analytics')
+      ? [{ key: 'video_analytics', label: 'Analytics Video' }]
+      : []),
     ...(featureEnabled('ai_quiz_generator') ||
     featureEnabled('ai_summaries') ||
     featureEnabled('ai_study_assistant')
@@ -43,7 +46,9 @@ export function useAdminNavigation() {
       : []),
     { key: 'constancias', label: 'Constancias' },
     ...(featureEnabled('reportes_avanzados') ? [{ key: 'reportes', label: 'Reportes' }] : []),
-    ...(featureEnabled('notificaciones') ? [{ key: 'notificaciones', label: 'Notificaciones' }] : []),
+    ...(featureEnabled('notificaciones')
+      ? [{ key: 'notificaciones', label: 'Notificaciones' }]
+      : []),
     { key: 'config', label: 'Configuraci\u00f3n' },
   ])
 
