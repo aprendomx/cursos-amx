@@ -855,7 +855,7 @@ async function continueCurso() {
             <CrearTareaPanel
               :curso-id="cursoId"
               @saved="
-                mostrarCrearTarea = false
+                mostrarCrearTarea = false;
                 listarTareasPorCurso(cursoId).then((d) => (tareas = d))
               "
               @cancel="mostrarCrearTarea = false"
