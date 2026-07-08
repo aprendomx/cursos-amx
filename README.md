@@ -84,7 +84,7 @@
 - **RSVP y asistencia** — Alumnos confirman/cancelan asistencia. Instructores marcan asistió/no_asistió desde panel. Trigger de notificación a inscritos al crear sesión.
 - **Edge Function `zoom-meeting`** — Crea/elimina reuniones Zoom vía API. Autenticación OAuth con refresh automático.
 - **Grabaciones automáticas Zoom** — Webhook `recording.completed` descarga video, sube a Supabase Storage e inserta metadatos.
-- **Transcripción Whisper** — Edge Function `transcribir-sesion` descarga audio, llama OpenAI Whisper API, guarda texto + segmentos temporales. Costo aproximado: $0.006/minuto.
+- **Transcripción Whisper** — Edge Function `transcribir-sesion` usa `faster-whisper` local por defecto (CPU, modelo `medium`), con fallback automático a OpenAI Whisper API si el servicio local no responde. Servicio Docker independiente en `services/whisper-service/`. Soporte GPU opcional vía `docker-compose.gpu.yml`.
 - **Búsqueda full-text** — Índice GIN en español sobre transcripciones. Función RPC `buscar_transcripciones()` con snippets resaltados.
 - **Reproductor sincronizado** — Video player con panel de transcripción que sigue el tiempo actual, salto a segmento al hacer click.
 - **Badges de gamificación** — 2 nuevos criterios: `asistir_sesion`, `primera_sesion`.
@@ -392,7 +392,8 @@ supabase/
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics, zoom-meeting, zoom-webhook, transcribir-sesion)
 
 services/
-  video-worker/ Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
+  video-worker/   Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
+  whisper-service/  Servicio de transcripción local (Python + faster-whisper)
 
 docker/
   docker-compose.yml    Stack completo Supabase self-hosted + video-worker
