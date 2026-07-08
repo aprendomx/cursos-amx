@@ -8,6 +8,7 @@ import EntregaUploadField from '@/components/EntregaUploadField.vue'
 import AiSummarizeButton from '@/components/AiSummarizeButton.vue'
 import AiChatWidget from '@/components/AiChatWidget.vue'
 import DownloadButton from '@/components/DownloadButton.vue'
+import VideoHeatmap from '@/components/VideoHeatmap.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { usePlayerPage } from '@/composables/usePlayerPage.js'
 import { useOffline } from '@/composables/useOffline'
@@ -58,6 +59,21 @@ const aiChatEnabled = featureEnabled('ai_study_assistant')
 const { offlineEnabled } = useOffline()
 
 const videoAnalyticsEnabled = computed(() => featureEnabled('video_analytics'))
+
+/* ── mock heatmap data (Fase J) ── */
+const heatmapMockData = [
+  { intervalo_inicio: 0, vistas_unicas: 120, abandonos: 5 },
+  { intervalo_inicio: 30, vistas_unicas: 115, abandonos: 3 },
+  { intervalo_inicio: 60, vistas_unicas: 110, abandonos: 4 },
+  { intervalo_inicio: 90, vistas_unicas: 105, abandonos: 2 },
+  { intervalo_inicio: 120, vistas_unicas: 100, abandonos: 6 },
+  { intervalo_inicio: 150, vistas_unicas: 95, abandonos: 3 },
+  { intervalo_inicio: 180, vistas_unicas: 90, abandonos: 4 },
+  { intervalo_inicio: 210, vistas_unicas: 85, abandonos: 2 },
+  { intervalo_inicio: 240, vistas_unicas: 80, abandonos: 5 },
+  { intervalo_inicio: 270, vistas_unicas: 75, abandonos: 3 },
+]
+const heatmapDuracionTotal = 300
 
 const { startTracking } = useVideoAnalytics({
   leccionId: leccion.value?.id,
@@ -139,6 +155,11 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
         />
+        <VideoHeatmap
+          v-if="featureEnabled('video_analytics_heatmap')"
+          :data="heatmapMockData"
+          :duracion-total="heatmapDuracionTotal"
+        />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"
           :key="leccion.id"
@@ -188,6 +209,11 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @fin-lectura="handleFinLectura"
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
+        />
+        <VideoHeatmap
+          v-if="featureEnabled('video_analytics_heatmap')"
+          :data="heatmapMockData"
+          :duracion-total="heatmapDuracionTotal"
         />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"
@@ -263,6 +289,11 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @fin-lectura="handleFinLectura"
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
+        />
+        <VideoHeatmap
+          v-if="featureEnabled('video_analytics_heatmap')"
+          :data="heatmapMockData"
+          :duracion-total="heatmapDuracionTotal"
         />
         <EntregaUploadField
           v-if="featureEnabled('entregas') && leccion?.requiere_entrega && session"

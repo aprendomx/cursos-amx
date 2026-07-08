@@ -5,6 +5,7 @@ import { useInstructor } from '@/composables/useInstructor.js'
 import { ESTADO_LABEL } from '@/composables/useEntregas.js'
 import SesionesVirtualesPanel from '@/components/SesionesVirtualesPanel.vue'
 import InstructorReportPanel from '@/components/InstructorReportPanel.vue'
+import InstructorVideoDashboard from '@/components/InstructorVideoDashboard.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 
 const props = defineProps({
@@ -328,6 +329,11 @@ const fmtBytes = (b) =>
         <InstructorReportPanel
           v-if="featureEnabled('reportes_avanzados')"
           :instructor-id="session?.user?.id"
+        />
+
+        <!-- Analytics de video (Fase J) -->
+        <InstructorVideoDashboard
+          v-if="featureEnabled('video_analytics')"
         />
       </template>
     </template>
