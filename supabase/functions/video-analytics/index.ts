@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
       video_id: ev.video_id ?? null,
       evento: ev.evento,
       tiempo_video: ev.tiempo_video,
-      datos: ev.datos ?? null,
+      datos: ev.datos ?? {},
     }))
 
     const { error } = await supabase.from('video_eventos').insert(rows)
