@@ -3,6 +3,13 @@ import { supabase } from '@/lib/supabase.js'
 import { obtenerEntrega, crearEntrega, nuevaVersion } from '@/services/entregas.js'
 import { obtenerRubrica } from '@/services/rubricas.js'
 
+export const ESTADO_LABEL = {
+  pendiente: 'Pendiente',
+  revisada: 'Revisada',
+  aprobada: 'Aprobada',
+  rechazada: 'Rechazada',
+}
+
 export function useEntregas(tareaId, userId) {
   const entrega = ref(null)
   const tarea = ref(null)
