@@ -34,6 +34,32 @@ services:
         condition: unless-stopped
     volumes:
       - video_worker_tmp:/tmp/video-worker
+
+  whisper-service:
+    build: ../services/whisper-service
+    restart: unless-stopped
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-medium}
+      DEVICE: ${WHISPER_DEVICE:-cpu}
+      COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
+      PORT: 5000
+    ports:
+      - "${WHISPER_PORT:-5000}:5000"
+    deploy:
+      resources:
+        limits:
+          memory: ${WHISPER_MEMORY_LIMIT:-4G}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # GPU opcional: descomenta para usar NVIDIA
+    # runtime: nvidia
+    # environment:
+    #   - NVIDIA_VISIBLE_DEVICES=all
+
   studio:
     container_name: supabase-studio
     image: supabase/studio:2026.04.08-sha-205cbe7

@@ -1,0 +1,22 @@
+# Docker Compose override para GPU (NVIDIA)
+# Uso: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+#
+# Requisitos:
+#   - NVIDIA Container Toolkit instalado en el host
+#   - Drivers NVIDIA actualizados
+
+services:
+  whisper-service:
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - WHISPER_MODEL=distil-large-v3
+      - DEVICE=cuda
+      - COMPUTE_TYPE=float16
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
