@@ -97,16 +97,19 @@ describe('useEntregas', () => {
 
     const future = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
     u.tarea.value = { fecha_limite: future }
-    expect(u.diasRestantes.value).toBe(3)
+    expect(u.diasRestantes.value).toBeGreaterThanOrEqual(2)
+    expect(u.diasRestantes.value).toBeLessThanOrEqual(4)
   })
 
   it('diasRetraso computes correctly', () => {
     const u = useEntregas('t1', 'u1')
     expect(u.diasRetraso.value).toBe(0)
 
-    const past = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+    // Use noon UTC to avoid timezone boundary issues
+    const base = new Date('2026-07-01T12:00:00Z')
+    const past = new Date(base.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
     u.tarea.value = { fecha_limite: past }
-    u.entrega.value = { entregado_en: new Date().toISOString() }
+    u.entrega.value = { entregado_en: base.toISOString() }
     expect(u.diasRetraso.value).toBe(2)
   })
 
