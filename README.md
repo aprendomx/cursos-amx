@@ -228,6 +228,30 @@
   - Feature flag: reportes_avanzados
   - Release: v0.12.0
 
+- **Phase I: Notificaciones y Alertas** ✅
+  - Sistema de notificaciones en tiempo real (WebSocket/SSE)
+  - Tipos: inscripciones, lecciones completadas, anuncios, recordatorios, menciones
+  - Canales: in-app, email (opcional), push (opcional)
+  - Plantillas de notificación personalizables
+  - Preferencias por usuario
+  - Tablas: notificaciones, notificacion_plantillas, email_configuracion, notificacion_preferencias, anuncios
+  - Edge Function: notifications-worker (procesa cola cada minuto)
+  - Composable: useNotificaciones.js
+  - Componentes: NotificationBell, NotificationPanel, NotificationPreferences, AdminNotificaciones
+  - Feature flags: notificaciones, notificaciones_email
+  - Release: v0.13.0
+
+- **Phase J: Analytics de Video** ✅
+  - Tracking de eventos de video: play, pause, seek, tick, complete, ratechange
+  - Almacenamiento de eventos en tiempo real (video_eventos)
+  - Agregación nocturna a intervalos de 10s (video_intervalos) via cron
+  - Vistas: v_video_leccion_stats, v_curso_video_stats
+  - Edge Function: video-analytics (batch insert con validación)
+  - Composable: useVideoAnalytics.js (tracking automático con batching)
+  - Componentes: VideoHeatmap, LessonVideoStats, InstructorVideoDashboard, AdminVideoAnalytics
+  - Feature flags: video_analytics, video_analytics_heatmap
+  - Release: v0.14.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash

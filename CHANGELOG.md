@@ -2,6 +2,34 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.14.0] — 2026-07-07
+
+### Añadido
+
+- **Analytics de Video (Fase J)**:
+  - Tablas `video_eventos`, `video_intervalos`, `video_analytics_config`
+  - Vistas SQL `v_video_leccion_stats` y `v_curso_video_stats`
+  - Función `agregar_video_intervalos()` con cron diario a las 02:00
+  - Edge Function `video-analytics` para batch insert de eventos (validación, límite 100)
+  - Composable `useVideoAnalytics.js` con tracking automático: play, pause, seek, tick, complete, ratechange; batching 30s; flush via `sendBeacon` en `beforeunload`
+  - Servicio `videoAnalytics.js` con 4 funciones de consulta
+  - Componentes: `VideoHeatmap`, `LessonVideoStats`, `InstructorVideoDashboard`, `AdminVideoAnalytics`
+  - Feature flags: `video_analytics`, `video_analytics_heatmap`
+
+## [0.13.0] — 2026-07-07
+
+### Añadido
+
+- **Notificaciones y Alertas (Fase I)**:
+  - Tablas `notificaciones`, `notificacion_plantillas`, `email_configuracion`, `notificacion_preferencias`, `anuncios`
+  - 7 triggers para eventos: inscripción, lección completada, anuncio, recordatorio, mención, curso publicado, certificación
+  - 3 funciones cron: `enviar_notificaciones_email`, `enviar_recordatorios_inactividad`, `procesar_notificaciones_programadas`
+  - Edge Function `notifications-worker` (procesa cola cada minuto)
+  - Servicio `notificaciones.js` con 9 funciones CRUD
+  - Composable `useNotificaciones.js` con suscripción realtime y badge count
+  - Componentes: `NotificationBell`, `NotificationPanel`, `NotificationPreferences`, `AdminNotificaciones`
+  - Feature flags: `notificaciones`, `notificaciones_email`
+
 ## [0.2.0] — 2026-07-03
 
 ### Añadido
