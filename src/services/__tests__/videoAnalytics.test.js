@@ -26,7 +26,6 @@ describe('Video Analytics Service', () => {
       gte: vi.fn(() => chain),
       lte: vi.fn(() => chain),
       order: vi.fn(() => chain),
-      limit: vi.fn(() => Promise.resolve(result)),
       single: vi.fn(() => Promise.resolve(result)),
       then: (onFulfilled, onRejected) => Promise.resolve(result).then(onFulfilled, onRejected),
       catch: (onRejected) => Promise.resolve(result).catch(onRejected),
@@ -38,10 +37,11 @@ describe('Video Analytics Service', () => {
     it('retorna una sola fila de stats por lección', async () => {
       const mockData = {
         leccion_id: 'lec-1',
-        total_vistas: 150,
-        tiempo_promedio_visto: 120,
-        tasa_completitud: 85,
-        abandonos: 15,
+        leccion_titulo: 'Intro',
+        total_vistas_unicas: 150,
+        total_segundos_vistos: 18000,
+        tasa_completitud_pct: 85,
+        tasa_abandono_pct: 15,
       }
       mockFrom.mockReturnValue(mockChain({ data: mockData, error: null }))
 
@@ -59,20 +59,37 @@ describe('Video Analytics Service', () => {
   })
 
   describe('cargarStatsCurso', () => {
-    it('retorna una sola fila de stats por curso', async () => {
-      const mockData = {
-        curso_id: 'c1',
-        total_vistas: 500,
-        tiempo_promedio_visto: 200,
-        tasa_completitud: 70,
-        total_abandonos: 50,
-      }
+    it('retorna array de stats por lección para un curso', async () => {
+      const mockData = [
+        {
+          leccion_id: 'l1',
+          leccion_titulo: 'Intro',
+          total_vistas_unicas: 120,
+          total_segundos_vistos: 14400,
+          tasa_completitud_pct: 80,
+          tasa_abandono_pct: 20,
+        },
+        {
+          leccion_id: 'l2',
+          leccion_titulo: 'Avanzado',
+          total_vistas_unicas: 95,
+          total_segundos_vistos: 19000,
+          tasa_completitud_pct: 60,
+          tasa_abandono_pct: 30,
+        },
+      ]
       mockFrom.mockReturnValue(mockChain({ data: mockData, error: null }))
 
       const result = await cargarStatsCurso('c1')
 
-      expect(mockFrom).toHaveBeenCalledWith('v_curso_video_stats')
+      expect(mockFrom).toHaveBeenCalledWith('v_video_leccion_stats')
       expect(result).toEqual(mockData)
+      expect(result).toHaveLength(2)
+    })
+
+    it('retorna array vacío si no hay cursoId', async () => {
+      const result = await cargarStatsCurso('')
+      expect(result).toEqual([])
     })
 
     it('lanza error si la consulta falla', async () => {
@@ -89,7 +106,7 @@ describe('Video Analytics Service', () => {
           leccion_id: 'lec-1',
           fecha: '2026-01-15',
           intervalo_inicio: 0,
-          intervalo_fin: 30,
+          duracion_bucket: 10,
           vistas_unicas: 10,
           total_visto: 300,
           abandonos: 1,
@@ -98,7 +115,7 @@ describe('Video Analytics Service', () => {
           leccion_id: 'lec-1',
           fecha: '2026-01-14',
           intervalo_inicio: 0,
-          intervalo_fin: 30,
+          duracion_bucket: 10,
           vistas_unicas: 8,
           total_visto: 240,
           abandonos: 0,
