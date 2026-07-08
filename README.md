@@ -252,6 +252,23 @@
   - Feature flags: video_analytics, video_analytics_heatmap
   - Release: v0.14.0
 
+- **Phase K: Entregas y Rúbricas** ✅
+  - Tareas con instrucciones, fechas límite, configuración de archivos
+  - Entregas del alumno: archivo + texto enriquecido
+  - Historial de versiones (múltiples entregas)
+  - Rúbricas de dos tipos: niveles cualitativos y puntaje libre por criterio
+  - Penalización por retraso configurable
+  - Calificación con retroalimentación estructurada
+  - Notificaciones automáticas al instructor y alumno
+  - Badges de gamificación: primera_entrega, entrega_a_tiempo, calificacion_perfecta
+  - Tablas: tareas, entregas, entrega_versiones, rubricas, rubrica_criterios, rubrica_niveles, calificaciones
+  - Vistas: v_entregas_pendientes_instructor
+  - Servicios: entregas.js, rubricas.js
+  - Composables: useEntregas.js, useEntregasInstructor.js
+  - Componentes: CrearTareaPanel, RubricaEditor, CalificarEntregaModal, EntregasInstructorTable, EntregaAlumnoPanel, RubricaAlumnoView, AdminEntregas, EntregaUploader
+  - Feature flags: entregas, entregas_rubricas
+  - Release: v0.15.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
