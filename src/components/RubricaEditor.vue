@@ -1,231 +1,187 @@
 <script setup>
-import { ref, watch } from 'vue'
-import { crearRubrica, actualizarRubrica } from '@/services/rubricas.js'
+import { computed } from 'vue'
 
 const props = defineProps({
-  rubrica: { type: Object, default: null },
-})
-const emit = defineEmits(['saved', 'cancel'])
-
-const nombre = ref(props.rubrica?.nombre || '')
-const descripcion = ref(props.rubrica?.descripcion || '')
-const criterios = ref(
-  props.rubrica?.criterios?.length
-    ? JSON.parse(JSON.stringify(props.rubrica.criterios))
-    : [
-        {
-          nombre: '',
-          descripcion: '',
-          niveles: [
-            { puntaje: 0, descripcion: '' },
-            { puntaje: 1, descripcion: '' },
-            { puntaje: 2, descripcion: '' },
-          ],
-        },
-      ]
-)
-
-const saving = ref(false)
-const error = ref('')
-
-watch(
-  () => props.rubrica,
-  (r) => {
-    if (r) {
-      nombre.value = r.nombre
-      descripcion.value = r.descripcion
-      criterios.value = JSON.parse(JSON.stringify(r.criterios))
-    }
+  modelValue: {
+    type: Object,
+    default: () => ({
+      tipo: 'niveles',
+      titulo: '',
+      puntaje_maximo: 100,
+      criterios: [],
+      niveles: [],
+    }),
   },
-  { immediate: true }
-)
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const rubrica = computed({
+  get: () => props.modelValue,
+  set: (val) => emit('update:modelValue', val),
+})
+
+function updateField(field, value) {
+  rubrica.value = { ...rubrica.value, [field]: value }
+}
 
 function addCriterio() {
-  criterios.value.push({
-    nombre: '',
+  const criterios = [...(rubrica.value.criterios || [])]
+  criterios.push({
+    titulo: '',
     descripcion: '',
-    niveles: [
-      { puntaje: 0, descripcion: '' },
-      { puntaje: 1, descripcion: '' },
-      { puntaje: 2, descripcion: '' },
-    ],
+    peso: 1.0,
+    puntaje_maximo: rubrica.value.tipo === 'puntaje_libre' ? 0 : undefined,
   })
+  updateField('criterios', criterios)
 }
 
-function removeCriterio(idx) {
-  criterios.value.splice(idx, 1)
+function removeCriterio(index) {
+  const criterios = [...(rubrica.value.criterios || [])]
+  criterios.splice(index, 1)
+  updateField('criterios', criterios)
 }
 
-function addNivel(cIdx) {
-  const niveles = criterios.value[cIdx].niveles
-  const last = niveles[niveles.length - 1]
-  const nextPuntaje = last ? last.puntaje + 1 : 0
-  niveles.push({ puntaje: nextPuntaje, descripcion: '' })
+function updateCriterio(index, field, value) {
+  const criterios = [...(rubrica.value.criterios || [])]
+  criterios[index] = { ...criterios[index], [field]: value }
+  updateField('criterios', criterios)
 }
 
-function removeNivel(cIdx, nIdx) {
-  criterios.value[cIdx].niveles.splice(nIdx, 1)
+function addNivel() {
+  const niveles = [...(rubrica.value.niveles || [])]
+  niveles.push({ etiqueta: '', puntaje: 0 })
+  updateField('niveles', niveles)
 }
 
-async function onSave() {
-  if (!nombre.value.trim()) {
-    error.value = 'El nombre es obligatorio.'
-    return
-  }
-  if (criterios.value.length === 0) {
-    error.value = 'Agrega al menos un criterio.'
-    return
-  }
-  for (const c of criterios.value) {
-    if (!c.nombre.trim()) {
-      error.value = 'Todos los criterios deben tener nombre.'
-      return
-    }
-    if (c.niveles.length === 0) {
-      error.value = `El criterio "${c.nombre}" debe tener al menos un nivel.`
-      return
-    }
-  }
+function removeNivel(index) {
+  const niveles = [...(rubrica.value.niveles || [])]
+  niveles.splice(index, 1)
+  updateField('niveles', niveles)
+}
 
-  saving.value = true
-  error.value = ''
-  const payload = {
-    nombre: nombre.value.trim(),
-    descripcion: descripcion.value.trim(),
-    criterios: criterios.value,
-  }
-  try {
-    if (props.rubrica?.id) {
-      await actualizarRubrica(props.rubrica.id, payload)
-    } else {
-      await crearRubrica(payload)
-    }
-    emit('saved')
-  } catch (e) {
-    error.value = e?.message || 'Error al guardar la rúbrica.'
-  } finally {
-    saving.value = false
-  }
+function updateNivel(index, field, value) {
+  const niveles = [...(rubrica.value.niveles || [])]
+  niveles[index] = { ...niveles[index], [field]: value }
+  updateField('niveles', niveles)
 }
 </script>
 
 <template>
   <div class="rubrica-editor">
-    <h3>{{ rubrica?.id ? 'Editar rúbrica' : 'Nueva rúbrica' }}</h3>
-
-    <div class="field">
-      <label>Nombre</label>
-      <input
-        v-model="nombre"
-        type="text"
-        placeholder="Ej. Rúbrica de ensayo"
+    <div class="field-row">
+      <label class="field-label">Tipo</label>
+      <select
+        :value="rubrica.tipo"
+        data-test="tipo-select"
+        @change="updateField('tipo', $event.target.value)"
       >
+        <option value="niveles">Niveles</option>
+        <option value="puntaje_libre">Puntaje libre</option>
+      </select>
     </div>
 
-    <div class="field">
-      <label>Descripción</label>
-      <textarea
-        v-model="descripcion"
-        rows="2"
+    <div class="field-row">
+      <label class="field-label">Título</label>
+      <input
+        :value="rubrica.titulo"
+        type="text"
+        data-test="titulo-input"
+        @input="updateField('titulo', $event.target.value)"
       />
     </div>
 
-    <div class="criterios">
-      <h4>Criterios</h4>
-      <div
-        v-for="(c, ci) in criterios"
-        :key="ci"
-        class="criterio-card"
-      >
-        <div class="criterio-header">
-          <input
-            v-model="c.nombre"
-            type="text"
-            placeholder="Nombre del criterio"
-            class="criterio-name"
-          >
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            @click="removeCriterio(ci)"
-          >
-            Eliminar
-          </button>
-        </div>
-        <textarea
-          v-model="c.descripcion"
-          rows="1"
-          placeholder="Descripción del criterio"
-          class="criterio-desc"
-        />
-
-        <div class="niveles">
-          <div
-            v-for="(n, ni) in c.niveles"
-            :key="ni"
-            class="nivel-row"
-          >
-            <input
-              v-model.number="n.puntaje"
-              type="number"
-              class="nivel-puntaje"
-              placeholder="Pts"
-            >
-            <input
-              v-model="n.descripcion"
-              type="text"
-              placeholder="Descripción del nivel"
-              class="nivel-desc"
-            >
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm"
-              @click="removeNivel(ci, ni)"
-            >
-              ×
-            </button>
-          </div>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm"
-            @click="addNivel(ci)"
-          >
-            + Nivel
-          </button>
-        </div>
-      </div>
-      <button
-        type="button"
-        class="btn btn-secondary btn-sm"
-        @click="addCriterio"
-      >
-        + Criterio
-      </button>
+    <div class="field-row">
+      <label class="field-label">Puntaje máximo</label>
+      <input
+        :value="rubrica.puntaje_maximo"
+        type="number"
+        data-test="puntaje-max-input"
+        @input="updateField('puntaje_maximo', Number($event.target.value))"
+      />
     </div>
 
-    <p
-      v-if="error"
-      class="alert alert-error"
-    >
-      {{ error }}
-    </p>
+    <div class="section">
+      <div class="section-header">
+        <h4 class="section-title">Criterios</h4>
+        <button class="btn-add" data-test="add-criterio-btn" @click="addCriterio">+ Agregar</button>
+      </div>
 
-    <div class="actions">
-      <button
-        type="button"
-        class="btn btn-primary"
-        :disabled="saving"
-        @click="onSave"
+      <div
+        v-for="(c, i) in rubrica.criterios"
+        :key="i"
+        class="criterio-card"
+        data-test="criterio-card"
       >
-        {{ saving ? 'Guardando…' : 'Guardar rúbrica' }}
-      </button>
-      <button
-        type="button"
-        class="btn btn-ghost"
-        @click="emit('cancel')"
-      >
-        Cancelar
-      </button>
+        <div class="criterio-fields">
+          <input
+            :value="c.titulo"
+            type="text"
+            placeholder="Título del criterio"
+            data-test="criterio-titulo"
+            @input="updateCriterio(i, 'titulo', $event.target.value)"
+          />
+          <input
+            :value="c.descripcion"
+            type="text"
+            placeholder="Descripción"
+            data-test="criterio-descripcion"
+            @input="updateCriterio(i, 'descripcion', $event.target.value)"
+          />
+          <div class="row-inline">
+            <label>Peso</label>
+            <input
+              :value="c.peso"
+              type="number"
+              step="0.1"
+              data-test="criterio-peso"
+              @input="updateCriterio(i, 'peso', Number($event.target.value))"
+            />
+            <label v-if="rubrica.tipo === 'puntaje_libre'" class="pl-label">Puntaje máx.</label>
+            <input
+              v-if="rubrica.tipo === 'puntaje_libre'"
+              :value="c.puntaje_maximo"
+              type="number"
+              data-test="criterio-puntaje-max"
+              @input="updateCriterio(i, 'puntaje_maximo', Number($event.target.value))"
+            />
+          </div>
+        </div>
+        <button class="btn-remove" data-test="remove-criterio-btn" @click="removeCriterio(i)">
+          ×
+        </button>
+      </div>
+
+      <p v-if="!rubrica.criterios?.length" class="empty" data-test="empty-criterios">
+        Sin criterios
+      </p>
+    </div>
+
+    <div v-if="rubrica.tipo === 'niveles'" class="section">
+      <div class="section-header">
+        <h4 class="section-title">Niveles</h4>
+        <button class="btn-add" data-test="add-nivel-btn" @click="addNivel">+ Agregar</button>
+      </div>
+
+      <div v-for="(n, i) in rubrica.niveles" :key="i" class="nivel-row" data-test="nivel-row">
+        <input
+          :value="n.etiqueta"
+          type="text"
+          placeholder="Etiqueta"
+          data-test="nivel-etiqueta"
+          @input="updateNivel(i, 'etiqueta', $event.target.value)"
+        />
+        <input
+          :value="n.puntaje"
+          type="number"
+          placeholder="Puntaje"
+          data-test="nivel-puntaje"
+          @input="updateNivel(i, 'puntaje', Number($event.target.value))"
+        />
+        <button class="btn-remove" data-test="remove-nivel-btn" @click="removeNivel(i)">×</button>
+      </div>
+
+      <p v-if="!rubrica.niveles?.length" class="empty" data-test="empty-niveles">Sin niveles</p>
     </div>
   </div>
 </template>
@@ -236,51 +192,136 @@ async function onSave() {
   flex-direction: column;
   gap: calc(var(--unit) * 2);
 }
-.criterios {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--unit) * 2);
-}
-.criterio-card {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: calc(var(--unit) * 2);
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--unit) * 1);
-}
-.criterio-header {
-  display: flex;
-  gap: calc(var(--unit) * 1);
-  align-items: center;
-}
-.criterio-name {
-  flex: 1;
-}
-.criterio-desc {
-  width: 100%;
-}
-.niveles {
+.field-row {
   display: flex;
   flex-direction: column;
   gap: calc(var(--unit) * 0.5);
 }
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+input,
+select {
+  padding: calc(var(--unit)) calc(var(--unit) * 1.5);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.4;
+}
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.section {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: calc(var(--unit) * 2);
+  background: var(--paper);
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: calc(var(--unit) * 1.5);
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.btn-add {
+  padding: calc(var(--unit) * 0.5) calc(var(--unit) * 1.5);
+  border-radius: 4px;
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.btn-add:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.criterio-card {
+  display: flex;
+  gap: calc(var(--unit));
+  padding: calc(var(--unit) * 1.5);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--paper-2);
+  margin-bottom: calc(var(--unit));
+}
+.criterio-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit));
+}
+.row-inline {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit));
+}
+.row-inline label {
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.row-inline input {
+  width: 80px;
+}
+.pl-label {
+  margin-left: calc(var(--unit));
+}
+.btn-remove {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  transition:
+    color 160ms var(--ease),
+    background 160ms var(--ease);
+}
+.btn-remove:hover {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.08);
+}
+.empty {
+  font-size: 13px;
+  color: var(--ink-3);
+  margin: 0;
+}
 .nivel-row {
   display: flex;
-  gap: calc(var(--unit) * 1);
   align-items: center;
+  gap: calc(var(--unit));
+  margin-bottom: calc(var(--unit));
 }
-.nivel-puntaje {
-  width: 64px;
-}
-.nivel-desc {
+.nivel-row input:first-child {
   flex: 1;
 }
-.actions {
-  display: flex;
-  gap: calc(var(--unit) * 1);
-}
-.alert-error {
-  color: var(--primary);
+.nivel-row input:nth-child(2) {
+  width: 100px;
 }
 </style>
