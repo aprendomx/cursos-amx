@@ -12,6 +12,7 @@ import ChatPanel from '@/components/ChatPanel.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { listarTareasPorCurso } from '@/services/entregas'
 import CrearTareaPanel from '@/components/CrearTareaPanel.vue'
+import CalendarioCurso from '@/components/CalendarioCurso.vue'
 
 const props = defineProps({
   cursoId: { type: String, required: true },
@@ -910,6 +911,13 @@ async function continueCurso() {
           </div>
         </div>
       </section>
+
+      <!-- Calendario del curso (Fase L) -->
+      <CalendarioCurso
+        v-if="featureEnabled('sesiones_virtuales') && cursoData"
+        :curso-id="cursoId"
+        :es-instructor="esInstructor"
+      />
     </template>
   </div>
 </template>

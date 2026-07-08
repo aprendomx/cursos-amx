@@ -38,6 +38,10 @@ export const FEATURES: Record<string, boolean> = {
   notificaciones_email: flag('VITE_FEATURE_NOTIFICACIONES_EMAIL'),
   video_analytics: flag('VITE_FEATURE_VIDEO_ANALYTICS'),
   video_analytics_heatmap: flag('VITE_FEATURE_VIDEO_ANALYTICS_HEATMAP'),
+  sesiones_virtuales: flag('VITE_FEATURE_SESIONES_VIRTUALES'),
+  zoom_integration: flag('VITE_FEATURE_ZOOM_INTEGRATION'),
+  sesiones_grabaciones: flag('VITE_FEATURE_SESIONES_GRABACIONES'),
+  transcripcion_whisper: flag('VITE_FEATURE_TRANSCRIPCION_WHISPER'),
 }
 
 export function featureEnabled(nombre: string): boolean {

@@ -11,6 +11,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import PlaceholderImage from '@/components/PlaceholderImage.vue'
 import AppLogo from '@/components/AppLogo.vue'
 import BadgeDisplay from '@/components/BadgeDisplay.vue'
+import MiCalendario from '@/components/MiCalendario.vue'
 import UserLevelBar from '@/components/UserLevelBar.vue'
 import { theme } from '@/lib/theme.js'
 
@@ -245,6 +246,14 @@ function goToHome() {
           :desbloqueado="gamificacion.badgesIdsUsuario.has(badge.id)"
         />
       </div>
+    </section>
+
+    <!-- Mi Calendario (Fase L) -->
+    <section
+      v-if="featureEnabled('sesiones_virtuales') && auth.session?.user?.id"
+      class="container perfil-section"
+    >
+      <MiCalendario :user-id="auth.session.user.id" />
     </section>
 
     <!-- Divider -->

@@ -52,6 +52,10 @@ export function useAdminNavigation() {
     ...(featureEnabled('notificaciones')
       ? [{ key: 'notificaciones', label: 'Notificaciones' }]
       : []),
+    ...(featureEnabled('sesiones_virtuales') ? [{ key: 'calendario', label: 'Calendario' }] : []),
+    ...(featureEnabled('zoom_integration')
+      ? [{ key: 'zoom_config', label: 'Configuración Zoom' }]
+      : []),
     { key: 'config', label: 'Configuraci\u00f3n' },
   ])
 
