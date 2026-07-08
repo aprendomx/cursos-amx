@@ -192,6 +192,10 @@ DROP POLICY IF EXISTS entregas_update_instructor ON entregas;
 CREATE POLICY entregas_update_instructor ON entregas
   FOR UPDATE TO authenticated USING (is_instructor_of_entrega(id));
 
+DROP POLICY IF EXISTS entregas_update_own ON entregas;
+CREATE POLICY entregas_update_own ON entregas
+  FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+
 -- entrega_versiones policies
 DROP POLICY IF EXISTS entrega_versiones_select_own_or_instructor ON entrega_versiones;
 CREATE POLICY entrega_versiones_select_own_or_instructor ON entrega_versiones
@@ -348,18 +352,19 @@ CREATE POLICY calificaciones_update_instructor ON calificaciones
 CREATE OR REPLACE FUNCTION fn_trg_nueva_entrega()
 RETURNS trigger AS $$
 DECLARE
+  v_curso_id uuid;
   v_instructor_id uuid;
   v_curso_titulo text;
   v_tarea_titulo text;
 BEGIN
   SELECT t.curso_id, c.titulo, t.titulo
-  INTO v_instructor_id, v_curso_titulo, v_tarea_titulo
+  INTO v_curso_id, v_curso_titulo, v_tarea_titulo
   FROM tareas t
   JOIN cursos c ON c.id = t.curso_id
   WHERE t.id = NEW.tarea_id;
 
   SELECT instructor_id INTO v_instructor_id
-  FROM cursos WHERE id = v_instructor_id;
+  FROM cursos WHERE id = v_curso_id;
 
   INSERT INTO notificaciones (user_id, tipo, titulo, contenido, metadata, leida)
   VALUES (
