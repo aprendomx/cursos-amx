@@ -13,6 +13,7 @@ import { featureEnabled } from '@/lib/featureFlags.js'
 import { listarTareasPorCurso } from '@/services/entregas'
 import CrearTareaPanel from '@/components/CrearTareaPanel.vue'
 import CalendarioCurso from '@/components/CalendarioCurso.vue'
+import ArchivoSesiones from '@/components/ArchivoSesiones.vue'
 
 const props = defineProps({
   cursoId: { type: String, required: true },
@@ -917,6 +918,12 @@ async function continueCurso() {
         v-if="featureEnabled('sesiones_virtuales') && cursoData"
         :curso-id="cursoId"
         :es-instructor="esInstructor"
+      />
+
+      <!-- Archivo de sesiones pasadas (Fase M) -->
+      <ArchivoSesiones
+        v-if="featureEnabled('sesiones_grabaciones') && cursoData"
+        :curso-id="cursoId"
       />
     </template>
   </div>

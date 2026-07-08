@@ -116,6 +116,21 @@ async function evaluarCriterio(userId, tipo, config) {
         .limit(1)
       return (data?.length || 0) >= 1
     }
+    case 'asistir_sesion': {
+      const { count } = await supabase
+        .from('sesiones_rsvp')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .eq('estado', 'asistio')
+      return (count || 0) >= 1
+    }
+    case 'primera_sesion': {
+      const { count } = await supabase
+        .from('sesiones_rsvp')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', userId)
+      return (count || 0) >= 1
+    }
     default:
       return false
   }

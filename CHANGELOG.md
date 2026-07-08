@@ -2,6 +2,23 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.16.0] — 2026-07-08
+
+### Añadido
+
+- **Calendario, Sesiones en Vivo, Grabaciones y Transcripción (Fase L + M)**:
+  - Tablas: `sesiones_rsvp`, `zoom_configuracion`, `sesiones_grabaciones`, `sesiones_transcripciones`
+  - ALTER `sesiones_virtuales`: nuevos campos `modulo_id`, `descripcion`, `fin`, `plataforma`, `zoom_meeting_id`, `zoom_join_url`
+  - Vistas: `v_calendario_curso` (unifica sesiones, tareas, cursos, anuncios)
+  - Edge Functions: `zoom-meeting` (crear/eliminar reuniones), `zoom-webhook` (recording.completed), `transcribir-sesion` (Whisper API)
+  - Función RPC: `buscar_transcripciones(text)` con full-text search en español
+  - Servicios: `zoom.js`, `grabaciones.js`, `transcripcion.js`
+  - Composables: `useCalendario.js`, `useSesiones.js`, `useGrabaciones.js`, `useReproductor.js`
+  - Componentes: `CrearSesionPanel`, `SesionesCalendario`, `SesionCard`, `AsistenciaPanel`, `CalendarioCurso`, `MiCalendario`, `AdminZoomConfig`, `ArchivoSesiones`, `ReproductorGrabacion`, `BuscadorSesiones`, `AdminGrabaciones`
+  - Feature flags: `sesiones_virtuales`, `zoom_integration`, `sesiones_grabaciones`, `transcripcion_whisper`
+  - Badges: `asistir_sesion`, `primera_sesion`
+  - Integración en `CursoDetalle.vue`, `InstructorPage.vue`, `PerfilPage.vue`, `AdminPage.vue`
+
 ## [0.15.0] — 2026-07-07
 
 ### Añadido

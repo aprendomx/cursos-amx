@@ -56,6 +56,9 @@ export function useAdminNavigation() {
     ...(featureEnabled('zoom_integration')
       ? [{ key: 'zoom_config', label: 'Configuración Zoom' }]
       : []),
+    ...(featureEnabled('sesiones_grabaciones')
+      ? [{ key: 'grabaciones', label: 'Grabaciones' }]
+      : []),
     { key: 'config', label: 'Configuraci\u00f3n' },
   ])
 

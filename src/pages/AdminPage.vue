@@ -16,6 +16,7 @@ import AdminNotificaciones from '@/components/AdminNotificaciones.vue'
 import AdminVideoAnalytics from '@/components/AdminVideoAnalytics.vue'
 import AdminEntregas from '@/components/AdminEntregas.vue'
 import AdminZoomConfig from '@/components/AdminZoomConfig.vue'
+import AdminGrabaciones from '@/components/AdminGrabaciones.vue'
 import { useAdminNavigation } from '@/composables/useAdminNavigation.js'
 import { useAdminDashboard } from '@/composables/useAdminDashboard.js'
 
@@ -137,6 +138,7 @@ function handleDeleted(curso) {
 
       <AdminEntregas v-else-if="activeSection === 'entregas'" />
       <AdminZoomConfig v-else-if="activeSection === 'zoom_config'" />
+      <AdminGrabaciones v-else-if="activeSection === 'grabaciones'" />
     </main>
   </div>
 </template>

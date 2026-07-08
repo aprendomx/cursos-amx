@@ -77,6 +77,26 @@
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
+## Novedades v0.16.0 — Fase L + M: Calendario, Sesiones en Vivo, Grabaciones y Transcripción
+
+- **Calendario unificado** — Vista mensual con eventos de sesiones, tareas, cursos y anuncios. Navegación por mes, eventos resaltados por día, lista de eventos del mes.
+- **Sesiones virtuales mejoradas** — Soporte dual Jitsi (gratuito) y Zoom (OAuth Server-to-Server). Campos nuevos: descripción, fin, plataforma, zoom_meeting_id, zoom_join_url, modulo_id.
+- **RSVP y asistencia** — Alumnos confirman/cancelan asistencia. Instructores marcan asistió/no_asistió desde panel. Trigger de notificación a inscritos al crear sesión.
+- **Edge Function `zoom-meeting`** — Crea/elimina reuniones Zoom vía API. Autenticación OAuth con refresh automático.
+- **Grabaciones automáticas Zoom** — Webhook `recording.completed` descarga video, sube a Supabase Storage e inserta metadatos.
+- **Transcripción Whisper** — Edge Function `transcribir-sesion` descarga audio, llama OpenAI Whisper API, guarda texto + segmentos temporales. Costo aproximado: $0.006/minuto.
+- **Búsqueda full-text** — Índice GIN en español sobre transcripciones. Función RPC `buscar_transcripciones()` con snippets resaltados.
+- **Reproductor sincronizado** — Video player con panel de transcripción que sigue el tiempo actual, salto a segmento al hacer click.
+- **Badges de gamificación** — 2 nuevos criterios: `asistir_sesion`, `primera_sesion`.
+- **Tablas SQL:** `sesiones_rsvp`, `zoom_configuracion`, `sesiones_grabaciones`, `sesiones_transcripciones`.
+- **Vista SQL:** `v_calendario_curso` (unifica sesiones, tareas, cursos, anuncios).
+- **Servicios:** `zoom.js` (4 funciones), `grabaciones.js` (6 funciones), `transcripcion.js` (3 funciones).
+- **Composables:** `useCalendario.js`, `useSesiones.js`, `useGrabaciones.js`, `useReproductor.js`.
+- **Componentes:** `CrearSesionPanel`, `SesionesCalendario`, `SesionCard`, `AsistenciaPanel`, `CalendarioCurso`, `MiCalendario`, `AdminZoomConfig`, `ArchivoSesiones`, `ReproductorGrabacion`, `BuscadorSesiones`, `AdminGrabaciones`.
+- **Feature flags:** `sesiones_virtuales`, `zoom_integration`, `sesiones_grabaciones`, `transcripcion_whisper`.
+- **Tests:** 48 nuevos tests (388 totales).
+- **Release:** v0.16.0
+
 ## Novedades v0.15.0 — Fase K: Entregas y Rúbricas
 
 - **Sistema de tareas/entregas completo** — Instructores crean tareas con instrucciones, fechas límite y configuración de archivos. Alumnos entregan archivo + texto enriquecido con historial de versiones.
