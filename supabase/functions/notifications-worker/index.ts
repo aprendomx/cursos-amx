@@ -61,17 +61,17 @@ Deno.serve(async (req) => {
         const result = await processNotification(supabaseAdmin, notif, emailConfig)
         processed++
         results.push({ id: notif.id, status: result })
-      } catch (err: any) {
-        console.error(`[notifications-worker] error procesando notificación ${notif.id}:`, err.message)
+        } catch (err) {
+        console.error(`[notifications-worker] error procesando notificación ${notif.id}:`, (err as Error).message)
         try {
           await supabaseAdmin
             .from('notificaciones')
             .update({ estado: 'fallido', enviado_en: new Date().toISOString() })
             .eq('id', notif.id)
-        } catch (updateErr: any) {
-          console.error(`[notifications-worker] error al marcar fallido ${notif.id}:`, updateErr.message)
+        } catch (updateErr) {
+          console.error(`[notifications-worker] error al marcar fallido ${notif.id}:`, (updateErr as Error).message)
         }
-        results.push({ id: notif.id, status: 'fallido', error: err.message })
+        results.push({ id: notif.id, status: 'fallido', error: (err as Error).message })
       }
     }
 
@@ -206,12 +206,12 @@ export async function sendPush(supabase: any, notif: any): Promise<boolean> {
         payload,
       )
       anySuccess = true
-    } catch (err: any) {
-      const statusCode = err.statusCode || err.status || 0
+    } catch (err) {
+      const statusCode = (err as any).statusCode || (err as any).status || 0
       if (statusCode === 410 || statusCode === 404) {
         expiredIds.push(sub.id)
       } else {
-        console.error(`[notifications-worker] error enviando push a ${sub.endpoint}:`, err.message)
+        console.error(`[notifications-worker] error enviando push a ${sub.endpoint}:`, (err as Error).message)
         anyFailure = true
       }
     }
@@ -284,8 +284,8 @@ export async function sendEmail(supabase: any, notif: any, emailConfig: any): Pr
     }
 
     return true
-  } catch (err: any) {
-    console.error('[notifications-worker] error al enviar email:', err.message)
+  } catch (err) {
+    console.error('[notifications-worker] error al enviar email:', (err as Error).message)
     return false
   }
 }
