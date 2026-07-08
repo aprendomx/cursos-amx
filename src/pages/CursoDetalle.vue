@@ -854,7 +854,7 @@ async function continueCurso() {
               :curso-id="cursoId"
               @saved="
                 mostrarCrearTarea = false
-                listarTareasPorCurso(cursoId).then((d) => (tareas.value = d))
+                listarTareasPorCurso(cursoId).then((d) => (tareas = d))
               "
               @cancel="mostrarCrearTarea = false"
             />
