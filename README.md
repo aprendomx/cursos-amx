@@ -61,7 +61,7 @@
 - **Backend Supabase self-hosted** (Postgres 15, Auth, Storage, Edge Functions, Realtime)
 - **Video HLS** con worker de transcodificación (ffmpeg) y subida reanudable (tus)
 - **Constancias PDF** con folio y verificación pública por QR
-- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones, rúbricas, cohortes, importación masiva, gamificación, analytics, IA (quiz generator, resúmenes, chatbot)
+- **Módulos activables en runtime** vía `feature_toggles` en Supabase: instructor, foros, chat, entregas, aulas, evaluaciones, rúbricas, cohortes, importación masiva, gamificación, analytics, IA (quiz generator, resúmenes, chatbot), notificaciones, video analytics
 - **Evaluaciones avanzadas** — 6 tipos de pregunta: opción única, múltiple, verdadero/falso, emparejamiento, rellenar huecos y ensayo
 - **Rúbricas de evaluación** — editor visual de criterios y niveles de desempeño, asignables a evaluaciones o preguntas individuales
 - **Cohortes (grupos)** — agrupa alumnos por curso con cupo máximo, fechas y foro privado exclusivo
@@ -76,6 +76,34 @@
 - **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
+
+## Novedades v0.15.0 — Fase K: Entregas y Rúbricas
+
+- **Sistema de tareas/entregas completo** — Instructores crean tareas con instrucciones, fechas límite y configuración de archivos. Alumnos entregan archivo + texto enriquecido con historial de versiones.
+- **Rúbricas de dos tipos** — Niveles cualitativos (Excelente/Bueno/Regular/Deficiente) o puntaje libre por criterio con ponderación. Editor visual inline para el instructor.
+- **Calificación estructurada** — El instructor califica cada criterio de la rúbrica con retroalimentación por criterio y comentario general. Cálculo automático de puntaje final con penalización por retraso configurable.
+- **Notificaciones automáticas** — Trigger en PostgreSQL notifica al instructor cuando hay nueva entrega y al alumno cuando se publica calificación.
+- **Badges de gamificación** — 3 nuevos criterios: `primera_entrega`, `entrega_a_tiempo`, `calificacion_perfecta`.
+- **Tablas SQL:** `tareas`, `entregas`, `entrega_versiones`, `rubricas`, `rubrica_criterios`, `rubrica_niveles`, `calificaciones`.
+- **Vista SQL:** `v_entregas_pendientes_instructor`.
+- **Servicios:** `entregas.js` (12 funciones), `rubricas.js` (3 funciones).
+- **Composables:** `useEntregas.js`, `useEntregasInstructor.js`.
+- **Componentes:** `CrearTareaPanel`, `RubricaEditor`, `CalificarEntregaModal`, `EntregasInstructorTable`, `EntregaAlumnoPanel`, `RubricaAlumnoView`, `AdminEntregas`, `EntregaUploader`.
+- **Feature flags:** `entregas`, `entregas_rubricas`.
+- **Tests:** 45 nuevos tests (340 totales).
+- **Release:** v0.15.0
+
+## Novedades v0.14.0 — Fase J: Analytics de Video
+
+- **Tracking de eventos de video** — play, pause, seek, tick, complete, ratechange. Eventos se envían en batch cada 30s vía Edge Function.
+- **Almacenamiento y agregación** — Eventos raw en `video_eventos`, agregación nocturna a buckets de 10s en `video_intervalos` via cron a las 02:00.
+- **Vistas SQL:** `v_video_leccion_stats`, `v_curso_video_stats`.
+- **Edge Function `video-analytics`** — Batch insert con validación (máximo 100 eventos por batch).
+- **Composable `useVideoAnalytics.js`** — Tracking automático con event listeners, tick cada 10s, flush vía `sendBeacon` en `beforeunload`.
+- **Componentes:** `VideoHeatmap` (visualización de intensidad por bucket), `LessonVideoStats` (6 métricas por lección), `InstructorVideoDashboard` (dashboard por curso), `AdminVideoAnalytics` (stats del sistema).
+- **Feature flags:** `video_analytics`, `video_analytics_heatmap`.
+- **Tests:** 20 nuevos tests (295 totales).
+- **Release:** v0.14.0
 
 ## Novedades v0.13.0 — Fase I: Notificaciones y Alertas Automáticas
 
@@ -313,8 +341,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–050)
-  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password)
+  migrations/   Esquema versionado en SQL (001–053)
+  functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics)
 
 services/
   video-worker/ Sidecar Docker (Node 20 + ffmpeg) que procesa HLS
@@ -326,7 +354,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 275 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 340 tests
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
 ```
