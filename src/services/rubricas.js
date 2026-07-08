@@ -1,70 +1,52 @@
 import { supabase } from '@/lib/supabase.js'
 
-export async function listarRubricas() {
-  const { data, error } = await supabase
+export async function crearRubrica(tareaId, { tipo, titulo, puntaje_maximo, criterios, niveles }) {
+  const { data: rubrica, error: err1 } = await supabase
     .from('rubricas')
-    .select('*')
-    .order('created_at', { ascending: false })
-  if (error) throw error
-  return data || []
-}
-
-export async function crearRubrica(rubrica) {
-  const { data, error } = await supabase
-    .from('rubricas')
-    .insert({
-      nombre: rubrica.nombre,
-      descripcion: rubrica.descripcion,
-      criterios: rubrica.criterios,
-    })
+    .insert({ tarea_id: tareaId, tipo, titulo, puntaje_maximo })
     .select()
     .single()
-  if (error) throw error
-  return data
+  if (err1) throw err1
+
+  const criteriosConRubrica = criterios.map((c, i) => ({ ...c, rubrica_id: rubrica.id, orden: i }))
+  const { error: err2 } = await supabase.from('rubrica_criterios').insert(criteriosConRubrica)
+  if (err2) throw err2
+
+  if (tipo === 'niveles' && niveles?.length) {
+    const nivelesConRubrica = niveles.map((n, i) => ({ ...n, rubrica_id: rubrica.id, orden: i }))
+    const { error: err3 } = await supabase.from('rubrica_niveles').insert(nivelesConRubrica)
+    if (err3) throw err3
+  }
+
+  return rubrica
 }
 
-export async function actualizarRubrica(id, rubrica) {
-  const { data, error } = await supabase
+export async function obtenerRubrica(tareaId) {
+  const { data: rubrica, error: err1 } = await supabase
     .from('rubricas')
-    .update({
-      nombre: rubrica.nombre,
-      descripcion: rubrica.descripcion,
-      criterios: rubrica.criterios,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .select()
+    .select('*, rubrica_criterios(*), rubrica_niveles(*)')
+    .eq('tarea_id', tareaId)
     .single()
-  if (error) throw error
-  return data
+  if (err1 && err1.code !== 'PGRST116') throw err1
+  return rubrica || null
 }
 
-export async function eliminarRubrica(id) {
-  const { error } = await supabase.from('rubricas').delete().eq('id', id)
-  if (error) throw error
-}
+export async function actualizarRubrica(rubricaId, { titulo, puntaje_maximo, criterios, niveles }) {
+  const { error: err1 } = await supabase
+    .from('rubricas')
+    .update({ titulo, puntaje_maximo })
+    .eq('id', rubricaId)
+  if (err1) throw err1
 
-export async function obtenerAsignaciones(filtros = {}) {
-  let q = supabase.from('asignaciones_rubrica').select('*')
-  if (filtros.evaluacion_id) q = q.eq('evaluacion_id', filtros.evaluacion_id)
-  if (filtros.pregunta_id) q = q.eq('pregunta_id', filtros.pregunta_id)
-  if (filtros.curso_id) q = q.eq('curso_id', filtros.curso_id)
-  const { data, error } = await q
-  if (error) throw error
-  return data || []
-}
+  await supabase.from('rubrica_criterios').delete().eq('rubrica_id', rubricaId)
+  const criteriosConRubrica = criterios.map((c, i) => ({ ...c, rubrica_id: rubricaId, orden: i }))
+  const { error: err2 } = await supabase.from('rubrica_criterios').insert(criteriosConRubrica)
+  if (err2) throw err2
 
-export async function asignarRubrica({ rubrica_id, evaluacion_id, pregunta_id, curso_id }) {
-  const { data, error } = await supabase
-    .from('asignaciones_rubrica')
-    .insert({ rubrica_id, evaluacion_id, pregunta_id, curso_id })
-    .select()
-    .single()
-  if (error) throw error
-  return data
-}
-
-export async function quitarAsignacion(id) {
-  const { error } = await supabase.from('asignaciones_rubrica').delete().eq('id', id)
-  if (error) throw error
+  await supabase.from('rubrica_niveles').delete().eq('rubrica_id', rubricaId)
+  if (niveles?.length) {
+    const nivelesConRubrica = niveles.map((n, i) => ({ ...n, rubrica_id: rubricaId, orden: i }))
+    const { error: err3 } = await supabase.from('rubrica_niveles').insert(nivelesConRubrica)
+    if (err3) throw err3
+  }
 }
