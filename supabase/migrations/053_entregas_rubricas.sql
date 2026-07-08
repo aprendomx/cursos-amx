@@ -105,7 +105,8 @@ CREATE INDEX IF NOT EXISTS idx_entrega_versiones_entrega ON entrega_versiones(en
 CREATE INDEX IF NOT EXISTS idx_calificaciones_entrega ON calificaciones(entrega_id);
 
 -- 10. View: v_entregas_pendientes_instructor
-CREATE OR REPLACE VIEW v_entregas_pendientes_instructor AS
+CREATE OR REPLACE VIEW v_entregas_pendientes_instructor
+  WITH (security_invoker = on) AS
 SELECT
   e.id AS entrega_id,
   e.tarea_id,
