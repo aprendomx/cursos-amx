@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, computed } from 'vue'
+import { defineProps, computed, watch } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import PlayerVideoSurface from '@/components/PlayerVideoSurface.vue'
 import PlayerChatPane from '@/components/PlayerChatPane.vue'
@@ -11,6 +11,7 @@ import DownloadButton from '@/components/DownloadButton.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { usePlayerPage } from '@/composables/usePlayerPage.js'
 import { useOffline } from '@/composables/useOffline'
+import { useVideoAnalytics } from '@/composables/useVideoAnalytics.js'
 const props = defineProps({
   cursoId: { type: String, default: 'c1' },
   leccionId: { type: String, default: '' },
@@ -55,6 +56,19 @@ const aiSummariesEnabled = featureEnabled('ai_summaries')
 const aiChatEnabled = featureEnabled('ai_study_assistant')
 
 const { offlineEnabled } = useOffline()
+
+const videoAnalyticsEnabled = computed(() => featureEnabled('video_analytics'))
+
+const { startTracking } = useVideoAnalytics({
+  leccionId: leccion.value?.id,
+  cursoId: props.cursoId,
+  videoId: source.value?.videoId,
+  enabled: videoAnalyticsEnabled.value,
+})
+
+watch(videoEl, (el) => {
+  if (el) startTracking(el)
+}, { immediate: true })
 
 function extractTextFromContenido(contenido) {
   if (!contenido) return ''
