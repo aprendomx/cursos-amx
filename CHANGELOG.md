@@ -4,6 +4,22 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ## [Unreleased]
 
+### Añadido
+
+- **CI endurecido**: jobs de type-check (`vue-tsc --noEmit`, bloqueante),
+  tests Deno de Edge Functions, E2E con Playwright (no bloqueante: requiere
+  backend vivo), `npm audit --audit-level=high` informativo, Dependabot
+  semanal (npm, pip, actions) y análisis CodeQL para JS/TS.
+- Cobertura Vitest (provider v8) con script `test:unit:cov` y umbral
+  trinquete (~28% actual; objetivo ~60% tras Fase 3).
+
+### Corregido
+
+- 6 errores de tipos preexistentes (`usePlayerPage.ts`, `stores/auth.ts`)
+  para dejar `vue-tsc` en verde; versión de `package.json` sincronizada
+  con el release v0.16.0.
+- `npm audit fix`: 0 vulnerabilidades (antes 2 high en vite/ws).
+
 ### Seguridad
 
 - **Edge Functions con service_role ahora exigen autenticación** (el runtime
