@@ -432,7 +432,3 @@ Lee [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) y el [Código de Conducta](CODE
 ## Licencia
 
 AGPL-3.0-only — ver [LICENSE](LICENSE). © 2026 Julio Adrián.
-
----
-
-_Con mucho cariño, para mi usuaria favorita 🌅_
