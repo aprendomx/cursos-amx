@@ -88,13 +88,13 @@ export default defineConfig(({ mode }) => {
         reporter: ['text-summary', 'html', 'lcov'],
         include: ['src/**/*.{js,ts,vue}'],
         exclude: ['src/test/**', 'src/**/*.{test,spec}.{js,ts}', 'src/sw.js', 'src/main.js'],
-        // Trinquete: apenas debajo de la cobertura actual (~28% líneas).
-        // Subir gradualmente hacia ~60% conforme la Fase 3 añada tests.
+        // Trinquete: apenas debajo de la cobertura actual (~35% líneas).
+        // Subir gradualmente hacia ~60% conforme se añadan tests.
         thresholds: {
-          statements: 25,
-          branches: 16,
-          functions: 25,
-          lines: 26,
+          statements: 31,
+          branches: 23,
+          functions: 29,
+          lines: 33,
         },
       },
     },

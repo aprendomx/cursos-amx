@@ -11,7 +11,18 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
   backend vivo), `npm audit --audit-level=high` informativo, Dependabot
   semanal (npm, pip, actions) y análisis CodeQL para JS/TS.
 - Cobertura Vitest (provider v8) con script `test:unit:cov` y umbral
-  trinquete (~28% actual; objetivo ~60% tras Fase 3).
+  trinquete (subido a ~35% tras la Fase 3; objetivo ~60%).
+- 17 tests de componentes para `AdminCourseEditor` y `CursoDetalle`
+  (red de seguridad del refactor).
+- Plan de migración a TypeScript en `docs/migracion-typescript.md`.
+
+### Cambiado
+
+- `AdminCourseEditor.vue` desglosado (1507 → 487 líneas) en
+  `useCourseEditorModel`, `useCursoPersistence`, `PortadaUploadField`
+  y `ModuleEditorCard`, sin cambio de comportamiento.
+- `services/tiempo`, `services/analytics` y `services/instructores`
+  migrados a TypeScript como primeros ejemplos del plan.
 
 ### Corregido
 
