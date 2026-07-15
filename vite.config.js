@@ -83,6 +83,20 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       include: ['src/**/*.test.{js,ts}', 'src/**/*.spec.{js,ts}'],
       setupFiles: ['./src/test/setup.js'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text-summary', 'html', 'lcov'],
+        include: ['src/**/*.{js,ts,vue}'],
+        exclude: ['src/test/**', 'src/**/*.{test,spec}.{js,ts}', 'src/sw.js', 'src/main.js'],
+        // Trinquete: apenas debajo de la cobertura actual (~28% líneas).
+        // Subir gradualmente hacia ~60% conforme la Fase 3 añada tests.
+        thresholds: {
+          statements: 25,
+          branches: 16,
+          functions: 25,
+          lines: 26,
+        },
+      },
     },
   }
 })
