@@ -76,16 +76,20 @@ export function usePlayerPage(props: PlayerPageProps) {
 
   /* ── Derived ──────────────────────────────────────── */
   const curso = computed(() => ({ titulo: cursoTitulo.value }))
+  // Placeholder mientras cargan las lecciones; solo se leen estos campos.
+  const LECCION_CARGANDO = {
+    id: '',
+    titulo: 'Cargando...',
+    orden: 1,
+    duracion_seg: 735,
+    tipo: 'video',
+  } as PlayerLesson
+
   const leccion = computed(
     () =>
       lecciones.value.find((l) => l.id === currentLeccion.value) ||
-      lecciones.value[0] || {
-        id: '',
-        titulo: 'Cargando...',
-        orden: 1,
-        duracion_seg: 735,
-        tipo: 'video',
-      }
+      lecciones.value[0] ||
+      LECCION_CARGANDO
   )
 
   async function marcarLecturaCompletada() {

@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "type-check": "vue-tsc --noEmit",
     "format": "prettier --write .",
     "prepare": "husky",
     "test:unit": "vitest run",

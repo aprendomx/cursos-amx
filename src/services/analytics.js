@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase.js'
 /**
  * Emite un evento xAPI/Experience al LRS.
  * Obtiene el actor (usuario autenticado) automáticamente.
+ *
+ * @param {{ verb: string, objectType: string, objectId?: string, result?: unknown }} evento
  */
 export async function emitirEvento({ verb, objectType, objectId, result }) {
   const {
