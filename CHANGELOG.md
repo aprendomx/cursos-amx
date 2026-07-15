@@ -2,6 +2,23 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [Unreleased]
+
+### Seguridad
+
+- **Edge Functions con service_role ahora exigen autenticación** (el runtime
+  self-hosted no soporta `verify_jwt` por función, así que se valida el JWT
+  dentro de cada una vía `_shared/auth.ts`):
+  - `bulk-invite`: solo admins pueden crear usuarios (antes: sin auth).
+  - `analytics`: requiere rol admin o instructor; los instructores solo acceden
+    a sus acciones y su `instructor_id` se deriva del token, no del body.
+  - `push-notify`: el destinatario se deriva del usuario autenticado; solo un
+    admin puede enviar push a otro usuario.
+  - `video-analytics`: rechaza eventos cuyo `user_id` no coincide con el
+    usuario autenticado (salvo admin).
+- Handlers extraídos a `handler.ts` con cliente inyectable; 53 tests Deno en
+  verde (casos 401/403 y suplantación).
+
 ## [0.16.0] — 2026-07-08
 
 ### Añadido

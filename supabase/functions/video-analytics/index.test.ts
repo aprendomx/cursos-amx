@@ -9,9 +9,12 @@ import {
 import {
   validateEvent,
   parseEvents,
+  enforceOwnership,
+  createHandler,
   EVENTOS_VALIDOS,
   MAX_EVENTS,
-} from './index.ts'
+} from './handler.ts'
+import { makeMockClient, makeRequest } from '../_shared/testing.ts'
 
 // ───────────────────────────────────────────────────────────────
 // validateEvent
@@ -29,7 +32,7 @@ Deno.test('validateEvent acepta evento completo válido', () => {
   }
   const result = validateEvent(event)
   assertEquals(result.valid, true)
-  assertObjectMatch(result.data, event)
+  assertObjectMatch(result.data!, event)
 })
 
 Deno.test('validateEvent acepta evento sin video_id ni datos', () => {
@@ -42,8 +45,8 @@ Deno.test('validateEvent acepta evento sin video_id ni datos', () => {
   }
   const result = validateEvent(event)
   assertEquals(result.valid, true)
-  assertEquals(result.data.video_id, undefined)
-  assertEquals(result.data.datos, undefined)
+  assertEquals(result.data!.video_id, undefined)
+  assertEquals(result.data!.datos, undefined)
 })
 
 Deno.test('validateEvent rechaza evento sin user_id', () => {
@@ -210,4 +213,88 @@ Deno.test('parseEvents rechaza events no-array', () => {
   assertEquals(result.events.length, 0)
   assertEquals(result.errors.length, 1)
   assertEquals(result.errors[0], 'events debe ser un array')
+})
+
+// ───────────────────────────────────────────────────────────────
+// enforceOwnership
+// ───────────────────────────────────────────────────────────────
+
+function makeEvent(userId: string) {
+  return {
+    user_id: userId,
+    leccion_id: 'l1',
+    curso_id: 'c1',
+    evento: 'play',
+    tiempo_video: 10,
+  }
+}
+
+Deno.test('enforceOwnership deja pasar todo a un admin', () => {
+  const events = [makeEvent('user-1'), makeEvent('otro')]
+  const result = enforceOwnership(events, 'admin-1', true)
+  assertEquals(result.events.length, 2)
+  assertEquals(result.errors.length, 0)
+})
+
+Deno.test('enforceOwnership descarta eventos de otros usuarios', () => {
+  const events = [makeEvent('user-1'), makeEvent('otro'), makeEvent('user-1')]
+  const result = enforceOwnership(events, 'user-1', false)
+  assertEquals(result.events.length, 2)
+  assertEquals(result.errors.length, 1)
+})
+
+// ───────────────────────────────────────────────────────────────
+// createHandler (auth)
+// ───────────────────────────────────────────────────────────────
+
+const AUTH_BODY = { events: [makeEvent('user-1')] }
+
+Deno.test('handler rechaza 401 sin Authorization', async () => {
+  const client = makeMockClient({ user: null })
+  const handler = createHandler(() => client)
+  const res = await handler(makeRequest(AUTH_BODY))
+  assertEquals(res.status, 401)
+})
+
+Deno.test('handler rechaza 401 con token inválido', async () => {
+  const client = makeMockClient({ user: null })
+  const handler = createHandler(() => client)
+  const res = await handler(makeRequest(AUTH_BODY, { jwt: 'bad' }))
+  assertEquals(res.status, 401)
+})
+
+Deno.test('handler inserta eventos propios del usuario autenticado', async () => {
+  const client = makeMockClient({
+    user: { id: 'user-1' },
+    perfil: { es_admin: false, es_instructor: false },
+  })
+  const handler = createHandler(() => client)
+  const res = await handler(makeRequest(AUTH_BODY, { jwt: 'jwt' }))
+  assertEquals(res.status, 200)
+  const json = await res.json()
+  assertEquals(json.inserted, 1)
+  assertEquals(client.inserts['video_eventos'].length, 1)
+})
+
+Deno.test('handler rechaza 400 si todos los eventos son de otro usuario', async () => {
+  const client = makeMockClient({
+    user: { id: 'user-2' },
+    perfil: { es_admin: false, es_instructor: false },
+  })
+  const handler = createHandler(() => client)
+  const res = await handler(makeRequest(AUTH_BODY, { jwt: 'jwt' }))
+  assertEquals(res.status, 400)
+  assertEquals((client.inserts['video_eventos'] ?? []).length, 0)
+})
+
+Deno.test('handler admin puede reportar eventos de cualquier usuario', async () => {
+  const client = makeMockClient({
+    user: { id: 'admin-1' },
+    perfil: { es_admin: true },
+  })
+  const handler = createHandler(() => client)
+  const res = await handler(makeRequest(AUTH_BODY, { jwt: 'jwt' }))
+  assertEquals(res.status, 200)
+  const json = await res.json()
+  assertEquals(json.inserted, 1)
 })
