@@ -7,7 +7,7 @@ import {
   fetchLogModeracion,
   fetchMetricasCurso,
   moderarComentario,
-} from '@/services/instructores.js'
+} from '@/services/instructores'
 import { fetchEntregasCurso, revisarEntrega, urlDescargaEntrega } from '@/services/entregas.js'
 
 /**

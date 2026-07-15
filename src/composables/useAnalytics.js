@@ -3,7 +3,7 @@ import {
   obtenerRiesgoAlumnos,
   obtenerEngagementDiario,
   generarReporteCSV,
-} from '@/services/analytics.js'
+} from '@/services/analytics'
 
 export function useAnalytics() {
   const alumnosRiesgo = ref([])

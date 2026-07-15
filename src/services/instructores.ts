@@ -1,11 +1,43 @@
 import { supabase } from '@/lib/supabase.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
+import type { Curso, Perfil } from '@/types/database.ts'
 
 /* ──────────────────────────────────────────────────────────
    Lado instructor: cursos asignados, alumnos, moderación
    ────────────────────────────────────────────────────────── */
 
-export async function fetchMisCursosInstructor() {
+export type CursoInstructor = Pick<Curso, 'id' | 'slug' | 'titulo' | 'publicado'> & {
+  imagen_portada: string | null
+}
+
+export interface AlumnoCurso {
+  user_id: string
+  inscrito_en: string
+  perfiles: {
+    nombres: string
+    apellido_paterno: string
+    apellido_materno: string | null
+    correo: string
+    cargo: string | null
+    dependencias: { siglas: string } | null
+  } | null
+}
+
+export type AccionModeracion =
+  | 'ocultar'
+  | 'mostrar'
+  | 'destacar'
+  | 'quitar_destacado'
+  | 'eliminar'
+
+export interface MetricasCurso {
+  alumnos: number
+  comentarios7d: number
+  ocultos: number
+  sesionesProgramadas: number
+}
+
+export async function fetchMisCursosInstructor(): Promise<CursoInstructor[]> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -16,10 +48,13 @@ export async function fetchMisCursosInstructor() {
     .eq('user_id', session.user.id)
     .order('asignado_en', { ascending: false })
   if (error) throw error
-  return (data || []).map((r) => r.cursos).filter(Boolean)
+  // PostgREST devuelve objeto en relaciones to-one; la inferencia del
+  // cliente (sin tipos generados de BD) asume array.
+  const rows = (data || []) as unknown as { cursos: CursoInstructor | null }[]
+  return rows.map((r) => r.cursos).filter((c): c is CursoInstructor => Boolean(c))
 }
 
-export async function fetchAlumnosCurso(cursoId) {
+export async function fetchAlumnosCurso(cursoId: string): Promise<AlumnoCurso[]> {
   const { data, error } = await supabase
     .from('inscripciones')
     .select(
@@ -28,12 +63,15 @@ export async function fetchAlumnosCurso(cursoId) {
     .eq('curso_id', cursoId)
     .order('inscrito_en', { ascending: false })
   if (error) throw error
-  return data || []
+  return (data || []) as unknown as AlumnoCurso[]
 }
 
 // Comentarios de todas las lecciones de un curso (incluye ocultos:
 // la RLS deja verlos al instructor del curso).
-export async function fetchComentariosCurso(cursoId, { limit = 100 } = {}) {
+export async function fetchComentariosCurso(
+  cursoId: string,
+  { limit = 100 }: { limit?: number } = {}
+): Promise<Record<string, unknown>[]> {
   const { data, error } = await supabase
     .from('comentarios')
     .select(
@@ -48,8 +86,10 @@ export async function fetchComentariosCurso(cursoId, { limit = 100 } = {}) {
 
 // Única vía de moderación: la RPC valida instructor-ship, aplica la
 // acción y escribe log_moderacion en la misma transacción.
-// accion ∈ ocultar | mostrar | destacar | quitar_destacado | eliminar
-export async function moderarComentario(comentarioId, accion) {
+export async function moderarComentario(
+  comentarioId: string,
+  accion: AccionModeracion
+): Promise<unknown> {
   const { data, error } = await supabase.rpc('moderar_comentario', {
     p_comentario_id: comentarioId,
     p_accion: accion,
@@ -58,7 +98,10 @@ export async function moderarComentario(comentarioId, accion) {
   return data
 }
 
-export async function fetchLogModeracion(cursoId, { limit = 50 } = {}) {
+export async function fetchLogModeracion(
+  cursoId: string,
+  { limit = 50 }: { limit?: number } = {}
+): Promise<Record<string, unknown>[]> {
   const { data, error } = await supabase
     .from('log_moderacion')
     .select('*, perfiles!log_moderacion_moderador_id_fkey(nombres, apellido_paterno)')
@@ -70,7 +113,7 @@ export async function fetchLogModeracion(cursoId, { limit = 50 } = {}) {
 }
 
 // Métricas básicas del dashboard para un curso.
-export async function fetchMetricasCurso(cursoId) {
+export async function fetchMetricasCurso(cursoId: string): Promise<MetricasCurso> {
   const hace7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
   const [inscritos, comentarios7d, ocultos, sesiones] = await Promise.all([
@@ -107,20 +150,25 @@ export async function fetchMetricasCurso(cursoId) {
 }
 
 // IDs de instructores de un curso (para pintar badges en el feed).
-export async function fetchInstructoresDeCurso(cursoId) {
+export async function fetchInstructoresDeCurso(cursoId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('cursos_instructores')
     .select('user_id')
     .eq('curso_id', cursoId)
   if (error) throw error
-  return (data || []).map((r) => r.user_id)
+  return (data || []).map((r: { user_id: string }) => r.user_id)
 }
 
 /* ──────────────────────────────────────────────────────────
    Lado admin: alta de instructores y asignación a cursos
    ────────────────────────────────────────────────────────── */
 
-export async function fetchPerfilesInstructores() {
+export type PerfilInstructor = Pick<
+  Perfil,
+  'id' | 'nombres' | 'apellido_paterno' | 'apellido_materno' | 'correo' | 'es_instructor'
+>
+
+export async function fetchPerfilesInstructores(): Promise<PerfilInstructor[]> {
   const { data, error } = await supabase
     .from('perfiles')
     .select('id, nombres, apellido_paterno, apellido_materno, correo, es_instructor')
@@ -130,7 +178,7 @@ export async function fetchPerfilesInstructores() {
   return data || []
 }
 
-export async function buscarPerfiles(termino) {
+export async function buscarPerfiles(termino: string): Promise<PerfilInstructor[]> {
   const t = `%${termino}%`
   const { data, error } = await supabase
     .from('perfiles')
@@ -141,7 +189,7 @@ export async function buscarPerfiles(termino) {
   return data || []
 }
 
-export async function setEsInstructor(userId, valor) {
+export async function setEsInstructor(userId: string, valor: boolean): Promise<void> {
   const { error } = await supabase
     .from('perfiles')
     .update({ es_instructor: valor })
@@ -149,23 +197,28 @@ export async function setEsInstructor(userId, valor) {
   if (error) throw error
 }
 
-export async function fetchAsignacionesInstructor(userId) {
+export async function fetchAsignacionesInstructor(
+  userId: string
+): Promise<{ curso_id: string; cursos: { titulo: string } | null }[]> {
   const { data, error } = await supabase
     .from('cursos_instructores')
     .select('curso_id, cursos(titulo)')
     .eq('user_id', userId)
   if (error) throw error
-  return data || []
+  return (data || []) as unknown as { curso_id: string; cursos: { titulo: string } | null }[]
 }
 
-export async function asignarInstructorACurso(cursoId, userId) {
+export async function asignarInstructorACurso(cursoId: string, userId: string): Promise<void> {
   const { error } = await supabase
     .from('cursos_instructores')
     .insert({ curso_id: cursoId, user_id: userId })
   if (error && error.code !== '23505') throw error // 23505 = ya asignado
 }
 
-export async function desasignarInstructorDeCurso(cursoId, userId) {
+export async function desasignarInstructorDeCurso(
+  cursoId: string,
+  userId: string
+): Promise<void> {
   const { error } = await supabase
     .from('cursos_instructores')
     .delete()

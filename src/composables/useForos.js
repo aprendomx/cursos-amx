@@ -13,7 +13,7 @@ import {
   moderarForo,
   dentroDeVentanaEdicion,
 } from '@/services/foros.js'
-import { fetchInstructoresDeCurso } from '@/services/instructores.js'
+import { fetchInstructoresDeCurso } from '@/services/instructores'
 import { obtenerCohorteUsuario } from '@/services/cohortes.js'
 
 /**

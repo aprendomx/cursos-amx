@@ -9,7 +9,7 @@ import { useHlsPlayer } from '@/composables/useHlsPlayer.js'
 import { useTiempoActividad } from '@/composables/useTiempoActividad.js'
 import { getPlayback } from '@/services/videos.js'
 import { actualizarSegundosVistos, marcarLeccionCompletada } from '@/services/progreso.js'
-import { fetchInstructoresDeCurso } from '@/services/instructores.js'
+import { fetchInstructoresDeCurso } from '@/services/instructores'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import type { Leccion } from '@/types/database.ts'
 

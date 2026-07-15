@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useForos } from '@/composables/useForos.js'
-import { emitirEvento } from '@/services/analytics.js'
+import { emitirEvento } from '@/services/analytics'
 import ForoRespuestaItem from '@/components/ForoRespuestaItem.vue'
 
 const props = defineProps({

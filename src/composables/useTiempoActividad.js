@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount } from 'vue'
-import { registrarTiempo } from '@/services/tiempo.js'
+import { registrarTiempo } from '@/services/tiempo'
 
 // Mide TIEMPO ACTIVO real dentro de un curso:
 //  - solo cuenta con la pestaña visible (Page Visibility API) y

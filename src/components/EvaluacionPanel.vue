@@ -2,7 +2,7 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
 import { obtenerEvaluacion, calificarEvaluacion } from '@/services/evaluaciones.js'
-import { emitirEvento } from '@/services/analytics.js'
+import { emitirEvento } from '@/services/analytics'
 
 const props = defineProps({
   leccionId: { type: String, required: true },
