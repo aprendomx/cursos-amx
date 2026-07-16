@@ -32,7 +32,7 @@ export function createHandler(clientFactory: () => any) {
         try {
           const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email,
-            password: password || Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+            password: password || randomPassword(),
             email_confirm: true,
             user_metadata: data || {},
           })
@@ -65,11 +65,19 @@ export function createHandler(clientFactory: () => any) {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     } catch (e) {
-      const message = e instanceof Error ? e.message : String(e)
-      return new Response(JSON.stringify({ error: message }), {
+      console.error('[bulk-invite] error:', e)
+      return new Response(JSON.stringify({ error: 'Error interno del servidor' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
   }
+}
+
+// Contraseña temporal criptográficamente segura (el usuario la restablece
+// con el flujo de recuperación).
+function randomPassword(): string {
+  const bytes = new Uint8Array(24)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
 }
