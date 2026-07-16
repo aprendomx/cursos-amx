@@ -3,7 +3,7 @@ import { watch, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { useGamificacion } from '@/composables/useGamificacion.js'
-import { emitirEvento } from '@/services/analytics.js'
+import { emitirEvento } from '@/services/analytics'
 import IconSet from '@/components/IconSet.vue'
 import BadgeNotification from '@/components/BadgeNotification.vue'
 

@@ -7,7 +7,7 @@ import {
   fetchParticipantesCurso,
   useChatRealtime,
 } from '@/services/chat.js'
-import { fetchInstructoresDeCurso } from '@/services/instructores.js'
+import { fetchInstructoresDeCurso } from '@/services/instructores'
 
 /**
  * Chat en tiempo real de un curso (sesionId=null) o de un aula

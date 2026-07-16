@@ -32,3 +32,4 @@ supabase/migrations.zip
 test-results/
 docker/.env
 .superpowers/
+coverage/

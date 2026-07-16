@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase.js'
 import { USER as MOCK_USER } from '@/data.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { evaluarBadges } from '@/services/badgeEngine.js'
-import { emitirEvento } from '@/services/analytics.js'
+import { emitirEvento } from '@/services/analytics'
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<any>(null)

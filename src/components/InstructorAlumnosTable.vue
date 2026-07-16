@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ProgressBar from '@/components/ProgressBar.vue'
-import { formatearDuracion } from '@/services/tiempo.js'
+import { formatearDuracion } from '@/services/tiempo'
 
 const props = defineProps({
   data: {

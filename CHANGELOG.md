@@ -2,6 +2,50 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.17.0] — 2026-07-15
+
+### Añadido
+
+- **CI endurecido**: jobs de type-check (`vue-tsc --noEmit`, bloqueante),
+  tests Deno de Edge Functions, E2E con Playwright (no bloqueante: requiere
+  backend vivo), `npm audit --audit-level=high` informativo, Dependabot
+  semanal (npm, pip, actions) y análisis CodeQL para JS/TS.
+- Cobertura Vitest (provider v8) con script `test:unit:cov` y umbral
+  trinquete (subido a ~35% tras la Fase 3; objetivo ~60%).
+- 17 tests de componentes para `AdminCourseEditor` y `CursoDetalle`
+  (red de seguridad del refactor).
+- Plan de migración a TypeScript en `docs/migracion-typescript.md`.
+
+### Cambiado
+
+- `AdminCourseEditor.vue` desglosado (1507 → 487 líneas) en
+  `useCourseEditorModel`, `useCursoPersistence`, `PortadaUploadField`
+  y `ModuleEditorCard`, sin cambio de comportamiento.
+- `services/tiempo`, `services/analytics` y `services/instructores`
+  migrados a TypeScript como primeros ejemplos del plan.
+
+### Corregido
+
+- 6 errores de tipos preexistentes (`usePlayerPage.ts`, `stores/auth.ts`)
+  para dejar `vue-tsc` en verde; versión de `package.json` sincronizada
+  con el release v0.16.0.
+- `npm audit fix`: 0 vulnerabilidades (antes 2 high en vite/ws).
+
+### Seguridad
+
+- **Edge Functions con service_role ahora exigen autenticación** (el runtime
+  self-hosted no soporta `verify_jwt` por función, así que se valida el JWT
+  dentro de cada una vía `_shared/auth.ts`):
+  - `bulk-invite`: solo admins pueden crear usuarios (antes: sin auth).
+  - `analytics`: requiere rol admin o instructor; los instructores solo acceden
+    a sus acciones y su `instructor_id` se deriva del token, no del body.
+  - `push-notify`: el destinatario se deriva del usuario autenticado; solo un
+    admin puede enviar push a otro usuario.
+  - `video-analytics`: rechaza eventos cuyo `user_id` no coincide con el
+    usuario autenticado (salvo admin).
+- Handlers extraídos a `handler.ts` con cliente inyectable; 53 tests Deno en
+  verde (casos 401/403 y suplantación).
+
 ## [0.16.0] — 2026-07-08
 
 ### Añadido

@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useAnalytics } from '@/composables/useAnalytics.js'
-import * as analytics from '@/services/analytics.js'
+import * as analytics from '@/services/analytics'
 
-vi.mock('@/services/analytics.js', () => ({
+vi.mock('@/services/analytics', () => ({
   obtenerRiesgoAlumnos: vi.fn(),
   obtenerEngagementDiario: vi.fn(),
   generarReporteCSV: vi.fn(),

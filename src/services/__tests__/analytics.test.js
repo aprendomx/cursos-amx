@@ -5,7 +5,7 @@ import {
   obtenerRiesgoAlumnos,
   obtenerEngagementDiario,
   generarReporteCSV,
-} from '@/services/analytics.js'
+} from '@/services/analytics'
 
 const mockFrom = vi.fn()
 const mockGetUser = vi.fn()

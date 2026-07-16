@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { cargarStatsCurso } from '@/services/videoAnalytics.js'
-import { formatearDuracion } from '@/services/tiempo.js'
+import { formatearDuracion } from '@/services/tiempo'
 
 /* ── state ── */
 const cursos = ref([

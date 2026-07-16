@@ -1,10 +1,45 @@
 import { supabase } from '@/lib/supabase.js'
 
+/** Statement xAPI/Experience persistido en el LRS. */
+export interface LrsStatement {
+  id: string
+  actor_id: string | null
+  verb: string
+  object_type: string
+  object_id: string | null
+  result: unknown
+  timestamp: string
+}
+
+export interface EventoLrs {
+  verb: string
+  objectType: string
+  objectId?: string
+  result?: unknown
+}
+
+export interface FiltrosEventos {
+  actorId?: string
+  verb?: string
+  objectType?: string
+  objectId?: string
+  /** ISO date string */
+  desde?: string
+  /** ISO date string */
+  hasta?: string
+  limit?: number
+}
+
 /**
  * Emite un evento xAPI/Experience al LRS.
  * Obtiene el actor (usuario autenticado) automáticamente.
  */
-export async function emitirEvento({ verb, objectType, objectId, result }) {
+export async function emitirEvento({
+  verb,
+  objectType,
+  objectId,
+  result,
+}: EventoLrs): Promise<LrsStatement> {
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -26,18 +61,7 @@ export async function emitirEvento({ verb, objectType, objectId, result }) {
   return data
 }
 
-/**
- * Lista eventos del LRS con filtros opcionales.
- *
- * @param {Object} filtros
- * @param {string} [filtros.actorId]
- * @param {string} [filtros.verb]
- * @param {string} [filtros.objectType]
- * @param {string} [filtros.objectId]
- * @param {string} [filtros.desde]  - ISO date string
- * @param {string} [filtros.hasta]  - ISO date string
- * @param {number} [filtros.limit=100]
- */
+/** Lista eventos del LRS con filtros opcionales. */
 export async function listarEventos({
   actorId,
   verb,
@@ -46,7 +70,7 @@ export async function listarEventos({
   desde,
   hasta,
   limit = 100,
-} = {}) {
+}: FiltrosEventos = {}): Promise<LrsStatement[]> {
   let query = supabase.from('lrs_statements').select('*')
 
   if (actorId) query = query.eq('actor_id', actorId)
@@ -65,11 +89,12 @@ export async function listarEventos({
 /**
  * Consulta la vista de riesgo de alumnos para un curso.
  * Filtra por score mínimo y une perfiles para obtener nombres.
- *
- * @param {string} cursoId
- * @param {number} [minRiesgo=0]
+ * Las filas provienen de la vista v_riesgo_alumno (sin tipo generado aún).
  */
-export async function obtenerRiesgoAlumnos(cursoId, minRiesgo = 0) {
+export async function obtenerRiesgoAlumnos(
+  cursoId: string,
+  minRiesgo = 0
+): Promise<Record<string, unknown>[]> {
   const { data, error } = await supabase
     .from('v_riesgo_alumno')
     .select('*, perfiles(nombres_completos, correo)')
@@ -84,11 +109,11 @@ export async function obtenerRiesgoAlumnos(cursoId, minRiesgo = 0) {
 /**
  * Consulta la vista de engagement diario para un curso
  * en los últimos N días.
- *
- * @param {string} cursoId
- * @param {number} [dias=30]
  */
-export async function obtenerEngagementDiario(cursoId, dias = 30) {
+export async function obtenerEngagementDiario(
+  cursoId: string,
+  dias = 30
+): Promise<Record<string, unknown>[]> {
   const desde = new Date()
   desde.setDate(desde.getDate() - dias)
   const fechaDesde = desde.toISOString().split('T')[0]
@@ -104,13 +129,8 @@ export async function obtenerEngagementDiario(cursoId, dias = 30) {
   return data || []
 }
 
-/**
- * Genera un reporte CSV vía Edge Function.
- *
- * @param {string} tipo   - Tipo de reporte solicitado
- * @param {string} cursoId
- */
-export async function generarReporteCSV(tipo, cursoId) {
+/** Genera un reporte CSV vía Edge Function. */
+export async function generarReporteCSV(tipo: string, cursoId: string): Promise<string> {
   const { data, error } = await supabase.functions.invoke('analytics', {
     body: { action: 'reporte_csv', tipo, curso_id: cursoId },
   })
