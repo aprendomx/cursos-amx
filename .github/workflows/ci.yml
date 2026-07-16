@@ -76,8 +76,10 @@ jobs:
           deno-version: v2.x
 
       - name: Run edge function tests
+        # --node-modules-dir=none: sin él, Deno detecta el package.json del
+        # root (modo BYONM) y exige un node_modules que este job no tiene.
         run: >-
-          deno test --allow-all
+          deno test --allow-all --node-modules-dir=none
           supabase/functions/_shared/auth.test.ts
           supabase/functions/bulk-invite/index.test.ts
           supabase/functions/analytics/index.test.ts
