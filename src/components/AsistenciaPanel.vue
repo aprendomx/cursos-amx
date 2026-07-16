@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { listarRSVP, marcarAsistencia } from '@/services/sesionesVirtuales.js'
+import { listarRSVP, marcarAsistencia } from '@/services/sesionesVirtuales'
 
 const props = defineProps({
   sesionId: { type: String, required: true },

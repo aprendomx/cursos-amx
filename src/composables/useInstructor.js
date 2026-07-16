@@ -8,7 +8,7 @@ import {
   fetchMetricasCurso,
   moderarComentario,
 } from '@/services/instructores'
-import { fetchEntregasCurso, revisarEntrega, urlDescargaEntrega } from '@/services/entregas.js'
+import { fetchEntregasCurso, revisarEntrega, urlDescargaEntrega } from '@/services/entregas'
 
 /**
  * Estado del dashboard de instructor: cursos asignados, curso activo,

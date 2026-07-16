@@ -3,14 +3,14 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import CursoDetalle from '@/pages/CursoDetalle.vue'
 import { useAuthStore } from '@/stores/auth.js'
-import { sbSelect } from '@/lib/sbRest.js'
+import { sbSelect } from '@/lib/sbRest'
 import { inscribirse } from '@/services/progreso.js'
 
 const pushMock = vi.fn()
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushMock }),
 }))
-vi.mock('@/lib/sbRest.js', () => ({
+vi.mock('@/lib/sbRest', () => ({
   sbSelect: vi.fn(),
 }))
 vi.mock('@/services/progreso.js', () => ({

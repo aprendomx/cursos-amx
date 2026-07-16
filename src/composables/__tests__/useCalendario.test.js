@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useCalendario } from '@/composables/useCalendario.js'
 
-vi.mock('@/services/sesionesVirtuales.js', () => ({
+vi.mock('@/services/sesionesVirtuales', () => ({
   listarEventosCalendario: vi.fn(),
   exportarCalendarioICS: vi.fn(),
 }))
 
-import { listarEventosCalendario, exportarCalendarioICS } from '@/services/sesionesVirtuales.js'
+import { listarEventosCalendario, exportarCalendarioICS } from '@/services/sesionesVirtuales'
 
 describe('useCalendario', () => {
   beforeEach(() => {

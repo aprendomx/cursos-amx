@@ -4,7 +4,7 @@ import {
   confirmarRSVP,
   cancelarRSVP,
   listarRSVP,
-} from '@/services/sesionesVirtuales.js'
+} from '@/services/sesionesVirtuales'
 
 export function useSesiones(cursoId, userId) {
   const sesiones = ref([])

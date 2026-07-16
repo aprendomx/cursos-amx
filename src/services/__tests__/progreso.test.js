@@ -22,7 +22,7 @@ vi.mock('@/lib/supabase.js', () => ({
   },
 }))
 
-vi.mock('@/lib/sbRest.js', () => ({
+vi.mock('@/lib/sbRest', () => ({
   sbInsert: (...args) => mockSbInsert(...args),
 }))
 

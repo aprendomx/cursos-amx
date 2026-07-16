@@ -4,30 +4,52 @@
 const URL_BASE = import.meta.env.VITE_SUPABASE_URL
 const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-function authHeaders(accessToken) {
+export interface SbError extends Error {
+  status: number
+  raw: string
+}
+
+export interface SbSelectOptions {
+  /** Pide solo el conteo (header Prefer: count=...) sin traer filas. */
+  count?: 'exact' | 'planned' | 'estimated'
+  signal?: AbortSignal
+}
+
+export interface SbSelectResult<T> {
+  data: T[]
+  count: number | null
+}
+
+type Token = string | null | undefined
+
+function authHeaders(accessToken: Token): Record<string, string> {
   return {
     apikey: ANON,
     Authorization: `Bearer ${accessToken || ANON}`,
   }
 }
 
-function makeError(op, target, status, text) {
-  const err = new Error(`${op} ${target} ${status}: ${text}`)
+function makeError(op: string, target: string, status: number, text: string): SbError {
+  const err = new Error(`${op} ${target} ${status}: ${text}`) as SbError
   err.status = status
   err.raw = text
   return err
 }
 
-export async function sbSelect(path, accessToken, opts = {}) {
+export async function sbSelect<T = any>(
+  path: string,
+  accessToken?: Token,
+  opts: SbSelectOptions = {}
+): Promise<SbSelectResult<T>> {
   const url = `${URL_BASE}/rest/v1/${path}`
-  const headers = { ...authHeaders(accessToken) }
+  const headers: Record<string, string> = { ...authHeaders(accessToken) }
   if (opts.count) {
     headers.Prefer = `count=${opts.count}`
     headers.Range = '0-0'
   }
   const res = await fetch(url, { headers, signal: opts.signal })
   if (!res.ok) throw makeError('select', path, res.status, await res.text())
-  let count = null
+  let count: number | null = null
   const range = res.headers.get('content-range')
   if (range) {
     const m = range.match(/\/(\d+|\*)$/)
@@ -36,7 +58,12 @@ export async function sbSelect(path, accessToken, opts = {}) {
   return { data: opts.count ? [] : await res.json(), count }
 }
 
-export async function sbInsert(table, payload, accessToken, returnRow = true) {
+export async function sbInsert<T = any>(
+  table: string,
+  payload: object | object[],
+  accessToken?: Token,
+  returnRow = true
+): Promise<T | null> {
   const res = await fetch(`${URL_BASE}/rest/v1/${table}`, {
     method: 'POST',
     headers: {
@@ -52,7 +79,12 @@ export async function sbInsert(table, payload, accessToken, returnRow = true) {
   return Array.isArray(rows) ? rows[0] : rows
 }
 
-export async function sbPatch(table, query, payload, accessToken) {
+export async function sbPatch<T = any>(
+  table: string,
+  query: string,
+  payload: object,
+  accessToken?: Token
+): Promise<T> {
   const res = await fetch(`${URL_BASE}/rest/v1/${table}?${query}`, {
     method: 'PATCH',
     headers: {
@@ -67,7 +99,7 @@ export async function sbPatch(table, query, payload, accessToken) {
   return Array.isArray(rows) ? rows[0] : rows
 }
 
-export async function sbDelete(path, accessToken) {
+export async function sbDelete(path: string, accessToken?: Token): Promise<true> {
   const res = await fetch(`${URL_BASE}/rest/v1/${path}`, {
     method: 'DELETE',
     headers: authHeaders(accessToken),
@@ -76,7 +108,11 @@ export async function sbDelete(path, accessToken) {
   return true
 }
 
-export async function sbRpc(fn, args, accessToken) {
+export async function sbRpc<T = any>(
+  fn: string,
+  args?: object | null,
+  accessToken?: Token
+): Promise<T | null> {
   const res = await fetch(`${URL_BASE}/rest/v1/rpc/${fn}`, {
     method: 'POST',
     headers: {

@@ -3,7 +3,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useUiStore } from '@/stores/ui.js'
 import { COMENTARIOS_FUENTE, USER } from '@/data.js'
-import { sbSelect, sbInsert, sbRpc } from '@/lib/sbRest.js'
+import { sbSelect, sbInsert, sbRpc } from '@/lib/sbRest'
 import { supabase } from '@/lib/supabase.js'
 import { useHlsPlayer } from '@/composables/useHlsPlayer.js'
 import { useTiempoActividad } from '@/composables/useTiempoActividad.js'
@@ -482,8 +482,10 @@ export function usePlayerPage(props: PlayerPageProps) {
 
           lecciones.value = lecRows.map((l) => ({
             id: l.id,
+            modulo_id: l.modulo_id,
             orden: l.orden,
             titulo: l.titulo,
+            tipo_material: l.tipo_material || 'video',
             duracion: l.duracion_seg
               ? `${Math.floor(l.duracion_seg / 60)}:${String(l.duracion_seg % 60).padStart(2, '0')}`
               : '\u2014',

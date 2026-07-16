@@ -6,7 +6,7 @@
     "jsx": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": ["node", "vitest/globals"],
+    "types": ["node", "vite/client", "vitest/globals"],
     "allowJs": true,
     "checkJs": false,
     "strict": false,

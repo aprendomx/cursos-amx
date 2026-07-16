@@ -11,7 +11,7 @@ import {
   calificarEntrega,
   devolverEntrega,
   subirArchivo,
-} from '@/services/entregas.js'
+} from '@/services/entregas'
 
 const mockFrom = vi.fn()
 const mockStorageFrom = vi.fn()

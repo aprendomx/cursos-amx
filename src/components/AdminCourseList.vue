@@ -2,7 +2,7 @@
 import IconSet from '@/components/IconSet.vue'
 import PlaceholderImage from '@/components/PlaceholderImage.vue'
 import AdminCourseEditor from '@/components/AdminCourseEditor.vue'
-import { sbDelete } from '@/lib/sbRest.js'
+import { sbDelete } from '@/lib/sbRest'
 
 const props = defineProps({
   cursos: { type: Array, default: () => [] },
@@ -45,58 +45,33 @@ async function deleteCurso(curso) {
     @published="emit('published')"
     @cancel="emit('cancel')"
   />
-  <div
-    v-else
-    class="admin-content fade-in"
-  >
+  <div v-else class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          Cat&aacute;logo
-        </p>
-        <h1
-          class="display"
-          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
-        >
+        <p class="eyebrow">Cat&aacute;logo</p>
+        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
           Cursos
         </h1>
       </div>
-      <button
-        class="btn btn-primary btn-sm"
-        @click="emit('create')"
-      >
+      <button class="btn btn-primary btn-sm" @click="emit('create')">
         + Nuevo curso
         <IconSet name="arrow" />
       </button>
     </div>
-    <div
-      class="card"
-      :style="{ overflow: 'auto' }"
-    >
+    <div class="card" :style="{ overflow: 'auto' }">
       <table class="admin-table admin-table-full">
         <thead>
           <tr>
             <th class="mono" />
-            <th class="mono">
-              Curso
-            </th>
-            <th class="mono">
-              Nivel
-            </th>
-            <th class="mono">
-              Inscritos
-            </th>
-            <th class="mono">
-              Estructura
-            </th>
+            <th class="mono">Curso</th>
+            <th class="mono">Nivel</th>
+            <th class="mono">Inscritos</th>
+            <th class="mono">Estructura</th>
             <th class="mono" />
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="c in cursos"
-            :key="c.id"
-          >
+          <tr v-for="c in cursos" :key="c.id">
             <td :style="{ width: '56px' }">
               <img
                 v-if="isUrl(c.imagen)"
@@ -109,7 +84,7 @@ async function deleteCurso(curso) {
                   objectFit: 'cover',
                   display: 'block',
                 }"
-              >
+              />
               <PlaceholderImage
                 v-else
                 :label="c.imagen"
@@ -119,29 +94,18 @@ async function deleteCurso(curso) {
             <td>
               <div :style="{ display: 'flex', flexDirection: 'column', gap: '2px' }">
                 <span :style="{ fontWeight: '500' }">{{ c.titulo }}</span>
-                <span
-                  class="mono"
-                  :style="{ color: 'var(--ink-4)' }"
-                > /{{ c.slug }} </span>
+                <span class="mono" :style="{ color: 'var(--ink-4)' }"> /{{ c.slug }} </span>
               </div>
             </td>
             <td>
               <span class="chip">{{ c.nivel }}</span>
             </td>
             <td>{{ c.inscritos.toLocaleString() }}</td>
-            <td
-              class="mono"
-              :style="{ color: 'var(--ink-3)' }"
-            >
+            <td class="mono" :style="{ color: 'var(--ink-3)' }">
               {{ c.modulos }} m&oacute;d &middot; {{ c.lecciones }} lec
             </td>
             <td :style="{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }">
-              <button
-                class="btn btn-ghost btn-sm"
-                @click="emit('edit', c)"
-              >
-                Editar
-              </button>
+              <button class="btn btn-ghost btn-sm" @click="emit('edit', c)">Editar</button>
               <button
                 class="btn btn-ghost btn-sm btn-danger"
                 :disabled="(c.inscritos || 0) > 0"

@@ -4,7 +4,7 @@ import SesionesCalendario from '@/components/SesionesCalendario.vue'
 
 const mockListarEventosCalendario = vi.fn()
 
-vi.mock('@/services/sesionesVirtuales.js', () => ({
+vi.mock('@/services/sesionesVirtuales', () => ({
   listarEventosCalendario: (...args) => mockListarEventosCalendario(...args),
 }))
 

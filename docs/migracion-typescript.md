@@ -20,8 +20,8 @@
 | 1         | `services/instructores.js`            | 6            | 175    | ✅ migrado |
 | 2         | `services/tiempo.js`                  | 5            | 34     | ✅ migrado |
 | 3         | `services/analytics.js`               | 5            | 121    | ✅ migrado |
-| 4         | `services/entregas.js`                | 5            | 288    | pendiente  |
-| 5         | `services/sesionesVirtuales.js`       | 5            | 207    | pendiente  |
+| 4         | `services/entregas.js`                | 5            | 288    | ✅ migrado |
+| 5         | `services/sesionesVirtuales.js`       | 5            | 207    | ✅ migrado |
 | 6         | `services/aiService.js`               | 4            | 92     | pendiente  |
 | 7         | `services/evaluaciones.js`            | 3            | 82     | pendiente  |
 | 8         | `services/videos.js`                  | 3            | 119    | pendiente  |
@@ -30,9 +30,9 @@
 | 11        | `composables/useNotificaciones.js`    | 3            | 124    | pendiente  |
 
 Fuera del alcance de esta lista pero **candidato prioritario transversal**:
-`src/lib/sbRest.js` — es la base de datos-acceso de media app; tiparlo con
-genéricos (`sbSelect<T>(path): Promise<{ data: T[] }>`) daría tipos gratis a
-todos sus consumidores.
+`src/lib/sbRest.js` — ✅ migrado con genéricos (`sbSelect<T>(path):
+Promise<SbSelectResult<T>>`, `sbInsert<T>`, `sbPatch<T>`, `sbRpc<T>`); los
+consumidores TS pueden parametrizar el tipo de fila y los JS siguen igual.
 
 ## Patrones establecidos (ver los 3 migrados)
 
@@ -50,10 +50,9 @@ bundler` la resuelven; los `vi.mock` por ruta siguen funcionando.
 
 ## Siguientes pasos sugeridos
 
-1. Migrar `entregas.js` y `sesionesVirtuales.js` (alto fan-in, mucha
-   superficie de datos).
-2. Tipar `lib/sbRest.js` con genéricos.
-3. Generar tipos de BD reales (`supabase gen types typescript`) y sustituir
+1. Migrar `aiService.js`, `evaluaciones.js`, `videos.js` y `rubricas.js`
+   (siguientes por fan-in).
+2. Generar tipos de BD reales (`supabase gen types typescript`) y sustituir
    los casts manuales.
-4. Al terminar `src/services`, subir `checkJs: true` y después `strict: true`
+3. Al terminar `src/services`, subir `checkJs: true` y después `strict: true`
    por etapas (`noImplicitAny` primero).

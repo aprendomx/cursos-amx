@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import AdminCourseEditor from '@/components/AdminCourseEditor.vue'
-import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest.js'
+import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest'
 import { cargarPreguntasAdmin } from '@/services/evaluaciones.js'
 
-vi.mock('@/lib/sbRest.js', () => ({
+vi.mock('@/lib/sbRest', () => ({
   sbSelect: vi.fn(),
   sbInsert: vi.fn(),
   sbPatch: vi.fn(),

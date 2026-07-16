@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import RubricaEditor from './RubricaEditor.vue'
-import { crearTarea } from '@/services/entregas.js'
+import { crearTarea } from '@/services/entregas'
 import { crearRubrica } from '@/services/rubricas.js'
 
 const props = defineProps({

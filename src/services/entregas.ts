@@ -2,11 +2,80 @@ import { supabase } from '@/lib/supabase.js'
 
 const BUCKET = 'entregas'
 
+export type EstadoEntregaLeccion = 'pendiente' | 'revisada' | 'aprobada' | 'rechazada'
+export type EstadoEntrega = 'entregada' | 'calificada' | 'devuelta'
+
+/** Fila de entregas_leccion (entrega simple por lección, pre-Fase K). */
+export interface EntregaLeccion {
+  id: string
+  leccion_id: string
+  curso_id: string
+  user_id: string
+  path: string
+  nombre: string
+  mime: string | null
+  bytes: number
+  version: number
+  vigente: boolean
+  estado: EstadoEntregaLeccion
+  comentario: string | null
+  creado_en: string
+}
+
+/** Fila de tareas (Fase K). */
+export interface Tarea {
+  id: string
+  curso_id: string
+  titulo: string
+  instrucciones: string | null
+  fecha_apertura: string | null
+  fecha_limite: string | null
+  rubrica_id: string | null
+  creado_en: string
+  actualizado_en: string | null
+}
+
+/** Fila de entregas (Fase K). */
+export interface Entrega {
+  id: string
+  tarea_id: string
+  user_id: string
+  estado: EstadoEntrega
+  version_actual: number
+  puntaje_final: number | null
+  comentario_instructor: { comentario: string } | null
+  entregado_en: string | null
+  calificado_en: string | null
+  creado_en?: string
+  actualizado_en?: string | null
+}
+
+export interface ContenidoVersion {
+  texto?: string | null
+  archivos?: string[] | null
+  comentario?: string | null
+}
+
+export interface CalificacionCriterio {
+  criterio_id: string
+  nivel_id?: string | null
+  puntaje: number
+  comentario?: string | null
+}
+
 /* ── Lado alumno ───────────────────────────────────── */
 
 // Sube el archivo al bucket y registra la entrega vía RPC (que valida
 // tipo, tamaño, inscripción y versiona la entrega anterior).
-export async function subirEntrega({ cursoId, leccionId, file }) {
+export async function subirEntrega({
+  cursoId,
+  leccionId,
+  file,
+}: {
+  cursoId: string
+  leccionId: string
+  file: File
+}): Promise<EntregaLeccion> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -38,7 +107,7 @@ export async function subirEntrega({ cursoId, leccionId, file }) {
   return data
 }
 
-export async function fetchMiEntrega(leccionId) {
+export async function fetchMiEntrega(leccionId: string): Promise<EntregaLeccion | null> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -54,7 +123,7 @@ export async function fetchMiEntrega(leccionId) {
   return data
 }
 
-export async function fetchMiHistorial(leccionId) {
+export async function fetchMiHistorial(leccionId: string): Promise<EntregaLeccion[]> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -71,7 +140,7 @@ export async function fetchMiHistorial(leccionId) {
 
 /* ── Compartido ────────────────────────────────────── */
 
-export async function urlDescargaEntrega(path, segundos = 3600) {
+export async function urlDescargaEntrega(path: string, segundos = 3600): Promise<string> {
   const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, segundos)
   if (error) throw error
   return data.signedUrl
@@ -79,7 +148,13 @@ export async function urlDescargaEntrega(path, segundos = 3600) {
 
 /* ── Lado instructor ───────────────────────────────── */
 
-export async function fetchEntregasCurso(cursoId, { estado = null, soloVigentes = true } = {}) {
+export async function fetchEntregasCurso(
+  cursoId: string,
+  {
+    estado = null,
+    soloVigentes = true,
+  }: { estado?: EstadoEntregaLeccion | null; soloVigentes?: boolean } = {}
+): Promise<Record<string, unknown>[]> {
   let q = supabase
     .from('entregas_leccion')
     .select(
@@ -95,8 +170,11 @@ export async function fetchEntregasCurso(cursoId, { estado = null, soloVigentes 
   return data || []
 }
 
-// estado: pendiente | revisada | aprobada | rechazada
-export async function revisarEntrega(entregaId, estado, comentario = null) {
+export async function revisarEntrega(
+  entregaId: string,
+  estado: EstadoEntregaLeccion,
+  comentario: string | null = null
+): Promise<unknown> {
   const { data, error } = await supabase.rpc('revisar_entrega', {
     p_entrega: entregaId,
     p_estado: estado,
@@ -108,13 +186,13 @@ export async function revisarEntrega(entregaId, estado, comentario = null) {
 
 /* ── Tareas (Fase K) ───────────────────────────────── */
 
-export async function crearTarea(tarea) {
+export async function crearTarea(tarea: Partial<Tarea>): Promise<Tarea> {
   const { data, error } = await supabase.from('tareas').insert(tarea).select().single()
   if (error) throw error
   return data
 }
 
-export async function actualizarTarea(tareaId, datos) {
+export async function actualizarTarea(tareaId: string, datos: Partial<Tarea>): Promise<Tarea> {
   const { data, error } = await supabase
     .from('tareas')
     .update({ ...datos, actualizado_en: new Date().toISOString() })
@@ -125,12 +203,12 @@ export async function actualizarTarea(tareaId, datos) {
   return data
 }
 
-export async function eliminarTarea(tareaId) {
+export async function eliminarTarea(tareaId: string): Promise<void> {
   const { error } = await supabase.from('tareas').delete().eq('id', tareaId)
   if (error) throw error
 }
 
-export async function listarTareasPorCurso(cursoId) {
+export async function listarTareasPorCurso(cursoId: string): Promise<Tarea[]> {
   const { data, error } = await supabase
     .from('tareas')
     .select('*')
@@ -142,7 +220,11 @@ export async function listarTareasPorCurso(cursoId) {
 
 /* ── Entregas (Fase K) ──────────────────────────────── */
 
-export async function crearEntrega(tareaId, userId, { texto, archivos, comentario }) {
+export async function crearEntrega(
+  tareaId: string,
+  userId: string,
+  { texto, archivos, comentario }: ContenidoVersion
+): Promise<Entrega> {
   const { data: entrega, error: err1 } = await supabase
     .from('entregas')
     .insert({
@@ -169,7 +251,10 @@ export async function crearEntrega(tareaId, userId, { texto, archivos, comentari
   return entrega
 }
 
-export async function nuevaVersion(entregaId, { texto, archivos, comentario }) {
+export async function nuevaVersion(
+  entregaId: string,
+  { texto, archivos, comentario }: ContenidoVersion
+): Promise<Entrega> {
   const { data: entrega, error: err1 } = await supabase
     .from('entregas')
     .select('version_actual')
@@ -205,7 +290,10 @@ export async function nuevaVersion(entregaId, { texto, archivos, comentario }) {
   return data
 }
 
-export async function obtenerEntrega(tareaId, userId) {
+export async function obtenerEntrega(
+  tareaId: string,
+  userId: string
+): Promise<Record<string, unknown>> {
   const { data, error } = await supabase
     .from('entregas')
     .select('*, entrega_versiones(*), calificaciones(*)')
@@ -216,7 +304,9 @@ export async function obtenerEntrega(tareaId, userId) {
   return data
 }
 
-export async function listarEntregasPorTarea(tareaId) {
+export async function listarEntregasPorTarea(
+  tareaId: string
+): Promise<Record<string, unknown>[]> {
   const { data, error } = await supabase
     .from('entregas')
     .select(
@@ -229,9 +319,17 @@ export async function listarEntregasPorTarea(tareaId) {
 }
 
 export async function calificarEntrega(
-  entregaId,
-  { calificaciones: cals, comentario, puntajeFinal }
-) {
+  entregaId: string,
+  {
+    calificaciones: cals,
+    comentario,
+    puntajeFinal,
+  }: {
+    calificaciones: CalificacionCriterio[]
+    comentario?: string | null
+    puntajeFinal: number | null
+  }
+): Promise<Entrega> {
   const { error: err1 } = await supabase.from('calificaciones').upsert(
     cals.map((c) => ({
       entrega_id: entregaId,
@@ -260,7 +358,10 @@ export async function calificarEntrega(
   return data
 }
 
-export async function devolverEntrega(entregaId, comentario) {
+export async function devolverEntrega(
+  entregaId: string,
+  comentario?: string | null
+): Promise<Entrega> {
   const { data, error } = await supabase
     .from('entregas')
     .update({
@@ -275,7 +376,12 @@ export async function devolverEntrega(entregaId, comentario) {
   return data
 }
 
-export async function subirArchivo(tareaId, userId, version, file) {
+export async function subirArchivo(
+  tareaId: string,
+  userId: string,
+  version: number,
+  file: File
+): Promise<string> {
   const limpio = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_')
   const path = `entregas/${tareaId}/${userId}/v${version}/${limpio}`
 
