@@ -2,7 +2,7 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
-## [Unreleased]
+## [0.17.0] — 2026-07-15
 
 ### Añadido
 

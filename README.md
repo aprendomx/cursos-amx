@@ -77,6 +77,17 @@
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
+## Novedades v0.17.0 — Revisión técnica: seguridad, CI y mantenibilidad
+
+- **Seguridad en Edge Functions** — `bulk-invite`, `analytics`, `push-notify` y `video-analytics` ahora exigen JWT y validan roles (`es_admin`/`es_instructor`) contra la BD vía `_shared/auth.ts`. Los instructores solo acceden a sus acciones y su `instructor_id` se deriva del token. Handlers extraídos a `handler.ts` con cliente inyectable + 53 tests Deno (401/403, suplantación).
+- **CI endurecido** — Jobs nuevos: type-check (`vue-tsc --noEmit`, bloqueante), tests Deno de Edge Functions, E2E con Playwright (no bloqueante), `npm audit` informativo. Dependabot semanal (npm, pip, actions) y análisis CodeQL para JS/TS.
+- **Cobertura Vitest** — Provider v8 con umbral trinquete (~35% líneas, objetivo 60%). Script `test:unit:cov`.
+- **Refactor `AdminCourseEditor`** — De 1507 a 487 líneas: `useCourseEditorModel`, `useCursoPersistence`, `PortadaUploadField`, `ModuleEditorCard`. Sin cambio de comportamiento, respaldado por 17 tests nuevos de `AdminCourseEditor` y `CursoDetalle`.
+- **Migración a TypeScript iniciada** — `services/tiempo`, `services/analytics` y `services/instructores` migrados; plan completo en `docs/migracion-typescript.md`.
+- **Dependencias** — `npm audit fix`: 0 vulnerabilidades (antes 2 high en vite/ws). Versión de `package.json` sincronizada con los releases.
+- **Tests:** 17 nuevos tests unitarios (425 totales) + 53 tests Deno.
+- **Release:** v0.17.0
+
 ## Novedades v0.16.0 — Fase L + M: Calendario, Sesiones en Vivo, Grabaciones y Transcripción
 
 - **Calendario unificado** — Vista mensual con eventos de sesiones, tareas, cursos y anuncios. Navegación por mes, eventos resaltados por día, lista de eventos del mes.
@@ -344,6 +355,14 @@
   - Badges: asistir_sesion, primera_sesion
   - Release: v0.16.0
 
+- **Revisión técnica: seguridad, CI y mantenibilidad** ✅
+  - Auth + roles en Edge Functions con service_role (`_shared/auth.ts`)
+  - CI: type-check, tests Deno, E2E, npm audit, Dependabot, CodeQL
+  - Cobertura Vitest con umbral trinquete
+  - Refactor AdminCourseEditor (1507 → 487 líneas) + 17 tests
+  - Migración a TypeScript iniciada (`docs/migracion-typescript.md`)
+  - Release: v0.17.0
+
 ## Inicio rápido (desarrollo)
 
 ```bash
@@ -402,9 +421,14 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 408 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 425 tests
+npm run test:unit:cov       # con cobertura v8 (umbral trinquete)
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
+
+# Edge Functions (Deno) — 53 tests
+deno test --allow-all supabase/functions/_shared/auth.test.ts \
+  supabase/functions/{bulk-invite,analytics,push-notify,video-analytics}/index.test.ts
 ```
 
 ## Lint y formato
@@ -412,6 +436,7 @@ npm run test:e2e            # Playwright (Chromium)
 ```bash
 npm run lint        # ESLint 9 flat config
 npm run lint:fix    # ESLint con --fix
+npm run type-check  # vue-tsc --noEmit
 npm run format      # Prettier en todo el repo
 ```
 
