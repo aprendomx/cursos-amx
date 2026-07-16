@@ -23,8 +23,10 @@ const props = defineProps({
 const router = useRouter()
 const auth = useAuthStore()
 
-// Perfil del usuario autenticado desde el store; lo usa el módulo de foros.
+// Perfil y sesión del usuario autenticado desde el store; los usan los
+// paneles de foros, chat y sesiones virtuales.
 const perfilApp = computed(() => auth.perfil)
+const session = computed(() => auth.session)
 
 const cursoData = ref(null)
 const modulosData = ref([])
@@ -855,7 +857,7 @@ async function continueCurso() {
             <CrearTareaPanel
               :curso-id="cursoId"
               @saved="
-                mostrarCrearTarea = false;
+                mostrarCrearTarea = false
                 listarTareasPorCurso(cursoId).then((d) => (tareas = d))
               "
               @cancel="mostrarCrearTarea = false"
