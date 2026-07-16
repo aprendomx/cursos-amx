@@ -3,14 +3,14 @@ import { mount, flushPromises } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import CursoDetalle from '@/pages/CursoDetalle.vue'
 import { useAuthStore } from '@/stores/auth.js'
-import { sbSelect } from '@/lib/sbRest.js'
+import { sbSelect } from '@/lib/sbRest'
 import { inscribirse } from '@/services/progreso.js'
 
 const pushMock = vi.fn()
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushMock }),
 }))
-vi.mock('@/lib/sbRest.js', () => ({
+vi.mock('@/lib/sbRest', () => ({
   sbSelect: vi.fn(),
 }))
 vi.mock('@/services/progreso.js', () => ({
@@ -21,6 +21,13 @@ vi.mock('@/services/entregas', () => ({
 }))
 vi.mock('@/lib/featureFlags.js', () => ({
   featureEnabled: vi.fn(() => false),
+}))
+vi.mock('@/components/ForosPanel.vue', () => ({
+  default: {
+    name: 'ForosPanel',
+    props: ['cursoId', 'session', 'perfil', 'inscrito'],
+    template: '<div data-test="foros-panel" />',
+  },
 }))
 
 const CURSO_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
@@ -216,5 +223,21 @@ describe('CursoDetalle', () => {
     const w = factory()
     await flushPromises()
     expect(w.text()).toContain('Inscríbete al curso para acceder')
+  })
+
+  it('pasa la sesión del store a los paneles con feature flag activo', async () => {
+    const { featureEnabled } = await import('@/lib/featureFlags.js')
+    featureEnabled.mockImplementation((flag) => flag === 'foros')
+    const auth = loggedIn()
+    mockSbSelect()
+    const w = factory()
+    await flushPromises()
+
+    const panel = w.findComponent({ name: 'ForosPanel' })
+    expect(panel.exists()).toBe(true)
+    // Regresión: el template referenciaba `session` sin definirla en el
+    // script y los paneles recibían undefined aun con usuario logueado.
+    expect(panel.props('session')).toEqual(auth.session)
+    expect(panel.props('inscrito')).toBe(true)
   })
 })

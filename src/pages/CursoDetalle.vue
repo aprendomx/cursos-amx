@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
-import { sbSelect } from '@/lib/sbRest.js'
+import { sbSelect } from '@/lib/sbRest'
 import { inscribirse } from '@/services/progreso.js'
 import IconSet from '@/components/IconSet.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
@@ -23,8 +23,10 @@ const props = defineProps({
 const router = useRouter()
 const auth = useAuthStore()
 
-// Perfil del usuario autenticado desde el store; lo usa el módulo de foros.
+// Perfil y sesión del usuario autenticado desde el store; los usan los
+// paneles de foros, chat y sesiones virtuales.
 const perfilApp = computed(() => auth.perfil)
+const session = computed(() => auth.session)
 
 const cursoData = ref(null)
 const modulosData = ref([])
@@ -235,6 +237,13 @@ const lessonsCompleted = computed(() => {
 
 function goBack() {
   router.push({ name: 'home' })
+}
+
+// Handler nombrado a propósito: como expresión inline multi-sentencia,
+// prettier (semi: false) elimina el ';' y rompe el parseo del template.
+async function onTareaGuardada() {
+  mostrarCrearTarea.value = false
+  tareas.value = await listarTareasPorCurso(props.cursoId)
 }
 
 async function handleCtaClick() {
@@ -854,10 +863,7 @@ async function continueCurso() {
           >
             <CrearTareaPanel
               :curso-id="cursoId"
-              @saved="
-                mostrarCrearTarea = false;
-                listarTareasPorCurso(cursoId).then((d) => (tareas = d))
-              "
+              @saved="onTareaGuardada"
               @cancel="mostrarCrearTarea = false"
             />
           </div>

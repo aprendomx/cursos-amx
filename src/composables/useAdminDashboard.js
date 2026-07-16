@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { sbSelect } from '@/lib/sbRest.js'
+import { sbSelect } from '@/lib/sbRest'
 
 export function useAdminDashboard(getSession) {
   const metrics = ref([

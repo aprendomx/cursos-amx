@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase.js'
-import { sbInsert } from '@/lib/sbRest.js'
+import { sbInsert } from '@/lib/sbRest'
 import { withCache, invalidateCache } from '@/composables/cache.js'
 
 async function _fetchProgresoCurso(userId, cursoId) {

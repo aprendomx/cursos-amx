@@ -4,7 +4,7 @@ import CrearTareaPanel from '@/components/CrearTareaPanel.vue'
 
 const mockCrearTarea = vi.fn()
 
-vi.mock('@/services/entregas.js', () => ({
+vi.mock('@/services/entregas', () => ({
   crearTarea: (...args) => mockCrearTarea(...args),
 }))
 

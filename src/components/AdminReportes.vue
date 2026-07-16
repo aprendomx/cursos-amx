@@ -10,7 +10,7 @@ import ReporteFavoritosManager from './ReporteFavoritosManager.vue'
 import ReporteProgramadoForm from './ReporteProgramadoForm.vue'
 import ReporteProgramadoList from './ReporteProgramadoList.vue'
 import { useReportes } from '@/composables/useReportes.js'
-import { sbSelect } from '@/lib/sbRest.js'
+import { sbSelect } from '@/lib/sbRest'
 import { formatearDuracion } from '@/services/tiempo'
 
 const props = defineProps({

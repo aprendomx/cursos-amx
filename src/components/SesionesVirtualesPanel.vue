@@ -9,7 +9,7 @@ import {
   terminarSesion,
   useSesionesRealtime,
   SESION_ESTADO_LABEL,
-} from '@/services/sesionesVirtuales.js'
+} from '@/services/sesionesVirtuales'
 import { fetchInstructoresDeCurso } from '@/services/instructores'
 import AulaVirtualModal from '@/components/AulaVirtualModal.vue'
 

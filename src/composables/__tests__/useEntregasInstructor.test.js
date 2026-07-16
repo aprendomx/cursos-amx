@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useEntregasInstructor } from '@/composables/useEntregasInstructor.js'
-import * as entregasService from '@/services/entregas.js'
+import * as entregasService from '@/services/entregas'
 
-vi.mock('@/services/entregas.js', () => ({
+vi.mock('@/services/entregas', () => ({
   listarEntregasPorTarea: vi.fn(),
   calificarEntrega: vi.fn(),
   devolverEntrega: vi.fn(),

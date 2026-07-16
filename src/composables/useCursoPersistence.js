@@ -1,7 +1,7 @@
 // Persistencia del editor de cursos (AdminCourseEditor): carga desde la BD
 // (mapeo filas → modelo del editor) y publicación (diff insert/patch/delete).
 import { ref } from 'vue'
-import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest.js'
+import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest'
 import { cargarPreguntasAdmin, guardarEvaluacionAdmin } from '@/services/evaluaciones.js'
 import { parseDuracionToSeg } from '@/lib/duracion.js'
 import { createBlankModulo, entregaPayload, isUuid } from '@/composables/useCourseEditorModel.js'

@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase.js'
-import { obtenerEntrega, crearEntrega, nuevaVersion } from '@/services/entregas.js'
+import { obtenerEntrega, crearEntrega, nuevaVersion } from '@/services/entregas'
 import { obtenerRubrica } from '@/services/rubricas.js'
 
 export const ESTADO_LABEL = {

@@ -5,7 +5,7 @@ import AsistenciaPanel from '@/components/AsistenciaPanel.vue'
 const mockListarRSVP = vi.fn()
 const mockMarcarAsistencia = vi.fn()
 
-vi.mock('@/services/sesionesVirtuales.js', () => ({
+vi.mock('@/services/sesionesVirtuales', () => ({
   listarRSVP: (...args) => mockListarRSVP(...args),
   marcarAsistencia: (...args) => mockMarcarAsistencia(...args),
 }))

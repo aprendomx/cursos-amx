@@ -77,6 +77,14 @@
 - **Documentación API** OpenAPI completa en `docs/API.md`
 - **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
 
+## Novedades v0.18.0 — Pendientes de la revisión técnica
+
+- **Fix foros/chat/sesiones en detalle de curso** — Los paneles recibían `session` indefinida y quedaban inertes con usuario logueado; ahora se deriva del store de auth (con test de regresión).
+- **Migración TS (2ª tanda)** — `lib/sbRest` con genéricos (`sbSelect<T>`, `sbInsert<T>`, `sbPatch<T>`, `sbRpc<T>`), `services/entregas` y `services/sesionesVirtuales` con interfaces de dominio.
+- **Handler de crear tarea a método nombrado** — elimina la rotura recurrente del template por prettier (`semi: false`).
+- **Tests:** 426 totales.
+- **Release:** v0.18.0
+
 ## Novedades v0.17.0 — Revisión técnica: seguridad, CI y mantenibilidad
 
 - **Seguridad en Edge Functions** — `bulk-invite`, `analytics`, `push-notify` y `video-analytics` ahora exigen JWT y validan roles (`es_admin`/`es_instructor`) contra la BD vía `_shared/auth.ts`. Los instructores solo acceden a sus acciones y su `instructor_id` se deriva del token. Handlers extraídos a `handler.ts` con cliente inyectable + 53 tests Deno (401/403, suplantación).
@@ -421,7 +429,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 425 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 426 tests
 npm run test:unit:cov       # con cobertura v8 (umbral trinquete)
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)

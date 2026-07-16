@@ -12,7 +12,7 @@ import {
   marcarAsistencia,
   listarEventosCalendario,
   exportarCalendarioICS,
-} from '@/services/sesionesVirtuales.js'
+} from '@/services/sesionesVirtuales'
 
 const mockFrom = vi.fn()
 const mockRpc = vi.fn()

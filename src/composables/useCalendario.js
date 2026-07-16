@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { listarEventosCalendario, exportarCalendarioICS } from '@/services/sesionesVirtuales.js'
+import { listarEventosCalendario, exportarCalendarioICS } from '@/services/sesionesVirtuales'
 
 export function useCalendario(cursoId) {
   const eventos = ref([])

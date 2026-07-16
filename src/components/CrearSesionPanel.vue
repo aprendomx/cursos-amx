@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { crearSesion, crearSesionZoom } from '@/services/sesionesVirtuales.js'
+import { crearSesion, crearSesionZoom } from '@/services/sesionesVirtuales'
 import { crearReunionZoom } from '@/services/zoom.js'
 
 const props = defineProps({

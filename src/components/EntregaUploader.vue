@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { subirArchivo } from '@/services/entregas.js'
+import { subirArchivo } from '@/services/entregas'
 
 const props = defineProps({
   maxFiles: { type: Number, default: 5 },

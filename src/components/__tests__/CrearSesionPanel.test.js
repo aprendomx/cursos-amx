@@ -6,7 +6,7 @@ const mockCrearSesion = vi.fn()
 const mockCrearSesionZoom = vi.fn()
 const mockCrearReunionZoom = vi.fn()
 
-vi.mock('@/services/sesionesVirtuales.js', () => ({
+vi.mock('@/services/sesionesVirtuales', () => ({
   crearSesion: (...args) => mockCrearSesion(...args),
   crearSesionZoom: (...args) => mockCrearSesionZoom(...args),
 }))

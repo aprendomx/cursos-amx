@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useEntregas } from '@/composables/useEntregas.js'
-import * as entregasService from '@/services/entregas.js'
+import * as entregasService from '@/services/entregas'
 import * as rubricasService from '@/services/rubricas.js'
 import { supabase } from '@/lib/supabase.js'
 
-vi.mock('@/services/entregas.js', () => ({
+vi.mock('@/services/entregas', () => ({
   obtenerEntrega: vi.fn(),
   crearEntrega: vi.fn(),
   nuevaVersion: vi.fn(),

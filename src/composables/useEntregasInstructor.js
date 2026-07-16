@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { listarEntregasPorTarea, calificarEntrega, devolverEntrega } from '@/services/entregas.js'
+import { listarEntregasPorTarea, calificarEntrega, devolverEntrega } from '@/services/entregas'
 
 export function useEntregasInstructor(tareaId) {
   const entregas = ref([])

@@ -2,6 +2,25 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.18.0] — 2026-07-16
+
+### Corregido
+
+- `CursoDetalle` pasaba `undefined` como sesión a los paneles de foros,
+  chat y sesiones virtuales (la variable `session` no existía en el
+  script): quedaban inertes incluso con usuario logueado. Ahora se
+  deriva de `auth.session`, con test de regresión.
+- El handler `@saved` de crear tarea pasa a método nombrado: prettier
+  (`semi: false`) eliminaba el `;` del inline multi-sentencia y rompía
+  el parseo del template en cada commit.
+
+### Cambiado
+
+- Migración TS (2ª tanda): `lib/sbRest` con genéricos
+  (`sbSelect<T>`/`sbInsert<T>`/`sbPatch<T>`/`sbRpc<T>` + `SbError`),
+  `services/entregas` y `services/sesionesVirtuales` con interfaces de
+  dominio. ~30 importadores actualizados a imports sin extensión.
+
 ## [0.17.0] — 2026-07-15
 
 ### Añadido

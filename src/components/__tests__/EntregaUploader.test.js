@@ -4,7 +4,7 @@ import EntregaUploader from '@/components/EntregaUploader.vue'
 
 const mockSubirArchivo = vi.fn()
 
-vi.mock('@/services/entregas.js', () => ({
+vi.mock('@/services/entregas', () => ({
   subirArchivo: (...args) => mockSubirArchivo(...args),
 }))
 

@@ -6,7 +6,7 @@ const mockConfirmarRSVP = vi.fn()
 const mockCancelarRSVP = vi.fn()
 const mockListarRSVP = vi.fn()
 
-vi.mock('@/services/sesionesVirtuales.js', () => ({
+vi.mock('@/services/sesionesVirtuales', () => ({
   fetchSesionesCurso: (...args) => mockFetchSesionesCurso(...args),
   confirmarRSVP: (...args) => mockConfirmarRSVP(...args),
   cancelarRSVP: (...args) => mockCancelarRSVP(...args),
