@@ -2,6 +2,20 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.19.0] — 2026-07-16
+
+### Cambiado
+
+- Migración TS (3ª tanda): `services/aiService.ts` (`ConfigIA`,
+  `MensajeChat`, shapes de la Edge Function `ai-proxy`),
+  `services/evaluaciones.ts` (unión `TipoPregunta` de 6 tipos,
+  `PreguntaAdmin`/`OpcionAdmin`), `services/videos.ts` (`VideoStatus`,
+  `VideoRow`, `Playback`) y `services/rubricas.ts`
+  (`Rubrica`/`RubricaCriterio`/`RubricaNivel`, `RubricaInput`), con ~20
+  importadores y mocks actualizados a imports sin extensión. Del
+  ranking del plan solo quedan `useCourseEditorModel` y
+  `useNotificaciones`.
+
 ## [0.18.0] — 2026-07-16
 
 ### Corregido
