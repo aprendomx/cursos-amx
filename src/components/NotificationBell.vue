@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useNotificaciones } from '@/composables/useNotificaciones.js'
+import { useNotificaciones } from '@/composables/useNotificaciones'
 
 const props = defineProps({
   onOpenPanel: {
@@ -80,18 +80,10 @@ function handleVerTodas() {
         <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
         <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
       </svg>
-      <span
-        v-if="localUnreadCount > 0"
-        class="badge"
-        data-test="badge"
-      >{{ badgeText }}</span>
+      <span v-if="localUnreadCount > 0" class="badge" data-test="badge">{{ badgeText }}</span>
     </button>
 
-    <div
-      v-if="open"
-      class="dropdown"
-      data-test="dropdown"
-    >
+    <div v-if="open" class="dropdown" data-test="dropdown">
       <ul class="dropdown-list">
         <li
           v-for="n in previewList"
@@ -112,20 +104,10 @@ function handleVerTodas() {
           </div>
         </li>
       </ul>
-      <div
-        v-if="previewList.length === 0"
-        class="dropdown-empty"
-        data-test="empty-state"
-      >
+      <div v-if="previewList.length === 0" class="dropdown-empty" data-test="empty-state">
         Sin notificaciones
       </div>
-      <button
-        class="ver-todas"
-        data-test="ver-todas"
-        @click="handleVerTodas"
-      >
-        Ver todas
-      </button>
+      <button class="ver-todas" data-test="ver-todas" @click="handleVerTodas">Ver todas</button>
     </div>
   </div>
 </template>

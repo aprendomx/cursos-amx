@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
-import { useNotificaciones } from '../useNotificaciones.js'
+import { useNotificaciones } from '../useNotificaciones'
 
 vi.mock('@/services/notificaciones.js', () => ({
   cargarNotificaciones: vi.fn(),

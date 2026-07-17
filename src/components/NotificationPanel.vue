@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
-import { useNotificaciones } from '@/composables/useNotificaciones.js'
+import { useNotificaciones } from '@/composables/useNotificaciones'
 
 const props = defineProps({
   visible: { type: Boolean, default: false },
@@ -92,77 +92,32 @@ async function handleMarcarTodas() {
     data-test="notification-panel-overlay"
     @click="handleOverlayClick"
   >
-    <div
-      class="np-panel"
-      data-test="notification-panel"
-    >
+    <div class="np-panel" data-test="notification-panel">
       <header class="np-header">
-        <h2 class="np-title">
-          Notificaciones
-        </h2>
+        <h2 class="np-title">Notificaciones</h2>
         <div class="np-controls">
-          <select
-            v-model="filtro"
-            class="np-filter"
-            data-test="filter-select"
-          >
-            <option value="todas">
-              Todas
-            </option>
-            <option value="no_leidas">
-              No leídas
-            </option>
+          <select v-model="filtro" class="np-filter" data-test="filter-select">
+            <option value="todas">Todas</option>
+            <option value="no_leidas">No leídas</option>
           </select>
-          <button
-            class="np-mark-all"
-            data-test="mark-all"
-            @click="handleMarcarTodas"
-          >
+          <button class="np-mark-all" data-test="mark-all" @click="handleMarcarTodas">
             Marcar todas
           </button>
-          <button
-            class="np-close"
-            data-test="close-button"
-            @click="emit('close')"
-          >
-            ✕
-          </button>
+          <button class="np-close" data-test="close-button" @click="emit('close')">✕</button>
         </div>
       </header>
 
       <div class="np-body">
-        <div
-          v-if="loading"
-          class="np-loading"
-          data-test="loading-state"
-        >
-          Cargando…
-        </div>
+        <div v-if="loading" class="np-loading" data-test="loading-state">Cargando…</div>
 
-        <div
-          v-else-if="filtered.length === 0"
-          class="np-empty"
-          data-test="empty-state"
-        >
+        <div v-else-if="filtered.length === 0" class="np-empty" data-test="empty-state">
           Sin notificaciones
         </div>
 
-        <div
-          v-else
-          class="np-groups"
-        >
-          <div
-            v-for="(items, grupo) in grupos"
-            :key="grupo"
-          >
-            <div
-              v-if="items.length > 0"
-              class="np-group"
-            >
-              <h3
-                class="np-group-title"
-                data-test="group-title"
-              >
+        <div v-else class="np-groups">
+          <div v-for="(items, grupo) in grupos" :key="grupo">
+            <div v-if="items.length > 0" class="np-group">
+              <h3 class="np-group-title" data-test="group-title">
                 {{ grupo }}
               </h3>
               <ul class="np-list">

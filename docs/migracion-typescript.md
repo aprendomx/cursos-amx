@@ -26,8 +26,8 @@
 | 7         | `services/evaluaciones.js`            | 3            | 82     | ✅ migrado |
 | 8         | `services/videos.js`                  | 3            | 119    | ✅ migrado |
 | 9         | `services/rubricas.js`                | 3            | 66     | ✅ migrado |
-| 10        | `composables/useCourseEditorModel.js` | 3            | ~197   | pendiente  |
-| 11        | `composables/useNotificaciones.js`    | 3            | 124    | pendiente  |
+| 10        | `composables/useCourseEditorModel.js` | 3            | ~197   | ✅ migrado |
+| 11        | `composables/useNotificaciones.js`    | 3            | 124    | ✅ migrado |
 
 Fuera del alcance de esta lista pero **candidato prioritario transversal**:
 `src/lib/sbRest.js` — ✅ migrado con genéricos (`sbSelect<T>(path):
@@ -50,9 +50,11 @@ bundler` la resuelven; los `vi.mock` por ruta siguen funcionando.
 
 ## Siguientes pasos sugeridos
 
-1. Migrar `composables/useCourseEditorModel.js` y
-   `composables/useNotificaciones.js` (últimos del ranking).
-2. Generar tipos de BD reales (`supabase gen types typescript`) y sustituir
+El ranking está completo (11/11). Siguientes etapas:
+
+1. Generar tipos de BD reales (`supabase gen types typescript`) y sustituir
    los casts manuales.
+2. Migrar el resto de `src/services` (fan-in bajo) y de `src/composables`
+   oportunistamente al tocarlos.
 3. Al terminar `src/services`, subir `checkJs: true` y después `strict: true`
    por etapas (`noImplicitAny` primero).

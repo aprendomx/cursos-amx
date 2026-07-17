@@ -46,7 +46,7 @@ const mockState = vi.hoisted(() => {
   }
 })
 
-vi.mock('@/composables/useNotificaciones.js', () => ({
+vi.mock('@/composables/useNotificaciones', () => ({
   useNotificaciones: () => mockState,
 }))
 
