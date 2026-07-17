@@ -18,7 +18,12 @@ export interface PlayerPageProps {
   leccionId?: string
 }
 
-export interface PlayerLesson extends Leccion {
+export interface PlayerLesson {
+  id: string
+  modulo_id: string
+  orden: number
+  titulo: string
+  tipo_material: 'video' | 'lectura' | 'examen' | 'recurso'
   duracion: string
   duracion_seg: number
   youtube_url: string
@@ -54,8 +59,19 @@ export function usePlayerPage(props: PlayerPageProps) {
   const playing = ref(false)
   const currentTime = ref(0)
   const totalTime = ref(735)
-  const comentarios = ref([])
-  const instructorIds = ref(new Set())
+  type ComentarioItem = {
+    id: number
+    user: string
+    dep: string
+    t: string
+    texto: string
+    own?: boolean
+    esInstructor?: boolean
+    destacado?: boolean
+  }
+
+  const comentarios = ref<ComentarioItem[]>([])
+  const instructorIds = ref(new Set<string>())
   const draft = ref('')
   const completada = ref(false)
   const llegoAlFinal = ref(false)
@@ -64,9 +80,9 @@ export function usePlayerPage(props: PlayerPageProps) {
     llegoAlFinal.value = true
   }
 
-  const videoEl = ref(null)
-  const hlsMasterUrl = ref(null)
-  const hlsPoster = ref(null)
+  const videoEl = ref<HTMLVideoElement | null>(null)
+  const hlsMasterUrl = ref<string | null>(null)
+  const hlsPoster = ref<string | null>(null)
   const hlsDuration = ref(0)
 
   const lecciones: Ref<PlayerLesson[]> = ref([])
@@ -77,13 +93,27 @@ export function usePlayerPage(props: PlayerPageProps) {
   /* ── Derived ──────────────────────────────────────── */
   const curso = computed(() => ({ titulo: cursoTitulo.value }))
   // Placeholder mientras cargan las lecciones; solo se leen estos campos.
-  const LECCION_CARGANDO = {
+  const LECCION_CARGANDO: PlayerLesson = {
     id: '',
-    titulo: 'Cargando...',
+    modulo_id: '',
     orden: 1,
+    titulo: 'Cargando...',
+    tipo_material: 'video',
+    duracion: '12:15',
     duracion_seg: 735,
+    youtube_url: '',
+    video_id: null,
+    documento_path: null,
+    documento_tipo: null,
+    contenido: null,
     tipo: 'video',
-  } as PlayerLesson
+    completado: false,
+    modulo_titulo: '',
+    modulo_orden: 1,
+    requiere_entrega: false,
+    entrega_tipos: null,
+    entrega_max_mb: 10,
+  }
 
   const leccion = computed(
     () =>
@@ -130,13 +160,13 @@ export function usePlayerPage(props: PlayerPageProps) {
   const variant = computed(() => tweaks.value.playerLayout || 'split')
   const progress = computed(() => Math.min(currentTime.value / totalTime.value, 1))
 
-  function fmtTime(s) {
+  function fmtTime(s: number) {
     const m = Math.floor(s / 60)
     const sec = Math.floor(s % 60)
     return `${m}:${sec.toString().padStart(2, '0')}`
   }
 
-  function extractYoutubeId(url) {
+  function extractYoutubeId(url: string) {
     if (!url) return ''
     const m = String(url).match(
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{11})/
@@ -164,12 +194,12 @@ export function usePlayerPage(props: PlayerPageProps) {
   )
 
   /* ── Tweaks helpers ───────────────────────────────── */
-  function setVariant(v) {
+  function setVariant(v: string) {
     ui.updateTweaks({ ...tweaks.value, playerLayout: v })
   }
 
   /* ── Playback simulation ──────────────────────────── */
-  let playInterval = null
+  let playInterval: ReturnType<typeof window.setInterval> | null = null
 
   function startPlayback() {
     stopPlayback()
@@ -198,7 +228,7 @@ export function usePlayerPage(props: PlayerPageProps) {
       if (el.paused) {
         const p = el.play()
         if (p && typeof p.catch === 'function') {
-          p.catch((err) => console.error('[player] video.play() rejected:', err))
+          p.catch((err: unknown) => console.error('[player] video.play() rejected:', err))
         }
       } else {
         el.pause()
@@ -209,14 +239,14 @@ export function usePlayerPage(props: PlayerPageProps) {
     playing.value = !playing.value
   }
 
-  watch(playing, (v) => {
+  watch(playing, (v: boolean) => {
     if (source.value.kind === 'hls') return
     if (v && !completada.value) startPlayback()
     else stopPlayback()
   })
 
   /* ── HLS playback ─────────────────────────────────── */
-  async function loadHlsForVideo(videoId) {
+  async function loadHlsForVideo(videoId: string) {
     try {
       const data = await getPlayback(videoId)
       hlsMasterUrl.value = data.master_url
@@ -232,7 +262,7 @@ export function usePlayerPage(props: PlayerPageProps) {
   watch(
     source,
     (s) => {
-      if (s.kind === 'hls') loadHlsForVideo(s.videoId)
+      if (s.kind === 'hls' && s.videoId) loadHlsForVideo(s.videoId)
       else {
         hlsMasterUrl.value = null
         hlsPoster.value = null
@@ -241,20 +271,20 @@ export function usePlayerPage(props: PlayerPageProps) {
     { immediate: true }
   )
 
-  useHlsPlayer(videoEl, hlsMasterUrl, (err) => {
+  useHlsPlayer(videoEl, hlsMasterUrl, (err: { type: string } | null) => {
     if (err?.type === 'unsupported') return
-    if (source.value.kind === 'hls') loadHlsForVideo(source.value.videoId)
+    if (source.value.kind === 'hls' && source.value.videoId) loadHlsForVideo(source.value.videoId)
   })
 
-  let saveTimer = null
-  function scheduleSave(leccionId, segundos) {
-    clearTimeout(saveTimer)
+  let saveTimer: ReturnType<typeof window.setTimeout> | null = null
+  function scheduleSave(leccionId: string, segundos: number) {
+    if (saveTimer) clearTimeout(saveTimer)
     saveTimer = setTimeout(() => {
       actualizarSegundosVistos(leccionId, segundos).catch(() => {})
     }, 5000)
   }
-  function flushSave(leccionId, segundos) {
-    clearTimeout(saveTimer)
+  function flushSave(leccionId: string, segundos: number) {
+    if (saveTimer) clearTimeout(saveTimer)
     actualizarSegundosVistos(leccionId, segundos).catch(() => {})
   }
 
@@ -299,7 +329,7 @@ export function usePlayerPage(props: PlayerPageProps) {
 
   watch(
     () => leccion.value?.id,
-    (newId, oldId) => {
+    (newId: string | undefined, oldId: string | undefined) => {
       if (oldId && videoEl.value) flushSave(oldId, videoEl.value.currentTime || 0)
     }
   )
@@ -363,7 +393,7 @@ export function usePlayerPage(props: PlayerPageProps) {
   }
 
   /* ── Seek handler delegated from PlayerVideoSurface ─ */
-  function handleSeek(ratio) {
+  function handleSeek(ratio: number) {
     const targetTime = Math.floor(ratio * totalTime.value)
     if (source.value.kind === 'hls') {
       const el = videoEl.value
@@ -382,7 +412,7 @@ export function usePlayerPage(props: PlayerPageProps) {
   }
 
   /* ── Select lesson ────────────────────────────────── */
-  function selectLesson(id) {
+  function selectLesson(id: string) {
     currentLeccion.value = id
     const l = lecciones.value.find((x) => x.id === id)
     if (l) {
@@ -395,8 +425,10 @@ export function usePlayerPage(props: PlayerPageProps) {
   }
 
   /* ── Progress bar seek ────────────────────────────── */
-  function seekProgress(e) {
-    const rect = e.currentTarget.getBoundingClientRect()
+  function seekProgress(e: MouseEvent) {
+    const target = e.currentTarget as HTMLElement | null
+    if (!target) return
+    const rect = target.getBoundingClientRect()
     const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
     const targetTime = Math.floor(ratio * totalTime.value)
     if (source.value.kind === 'hls') {
@@ -418,10 +450,10 @@ export function usePlayerPage(props: PlayerPageProps) {
   }
 
   /* ── Lifecycle ────────────────────────────────────── */
-  let pollComentarios = null
-  let comentariosAbort = null
+  let pollComentarios: ReturnType<typeof setInterval> | null = null
+  let comentariosAbort: AbortController | null = null
 
-  async function loadComentarios(leccionId, token) {
+  async function loadComentarios(leccionId: string, token?: string) {
     if (!leccionId || !/^[0-9a-f]{8}-/.test(leccionId)) return
     if (comentariosAbort) comentariosAbort.abort()
     comentariosAbort = new AbortController()
@@ -443,8 +475,8 @@ export function usePlayerPage(props: PlayerPageProps) {
         esInstructor: instructorIds.value.has(c.user_id),
         destacado: c.destacado === true,
       }))
-    } catch (e) {
-      if (e?.name === 'AbortError') return
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'AbortError') return
       if (e instanceof TypeError && e.message === 'Failed to fetch') return
       console.warn('Error cargando comentarios:', e)
     }
@@ -548,7 +580,7 @@ export function usePlayerPage(props: PlayerPageProps) {
     }
   })
 
-  watch(currentLeccion, async (id) => {
+  watch(currentLeccion, async (id: string) => {
     if (!id) return
     await loadComentarios(id, session.value?.access_token)
   })
