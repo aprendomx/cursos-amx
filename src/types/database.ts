@@ -58,9 +58,9 @@ export interface Leccion {
   url_youtube?: string
   tipo_material: TipoMaterial
   duracion_seg?: number
-  video_id?: string
-  documento_path?: string
-  documento_tipo?: string
+  video_id?: string | null
+  documento_path?: string | null
+  documento_tipo?: string | null
   contenido?: Record<string, unknown>
   requiere_entrega?: boolean
   entrega_tipos?: string[]
