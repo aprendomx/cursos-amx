@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { obtenerConfigIA, actualizarConfigIA } from '@/services/aiService.js'
+import { obtenerConfigIA, actualizarConfigIA } from '@/services/aiService'
 
 const config = ref(null)
 const loading = ref(false)

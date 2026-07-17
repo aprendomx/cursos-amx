@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
-import { uploadVideoForLeccion, retryVideo, deleteVideo } from '@/services/videos.js'
+import { uploadVideoForLeccion, retryVideo, deleteVideo } from '@/services/videos'
 import { useVideoStatus } from '@/composables/useVideoStatus.js'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -131,16 +131,10 @@ async function onRemove() {
   <div class="vuf">
     <div class="vuf-row">
       <strong>Video HLS</strong>
-      <span
-        class="vuf-status"
-        :data-status="status"
-      >{{ status }}</span>
+      <span class="vuf-status" :data-status="status">{{ status }}</span>
     </div>
 
-    <div
-      v-if="!leccionEsPersistida"
-      class="vuf-info"
-    >
+    <div v-if="!leccionEsPersistida" class="vuf-info">
       Guarda el curso primero para poder subir el video de esta lección.
     </div>
 
@@ -170,32 +164,20 @@ async function onRemove() {
         </div>
       </div>
 
-      <div
-        v-if="status === 'uploading'"
-        class="vuf-progress-block"
-      >
+      <div v-if="status === 'uploading'" class="vuf-progress-block">
         <div class="vuf-progress-bar">
-          <div
-            class="vuf-progress-fill"
-            :style="{ width: Math.round(progress * 100) + '%' }"
-          />
+          <div class="vuf-progress-fill" :style="{ width: Math.round(progress * 100) + '%' }" />
         </div>
         <div class="vuf-progress-text">
           Subiendo… {{ Math.round(progress * 100) }}% · {{ elapsedStr }}
         </div>
       </div>
 
-      <div
-        v-else-if="status === 'pending'"
-        class="vuf-info"
-      >
+      <div v-else-if="status === 'pending'" class="vuf-info">
         En cola para procesar… {{ elapsedStr }}
       </div>
 
-      <div
-        v-else-if="status === 'processing'"
-        class="vuf-info"
-      >
+      <div v-else-if="status === 'processing'" class="vuf-info">
         Procesando video con ffmpeg… {{ elapsedStr }}
         <div class="vuf-progress-bar indeterminate">
           <div class="vuf-progress-fill-anim" />
@@ -206,32 +188,14 @@ async function onRemove() {
         </small>
       </div>
 
-      <div
-        v-else-if="status === 'failed'"
-        class="vuf-err"
-      >
+      <div v-else-if="status === 'failed'" class="vuf-err">
         <strong>Falló:</strong> {{ errMsg || 'error desconocido' }}
-        <button
-          type="button"
-          class="vuf-btn"
-          @click="onRetry"
-        >
-          Reintentar
-        </button>
+        <button type="button" class="vuf-btn" @click="onRetry">Reintentar</button>
       </div>
 
-      <div
-        v-else-if="status === 'ready'"
-        class="vuf-ok"
-      >
+      <div v-else-if="status === 'ready'" class="vuf-ok">
         ✓ Listo · {{ video?.duracion_seg }}s
-        <button
-          type="button"
-          class="vuf-btn vuf-btn-danger"
-          @click="onRemove"
-        >
-          Eliminar
-        </button>
+        <button type="button" class="vuf-btn vuf-btn-danger" @click="onRemove">Eliminar</button>
       </div>
 
       <label
@@ -242,14 +206,11 @@ async function onRemove() {
           type="file"
           accept="video/mp4,video/quicktime,video/x-matroska,video/webm"
           @change="onFileChange"
-        >
+        />
         <span>{{ status === 'ready' ? 'Reemplazar' : 'Subir video' }}</span>
       </label>
 
-      <div
-        v-if="localErr"
-        class="vuf-err"
-      >
+      <div v-if="localErr" class="vuf-err">
         {{ localErr }}
       </div>
     </template>

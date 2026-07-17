@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { listarRubricas, eliminarRubrica } from '@/services/rubricas.js'
+import { listarRubricas, eliminarRubrica } from '@/services/rubricas'
 import RubricaEditor from '@/components/RubricaEditor.vue'
 
 const rubricas = ref([])

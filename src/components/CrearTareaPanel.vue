@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import RubricaEditor from './RubricaEditor.vue'
 import { crearTarea } from '@/services/entregas'
-import { crearRubrica } from '@/services/rubricas.js'
+import { crearRubrica } from '@/services/rubricas'
 
 const props = defineProps({
   cursoId: { type: String, required: true },

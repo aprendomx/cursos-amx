@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { generarQuizIA } from '@/services/aiService.js'
+import { generarQuizIA } from '@/services/aiService'
 
 export function useAiQuizGenerator() {
   const preguntas = ref([])

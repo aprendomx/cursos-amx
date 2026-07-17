@@ -1,6 +1,6 @@
 import { ref, watch, onBeforeUnmount } from 'vue'
 import { supabase } from '@/lib/supabase.js'
-import { fetchVideo } from '@/services/videos.js'
+import { fetchVideo } from '@/services/videos'
 
 // Terminal statuses don't need updates.
 const ACTIVE = new Set(['uploading', 'pending', 'processing'])

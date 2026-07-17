@@ -22,10 +22,10 @@
 | 3         | `services/analytics.js`               | 5            | 121    | ✅ migrado |
 | 4         | `services/entregas.js`                | 5            | 288    | ✅ migrado |
 | 5         | `services/sesionesVirtuales.js`       | 5            | 207    | ✅ migrado |
-| 6         | `services/aiService.js`               | 4            | 92     | pendiente  |
-| 7         | `services/evaluaciones.js`            | 3            | 82     | pendiente  |
-| 8         | `services/videos.js`                  | 3            | 119    | pendiente  |
-| 9         | `services/rubricas.js`                | 3            | 66     | pendiente  |
+| 6         | `services/aiService.js`               | 4            | 92     | ✅ migrado |
+| 7         | `services/evaluaciones.js`            | 3            | 82     | ✅ migrado |
+| 8         | `services/videos.js`                  | 3            | 119    | ✅ migrado |
+| 9         | `services/rubricas.js`                | 3            | 66     | ✅ migrado |
 | 10        | `composables/useCourseEditorModel.js` | 3            | ~197   | pendiente  |
 | 11        | `composables/useNotificaciones.js`    | 3            | 124    | pendiente  |
 
@@ -50,8 +50,8 @@ bundler` la resuelven; los `vi.mock` por ruta siguen funcionando.
 
 ## Siguientes pasos sugeridos
 
-1. Migrar `aiService.js`, `evaluaciones.js`, `videos.js` y `rubricas.js`
-   (siguientes por fan-in).
+1. Migrar `composables/useCourseEditorModel.js` y
+   `composables/useNotificaciones.js` (últimos del ranking).
 2. Generar tipos de BD reales (`supabase gen types typescript`) y sustituir
    los casts manuales.
 3. Al terminar `src/services`, subir `checkJs: true` y después `strict: true`

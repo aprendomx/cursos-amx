@@ -5,7 +5,7 @@ import {
   chatAsistente,
   obtenerConfigIA,
   actualizarConfigIA,
-} from '@/services/aiService.js'
+} from '@/services/aiService'
 
 const mockFrom = vi.fn()
 const mockInvoke = vi.fn()

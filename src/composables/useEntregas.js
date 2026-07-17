@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase.js'
 import { obtenerEntrega, crearEntrega, nuevaVersion } from '@/services/entregas'
-import { obtenerRubrica } from '@/services/rubricas.js'
+import { obtenerRubrica } from '@/services/rubricas'
 
 export const ESTADO_LABEL = {
   pendiente: 'Pendiente',

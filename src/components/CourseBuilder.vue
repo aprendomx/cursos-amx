@@ -5,7 +5,7 @@ import ModuleList from '@/components/ModuleList.vue'
 import LessonTimeline from '@/components/LessonTimeline.vue'
 import LessonEditorPanel, { fuenteDe } from '@/components/LessonEditorPanel.vue'
 import { useCourseBuilder } from '@/composables/useCourseBuilder.js'
-import { guardarEvaluacionAdmin, cargarPreguntasAdmin } from '@/services/evaluaciones.js'
+import { guardarEvaluacionAdmin, cargarPreguntasAdmin } from '@/services/evaluaciones'
 
 const props = defineProps({
   cursoId: { type: String, required: true },
@@ -122,15 +122,8 @@ async function duplicarLeccion(lessonIndex) {
 </script>
 
 <template>
-  <div
-    class="course-builder"
-    :class="{ 'dragging-lesson': arrastrandoLeccion }"
-  >
-    <p
-      v-if="cb.error.value"
-      class="builder-error"
-      role="alert"
-    >
+  <div class="course-builder" :class="{ 'dragging-lesson': arrastrandoLeccion }">
+    <p v-if="cb.error.value" class="builder-error" role="alert">
       {{ cb.error.value.message }}
     </p>
     <div class="builder-panels">
@@ -158,10 +151,7 @@ async function duplicarLeccion(lessonIndex) {
         @drag-state="(v) => (arrastrandoLeccion = v)"
       />
     </div>
-    <footer
-      class="validation-bar"
-      data-test="validation-bar"
-    >
+    <footer class="validation-bar" data-test="validation-bar">
       {{
         t('builder.validationSummary', {
           modules: resumen.modulos,

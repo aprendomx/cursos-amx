@@ -7,7 +7,7 @@ import { sbSelect, sbInsert, sbRpc } from '@/lib/sbRest'
 import { supabase } from '@/lib/supabase.js'
 import { useHlsPlayer } from '@/composables/useHlsPlayer.js'
 import { useTiempoActividad } from '@/composables/useTiempoActividad.js'
-import { getPlayback } from '@/services/videos.js'
+import { getPlayback } from '@/services/videos'
 import { actualizarSegundosVistos, marcarLeccionCompletada } from '@/services/progreso.js'
 import { fetchInstructoresDeCurso } from '@/services/instructores'
 import { featureEnabled } from '@/lib/featureFlags.js'
@@ -435,7 +435,10 @@ export function usePlayerPage(props: PlayerPageProps) {
         id: c.id,
         user: (c.perfiles?.nombres || '') + ' ' + (c.perfiles?.apellido_paterno?.[0] || '') + '.',
         dep: c.perfiles?.dependencias?.siglas || '',
-        t: new Date(c.creado_en).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        t: new Date(c.creado_en).toLocaleTimeString('es-MX', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
         texto: c.contenido,
         esInstructor: instructorIds.value.has(c.user_id),
         destacado: c.destacado === true,

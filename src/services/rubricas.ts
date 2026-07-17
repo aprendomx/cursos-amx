@@ -1,6 +1,51 @@
 import { supabase } from '@/lib/supabase.js'
 
-export async function crearRubrica(tareaId, { tipo, titulo, puntaje_maximo, criterios, niveles }) {
+export type TipoRubrica = 'niveles' | 'puntaje_libre'
+
+/** Fila de rubrica_criterios (Fase K). */
+export interface RubricaCriterio {
+  id?: string
+  rubrica_id?: string
+  titulo: string
+  descripcion?: string | null
+  orden?: number
+  peso?: number
+  puntaje_maximo?: number | null
+}
+
+/** Fila de rubrica_niveles (Fase K). */
+export interface RubricaNivel {
+  id?: string
+  rubrica_id?: string
+  etiqueta: string
+  puntaje: number
+  orden?: number
+}
+
+/** Fila de rubricas con relaciones embebidas. */
+export interface Rubrica {
+  id: string
+  tarea_id: string
+  tipo: TipoRubrica
+  titulo: string
+  puntaje_maximo: number
+  creado_en?: string
+  rubrica_criterios?: RubricaCriterio[]
+  rubrica_niveles?: RubricaNivel[]
+}
+
+export interface RubricaInput {
+  tipo: TipoRubrica
+  titulo: string
+  puntaje_maximo: number
+  criterios: RubricaCriterio[]
+  niveles?: RubricaNivel[]
+}
+
+export async function crearRubrica(
+  tareaId: string,
+  { tipo, titulo, puntaje_maximo, criterios, niveles }: RubricaInput
+): Promise<Rubrica> {
   const { data: rubrica, error: err1 } = await supabase
     .from('rubricas')
     .insert({ tarea_id: tareaId, tipo, titulo, puntaje_maximo })
@@ -21,7 +66,7 @@ export async function crearRubrica(tareaId, { tipo, titulo, puntaje_maximo, crit
   return rubrica
 }
 
-export async function listarRubricas() {
+export async function listarRubricas(): Promise<Rubrica[]> {
   const { data, error: err } = await supabase
     .from('rubricas')
     .select('*, rubrica_criterios(*), rubrica_niveles(*)')
@@ -30,12 +75,12 @@ export async function listarRubricas() {
   return data || []
 }
 
-export async function eliminarRubrica(id) {
+export async function eliminarRubrica(id: string): Promise<void> {
   const { error: err } = await supabase.from('rubricas').delete().eq('id', id)
   if (err) throw err
 }
 
-export async function obtenerRubrica(tareaId) {
+export async function obtenerRubrica(tareaId: string): Promise<Rubrica | null> {
   const { data: rubrica, error: err1 } = await supabase
     .from('rubricas')
     .select('*, rubrica_criterios(*), rubrica_niveles(*)')
@@ -45,7 +90,10 @@ export async function obtenerRubrica(tareaId) {
   return rubrica || null
 }
 
-export async function actualizarRubrica(rubricaId, { titulo, puntaje_maximo, criterios, niveles }) {
+export async function actualizarRubrica(
+  rubricaId: string,
+  { titulo, puntaje_maximo, criterios, niveles }: Omit<RubricaInput, 'tipo'>
+): Promise<void> {
   const { error: err1 } = await supabase
     .from('rubricas')
     .update({ titulo, puntaje_maximo })
