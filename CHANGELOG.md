@@ -2,6 +2,19 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [0.20.0] — 2026-07-16
+
+### Cambiado
+
+- Migración TS (4ª tanda, ranking completo 11/11):
+  `composables/useCourseEditorModel.ts` (modelo del editor con
+  `CursoEditor`/`ModuloEditor`/`LeccionEditor`, unión `FuenteLeccion`,
+  `BuilderResumen`; las preguntas reutilizan `PreguntaAdmin`) y
+  `composables/useNotificaciones.ts` (`Notificacion` contra el esquema,
+  `PreferenciasNotificacion`, canal Realtime tipado), con 10
+  importadores y mocks actualizados a imports sin extensión. Siguiente
+  etapa: generar tipos de BD con `supabase gen types typescript`.
+
 ## [0.19.0] — 2026-07-16
 
 ### Cambiado
