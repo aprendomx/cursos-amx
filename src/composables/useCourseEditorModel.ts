@@ -163,16 +163,21 @@ export function useCourseEditorModel({
   /* ── Estructura ─────────────────────────────────── */
   function addModule() {
     const c = editingCurso.value
+    if (!c) return
     const idx = c.modulos.length + 1
     c.modulos.push(createBlankModulo(`m-${idx}`, { requierePrevio: true, leccionId: `l-${idx}-1` }))
   }
 
   function removeModule(mi: number) {
-    editingCurso.value.modulos.splice(mi, 1)
+    const c = editingCurso.value
+    if (!c) return
+    c.modulos.splice(mi, 1)
   }
 
   function moveModule(mi: number, dir: number) {
-    const mods = editingCurso.value.modulos
+    const c = editingCurso.value
+    if (!c) return
+    const mods = c.modulos
     const target = mi + dir
     if (target < 0 || target >= mods.length) return
     const temp = mods[mi]
@@ -181,13 +186,17 @@ export function useCourseEditorModel({
   }
 
   function addLesson(mi: number) {
-    const mod = editingCurso.value.modulos[mi]
+    const c = editingCurso.value
+    if (!c) return
+    const mod = c.modulos[mi]
     const idx = mod.lecciones.length + 1
     mod.lecciones.push(createBlankLesson(`l-${mi}-${idx}`))
   }
 
   function removeLesson(mi: number, li: number) {
-    editingCurso.value.modulos[mi].lecciones.splice(li, 1)
+    const c = editingCurso.value
+    if (!c) return
+    c.modulos[mi].lecciones.splice(li, 1)
   }
 
   /* ── Validación y resumen ───────────────────────── */
