@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { resumirLeccion } from '@/services/aiService.js'
+import { resumirLeccion } from '@/services/aiService'
 
 export function useAiSummarizer() {
   const summary = ref('')

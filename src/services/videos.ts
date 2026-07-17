@@ -7,7 +7,37 @@ const INGEST_BUCKET = 'video-ingest'
 // overhead reasonable for multi-GB uploads.
 const CHUNK_SIZE = 6 * 1024 * 1024
 
-export async function createVideoRow(leccionId) {
+export type VideoStatus = 'uploading' | 'pending' | 'processing' | 'ready' | 'failed'
+
+/** Fila de videos (pipeline de ingesta/transcodificación HLS). */
+export interface VideoRow {
+  id: string
+  leccion_id: string | null
+  status: VideoStatus
+  source_path: string | null
+  hls_path: string | null
+  poster_path: string | null
+  duracion_seg: number | null
+  error_msg: string | null
+  created_by: string | null
+  creado_en: string
+  actualizado_en: string
+}
+
+/** Respuesta de la Edge Function hls-playlist-url. */
+export interface Playback {
+  master_url: string
+  poster_url: string | null
+  duracion_seg: number | null
+  expires_in: number
+}
+
+export interface UploadVideoOpts {
+  /** Fracción 0..1 del progreso de subida. */
+  onProgress?: (fraccion: number) => void
+}
+
+export async function createVideoRow(leccionId: string): Promise<VideoRow> {
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -20,7 +50,11 @@ export async function createVideoRow(leccionId) {
   return data
 }
 
-export async function uploadVideoFile(videoId, file, { onProgress } = {}) {
+export async function uploadVideoFile(
+  videoId: string,
+  file: File,
+  { onProgress }: UploadVideoOpts = {}
+): Promise<string> {
   // TUS resumable upload via Supabase Storage. Sends ~6MB chunks so el
   // request stays under proxy limits (Cloudflare Free caps at 100MB
   // per HTTP request body). Automatic retries with exponential backoff
@@ -46,7 +80,7 @@ export async function uploadVideoFile(videoId, file, { onProgress } = {}) {
       // único en localStorage: dos uploads del mismo archivo a distintas
       // lecciones no se confunden, y un upload nuevo en la misma pantalla
       // no intenta reanudar el anterior.
-      fingerprint: (f) => Promise.resolve(`tus-${videoId}-${f.name}-${f.size}`),
+      fingerprint: () => Promise.resolve(`tus-${videoId}-${file.name}-${file.size}`),
       metadata: {
         bucketName: INGEST_BUCKET,
         objectName: objectName,
@@ -66,7 +100,7 @@ export async function uploadVideoFile(videoId, file, { onProgress } = {}) {
   })
 }
 
-export async function markVideoPending(videoId, sourcePath) {
+export async function markVideoPending(videoId: string, sourcePath: string): Promise<void> {
   const { error } = await supabase
     .from('videos')
     .update({ status: 'pending', source_path: sourcePath })
@@ -74,7 +108,7 @@ export async function markVideoPending(videoId, sourcePath) {
   if (error) throw error
 }
 
-export async function attachVideoToLeccion(leccionId, videoId) {
+export async function attachVideoToLeccion(leccionId: string, videoId: string): Promise<void> {
   const { error } = await supabase
     .from('lecciones')
     .update({ video_id: videoId, tipo_material: 'video' })
@@ -82,7 +116,7 @@ export async function attachVideoToLeccion(leccionId, videoId) {
   if (error) throw error
 }
 
-export async function retryVideo(videoId) {
+export async function retryVideo(videoId: string): Promise<void> {
   const { error } = await supabase
     .from('videos')
     .update({ status: 'pending', error_msg: null })
@@ -90,27 +124,31 @@ export async function retryVideo(videoId) {
   if (error) throw error
 }
 
-export async function deleteVideo(videoId) {
+export async function deleteVideo(videoId: string): Promise<void> {
   const { error } = await supabase.from('videos').delete().eq('id', videoId)
   if (error) throw error
 }
 
-export async function fetchVideo(videoId) {
+export async function fetchVideo(videoId: string): Promise<VideoRow | null> {
   const { data, error } = await supabase.from('videos').select('*').eq('id', videoId).maybeSingle()
   if (error) throw error
   return data
 }
 
-export async function getPlayback(videoId) {
+export async function getPlayback(videoId: string): Promise<Playback> {
   const { data, error } = await supabase.functions.invoke('hls-playlist-url', {
     body: { video_id: videoId },
   })
   if (error) throw error
-  return data // { master_url, poster_url, duracion_seg, expires_in }
+  return data
 }
 
 // Orchestrator the admin UI calls.
-export async function uploadVideoForLeccion(leccionId, file, { onProgress } = {}) {
+export async function uploadVideoForLeccion(
+  leccionId: string,
+  file: File,
+  { onProgress }: UploadVideoOpts = {}
+): Promise<string> {
   const row = await createVideoRow(leccionId)
   const objectName = await uploadVideoFile(row.id, file, { onProgress })
   await markVideoPending(row.id, objectName)

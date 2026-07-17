@@ -1,9 +1,47 @@
-// src/services/evaluaciones.js
+// src/services/evaluaciones.ts
 // Evaluaciones (lecciones tipo examen).
 import { supabase } from '@/lib/supabase.js'
 
+export type TipoPregunta =
+  | 'opcion_unica'
+  | 'opcion_multiple'
+  | 'verdadero_falso'
+  | 'emparejamiento'
+  | 'rellenar_huecos'
+  | 'ensayo'
+
+export interface OpcionAdmin {
+  id?: string
+  texto: string
+  es_correcta: boolean
+}
+
+/** Pregunta en el formato que maneja el editor del admin. */
+export interface PreguntaAdmin {
+  id?: string
+  tipo: TipoPregunta
+  enunciado: string
+  config: Record<string, unknown>
+  opciones: OpcionAdmin[]
+}
+
+/** Fila cruda de preguntas con opciones embebidas (proyección del select). */
+interface FilaPregunta {
+  id: string
+  orden: number
+  tipo: TipoPregunta
+  enunciado: string | null
+  config: Record<string, unknown> | null
+  pregunta_opciones: {
+    id: string
+    orden: number
+    texto: string | null
+    es_correcta: boolean | null
+  }[]
+}
+
 /** Lee el examen para el alumno (sin es_correcta). */
-export async function obtenerEvaluacion(leccionId) {
+export async function obtenerEvaluacion(leccionId: string): Promise<Record<string, unknown>> {
   const { data, error } = await supabase.rpc('obtener_evaluacion', { p_leccion: leccionId })
   if (error) throw error
   return data
@@ -11,10 +49,12 @@ export async function obtenerEvaluacion(leccionId) {
 
 /**
  * Envía las respuestas y obtiene la calificación.
- * @param {string} leccionId
- * @param {Record<string, any>} respuestas  preguntaId -> respuesta (formato depende del tipo)
+ * @param respuestas preguntaId -> respuesta (formato depende del tipo)
  */
-export async function calificarEvaluacion(leccionId, respuestas) {
+export async function calificarEvaluacion(
+  leccionId: string,
+  respuestas: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   const { data, error } = await supabase.rpc('calificar_evaluacion', {
     p_leccion: leccionId,
     p_respuestas: respuestas,
@@ -24,14 +64,14 @@ export async function calificarEvaluacion(leccionId, respuestas) {
 }
 
 /** Carga preguntas + opciones (con es_correcta) para el editor del admin. */
-export async function cargarPreguntasAdmin(leccionId) {
+export async function cargarPreguntasAdmin(leccionId: string): Promise<PreguntaAdmin[]> {
   const { data, error } = await supabase
     .from('preguntas')
     .select('id, orden, tipo, enunciado, config, pregunta_opciones(id, orden, texto, es_correcta)')
     .eq('leccion_id', leccionId)
     .order('orden')
   if (error) throw error
-  return (data || []).map((p) => ({
+  return ((data || []) as FilaPregunta[]).map((p) => ({
     id: p.id,
     tipo: p.tipo,
     enunciado: p.enunciado || '',
@@ -46,7 +86,10 @@ export async function cargarPreguntasAdmin(leccionId) {
 /**
  * Reemplazo total de las preguntas de una lección examen.
  */
-export async function guardarEvaluacionAdmin(leccionId, preguntas) {
+export async function guardarEvaluacionAdmin(
+  leccionId: string,
+  preguntas: PreguntaAdmin[]
+): Promise<void> {
   const { error: delErr } = await supabase.from('preguntas').delete().eq('leccion_id', leccionId)
   if (delErr) throw delErr
 

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { chatAsistente } from '@/services/aiService.js'
+import { chatAsistente } from '@/services/aiService'
 
 export function useAiChatbot() {
   const messages = ref([])

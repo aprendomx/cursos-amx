@@ -1,7 +1,7 @@
 <!-- src/components/EvaluacionPanel.vue -->
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
-import { obtenerEvaluacion, calificarEvaluacion } from '@/services/evaluaciones.js'
+import { obtenerEvaluacion, calificarEvaluacion } from '@/services/evaluaciones'
 import { emitirEvento } from '@/services/analytics'
 
 const props = defineProps({

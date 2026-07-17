@@ -7,7 +7,7 @@ const mockGenerarQuizIA = vi.fn()
 const mockResumirLeccion = vi.fn()
 const mockChatAsistente = vi.fn()
 
-vi.mock('@/services/aiService.js', () => ({
+vi.mock('@/services/aiService', () => ({
   generarQuizIA: (...args) => mockGenerarQuizIA(...args),
   resumirLeccion: (...args) => mockResumirLeccion(...args),
   chatAsistente: (...args) => mockChatAsistente(...args),

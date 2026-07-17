@@ -8,7 +8,7 @@ vi.mock('@/services/entregas', () => ({
   crearTarea: (...args) => mockCrearTarea(...args),
 }))
 
-vi.mock('@/services/rubricas.js', () => ({
+vi.mock('@/services/rubricas', () => ({
   crearRubrica: vi.fn(),
 }))
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import AdminCourseEditor from '@/components/AdminCourseEditor.vue'
 import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest'
-import { cargarPreguntasAdmin } from '@/services/evaluaciones.js'
+import { cargarPreguntasAdmin } from '@/services/evaluaciones'
 
 vi.mock('@/lib/sbRest', () => ({
   sbSelect: vi.fn(),
@@ -14,7 +14,7 @@ vi.mock('@/services/portadas.js', () => ({
   uploadPortada: vi.fn(),
   deletePortada: vi.fn(),
 }))
-vi.mock('@/services/evaluaciones.js', () => ({
+vi.mock('@/services/evaluaciones', () => ({
   cargarPreguntasAdmin: vi.fn().mockResolvedValue([]),
   guardarEvaluacionAdmin: vi.fn().mockResolvedValue(),
 }))

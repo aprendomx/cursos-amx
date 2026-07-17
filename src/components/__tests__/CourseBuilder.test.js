@@ -16,7 +16,7 @@ vi.mock('@/services/courseBuilder.js', () => ({
   reordenarModulos: vi.fn(),
   reordenarLecciones: vi.fn(),
 }))
-vi.mock('@/services/evaluaciones.js', () => ({
+vi.mock('@/services/evaluaciones', () => ({
   guardarEvaluacionAdmin: vi.fn(),
   cargarPreguntasAdmin: vi.fn().mockResolvedValue([]),
 }))
@@ -29,7 +29,7 @@ vi.mock('vue-draggable-plus', () => ({
   },
 }))
 // Adaptation: LessonEditorPanel's sub-components import supabase (VideoUploadField
-// via @/services/videos.js, DocumentoUploadField via @/services/documentos.js).
+// via @/services/videos, DocumentoUploadField via @/services/documentos.js).
 // Mock them so the test suite can initialize without VITE_SUPABASE_URL being set.
 // EvaluacionEditor and LessonRichTextEditor are mocked to match LessonEditorPanel's
 // own test setup and prevent any further transitive import issues.
@@ -144,7 +144,7 @@ describe('CourseBuilder', () => {
   })
 
   it('abrir lección de examen llama cargarPreguntasAdmin y pasa preguntas al panel', async () => {
-    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones.js')
+    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones')
     const mockPreguntas = [{ id: 'p1', tipo: 'multiple', enunciado: '¿Qué?', opciones: [] }]
     cargarPreguntasAdmin.mockResolvedValue(mockPreguntas)
 
@@ -180,7 +180,7 @@ describe('CourseBuilder', () => {
   })
 
   it('abrir lección no-examen NO llama cargarPreguntasAdmin', async () => {
-    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones.js')
+    const { cargarPreguntasAdmin } = await import('@/services/evaluaciones')
     const w = factory()
     await flushPromises()
     await w.findAll('[data-test="lesson-card"]')[0].trigger('click')
@@ -189,8 +189,7 @@ describe('CourseBuilder', () => {
   })
 
   it('guardar lección de examen pasa preguntas a guardarEvaluacionAdmin', async () => {
-    const { cargarPreguntasAdmin, guardarEvaluacionAdmin } =
-      await import('@/services/evaluaciones.js')
+    const { cargarPreguntasAdmin, guardarEvaluacionAdmin } = await import('@/services/evaluaciones')
     const mockPreguntas = [{ id: 'p1', tipo: 'multiple', enunciado: '¿Qué?', opciones: [] }]
     cargarPreguntasAdmin.mockResolvedValue(mockPreguntas)
     guardarEvaluacionAdmin.mockResolvedValue()
