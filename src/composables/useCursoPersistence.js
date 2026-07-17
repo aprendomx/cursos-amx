@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest'
 import { cargarPreguntasAdmin, guardarEvaluacionAdmin } from '@/services/evaluaciones'
 import { parseDuracionToSeg } from '@/lib/duracion.js'
-import { createBlankModulo, entregaPayload, isUuid } from '@/composables/useCourseEditorModel.js'
+import { createBlankModulo, entregaPayload, isUuid } from '@/composables/useCourseEditorModel'
 
 function leccionFromRow(l, mi, li) {
   return {

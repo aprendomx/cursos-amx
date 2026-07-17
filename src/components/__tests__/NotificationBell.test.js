@@ -27,7 +27,7 @@ const mockState = vi.hoisted(() => ({
   marcarLeida: vi.fn(),
 }))
 
-vi.mock('@/composables/useNotificaciones.js', () => ({
+vi.mock('@/composables/useNotificaciones', () => ({
   useNotificaciones: () => mockState,
 }))
 

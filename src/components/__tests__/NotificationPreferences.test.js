@@ -12,7 +12,7 @@ const mockState = vi.hoisted(() => ({
   guardarPrefs: vi.fn(),
 }))
 
-vi.mock('@/composables/useNotificaciones.js', () => ({
+vi.mock('@/composables/useNotificaciones', () => ({
   useNotificaciones: () => mockState,
 }))
 

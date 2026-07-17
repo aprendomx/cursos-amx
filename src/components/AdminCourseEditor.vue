@@ -17,7 +17,7 @@ import {
   isUuid,
   nivelOptions,
   idiomaOptions,
-} from '@/composables/useCourseEditorModel.js'
+} from '@/composables/useCourseEditorModel'
 import { useCursoPersistence } from '@/composables/useCursoPersistence.js'
 
 const props = defineProps({

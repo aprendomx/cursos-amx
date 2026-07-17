@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { useNotificaciones } from '@/composables/useNotificaciones.js'
+import { useNotificaciones } from '@/composables/useNotificaciones'
 
 const { preferencias, guardarPrefs } = useNotificaciones()
 
@@ -21,14 +21,10 @@ const CANALES = [
   { key: 'app', label: 'Solo app' },
 ]
 
-const canalDefault = computed(() =>
-  preferencias.value?.canal_default || 'all'
-)
+const canalDefault = computed(() => preferencias.value?.canal_default || 'all')
 
 const silenciados = computed(() =>
-  Array.isArray(preferencias.value?.silenciados)
-    ? preferencias.value.silenciados
-    : []
+  Array.isArray(preferencias.value?.silenciados) ? preferencias.value.silenciados : []
 )
 
 function isSilenciado(key) {
@@ -50,9 +46,7 @@ function setCanal(key) {
 <template>
   <div class="nprefs">
     <section class="nprefs-section">
-      <h3 class="nprefs-section-title">
-        Canal por defecto
-      </h3>
+      <h3 class="nprefs-section-title">Canal por defecto</h3>
       <div class="nprefs-canales">
         <button
           v-for="c in CANALES"
@@ -68,15 +62,9 @@ function setCanal(key) {
     </section>
 
     <section class="nprefs-section">
-      <h3 class="nprefs-section-title">
-        Silenciar tipos
-      </h3>
+      <h3 class="nprefs-section-title">Silenciar tipos</h3>
       <ul class="nprefs-list">
-        <li
-          v-for="t in TIPOS"
-          :key="t.key"
-          class="nprefs-item"
-        >
+        <li v-for="t in TIPOS" :key="t.key" class="nprefs-item">
           <label class="nprefs-label">
             <input
               type="checkbox"
@@ -84,7 +72,7 @@ function setCanal(key) {
               :checked="isSilenciado(t.key)"
               :data-test="`silenciar-${t.key}`"
               @change="toggleSilenciado(t.key)"
-            >
+            />
             <span class="nprefs-label-text">{{ t.label }}</span>
           </label>
         </li>
@@ -119,7 +107,9 @@ function setCanal(key) {
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
-  transition: background 160ms var(--ease), border-color 160ms var(--ease);
+  transition:
+    background 160ms var(--ease),
+    border-color 160ms var(--ease);
 }
 .nprefs-canal-btn:hover {
   background: var(--paper-2);

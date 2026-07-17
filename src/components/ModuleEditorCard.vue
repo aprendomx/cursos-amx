@@ -8,7 +8,7 @@ import DocumentoUploadField from '@/components/DocumentoUploadField.vue'
 import EvaluacionEditor from '@/components/EvaluacionEditor.vue'
 import PortadaUploadField from '@/components/PortadaUploadField.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
-import { tipoOptions } from '@/composables/useCourseEditorModel.js'
+import { tipoOptions } from '@/composables/useCourseEditorModel'
 
 defineProps({
   mod: { type: Object, required: true },
