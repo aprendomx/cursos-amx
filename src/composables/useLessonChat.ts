@@ -98,7 +98,7 @@ export function useLessonChat({ leccionId, session, appUser, cursoId }: LessonCh
     const token = session.value?.access_token
     const isRealCurso = cursoId ? /^[0-9a-f]{8}-/.test(cursoId) : false
 
-    if (isRealCurso && session.value) {
+    if (isRealCurso && session.value && cursoId) {
       try {
         instructorIds.value = new Set(await fetchInstructoresDeCurso(cursoId))
       } catch (e) {

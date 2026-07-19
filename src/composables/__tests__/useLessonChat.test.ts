@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { ref, computed, nextTick, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useLessonChat } from '../useLessonChat'
@@ -13,8 +13,8 @@ import { fetchInstructoresDeCurso } from '@/services/instructores'
 describe('useLessonChat', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  function withSetup(fn) {
-    let result
+  function withSetup<T>(fn: () => T): T {
+    let result!: T
     const Comp = defineComponent({
       setup() {
         result = fn()
@@ -35,7 +35,7 @@ describe('useLessonChat', () => {
   }
 
   it('carga comentarios al montar', async () => {
-    sbSelect.mockResolvedValueOnce({
+    ;(sbSelect as Mock).mockResolvedValueOnce({
       data: [{ id: 1, contenido: 'Hola', creado_en: '2024-01-01T10:00:00Z', perfiles: { nombres: 'Ana', apellido_paterno: 'García' }, user_id: 'u2' }],
       count: null
     })
