@@ -5,7 +5,7 @@ import { useHlsPlayer } from '@/composables/useHlsPlayer.js'
 import { supabase } from '@/lib/supabase.js'
 
 export interface HlsPlaybackOptions {
-  videoId: ComputedRef<string | null>
+  videoId: ComputedRef<string | null | undefined>
   leccionId: Ref<string>
   session: ComputedRef<{ access_token: string } | null>
 }

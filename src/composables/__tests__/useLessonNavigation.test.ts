@@ -30,7 +30,7 @@ describe('useLessonNavigation', () => {
     return result
   }
 
-  function factory(props = { cursoId: 'c1' }) {
+  function factory(props: { cursoId: string; leccionId?: string } = { cursoId: 'c1' }) {
     return withSetup(() => useLessonNavigation({
       props,
       session: computed(() => ({ access_token: 'tok', user: { id: 'u1' } })),
