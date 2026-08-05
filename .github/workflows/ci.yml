@@ -117,6 +117,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
+      # vite preview (webServer de Playwright) sirve dist/; sin build previo
+      # el server nunca responde y el webServer muere por timeout a los 60s.
+      - name: Build application
+        run: npm run build
+
       - name: Run E2E tests
         run: npm run test:e2e
 
