@@ -121,9 +121,19 @@ jobs:
       # el server nunca responde y el webServer muere por timeout a los 60s.
       - name: Build application
         run: npm run build
+        env:
+          # Sin URL/key el bundle llama createClient(undefined) y lanza al
+          # cargar, dejando la app sin montar. El fallback dummy permite que
+          # la UI renderice y pasen los specs de navegación; los flujos
+          # contra backend real requieren configurar los secrets.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'http://127.0.0.1:54321' }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'dummy-anon-key-ci' }}
 
       - name: Run E2E tests
         run: npm run test:e2e
+        env:
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
 
   # Check agregado: la protección de la rama main exige un status llamado
   # "ci". Reúne los jobs bloqueantes (los informativos test-e2e y audit
