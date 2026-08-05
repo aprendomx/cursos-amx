@@ -58,7 +58,7 @@ test.describe('Critical Flow', () => {
 
     // Should redirect to home and show user avatar or name
     await expect(page).toHaveURL(/.*\/#\//, { timeout: 10000 })
-    await expect(page.locator('.user-avatar, [data-test="user-menu"]')).toBeVisible()
+    await expect(page.locator('.nav-avatar')).toBeVisible()
   })
 
   test('should navigate to a course and enter player', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('Critical Flow', () => {
     await expect(page).toHaveURL(/.*\/#\//, { timeout: 10000 })
 
     // Click on first course
-    await page.click('.course-card, [data-test="course-card"]')
+    await page.click('.curso-bloque .curso-cover')
     await expect(page).toHaveURL(/.*curso/)
 
     // Click "Iniciar curso" or "Continuar"

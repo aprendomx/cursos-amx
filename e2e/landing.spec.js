@@ -28,7 +28,9 @@ test.describe('Auth Flow', () => {
     await page.fill('input[type="password"]', 'wrongpassword')
     await page.click('button:has-text("Entrar")')
 
-    // Should show error or redirect
-    await expect(page.locator('body')).toContainText(/Error|Incorrectos|Invalid/)
+    // Debe mostrar el error de autenticación (con backend real: credenciales
+    // inválidas; sin backend alcanzable: error de red). Ambos usan .auth-error.
+    await expect(page.locator('.auth-error')).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('.auth-error')).not.toBeEmpty()
   })
 })
