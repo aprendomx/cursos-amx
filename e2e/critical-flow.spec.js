@@ -21,16 +21,27 @@ test.describe('Critical Flow', () => {
 
   test('should register a new user', async ({ page }) => {
     await page.goto('/#/registro')
-    await expect(page.locator('text=Crear cuenta')).toBeVisible()
+    await expect(page.locator('text=Paso 1 de 4')).toBeVisible()
 
-    await page.fill('input[name="nombres"]', testUser.nombres)
-    await page.fill('input[name="apellido_paterno"]', testUser.apellidoPaterno)
-    await page.fill('input[name="apellido_materno"]', testUser.apellidoMaterno)
-    await page.fill('input[name="correo"]', testUser.email)
-    await page.fill('input[name="telefono"]', testUser.telefono)
-    await page.fill('input[name="password"]', testUser.password)
-    await page.check('input[name="acepta"]')
+    // Paso 1: identidad
+    await page.fill('#r-nombres', testUser.nombres)
+    await page.fill('#r-ap1', testUser.apellidoPaterno)
+    await page.fill('#r-ap2', testUser.apellidoMaterno)
+    await page.fill('#r-password', testUser.password)
+    await page.click('button:has-text("Siguiente")')
 
+    // Paso 2: contacto
+    await page.fill('#r-correo', testUser.email)
+    await page.fill('#r-tel', testUser.telefono)
+    await page.click('button:has-text("Siguiente")')
+
+    // Paso 3: dependencia
+    await page.selectOption('#r-dep', { index: 1 })
+    await page.fill('#r-cargo', 'Pruebas E2E')
+    await page.click('button:has-text("Siguiente")')
+
+    // Paso 4: confirmar y enviar
+    await page.check('.registro-accept input[type="checkbox"]')
     await page.click('button:has-text("Crear cuenta")')
 
     // After successful registration, should redirect to home or show confirmation

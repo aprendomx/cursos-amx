@@ -17,7 +17,7 @@ test.describe('Landing Page', () => {
     await page.goto('/')
     await page.click('text=Registro')
     await expect(page).toHaveURL(/.*registro/)
-    await expect(page.locator('text=Crear cuenta')).toBeVisible()
+    await expect(page.locator('text=Paso 1 de 4')).toBeVisible()
   })
 })
 
