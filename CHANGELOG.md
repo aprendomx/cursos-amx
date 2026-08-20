@@ -6,6 +6,23 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Avance por módulo** — el reproductor muestra qué tanto llevas del módulo en
+  curso, no solo del curso completo, y el panel de instructor resume el grupo
+  módulo por módulo (cuántas personas iniciaron, cuántas terminaron y el
+  promedio). Migración `072_progreso_por_modulo.sql`: crea la vista
+  `v_progreso_modulo` y las funciones `curso_completado_por_usuario` y
+  `modulo_completado_por_usuario`, que el motor de insignias ya invocaba sin
+  que existieran —por eso las insignias de módulo y de curso nunca se
+  desbloqueaban.
+- **Constancias configurables por curso** — cada curso puede tener su propio
+  diseño visual, uno o varios funcionarios firmantes y textos personalizados
+  con marcadores (`{{nombre}}`, `{{curso}}`, `{{folio}}`…). Se agregan el
+  catálogo de funcionarios con su firma escaneada y el catálogo de diseños,
+  ambos administrables desde la interfaz. Migración
+  `070_constancias_disenos_firmantes.sql`. La configuración se **congela** al
+  emitir: una constancia ya expedida conserva el diseño, las firmas y los
+  textos con los que se emitió, aunque después se cambien.
+
 - **Curso tutorial preinstalado** — «Cómo usar Cursos AMX»
   (`/curso/tutorial-plataforma`), sembrado por
   `supabase/migrations/056_curso_tutorial.sql` y publicado por defecto en toda
