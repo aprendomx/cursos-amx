@@ -151,6 +151,9 @@ begin
   delete from public.constancias where user_id in (v_alumno, v_otro, v_admin);
   delete from public.progreso    where user_id in (v_alumno, v_otro, v_admin);
   delete from public.log_puntos  where usuario_id in (v_alumno, v_otro, v_admin);
+  delete from public.curso_firmantes;
+  delete from public.curso_constancia;
+  delete from public.funcionarios;
   delete from public.rate_limit where scope = 'verificar_constancia';
 
   create temp table if not exists t_ids (k text primary key, v uuid);
@@ -660,6 +663,119 @@ begin
   end if;
 
   delete from public.rate_limit where scope = 'verificar_constancia';
+end $$;
+
+\echo '── 10. Constancias: diseños y firmantes ──'
+do $$
+declare a  uuid := (select v from t_ids where k='alumno');
+        d  uuid := (select v from t_ids where k='admin');
+        c  uuid := (select v from t_ids where k='curso');
+        f1 uuid; f2 uuid; cfg jsonb; cong jsonb; n int;
+begin
+  -- Catálogo de funcionarios y su asignación al curso.
+  insert into public.funcionarios (nombre, cargo, firma_path)
+    values ('Ana Directora', 'Directora General', 'firmas/ana.png') returning id into f1;
+  insert into public.funcionarios (nombre, cargo, firma_path)
+    values ('Beto Secretario', 'Secretario Técnico', 'firmas/beto.png') returning id into f2;
+  insert into public.curso_firmantes (curso_id, funcionario_id, orden)
+    values (c, f2, 2), (c, f1, 1);
+
+  cfg := public.constancia_config(c);
+
+  if jsonb_array_length(cfg -> 'firmantes') <> 2 then
+    perform pg_temp.fail('constancia_config no devuelve los 2 firmantes');
+  else
+    perform pg_temp.ok('un curso puede tener varios firmantes');
+  end if;
+
+  if cfg -> 'firmantes' -> 0 ->> 'nombre' <> 'Ana Directora' then
+    perform pg_temp.fail('los firmantes no respetan el orden');
+  else
+    perform pg_temp.ok('los firmantes salen en el orden configurado');
+  end if;
+
+  if cfg -> 'diseno' ->> 'clave' is null then
+    perform pg_temp.fail('no se resolvió ningún diseño');
+  else
+    perform pg_temp.ok('se resuelve el diseño por defecto de la instalación');
+  end if;
+
+  -- Personalizar el texto de UN curso no debe obligar a duplicar el diseño.
+  insert into public.curso_constancia (curso_id, texto_titulo)
+    values (c, 'DIPLOMA') on conflict (curso_id) do update set texto_titulo = 'DIPLOMA';
+  cfg := public.constancia_config(c);
+  if cfg ->> 'texto_titulo' <> 'DIPLOMA' then
+    perform pg_temp.fail('el texto del curso no sobrescribe al de la instalación');
+  else
+    perform pg_temp.ok('un curso puede sobrescribir un texto y heredar el resto');
+  end if;
+  if cfg ->> 'texto_pre' is null then
+    perform pg_temp.fail('los textos no sobrescritos deberían heredarse');
+  else
+    perform pg_temp.ok('los textos no sobrescritos se heredan');
+  end if;
+
+  -- CONGELADO: lo esencial de un documento oficial.
+  delete from public.constancias where user_id = a and curso_id = c;
+  insert into public.constancias (user_id, curso_id, folio, hash_verif, diseno, firmantes, textos)
+  values (a, c, public.generar_folio_constancia(), 'x',
+          cfg -> 'diseno', cfg -> 'firmantes',
+          jsonb_build_object('texto_titulo', cfg ->> 'texto_titulo'));
+
+  -- Ahora cambia todo el catálogo: cargo, baja del funcionario y textos.
+  update public.funcionarios set cargo = 'Ex Directora', activo = false where id = f1;
+  delete from public.curso_firmantes where curso_id = c;
+  update public.curso_constancia set texto_titulo = 'OTRA COSA' where curso_id = c;
+
+  select firmantes, textos into cong, cfg from public.constancias
+   where user_id = a and curso_id = c;
+
+  if cong -> 0 ->> 'cargo' <> 'Directora General' then
+    perform pg_temp.fail('la constancia emitida cambió de cargo al editar el catálogo');
+  else
+    perform pg_temp.ok('la constancia emitida conserva el cargo del momento de firma');
+  end if;
+  if jsonb_array_length(cong) <> 2 then
+    perform pg_temp.fail('la constancia perdió firmantes al vaciar el catálogo');
+  else
+    perform pg_temp.ok('la constancia conserva sus firmantes aunque se retiren del curso');
+  end if;
+  if cfg ->> 'texto_titulo' <> 'DIPLOMA' then
+    perform pg_temp.fail('el texto de la constancia emitida cambió');
+  else
+    perform pg_temp.ok('el texto de la constancia emitida no cambia');
+  end if;
+
+  -- No se puede borrar a alguien que ya firma (ON DELETE RESTRICT).
+  insert into public.curso_firmantes (curso_id, funcionario_id, orden) values (c, f2, 1);
+  begin
+    delete from public.funcionarios where id = f2;
+    perform pg_temp.fail('se borró un funcionario que figura como firmante');
+  -- ON DELETE RESTRICT lanza restrict_violation (23001), no
+  -- foreign_key_violation (23503), que es lo que produciría NO ACTION.
+  exception when restrict_violation or foreign_key_violation then
+    perform pg_temp.ok('no se puede borrar a un funcionario que firma un curso');
+  end;
+end $$;
+
+-- Solo un administrador toca los catálogos.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        d uuid := (select v from t_ids where k='admin');
+begin
+  perform pg_temp.debe_fallar(
+    'un alumno NO puede dar de alta funcionarios',
+    a, 'insert into public.funcionarios (nombre, cargo) values (''Falso'',''Falso'')');
+  perform pg_temp.debe_pasar(
+    'un admin SÍ puede dar de alta funcionarios',
+    d, 'insert into public.funcionarios (nombre, cargo) values (''Caro'',''Coordinadora'')');
+  -- Pero cualquiera autenticado debe poder LEERLOS: si no, no se puede pintar
+  -- la constancia.
+  if pg_temp.visibles(a, 'select 1 from public.funcionarios') = 0 then
+    perform pg_temp.fail('un alumno no puede leer los funcionarios: la constancia no se pintaría');
+  else
+    perform pg_temp.ok('los funcionarios son legibles por quien pinta su constancia');
+  end if;
 end $$;
 
 \echo ''
