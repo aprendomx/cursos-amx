@@ -390,6 +390,51 @@ Ver `docs/MANUAL_ACTUALIZACION.md` y `docker/` (stack Supabase + video-worker).
 scripts/deploy.sh
 ```
 
+Al terminar, `deploy.sh` verifica la instalación: que las funciones exijan
+autenticación, que todas las tablas tengan RLS, que las migraciones estén
+aplicadas y que la escalada a administrador siga bloqueada. **Una comprobación
+que no se puede ejecutar cuenta como problema**, nunca como comprobación
+superada: una instalación degradada no debe terminar en verde.
+
+La URL contra la que se verifica se toma de `API_EXTERNAL_URL` en
+`docker/.env`. Es la URL de la **API**, no la del frontend — todas las
+comprobaciones van contra `/functions/v1/…`. Para anularla:
+
+```bash
+PUBLIC_URL=https://api.tu-dominio.org scripts/deploy.sh
+```
+
+### El primer administrador
+
+Una instalación nueva no tiene a nadie que pueda entrar al panel: el rol vive en
+`perfiles.es_admin`, que nace en `false`, y un usuario **no puede promoverse a sí
+mismo** —lo impide el trigger `perfiles_guard_roles`, que es la defensa real
+contra la escalada de privilegios—.
+
+`scripts/deploy.sh` se encarga: al terminar cuenta los administradores y, si no
+hay ninguno, crea el primero preguntándote correo y nombre.
+
+También puedes correrlo por separado, las veces que haga falta:
+
+```bash
+scripts/crear-admin.sh                    # pregunta lo que falte
+scripts/crear-admin.sh --email tu@correo.mx --nombres Ana --apellido-paterno Ruiz
+```
+
+- Si el correo **no existe**, crea la cuenta y **muestra una contraseña generada
+  una sola vez**. No se guarda en ningún archivo, ni en `docker/.env`, ni en los
+  logs: anótala en ese momento.
+- Si el correo **ya existe**, solo lo promueve. No cambia su contraseña ni sus
+  datos.
+- Volver a ejecutarlo es seguro: no duplica cuentas ni regenera contraseñas.
+
+En un despliegue **sin terminal interactiva** (CI, `cron`) no se pregunta nada:
+`deploy.sh` avisa y termina señalando el problema, porque una instalación sin
+administrador está rota aunque todos los contenedores estén arriba.
+
+¿Perdiste la contraseña? Ver «Problemas frecuentes» en
+`docs/MANUAL_ACTUALIZACION.md`.
+
 ## Curso tutorial preinstalado
 
 Toda instalación trae publicado el curso **«Cómo usar Cursos AMX»**
