@@ -24,6 +24,13 @@ vi.mock('@/lib/featureFlags.js', () => ({
 vi.mock('@/composables/useFeatureFlags.js', () => ({
   useFeatureFlags: () => ({ isEnabled: () => false, load: vi.fn() }),
 }))
+vi.mock('@/components/AdminConstanciaCurso.vue', () => ({
+  default: {
+    name: 'AdminConstanciaCurso',
+    props: ['cursoId', 'cursoTitulo', 'cursoDuracion'],
+    template: '<div data-test="constancia-curso" />',
+  },
+}))
 vi.mock('@/components/CourseBuilder.vue', () => ({
   default: { name: 'CourseBuilder', props: ['cursoId', 'session'], template: '<div />' },
 }))
@@ -137,7 +144,7 @@ describe('AdminCourseEditor', () => {
   it('bloquea la publicación cuando la validación falla', async () => {
     const w = factory()
     await flushPromises()
-    await stepButtons(w)[2].trigger('click')
+    await stepButtons(w)[3].trigger('click')
     await publishButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Faltan datos')
@@ -151,7 +158,7 @@ describe('AdminCourseEditor', () => {
     c.titulo = 'Curso válido'
     c.descripcion = 'Descripción suficientemente larga.'
     c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
-    await stepButtons(w)[2].trigger('click')
+    await stepButtons(w)[3].trigger('click')
     await publishButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Necesitas iniciar sesión')
@@ -176,7 +183,7 @@ describe('AdminCourseEditor', () => {
     lec.requiere_entrega = true
     lec.entrega_tipos_csv = 'PDF, .zip'
 
-    await stepButtons(w)[2].trigger('click')
+    await stepButtons(w)[3].trigger('click')
     await publishButton(w).trigger('click')
     await flushPromises()
 
@@ -326,7 +333,7 @@ describe('AdminCourseEditor', () => {
     // El admin borra la segunda lección en el editor.
     w.vm.editingCurso.modulos[0].lecciones.splice(1, 1)
 
-    await stepButtons(w)[2].trigger('click')
+    await stepButtons(w)[3].trigger('click')
     await publishButton(w).trigger('click')
     await flushPromises()
 

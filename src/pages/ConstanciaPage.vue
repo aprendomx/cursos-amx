@@ -5,6 +5,8 @@ import { supabase } from '@/lib/supabase.js'
 import IconSet from '@/components/IconSet.vue'
 import QrcodeVue from 'qrcode.vue'
 import { getConstanciaConfig, CONSTANCIA_DEFAULTS } from '@/services/constanciaConfig.js'
+import { configDeConstancia, aplicarMarcadores } from '@/lib/constanciaTextos.js'
+import { urlFirma, urlAsset } from '@/services/constanciaDisenos.js'
 import { theme } from '@/lib/theme.js'
 
 const props = defineProps({
@@ -39,6 +41,36 @@ const fullName = computed(() => {
 const cursoTitle = computed(() => realConstancia.value?.cursos?.titulo || '')
 
 const cursoDuracion = computed(() => realConstancia.value?.cursos?.duracion || '')
+
+// Configuración de la constancia. Se lee SIEMPRE de lo congelado en la fila:
+// firmantes, diseño y textos se copiaron al emitirse (migración 070). El
+// respaldo con `settings` solo cubre constancias emitidas antes de esa
+// migración, que no tienen congelado.
+const cfg = computed(() => configDeConstancia(realConstancia.value, settings.value))
+
+const firmantes = computed(() => cfg.value.firmantes)
+
+const textos = computed(() => {
+  const valores = {
+    nombre: fullName.value,
+    curso: cursoTitle.value,
+    duracion: cursoDuracion.value,
+    fecha: emissionDate.value,
+    folio: folio.value,
+  }
+  return {
+    pre: aplicarMarcadores(cfg.value.textoPre, valores),
+    titulo: aplicarMarcadores(cfg.value.textoTitulo, valores),
+    cuerpo: aplicarMarcadores(cfg.value.textoCuerpo, valores),
+  }
+})
+
+const fondoUrl = computed(
+  () => urlAsset(cfg.value.diseno?.fondo_path) || '/theme/constancia-fondo.webp'
+)
+const plecaUrl = computed(
+  () => urlAsset(cfg.value.diseno?.pleca_path) || '/theme/constancia-pleca.webp'
+)
 
 const emissionDate = computed(() => {
   if (!realConstancia.value?.emitida_en) return ''
@@ -191,19 +223,9 @@ function goBack() {
         <!-- Fondo decorativo -->
         <img src="/theme/constancia-fondo.webp" class="cnst-fondo" alt="" aria-hidden="true" />
         <!-- Pleca superior -->
-        <img
-          src="/theme/constancia-pleca.webp"
-          class="cnst-pleca cnst-pleca-top"
-          alt=""
-          aria-hidden="true"
-        />
+        <img :src="plecaUrl" class="cnst-pleca cnst-pleca-top" alt="" aria-hidden="true" />
         <!-- Pleca inferior -->
-        <img
-          src="/theme/constancia-pleca.webp"
-          class="cnst-pleca cnst-pleca-bottom"
-          alt=""
-          aria-hidden="true"
-        />
+        <img :src="plecaUrl" class="cnst-pleca cnst-pleca-bottom" alt="" aria-hidden="true" />
 
         <!-- Contenido -->
         <div class="cnst-content">
@@ -217,9 +239,13 @@ function goBack() {
             <p class="cnst-pre">
               {{ theme.constancia.emisor }}
             </p>
-            <p class="cnst-pre cnst-pre-2">Otorga el presente</p>
+            <p class="cnst-pre cnst-pre-2">
+              {{ textos.pre }}
+            </p>
 
-            <h1 class="cnst-titulo">CONSTANCIA</h1>
+            <h1 class="cnst-titulo">
+              {{ textos.titulo }}
+            </h1>
 
             <p class="cnst-a">A</p>
 
@@ -227,7 +253,13 @@ function goBack() {
               {{ fullName }}
             </p>
 
-            <p class="cnst-descripcion">
+            <!-- El cuerpo es configurable por curso y sus marcadores ya
+                 vienen sustituidos. Si está vacío se usa la redacción de
+                 siempre, para no dejar la constancia sin explicación. -->
+            <p v-if="textos.cuerpo" class="cnst-descripcion">
+              {{ textos.cuerpo }}
+            </p>
+            <p v-else class="cnst-descripcion">
               Por haber acreditado satisfactoriamente el curso de capacitación
               <em>{{ cursoTitle }}</em
               >, impartido a través de {{ theme.app.name }}.
@@ -236,21 +268,48 @@ function goBack() {
             <p class="cnst-duracion mono">{{ cursoDuracion || '—' }} · Folio {{ folio }}</p>
           </section>
 
-          <!-- Firma titular -->
-          <section class="cnst-firma">
-            <div class="cnst-firma-linea" />
-            <p class="cnst-titular-nombre">
-              {{ settings.titular_nombre }}
-            </p>
-            <p class="cnst-titular-cargo">
-              {{ settings.titular_cargo }}
-            </p>
+          <!-- Firmantes. Salen de lo congelado al emitir, no del catálogo
+               actual: un documento impreso no cambia de firmante. -->
+          <section
+            v-if="firmantes.length"
+            class="cnst-firmas"
+            :class="{ 'es-multiple': firmantes.length > 1 }"
+          >
+            <div v-for="(f, i) in firmantes" :key="i" class="cnst-firma">
+              <img
+                v-if="f.firma_path"
+                :src="urlFirma(f.firma_path)"
+                alt=""
+                aria-hidden="true"
+                class="cnst-firma-img"
+              />
+              <div class="cnst-firma-linea" />
+              <p class="cnst-titular-nombre">
+                {{ f.nombre }}
+              </p>
+              <p class="cnst-titular-cargo">
+                {{ f.cargo }}
+              </p>
+            </div>
+          </section>
+
+          <!-- Constancias anteriores a la migración 070: firmante único. -->
+          <section v-else-if="settings.titular_nombre" class="cnst-firmas">
+            <div class="cnst-firma">
+              <div class="cnst-firma-linea" />
+              <p class="cnst-titular-nombre">
+                {{ settings.titular_nombre }}
+              </p>
+              <p class="cnst-titular-cargo">
+                {{ settings.titular_cargo }}
+              </p>
+            </div>
           </section>
 
           <!-- Pie: lugar/fecha + QR -->
           <footer class="cnst-foot">
             <div class="cnst-foot-lugar">
-              <p class="cnst-lugar">{{ settings.lugar }}, {{ emissionDate }}</p>
+              <p class="cnst-lugar">{{ cfg.lugar || settings.lugar }}, {{ emissionDate }}</p>
             </div>
             <div class="cnst-foot-qr" aria-label="Código de verificación">
               <QrcodeVue
@@ -440,7 +499,19 @@ function goBack() {
   margin-top: 0.4rem;
 }
 
-/* Firma del titular */
+/* Firmantes: uno centrado, varios en fila. */
+.cnst-firmas {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+.cnst-firma-img {
+  max-height: 56px;
+  max-width: 220px;
+  object-fit: contain;
+  margin-bottom: -6px;
+}
 .cnst-firma {
   text-align: center;
   display: flex;

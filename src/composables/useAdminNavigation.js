@@ -48,6 +48,7 @@ export function useAdminNavigation() {
       ? [{ key: 'ai_config', label: 'Configuración IA' }]
       : []),
     { key: 'constancias', label: 'Constancias' },
+    { key: 'funcionarios', label: 'Funcionarios' },
     ...(featureEnabled('reportes_avanzados') ? [{ key: 'reportes', label: 'Reportes' }] : []),
     ...(featureEnabled('notificaciones')
       ? [{ key: 'notificaciones', label: 'Notificaciones' }]

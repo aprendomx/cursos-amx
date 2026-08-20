@@ -8,6 +8,7 @@ import IconSet from '@/components/IconSet.vue'
 import PlaceholderImage from '@/components/PlaceholderImage.vue'
 import CourseBuilder from '@/components/CourseBuilder.vue'
 import ModuleEditorCard from '@/components/ModuleEditorCard.vue'
+import AdminConstanciaCurso from '@/components/AdminConstanciaCurso.vue'
 import PortadaUploadField from '@/components/PortadaUploadField.vue'
 import { useFeatureFlags } from '@/composables/useFeatureFlags.js'
 import {
@@ -117,7 +118,7 @@ async function goToStep(i) {
     <!-- Step indicator -->
     <div class="editor-steps">
       <button
-        v-for="(label, i) in ['Básico', 'Estructura', 'Revisar']"
+        v-for="(label, i) in ['Básico', 'Estructura', 'Constancia', 'Revisar']"
         :key="i"
         class="editor-step-btn"
         :class="{ active: editorStep === i, completed: editorStep > i }"
@@ -253,14 +254,32 @@ async function goToStep(i) {
           Básico
         </button>
         <button class="btn btn-primary btn-sm" @click="goToStep(2)">
-          Siguiente: Revisar
+          Siguiente: Constancia
           <IconSet name="arrow" />
         </button>
       </div>
     </div>
 
     <!-- Step 3: Revisar -->
+    <!-- Step 3: Constancia -->
     <div v-else-if="editorStep === 2" class="editor-panel fade-in">
+      <AdminConstanciaCurso
+        v-if="isUuid(editingCurso.id)"
+        :curso-id="editingCurso.id"
+        :curso-titulo="editingCurso.titulo"
+        :curso-duracion="editingCurso.duracion"
+      />
+      <p v-else class="editor-hint">
+        Guarda el curso primero: la configuración de constancia necesita que el curso exista.
+      </p>
+      <div class="editor-actions">
+        <button class="btn btn-ghost btn-sm" @click="editorStep = 1">Atrás</button>
+        <button class="btn btn-primary btn-sm" @click="editorStep = 3">Siguiente: Revisar</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Revisar -->
+    <div v-else-if="editorStep === 3" class="editor-panel fade-in">
       <div class="editor-review-layout">
         <!-- Preview card -->
         <div>
@@ -373,7 +392,7 @@ async function goToStep(i) {
       </div>
 
       <div class="editor-nav">
-        <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="editorStep = 1">
+        <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="editorStep = 2">
           <IconSet name="arrowLeft" />
           Estructura
         </button>
