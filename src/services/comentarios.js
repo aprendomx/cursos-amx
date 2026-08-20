@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase.js'
 export async function fetchComentarios(leccionId) {
   const { data, error } = await supabase
     .from('comentarios')
-    .select('*, perfiles(nombres, apellido_paterno, dependencias(siglas))')
+    .select('*, perfiles_publicos(nombres, apellido_paterno, dependencias(siglas))')
     .eq('leccion_id', leccionId)
     .order('creado_en', { ascending: true })
     .limit(50)
@@ -25,7 +25,7 @@ export async function enviarComentario(leccionId, contenido) {
       leccion_id: leccionId,
       contenido,
     })
-    .select('*, perfiles(nombres, apellido_paterno, dependencias(siglas))')
+    .select('*, perfiles_publicos(nombres, apellido_paterno, dependencias(siglas))')
     .single()
   if (error) throw error
   return data
@@ -48,7 +48,7 @@ export function useComentariosRealtime(leccionId) {
         // Fetch el comentario completo con perfil
         const { data } = await supabase
           .from('comentarios')
-          .select('*, perfiles(nombres, apellido_paterno, dependencias(siglas))')
+          .select('*, perfiles_publicos(nombres, apellido_paterno, dependencias(siglas))')
           .eq('id', payload.new.id)
           .single()
         if (data) {

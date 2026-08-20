@@ -1,7 +1,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
 import { sbSelect, sbInsert } from '@/lib/sbRest'
 import { fetchInstructoresDeCurso } from '@/services/instructores'
-import { COMENTARIOS_FUENTE, USER } from '@/data.js'
+import { USER } from '@/data.js'
 
 export type ComentarioItem = {
   id: number
@@ -71,7 +71,7 @@ export function useLessonChat({ leccionId, session, appUser, cursoId }: LessonCh
     comentariosAbort = new AbortController()
     try {
       const { data } = await sbSelect(
-        `comentarios?select=*,perfiles(nombres,apellido_paterno,dependencias(siglas))&leccion_id=eq.${leccionIdStr}&order=creado_en.asc&limit=50`,
+        `comentarios?select=*,perfiles_publicos(nombres,apellido_paterno,dependencias(siglas))&leccion_id=eq.${leccionIdStr}&order=creado_en.asc&limit=50`,
         token,
         { signal: comentariosAbort.signal }
       )

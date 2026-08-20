@@ -172,7 +172,7 @@ export async function cancelarRSVP(sesionId: string, userId: string): Promise<vo
 export async function listarRSVP(sesionId: string): Promise<Record<string, unknown>[]> {
   const { data, error } = await supabase
     .from('sesiones_rsvp')
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .eq('sesion_id', sesionId)
   if (error) throw error
   return data || []
