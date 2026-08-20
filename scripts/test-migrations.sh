@@ -4,7 +4,13 @@
 # error de SQL solo se descubre cuando alguien intenta instalar desde cero.
 #
 # Uso:
-#   DB_URL=postgres://postgres:postgres@localhost:5432/amx_test scripts/test-migrations.sh
+#   DB_URL=postgres://postgres:postgres@localhost:5432/postgres scripts/test-migrations.sh
+#
+# OJO con la base de destino: apúntalo a `postgres`, no a una base creada al
+# vuelo. pg_cron solo se puede instalar en la que indica cron.database_name
+# (por defecto `postgres`), así que en cualquier otra las migraciones 051 y 052
+# fallan con "can only create extension in database postgres". Además es lo que
+# hace scripts/migrate.sh en producción, así que la prueba se parece más.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

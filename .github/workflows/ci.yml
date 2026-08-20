@@ -174,14 +174,14 @@ jobs:
       - name: Install psql client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Create test database
-        env:
-          PGPASSWORD: postgres
-        run: psql -h localhost -p 55432 -U postgres -c "create database amx_test;"
-
+      # Se aplica sobre la base `postgres`, no sobre una creada aparte, por dos
+      # razones: es lo que hace scripts/migrate.sh en producción, y pg_cron solo
+      # se puede instalar en la base que indica cron.database_name (por defecto
+      # `postgres`). En cualquier otra, las migraciones 051 y 052 fallan con
+      # "can only create extension in database postgres".
       - name: Apply migrations and verify schema
         env:
-          DB_URL: postgres://postgres:postgres@localhost:55432/amx_test
+          DB_URL: postgres://postgres:postgres@localhost:55432/postgres
         run: scripts/test-migrations.sh
 
   # Check agregado: la protección de la rama main exige un status llamado
