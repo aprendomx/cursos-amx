@@ -8,6 +8,7 @@ import {
 import type { SyncActionType } from './types'
 import { supabase } from '@/lib/supabase.js'
 import { featureEnabled } from '@/lib/featureFlags'
+import { getIsOnline } from './network-status'
 
 const MAX_RETRIES = 5
 const BACKOFF_BASE_MS = 1000
@@ -63,6 +64,64 @@ const endpointMap: Record<SyncActionType, (payload: Record<string, unknown>) => 
       }
     },
   }
+
+/**
+ * ¿El fallo es de red, o lo rechazó el servidor?
+ *
+ * Distinguirlo es lo único que hace útil a la cola: un 403 por RLS o un
+ * "sin intentos restantes" NO deben reintentarse —fallarían igual mil veces—
+ * mientras que un corte de conexión sí.
+ */
+export function esFalloDeRed(e: any): boolean {
+  if (e?.status && e.status >= 400 && e.status < 500) return false
+  const msg = String(e?.message || e || '').toLowerCase()
+  return (
+    e?.status === 0 ||
+    e?.status === undefined ||
+    /failed to fetch|network|networkerror|timeout|offline|load failed/.test(msg)
+  )
+}
+
+export interface ResultadoDiferible<T> {
+  /** true = quedó en la cola; no hay resultado del servidor todavía. */
+  diferido: boolean
+  resultado: T | null
+}
+
+/**
+ * Ejecuta la acción ahora si se puede, y la difiere si no.
+ *
+ * Es el punto de entrada que faltaba: la cola existía completa —IndexedDB,
+ * reintentos con backoff, panel de estado— y NADIE la llamaba. `enqueue()` a
+ * secas tampoco servía: con el flag encendido encolaba SIEMPRE, incluso con
+ * conexión, y el usuario no veía su comentario hasta el siguiente sync.
+ *
+ * Con el flag apagado se comporta como antes de que existiera la cola: se
+ * ejecuta y, si falla, se propaga el error.
+ */
+export async function ejecutarODiferir<T = unknown>(
+  type: SyncActionType,
+  payload: Record<string, unknown>
+): Promise<ResultadoDiferible<T>> {
+  if (!featureEnabled('offline_sync')) {
+    return { diferido: false, resultado: (await endpointMap[type](payload)) as T }
+  }
+
+  if (!getIsOnline().value) {
+    await saveSyncAction({ type, payload, status: 'pending', retries: 0, createdAt: Date.now() })
+    return { diferido: true, resultado: null }
+  }
+
+  try {
+    return { diferido: false, resultado: (await endpointMap[type](payload)) as T }
+  } catch (e) {
+    // Un rechazo del servidor se propaga: encolarlo solo aplazaría el mismo
+    // error y le daría al usuario la falsa impresión de que se guardó.
+    if (!esFalloDeRed(e)) throw e
+    await saveSyncAction({ type, payload, status: 'pending', retries: 0, createdAt: Date.now() })
+    return { diferido: true, resultado: null }
+  }
+}
 
 export async function enqueue(
   type: SyncActionType,

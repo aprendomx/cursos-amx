@@ -2,17 +2,20 @@ import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { ref, computed, nextTick, defineComponent, h } from 'vue'
 import { mount } from '@vue/test-utils'
 import { useLessonChat } from '../useLessonChat'
+import { ejecutarODiferir } from '@/offline/sync-queue'
 
 vi.mock('@/lib/sbRest', () => ({
   sbSelect: vi.fn(() => Promise.resolve({ data: [], count: null })),
-  sbInsert: vi.fn(() => Promise.resolve({})),
+}))
+vi.mock('@/offline/sync-queue', () => ({
+  ejecutarODiferir: vi.fn(() => Promise.resolve({ diferido: false, resultado: {} })),
 }))
 vi.mock('@/services/instructores', () => ({
   fetchInstructoresDeCurso: vi.fn(() => Promise.resolve([])),
 }))
 vi.mock('@/data.js', () => ({ USER: { nombre: 'Test', apellidos: 'User' } }))
 
-import { sbSelect, sbInsert } from '@/lib/sbRest'
+import { sbSelect } from '@/lib/sbRest'
 
 describe('useLessonChat', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -58,15 +61,46 @@ describe('useLessonChat', () => {
     expect(chat.comentarios.value[0].texto).toBe('Hola')
   })
 
-  it('sendComment inserta en BD', async () => {
+  it('sendComment envía el comentario y limpia el borrador', async () => {
     const chat = withSetup(factory)
     await nextTick()
     await new Promise((r) => setTimeout(r, 10))
     chat.draft.value = 'Nuevo comentario'
     await chat.sendComment()
-    expect(sbInsert).toHaveBeenCalled()
+
+    expect(ejecutarODiferir).toHaveBeenCalledWith(
+      'forum_post',
+      expect.objectContaining({ contenido: 'Nuevo comentario' })
+    )
     expect(chat.draft.value).toBe('')
     expect(chat.comentarios.value).toHaveLength(1)
+    // Enviado: sin marca de estado.
+    expect(chat.comentarios.value[0].estado).toBeUndefined()
+  })
+
+  // La interfaz pinta el comentario de forma optimista. Si el envío no llegó a
+  // la base, hay que decirlo: antes se hacía console.error y el comentario se
+  // quedaba en pantalla como si estuviera guardado.
+  it('marca el comentario como pendiente si quedó en la cola', async () => {
+    ;(ejecutarODiferir as Mock).mockResolvedValueOnce({ diferido: true, resultado: null })
+    const chat = withSetup(factory)
+    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
+    chat.draft.value = 'Sin conexión'
+    await chat.sendComment()
+
+    expect(chat.comentarios.value[0].estado).toBe('pendiente')
+  })
+
+  it('marca el comentario como fallido si el servidor lo rechaza', async () => {
+    ;(ejecutarODiferir as Mock).mockRejectedValueOnce(new Error('rls'))
+    const chat = withSetup(factory)
+    await nextTick()
+    await new Promise((r) => setTimeout(r, 10))
+    chat.draft.value = 'Rechazado'
+    await chat.sendComment()
+
+    expect(chat.comentarios.value[0].estado).toBe('fallido')
   })
 
   it('hace polling cada 8s', async () => {

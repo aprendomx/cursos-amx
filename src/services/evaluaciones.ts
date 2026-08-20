@@ -1,6 +1,7 @@
 // src/services/evaluaciones.ts
 // Evaluaciones (lecciones tipo examen).
 import { supabase } from '@/lib/supabase.js'
+import { ejecutarODiferir } from '@/offline/sync-queue'
 
 export type TipoPregunta =
   | 'opcion_unica'
@@ -55,12 +56,14 @@ export async function calificarEvaluacion(
   leccionId: string,
   respuestas: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const { data, error } = await supabase.rpc('calificar_evaluacion', {
-    p_leccion: leccionId,
-    p_respuestas: respuestas,
+  // Sin conexión no hay calificación: el servidor es quien califica, y eso no
+  // se negocia. Se difiere el envío y se devuelve `diferido: true` para que el
+  // panel muestre "pendiente de calificar" en vez de inventar un puntaje.
+  const { diferido, resultado } = await ejecutarODiferir<Record<string, unknown>>('quiz_submit', {
+    leccion_id: leccionId,
+    respuestas,
   })
-  if (error) throw error
-  return data
+  return { diferido, ...(resultado || {}) }
 }
 
 /** Carga preguntas + opciones (con es_correcta) para el editor del admin. */
