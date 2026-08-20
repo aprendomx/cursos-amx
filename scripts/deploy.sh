@@ -439,12 +439,23 @@ insert into auth.users (id, email)
 insert into public.perfiles (id, nombres, apellido_paterno, correo)
   values ('00000000-dead-4bee-8000-000000000001', 'Verificacion', 'Despliegue', 'verificacion@local')
   on conflict (id) do nothing;
-do $guard$
+-- La medición de auth.uid() va en su PROPIO bloque, sin manejador de
+-- excepciones. Un BEGIN…EXCEPTION abre una subtransacción y, al capturar el
+-- error de la escalada —que es el resultado esperado—, revertiría también el
+-- set_config de la medición: la comprobación se acusaba a sí misma de tener
+-- la sesión inefectiva en una instalación sana.
+do $medir$
 begin
   set local role authenticated;
   set local request.jwt.claim.sub = '00000000-dead-4bee-8000-000000000001';
   perform set_config('sesion.uid_efectivo',
     coalesce(auth.uid()::text, 'NULO'), true);
+  reset role;
+end $medir$;
+do $guard$
+begin
+  set local role authenticated;
+  set local request.jwt.claim.sub = '00000000-dead-4bee-8000-000000000001';
   update public.perfiles set es_admin = true where id = auth.uid();
   reset role;
 exception when others then reset role;
