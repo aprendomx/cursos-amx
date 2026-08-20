@@ -4,7 +4,10 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
-import webPush from 'https://esm.sh/web-push@3.6.7'
+// Los tipos de @types/web-push declaran solo exports con nombre, aunque el
+// paquete sí tiene default en CommonJS. Se importa el namespace para que el
+// runtime funcione igual y `deno check` no falle con TS1192.
+import * as webPush from 'https://esm.sh/web-push@3.6.7'
 import { isServiceRole } from '../_shared/serviceAuth.ts'
 
 const BATCH_SIZE = 50

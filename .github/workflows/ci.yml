@@ -75,6 +75,16 @@ jobs:
         with:
           deno-version: v2.x
 
+      # Comprobación de tipos de las Edge Functions. No estaba: el job solo
+      # corría `deno test`, así que cuatro errores de tipos —dos en ai-proxy,
+      # uno en hls-playlist y uno en notifications-worker— llevaban tiempo ahí
+      # sin que nada los señalara.
+      - name: Type-check edge functions
+        run: >-
+          deno check --node-modules-dir=none
+          supabase/functions/_shared/*.ts
+          supabase/functions/*/index.ts
+
       - name: Run edge function tests
         # --node-modules-dir=none: sin él, Deno detecta el package.json del
         # root (modo BYONM) y exige un node_modules que este job no tiene.

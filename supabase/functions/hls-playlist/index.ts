@@ -75,12 +75,33 @@ serve(async (req) => {
   return new Response(rewritten, { headers: m3u8Headers })
 })
 
+/**
+ * Lo mínimo que rewriteManifest necesita del cliente de Storage.
+ *
+ * Antes se declaraba `ReturnType<typeof createClient>`, que fija los genéricos
+ * POR DEFECTO de supabase-js y no coinciden con los del cliente ya construido
+ * (TS2345). Declarar la forma que de verdad se usa evita el desajuste y además
+ * documenta la dependencia real.
+ */
+interface FirmadorDeUrls {
+  storage: {
+    from(bucket: string): {
+      createSignedUrls(
+        paths: string[],
+        expiresIn: number
+        // signedUrl es `string | null`: la API devuelve una entrada por ruta
+        // aunque alguna falle. El código de abajo ya lo contempla.
+      ): Promise<{ data: { signedUrl: string | null }[] | null; error: unknown }>
+    }
+  }
+}
+
 async function rewriteManifest(
   text: string,
   videoId: string,
   manifestPath: string,
   playToken: string,
-  admin: ReturnType<typeof createClient>
+  admin: FirmadorDeUrls
 ): Promise<string> {
   const dir = manifestPath.includes('/') ? manifestPath.slice(0, manifestPath.lastIndexOf('/')) : ''
   const lines = text.split('\n')

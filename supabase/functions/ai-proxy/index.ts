@@ -3,6 +3,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { authorize, authErrorResponse } from '../_shared/auth.ts'
 import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
 
+/** Turno del historial que manda el asistente de estudio. */
+interface MensajeChat {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -114,7 +120,7 @@ Responde SOLO con un JSON válido en este formato exacto:
             role: 'system',
             content: `Eres un asistente de estudio útil. Responde basándote ÚNICAMENTE en el siguiente contenido del curso. Si no puedes responder con el contenido proporcionado, di "No tengo suficiente información para responder eso."\n\nContexto del curso:\n${context}`,
           },
-          ...history.map((h) => ({ role: h.role, content: h.content })),
+          ...history.map((h: MensajeChat) => ({ role: h.role, content: h.content })),
           { role: 'user', content: message },
         ]
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -143,7 +149,10 @@ Responde SOLO con un JSON válido en este formato exacto:
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    // El binding de catch es `unknown`: hay que estrechar antes de leer
+    // .message, o se filtra un [object Object] al cliente.
+    const mensaje = error instanceof Error ? error.message : String(error)
+    return new Response(JSON.stringify({ error: mensaje }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
