@@ -19,7 +19,7 @@ comment on table public.cohortes is 'Grupos/cohortes dentro de un curso';
 create table if not exists public.miembros_cohorte (
   id uuid primary key default gen_random_uuid(),
   cohorte_id uuid not null references public.cohortes(id) on delete cascade,
-  usuario_id uuid not null references auth.users(id) on delete cascade,
+  usuario_id uuid not null references public.perfiles(id) on delete cascade,
   rol text not null default 'estudiante' check (rol in ('estudiante', 'ayudante')),
   created_at timestamptz not null default now(),
   unique (cohorte_id, usuario_id)
@@ -27,11 +27,11 @@ create table if not exists public.miembros_cohorte (
 
 comment on table public.miembros_cohorte is 'Miembros de un cohorte';
 
--- Foro privado por cohorte: agregar cohorte_id nullable a la tabla foro
-alter table public.foro
-add column if not exists cohorte_id uuid references public.cohortes(id) on delete cascade;
-
-comment on column public.foro.cohorte_id is 'Si no es null, el mensaje es privado del cohorte';
+-- NOTA: la versión original alteraba `public.foro` para añadir cohorte_id.
+-- Esa tabla no existe (la de foros es `public.foros`, creada en 024) y el
+-- foro privado por cohorte nunca se implementó en el cliente. Se elimina el
+-- ALTER en vez de aplicarlo a la tabla equivocada; cuando la funcionalidad
+-- se construya, debe llegar en su propia migración.
 
 -- Políticas RLS
 alter table public.cohortes enable row level security;
@@ -45,12 +45,8 @@ create policy "cohortes_select_all"
 create policy "cohortes_mod_admin"
   on public.cohortes for all
   to authenticated
-  using (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ))
-  with check (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 create policy "miembros_cohorte_select_all"
   on public.miembros_cohorte for select
@@ -60,12 +56,8 @@ create policy "miembros_cohorte_select_all"
 create policy "miembros_cohorte_mod_admin"
   on public.miembros_cohorte for all
   to authenticated
-  using (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ))
-  with check (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ));
+  using (public.is_admin())
+  with check (public.is_admin());
 
 -- Función para obtener el cohorte de un usuario en un curso
 create or replace function public.obtener_cohorte_usuario(p_curso_id uuid, p_usuario_id uuid)

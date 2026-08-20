@@ -117,8 +117,11 @@ SELECT
   t.curso_id,
   c.titulo AS curso_titulo,
   p.nombres AS alumno_nombres,
-  p.apellidos AS alumno_apellidos,
-  p.email AS alumno_email
+  -- perfiles no tiene `apellidos` ni `email`: son apellido_paterno /
+  -- apellido_materno (con nombres_completos generada) y `correo`.
+  trim(both from p.apellido_paterno || coalesce(' ' || p.apellido_materno, ''))
+    AS alumno_apellidos,
+  p.correo AS alumno_email
 FROM entregas e
 JOIN tareas t ON t.id = e.tarea_id
 JOIN cursos c ON c.id = t.curso_id
