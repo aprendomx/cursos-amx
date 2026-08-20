@@ -110,6 +110,14 @@ begin
       allowed_mime_types text[],
       created_at         timestamptz default now()
     );
+  else
+    -- La imagen de Supabase trae `storage.buckets` pero con la forma mínima:
+    -- las columnas `public`, `file_size_limit` y `allowed_mime_types` las
+    -- añaden las migraciones del servicio de Storage, que en un contenedor
+    -- pelado no han corrido. Las migraciones 016, 019, 020 y 025 sí las usan.
+    alter table storage.buckets add column if not exists public boolean;
+    alter table storage.buckets add column if not exists file_size_limit bigint;
+    alter table storage.buckets add column if not exists allowed_mime_types text[];
   end if;
 
   if to_regclass('storage.objects') is null then
