@@ -44,7 +44,7 @@ export function usePlayerPage(props: PlayerPageProps) {
 
   /* ── 3. HLS ─────────────────────────────────────── */
   const hls = useHlsPlayback({
-    videoId: computed(() => nav.source.value.kind === 'hls' ? nav.source.value.videoId : null),
+    videoId: computed(() => (nav.source.value.kind === 'hls' ? nav.source.value.videoId : null)),
     leccionId: nav.currentLeccion,
     session,
   })
@@ -139,6 +139,8 @@ export function usePlayerPage(props: PlayerPageProps) {
     lecciones: nav.lecciones,
     cursoTitulo: nav.cursoTitulo,
     moduloTitulo: nav.moduloTitulo,
+    moduloProgreso: nav.moduloActual,
+    progresoModulos: nav.progresoModulos,
     loadingLecciones: nav.loadingLecciones,
     curso: nav.curso,
     leccion: nav.leccion,

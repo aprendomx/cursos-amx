@@ -778,5 +778,80 @@ begin
   end if;
 end $$;
 
+\echo '── 11. Avance por módulo ──'
+do $$
+declare a  uuid := (select v from t_ids where k='alumno');
+        o  uuid := (select v from t_ids where k='otro');
+        c  uuid := (select v from t_ids where k='curso');
+        la uuid := (select v from t_ids where k='lec_a');
+        m  uuid; n bigint; pct int;
+begin
+  select modulo_id into m from public.lecciones where id = la;
+
+  -- Los bloques anteriores dejaron el curso completo para este alumno. Se parte
+  -- de cero aquí para medir el avance parcial.
+  delete from public.constancias where user_id = a;
+  delete from public.progreso    where user_id = a;
+
+  perform set_config('request.jwt.claim.sub', a::text, true);
+  if public.modulo_completado_por_usuario(a, m) then
+    perform pg_temp.fail('el módulo figura completo sin haber completado nada');
+  else
+    perform pg_temp.ok('un módulo sin lecciones hechas no está completo');
+  end if;
+
+  select porcentaje into pct from public.v_progreso_modulo
+   where user_id = a and modulo_id = m;
+  if coalesce(pct, -1) <> 0 then
+    perform pg_temp.fail(format('el porcentaje inicial debería ser 0, es %s', pct));
+  else
+    perform pg_temp.ok('la vista calcula 0% al inicio');
+  end if;
+
+  -- Completar una de las dos lecciones del módulo.
+  perform public.guardar_posicion(la, 600);
+  perform public.marcar_leccion_completada(la);
+
+  select porcentaje into pct from public.v_progreso_modulo
+   where user_id = a and modulo_id = m;
+  if pct <> 50 then
+    perform pg_temp.fail(format('con 1 de 2 lecciones el avance debería ser 50%%, es %s', pct));
+  else
+    perform pg_temp.ok('la vista refleja el avance parcial del módulo');
+  end if;
+
+  if public.modulo_completado_por_usuario(a, m) then
+    perform pg_temp.fail('el módulo figura completo con solo una lección hecha');
+  else
+    perform pg_temp.ok('un módulo a medias no cuenta como completo');
+  end if;
+
+  if public.curso_completado_por_usuario(a, c) then
+    perform pg_temp.fail('el curso figura completo a medias');
+  else
+    perform pg_temp.ok('el curso a medias no cuenta como completo');
+  end if;
+end $$;
+
+-- Escalación horizontal: el avance de otra persona no se consulta.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        o uuid := (select v from t_ids where k='otro');
+        c uuid := (select v from t_ids where k='curso');
+        n bigint;
+begin
+  perform pg_temp.debe_fallar(
+    'un alumno NO puede consultar si otro completó el curso',
+    a, format('select public.curso_completado_por_usuario(%L, %L)', o, c));
+
+  -- Y la vista solo muestra las filas propias.
+  n := pg_temp.visibles(a, format('select 1 from public.v_progreso_modulo where user_id <> %L', a));
+  if n > 0 then
+    perform pg_temp.fail('v_progreso_modulo expone el avance de otras personas');
+  else
+    perform pg_temp.ok('v_progreso_modulo solo muestra el avance propio');
+  end if;
+end $$;
+
 \echo ''
 \echo '✅ Todas las pruebas de RLS pasaron'

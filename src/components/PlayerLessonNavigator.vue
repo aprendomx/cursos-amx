@@ -15,6 +15,10 @@ const props = defineProps({
   progressPct: { type: Number, required: true },
   variant: { type: String, default: 'split' },
   moduloTitulo: { type: String, default: '' },
+  // Avance del módulo en curso. Se muestra junto al del curso porque son
+  // preguntas distintas: «cuánto llevo del curso» y «cuánto me falta para
+  // cerrar este módulo».
+  moduloProgreso: { type: Object, default: null },
 })
 
 const emit = defineEmits(['select'])
@@ -67,6 +71,26 @@ watch(
       <span class="lesson-list-progress mono"
         >{{ progressFraction }} &middot; {{ progressPct }}%</span
       >
+
+      <div
+        v-if="moduloProgreso && moduloProgreso.lecciones > 1"
+        class="lesson-modulo-progreso"
+        :class="{ 'es-completo': moduloProgreso.completado }"
+      >
+        <div
+          class="lesson-modulo-barra"
+          role="progressbar"
+          :aria-valuenow="moduloProgreso.porcentaje"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-label="`Avance del módulo ${moduloTitulo}`"
+        >
+          <span :style="{ width: moduloProgreso.porcentaje + '%' }" />
+        </div>
+        <span class="lesson-modulo-cifra mono">
+          {{ moduloProgreso.completadas }}/{{ moduloProgreso.lecciones }} de este módulo
+        </span>
+      </div>
     </div>
     <ul class="lesson-items">
       <li
@@ -107,6 +131,26 @@ watch(
       <span class="lesson-list-progress mono"
         >{{ progressFraction }} &middot; {{ progressPct }}%</span
       >
+
+      <div
+        v-if="moduloProgreso && moduloProgreso.lecciones > 1"
+        class="lesson-modulo-progreso"
+        :class="{ 'es-completo': moduloProgreso.completado }"
+      >
+        <div
+          class="lesson-modulo-barra"
+          role="progressbar"
+          :aria-valuenow="moduloProgreso.porcentaje"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          :aria-label="`Avance del módulo ${moduloTitulo}`"
+        >
+          <span :style="{ width: moduloProgreso.porcentaje + '%' }" />
+        </div>
+        <span class="lesson-modulo-cifra mono">
+          {{ moduloProgreso.completadas }}/{{ moduloProgreso.lecciones }} de este módulo
+        </span>
+      </div>
     </div>
     <div class="lesson-strip-items">
       <div
@@ -321,5 +365,31 @@ watch(
 .lesson-strip-card.lesson-active {
   background: rgba(255, 255, 255, 0.08);
   border-left-color: var(--brand-accent);
+}
+
+.lesson-modulo-progreso {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.lesson-modulo-barra {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line, #e6e6e6);
+  overflow: hidden;
+}
+.lesson-modulo-barra span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  transition: width 240ms var(--ease, ease);
+}
+.lesson-modulo-progreso.es-completo .lesson-modulo-barra span {
+  background: var(--success);
+}
+.lesson-modulo-cifra {
+  font-size: 12px;
+  color: var(--ink-3);
 }
 </style>

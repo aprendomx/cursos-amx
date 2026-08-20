@@ -5,6 +5,7 @@ import { useInstructor } from '@/composables/useInstructor.js'
 import { ESTADO_LABEL } from '@/composables/useEntregas.js'
 import SesionesVirtualesPanel from '@/components/SesionesVirtualesPanel.vue'
 import InstructorReportPanel from '@/components/InstructorReportPanel.vue'
+import InstructorModulosPanel from '@/components/InstructorModulosPanel.vue'
 import InstructorVideoDashboard from '@/components/InstructorVideoDashboard.vue'
 import EntregasInstructorTable from '@/components/EntregasInstructorTable.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
@@ -352,6 +353,13 @@ const mockPendingEntregas = ref([
           :session="session"
           :perfil="perfil"
           gestion
+        />
+
+        <!-- Avance por módulo del grupo -->
+        <InstructorModulosPanel
+          :key="'mod-' + cursoActivo.id"
+          :curso-id="cursoActivo.id"
+          :alumnos="alumnos"
         />
 
         <!-- Reportes por instructor (Fase H2) -->

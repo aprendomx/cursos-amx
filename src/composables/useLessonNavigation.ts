@@ -106,6 +106,41 @@ export function useLessonNavigation({
     Math.min(lecciones.value.filter((l) => l.completado).length / (lecciones.value.length || 1), 1)
   )
 
+  // Avance por módulo. Se calcula de las lecciones ya cargadas en vez de
+  // consultar v_progreso_modulo: el reproductor ya tiene modulo_id y
+  // completado de todas, así que una consulta extra solo añadiría latencia y
+  // un estado que podría quedar desincronizado al completar una lección.
+  const progresoModulos = computed(() => {
+    const acc: Record<string, { titulo: string; orden: number; total: number; hechas: number }> = {}
+    for (const l of lecciones.value) {
+      if (!l.modulo_id) continue
+      const m = (acc[l.modulo_id] ??= {
+        titulo: l.modulo_titulo || '',
+        orden: l.modulo_orden ?? 0,
+        total: 0,
+        hechas: 0,
+      })
+      m.total += 1
+      if (l.completado) m.hechas += 1
+    }
+    return Object.entries(acc)
+      .map(([id, m]) => ({
+        id,
+        titulo: m.titulo,
+        orden: m.orden,
+        lecciones: m.total,
+        completadas: m.hechas,
+        porcentaje: m.total ? Math.round((100 * m.hechas) / m.total) : 0,
+        completado: m.total > 0 && m.hechas >= m.total,
+      }))
+      .sort((a, b) => a.orden - b.orden)
+  })
+
+  /** Módulo al que pertenece la lección actual, para destacarlo. */
+  const moduloActual = computed(
+    () => progresoModulos.value.find((m) => m.id === leccion.value?.modulo_id) || null
+  )
+
   function fmtTime(s: number) {
     const m = Math.floor(s / 60)
     const sec = Math.floor(s % 60)
@@ -232,6 +267,8 @@ export function useLessonNavigation({
 
   return {
     progress,
+    progresoModulos,
+    moduloActual,
     currentLeccion,
     lecciones,
     leccion,

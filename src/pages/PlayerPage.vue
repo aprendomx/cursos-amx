@@ -36,6 +36,7 @@ const {
   leccion,
   lecciones,
   moduloTitulo,
+  moduloProgreso,
   variant,
   source,
   completedCount,
@@ -148,6 +149,7 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :current-time="currentTime"
           :total-time="totalTime"
           :modulo-titulo="moduloTitulo"
+          :modulo-progreso="moduloProgreso"
           :llego-al-final="llegoAlFinal"
           @toggle-play="togglePlay"
           @seek="handleSeek"
@@ -190,6 +192,7 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :progress-fraction="progressFraction"
           :progress-pct="progressPct"
           :modulo-titulo="moduloTitulo"
+          :modulo-progreso="moduloProgreso"
           @select="selectLesson"
         />
       </div>
@@ -209,6 +212,7 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :current-time="currentTime"
           :total-time="totalTime"
           :modulo-titulo="moduloTitulo"
+          :modulo-progreso="moduloProgreso"
           :llego-al-final="llegoAlFinal"
           @toggle-play="togglePlay"
           @seek="handleSeek"
@@ -252,6 +256,7 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :progress-fraction="progressFraction"
           :progress-pct="progressPct"
           :modulo-titulo="moduloTitulo"
+          :modulo-progreso="moduloProgreso"
           @select="selectLesson"
         />
       </div>
@@ -295,6 +300,7 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           :current-time="currentTime"
           :total-time="totalTime"
           :modulo-titulo="moduloTitulo"
+          :modulo-progreso="moduloProgreso"
           :llego-al-final="llegoAlFinal"
           @toggle-play="togglePlay"
           @seek="handleSeek"

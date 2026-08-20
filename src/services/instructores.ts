@@ -23,18 +23,39 @@ export interface AlumnoCurso {
   } | null
 }
 
-export type AccionModeracion =
-  | 'ocultar'
-  | 'mostrar'
-  | 'destacar'
-  | 'quitar_destacado'
-  | 'eliminar'
+export type AccionModeracion = 'ocultar' | 'mostrar' | 'destacar' | 'quitar_destacado' | 'eliminar'
 
 export interface MetricasCurso {
   alumnos: number
   comentarios7d: number
   ocultos: number
   sesionesProgramadas: number
+}
+
+export interface ProgresoModuloFila {
+  user_id: string
+  curso_id: string
+  modulo_id: string
+  modulo: string
+  modulo_orden: number
+  lecciones: number
+  completadas: number
+  porcentaje: number
+  ultima_actividad: string | null
+}
+
+/** Un módulo con el avance agregado de todo el grupo. */
+export interface ModuloAgregado {
+  modulo_id: string
+  modulo: string
+  orden: number
+  lecciones: number
+  /** Personas inscritas con al menos una lección del módulo terminada. */
+  conAvance: number
+  /** Personas que terminaron el módulo completo. */
+  completaron: number
+  /** Media de los porcentajes individuales, redondeada. */
+  promedio: number
 }
 
 export async function fetchMisCursosInstructor(): Promise<CursoInstructor[]> {
@@ -215,14 +236,66 @@ export async function asignarInstructorACurso(cursoId: string, userId: string): 
   if (error && error.code !== '23505') throw error // 23505 = ya asignado
 }
 
-export async function desasignarInstructorDeCurso(
-  cursoId: string,
-  userId: string
-): Promise<void> {
+export async function desasignarInstructorDeCurso(cursoId: string, userId: string): Promise<void> {
   const { error } = await supabase
     .from('cursos_instructores')
     .delete()
     .eq('curso_id', cursoId)
     .eq('user_id', userId)
   if (error) throw error
+}
+
+/**
+ * Avance por módulo de todas las personas inscritas al curso.
+ *
+ * La vista `v_progreso_modulo` filtra internamente: devuelve las filas propias
+ * o las de los cursos que la persona instruye. Por eso aquí no hace falta —ni
+ * serviría— filtrar por user_id desde el cliente.
+ */
+export async function fetchProgresoModulos(cursoId: string): Promise<ProgresoModuloFila[]> {
+  const { data, error } = await supabase
+    .from('v_progreso_modulo')
+    .select('*')
+    .eq('curso_id', cursoId)
+    .order('modulo_orden', { ascending: true })
+  if (error) throw error
+  return (data || []) as ProgresoModuloFila[]
+}
+
+/**
+ * Agrega las filas por módulo para la vista de grupo.
+ *
+ * `conAvance` y `completaron` importan más que el promedio: un módulo al 50 %
+ * puede ser todo el grupo a la mitad o la mitad del grupo sin empezar, y esas
+ * dos situaciones piden intervenciones distintas.
+ */
+export function agregarPorModulo(filas: ProgresoModuloFila[]): ModuloAgregado[] {
+  const acc = new Map<string, ModuloAgregado & { sumaPct: number; personas: number }>()
+  for (const f of filas) {
+    let m = acc.get(f.modulo_id)
+    if (!m) {
+      m = {
+        modulo_id: f.modulo_id,
+        modulo: f.modulo,
+        orden: f.modulo_orden ?? 0,
+        lecciones: f.lecciones,
+        conAvance: 0,
+        completaron: 0,
+        promedio: 0,
+        sumaPct: 0,
+        personas: 0,
+      }
+      acc.set(f.modulo_id, m)
+    }
+    m.personas += 1
+    m.sumaPct += Number(f.porcentaje) || 0
+    if (f.completadas > 0) m.conAvance += 1
+    if (f.lecciones > 0 && f.completadas >= f.lecciones) m.completaron += 1
+  }
+  return [...acc.values()]
+    .map(({ sumaPct, personas, ...m }) => ({
+      ...m,
+      promedio: personas ? Math.round(sumaPct / personas) : 0,
+    }))
+    .sort((a, b) => a.orden - b.orden)
 }
