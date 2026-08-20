@@ -1,75 +1,24 @@
--- Migration 037: Sistema de rúbricas
--- Una rúbrica es un conjunto de criterios con niveles de desempeño.
+-- Migration 037: Sistema de rúbricas — ANULADA
+-- =========================================================================
+-- Esta migración nunca se aplicó en ninguna instalación: fallaba al primer
+-- statement. Se conserva el archivo (y su nombre en public._migraciones)
+-- pero su contenido se anula deliberadamente. Motivos:
+--
+--   1. Referenciaba `public.evaluaciones` y `public.resultados_evaluacion`,
+--      tablas que no existen ni han existido en este esquema.
+--   2. Sus políticas usaban `perfiles.rol = 'admin'`; la columna es
+--      `perfiles.es_admin` (boolean). Ver public.is_admin() en 006.
+--   3. Usaba `numnonnulls(...)`; la función es `num_nonnulls(...)`.
+--   4. Lo decisivo: creaba `public.rubricas` con forma
+--      (nombre, descripcion, criterios jsonb) INCOMPATIBLE con la que crea
+--      053_entregas_rubricas.sql (tarea_id, tipo, titulo, puntaje_maximo),
+--      que es la que usa el cliente (src/services/rubricas.ts). Como 053
+--      declara `create table if not exists`, aplicar 037 dejaría el esquema
+--      equivocado en pie SIN error, y todas las rúbricas dejarían de
+--      funcionar de forma silenciosa.
+--
+-- El modelo de rúbricas vigente es el de 053: rubricas + rubrica_criterios
+-- + rubrica_niveles. No añadir nada aquí.
+-- =========================================================================
 
-create table if not exists public.rubricas (
-  id uuid primary key default gen_random_uuid(),
-  nombre text not null,
-  descripcion text,
-  criterios jsonb not null default '[]',
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
-comment on table public.rubricas is 'Rúbricas de evaluación (criterios + niveles)';
-comment on column public.rubricas.criterios is 'Array de {nombre, descripcion, niveles:[{puntaje, descripcion}]}';
-
--- Asignación de rúbrica a evaluación, pregunta o curso
--- Se permite asignar a nivel de evaluación (ensayos) o a nivel de pregunta individual
-create table if not exists public.asignaciones_rubrica (
-  id uuid primary key default gen_random_uuid(),
-  rubrica_id uuid not null references public.rubricas(id) on delete cascade,
-  evaluacion_id uuid references public.evaluaciones(id) on delete cascade,
-  pregunta_id uuid references public.preguntas(id) on delete cascade,
-  curso_id uuid references public.cursos(id) on delete cascade,
-  created_at timestamptz not null default now(),
-  constraint chk_asignacion_objetivo check (
-    numnonnulls(evaluacion_id, pregunta_id, curso_id) = 1
-  )
-);
-
-comment on table public.asignaciones_rubrica is 'Vincula una rúbrica a evaluación, pregunta o curso';
-
--- Puntajes de rúbrica por intento de evaluación
--- Se guarda como JSONB: [{criterio_index, nivel_index, puntaje, comentario}]
-alter table public.resultados_evaluacion
-add column if not exists rubrica_scores jsonb;
-
-comment on column public.resultados_evaluacion.rubrica_scores is 'Puntajes de rúbrica por criterio (solo para evaluaciones con rúbrica)';
-
--- Políticas RLS
-alter table public.rubricas enable row level security;
-alter table public.asignaciones_rubrica enable row level security;
-
-create policy "rubricas_select_all"
-  on public.rubricas for select
-  to authenticated
-  using (true);
-
-create policy "rubricas_mod_admin"
-  on public.rubricas for all
-  to authenticated
-  using (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ))
-  with check (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ));
-
-create policy "asignaciones_rubrica_select_all"
-  on public.asignaciones_rubrica for select
-  to authenticated
-  using (true);
-
-create policy "asignaciones_rubrica_mod_admin"
-  on public.asignaciones_rubrica for all
-  to authenticated
-  using (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ))
-  with check (exists (
-    select 1 from public.perfiles where id = auth.uid() and rol = 'admin'
-  ));
-
--- Trigger updated_at
-select dbdev.install('abcdefghijklmnopqrstuvwxyz012345');
--- (Si no existe la extensión, se omite; se manejará en aplicación)
+select 1;

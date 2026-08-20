@@ -3,9 +3,24 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { fileURLToPath, URL } from 'node:url'
-import theme from './theme/theme.config.js'
+import { existsSync } from 'node:fs'
 
-const themeHtmlPlugin = () => ({
+// Resolución del tema, en Node, antes de construir la config.
+//
+// Una institución personaliza `theme/theme.config.local.js`, que NO está
+// versionado: así `git pull` (paso 1 de scripts/deploy.sh) nunca entra en
+// conflicto con su identidad gráfica. Si no existe, se usa el ejemplo, para
+// que un clon recién hecho arranque sin configurar nada.
+//
+// El alias '@theme' es lo que importa el resto del código: así la resolución
+// vive en un solo sitio y funciona igual en dev, build y vitest.
+const themeLocalPath = fileURLToPath(new URL('./theme/theme.config.local.js', import.meta.url))
+const themeExamplePath = fileURLToPath(new URL('./theme/theme.config.example.js', import.meta.url))
+const themePath = existsSync(themeLocalPath) ? themeLocalPath : themeExamplePath
+
+// El tema llega por parámetro: ya no es un import de módulo, sino un valor
+// resuelto en tiempo de config (local si existe, ejemplo si no).
+const themeHtmlPlugin = (theme) => ({
   name: 'theme-html',
   transformIndexHtml(html) {
     return html
@@ -16,10 +31,11 @@ const themeHtmlPlugin = () => ({
 })
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const theme = (await import(themePath)).default
   const plugins = [
-    themeHtmlPlugin(),
+    themeHtmlPlugin(theme),
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -28,6 +44,19 @@ export default defineConfig(({ mode }) => {
       strategies: 'injectManifest',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Los chunks pesados de rutas concretas NO se precachean: si no, el
+        // service worker descarga en segundo plano el generador de PDF, el
+        // editor de texto enriquecido y el reproductor HLS a todo el mundo,
+        // incluido quien solo va a ver el catálogo. Se cachean bajo demanda
+        // con la estrategia 'assets' de src/sw.js la primera vez que se usan.
+        globIgnores: [
+          '**/assets/pdf-*.js',
+          '**/assets/editor-*.js',
+          '**/assets/video-*.js',
+          '**/assets/dnd-*.js',
+          '**/assets/upload-*.js',
+          '**/assets/charts-*.js',
+        ],
       },
       manifest: {
         name: `${theme.app.name} · ${theme.app.tagline}`,
@@ -60,20 +89,48 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@theme': themePath,
       },
     },
     build: {
       chunkSizeWarningLimit: 600,
       rollupOptions: {
         output: {
+          // El reparto anterior mandaba a 'vendor' todo lo que no fuera
+          // supabase, hls.js o lodash/dayjs/marked. Ahí caían TipTap (6
+          // paquetes), chart.js, html2pdf.js, qrcode.vue, idb, tus-js-client y
+          // vue-i18n: 1.9 MB que se descargaban para ver la landing.
+          //
+          // Ahora cada dependencia pesada tiene su chunk. Como además solo la
+          // usan rutas diferidas, el navegador únicamente la pide cuando hace
+          // falta de verdad.
           manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (/vue|pinia|vue-router/.test(id)) return 'vendor'
-              if (/supabase|@supabase/.test(id)) return 'db'
-              if (/lodash|dayjs|marked/.test(id)) return 'utils'
-              if (/hls\.js/.test(id)) return 'video'
+            if (!id.includes('node_modules')) return
+
+            // Editor de texto enriquecido: reproductor de lecciones de texto
+            // y constructor de cursos.
+            if (/@tiptap|prosemirror/.test(id)) return 'editor'
+            // Gráficas: solo el tablero de administración.
+            if (/chart\.js|@kurkle/.test(id)) return 'charts'
+            // Generación de PDF y QR: solo la página de constancia.
+            if (/html2pdf|html2canvas|jspdf|qrcode/.test(id)) return 'pdf'
+            // Subida reanudable: solo los formularios de carga.
+            if (/tus-js-client/.test(id)) return 'upload'
+            // Arrastrar y soltar: solo el constructor de cursos.
+            if (/sortablejs|vue-draggable-plus/.test(id)) return 'dnd'
+            // Reproductor HLS.
+            if (/hls\.js/.test(id)) return 'video'
+            // Cliente de base de datos.
+            if (/supabase|@supabase/.test(id)) return 'db'
+            // Almacenamiento sin conexión.
+            if (/\bidb\b/.test(id)) return 'offline'
+            if (/lodash|dayjs|marked/.test(id)) return 'utils'
+
+            // El núcleo del framework: esto sí lo necesita toda pantalla.
+            if (/[\\/]node_modules[\\/](vue|pinia|vue-router|vue-i18n|@vue)[\\/]/.test(id)) {
               return 'vendor'
             }
+            return 'vendor'
           },
         },
       },
@@ -88,13 +145,15 @@ export default defineConfig(({ mode }) => {
         reporter: ['text-summary', 'html', 'lcov'],
         include: ['src/**/*.{js,ts,vue}'],
         exclude: ['src/test/**', 'src/**/*.{test,spec}.{js,ts}', 'src/sw.js', 'src/main.js'],
-        // Trinquete: apenas debajo de la cobertura actual (~35% líneas).
-        // Subir gradualmente hacia ~60% conforme se añadan tests.
+        // Trinquete: apenas debajo de la cobertura actual (~42% líneas).
+        // Solo sube; cada vez que una tanda de pruebas mueva el número, se
+        // ajusta aquí para que lo ganado no se pueda perder sin darse cuenta.
+        // Objetivo: ~60%. Lo más flojo hoy es src/components (34.8%).
         thresholds: {
-          statements: 31,
-          branches: 23,
-          functions: 29,
-          lines: 33,
+          statements: 39,
+          branches: 31,
+          functions: 35,
+          lines: 41,
         },
       },
     },

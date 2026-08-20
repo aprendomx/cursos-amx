@@ -1,7 +1,8 @@
 import { ref, computed, watch, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
-import { sbSelect, sbInsert } from '@/lib/sbRest'
+import { sbSelect } from '@/lib/sbRest'
+import { ejecutarODiferir } from '@/offline/sync-queue'
 import { fetchInstructoresDeCurso } from '@/services/instructores'
-import { COMENTARIOS_FUENTE, USER } from '@/data.js'
+import { USER } from '@/data.js'
 
 export type ComentarioItem = {
   id: number
@@ -12,6 +13,9 @@ export type ComentarioItem = {
   own?: boolean
   esInstructor?: boolean
   destacado?: boolean
+  /** Solo para comentarios propios recién escritos: 'pendiente' = en la cola
+   *  sin conexión, 'fallido' = el servidor lo rechazó. Ausente = enviado. */
+  estado?: 'pendiente' | 'fallido'
 }
 
 export interface LessonChatOptions {
@@ -32,11 +36,18 @@ export function useLessonChat({ leccionId, session, appUser, cursoId }: LessonCh
     return `${USER.nombre} ${USER.apellidos.charAt(0)}.`
   })
 
+  /** Marca un comentario optimista como pendiente de enviar o como fallido. */
+  function marcarEstado(id: number, estado: 'pendiente' | 'fallido') {
+    const item = comentarios.value.find((c) => c.id === id)
+    if (item) item.estado = estado
+  }
+
   const sendComment = async () => {
     if (!draft.value.trim()) return
     const text = draft.value.trim()
+    const idOptimista = Date.now()
     comentarios.value.push({
-      id: Date.now(),
+      id: idOptimista,
       user: userName.value,
       dep: '',
       t: 'ahora',
@@ -45,18 +56,19 @@ export function useLessonChat({ leccionId, session, appUser, cursoId }: LessonCh
     })
     draft.value = ''
     if (session.value?.access_token && /^[0-9a-f]{8}-/.test(leccionId.value)) {
+      // La interfaz ya pintó el comentario de forma optimista. Antes, si el
+      // envío fallaba, se hacía console.error y el comentario se perdía en
+      // silencio: el usuario lo veía en pantalla y no existía en la base.
+      // Ahora, si el fallo es de red, queda en la cola y se envía al reconectar.
       try {
-        await sbInsert(
-          'comentarios',
-          {
-            user_id: session.value.user.id,
-            leccion_id: leccionId.value,
-            contenido: text,
-          },
-          session.value.access_token,
-          false
-        )
+        const { diferido } = await ejecutarODiferir('forum_post', {
+          user_id: session.value.user.id,
+          leccion_id: leccionId.value,
+          contenido: text,
+        })
+        if (diferido) marcarEstado(idOptimista, 'pendiente')
       } catch (e) {
+        marcarEstado(idOptimista, 'fallido')
         console.error('Error saving comment:', e)
       }
     }
@@ -71,7 +83,7 @@ export function useLessonChat({ leccionId, session, appUser, cursoId }: LessonCh
     comentariosAbort = new AbortController()
     try {
       const { data } = await sbSelect(
-        `comentarios?select=*,perfiles(nombres,apellido_paterno,dependencias(siglas))&leccion_id=eq.${leccionIdStr}&order=creado_en.asc&limit=50`,
+        `comentarios?select=*,perfiles_publicos(nombres,apellido_paterno,dependencias(siglas))&leccion_id=eq.${leccionIdStr}&order=creado_en.asc&limit=50`,
         token,
         { signal: comentariosAbort.signal }
       )

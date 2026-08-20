@@ -50,10 +50,13 @@ CREATE POLICY "grabaciones: inscrito leer"
       JOIN public.inscripciones i ON sv.curso_id = i.curso_id
       WHERE sv.id = sesiones_grabaciones.sesion_id AND i.user_id = auth.uid()
     )
+    -- `cursos` no tiene instructor_id: la relación instructor-curso vive en
+    -- public.cursos_instructores (023). Se usa is_instructor_de(), que además
+    -- ya contempla a los administradores.
     OR EXISTS (
       SELECT 1 FROM public.sesiones_virtuales sv
-      JOIN public.cursos c ON sv.curso_id = c.id
-      WHERE sv.id = sesiones_grabaciones.sesion_id AND c.instructor_id = auth.uid()
+      WHERE sv.id = sesiones_grabaciones.sesion_id
+        AND public.is_instructor_de(sv.curso_id)
     )
     OR EXISTS (SELECT 1 FROM public.perfiles p WHERE p.id = auth.uid() AND p.es_admin = true)
   );
@@ -67,10 +70,13 @@ CREATE POLICY "transcripciones: inscrito leer"
       JOIN public.inscripciones i ON sv.curso_id = i.curso_id
       WHERE sv.id = sesiones_transcripciones.sesion_id AND i.user_id = auth.uid()
     )
+    -- `cursos` no tiene instructor_id: la relación instructor-curso vive en
+    -- public.cursos_instructores (023). Se usa is_instructor_de(), que además
+    -- ya contempla a los administradores.
     OR EXISTS (
       SELECT 1 FROM public.sesiones_virtuales sv
-      JOIN public.cursos c ON sv.curso_id = c.id
-      WHERE sv.id = sesiones_transcripciones.sesion_id AND c.instructor_id = auth.uid()
+      WHERE sv.id = sesiones_transcripciones.sesion_id
+        AND public.is_instructor_de(sv.curso_id)
     )
     OR EXISTS (SELECT 1 FROM public.perfiles p WHERE p.id = auth.uid() AND p.es_admin = true)
   );

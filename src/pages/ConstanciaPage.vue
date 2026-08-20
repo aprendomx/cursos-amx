@@ -1,10 +1,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { CURSOS, USER } from '@/data.js'
 import { supabase } from '@/lib/supabase.js'
 import IconSet from '@/components/IconSet.vue'
-import html2pdf from 'html2pdf.js'
 import QrcodeVue from 'qrcode.vue'
 import { getConstanciaConfig, CONSTANCIA_DEFAULTS } from '@/services/constanciaConfig.js'
 import { theme } from '@/lib/theme.js'
@@ -18,36 +16,33 @@ const router = useRouter()
 
 const realConstancia = ref(null)
 const settings = ref({ ...CONSTANCIA_DEFAULTS })
+const cargando = ref(true)
 
-const curso = computed(() => CURSOS.find((c) => c.id === props.cursoId) || CURSOS[1])
+// Una constancia SOLO se pinta si existe en la base. Antes, cuando no había
+// fila real, esta página rellenaba con datos demo (CURSOS/USER de data.js) y
+// un folio inventado terminado en «-4721», y seguía ofreciendo el botón de
+// descarga: cualquiera podía bajarse un PDF con pinta de constancia
+// institucional, a nombre de otra persona, con un QR que no verifica nada.
+const hayConstancia = computed(() => !!realConstancia.value?.folio)
 
-const folio = computed(() => {
-  if (realConstancia.value?.folio) return realConstancia.value.folio
-  return `${theme.constancia.folioPrefix}-${new Date().getFullYear()}-${curso.value.id.toUpperCase()}-4721`
-})
+const folio = computed(() => realConstancia.value?.folio || '')
 
 const fullName = computed(() => {
-  if (realConstancia.value?.perfiles) {
-    const p = realConstancia.value.perfiles
-    return p.nombres_completos || `${p.nombres} ${p.apellido_paterno} ${p.apellido_materno}`.trim()
-  }
-  return `${USER.nombre} ${USER.apellidos}`
+  const p = realConstancia.value?.perfiles
+  if (!p) return ''
+  return (
+    p.nombres_completos ||
+    `${p.nombres || ''} ${p.apellido_paterno || ''} ${p.apellido_materno || ''}`.trim()
+  )
 })
 
-const cursoTitle = computed(() => {
-  if (realConstancia.value?.cursos?.titulo) return realConstancia.value.cursos.titulo
-  return curso.value.titulo
-})
+const cursoTitle = computed(() => realConstancia.value?.cursos?.titulo || '')
 
-const cursoDuracion = computed(() => {
-  if (realConstancia.value?.cursos?.duracion) return realConstancia.value.cursos.duracion
-  return curso.value.duracion
-})
+const cursoDuracion = computed(() => realConstancia.value?.cursos?.duracion || '')
 
 const emissionDate = computed(() => {
-  const d = realConstancia.value?.emitida_en
-    ? new Date(realConstancia.value.emitida_en)
-    : new Date()
+  if (!realConstancia.value?.emitida_en) return ''
+  const d = new Date(realConstancia.value.emitida_en)
   const months = [
     'enero',
     'febrero',
@@ -77,7 +72,10 @@ onMounted(async () => {
     })
     .catch(() => {})
 
-  if (!props.session) return
+  if (!props.session) {
+    cargando.value = false
+    return
+  }
   try {
     const { data } = await supabase
       .from('constancias')
@@ -90,6 +88,8 @@ onMounted(async () => {
     if (data) realConstancia.value = data
   } catch (err) {
     console.error('Error fetching constancia:', err)
+  } finally {
+    cargando.value = false
   }
 })
 
@@ -109,11 +109,15 @@ async function compartir() {
 }
 
 async function descargarPdf() {
-  if (descargando.value) return
+  if (descargando.value || !hayConstancia.value) return
   descargando.value = true
   try {
     const el = document.querySelector('.cnst-doc')
     if (!el) throw new Error('No se encontró el documento.')
+    // html2pdf arrastra html2canvas y jsPDF: ~1 MB. Se carga al pulsar
+    // descargar, no al abrir la página — la mayoría de las visitas solo
+    // consultan la constancia en pantalla.
+    const { default: html2pdf } = await import('html2pdf.js')
     await html2pdf()
       .set({
         margin: 0,
@@ -141,26 +145,14 @@ function goBack() {
   <div class="cnst-page">
     <!-- Top bar (no se exporta al PDF) -->
     <div class="cnst-topbar container">
-      <button
-        class="btn btn-ghost btn-sm"
-        type="button"
-        @click="goBack"
-      >
+      <button class="btn btn-ghost btn-sm" type="button" @click="goBack">
         <IconSet name="arrowLeft" />
         Mis constancias
       </button>
-      <div class="cnst-topbar-actions">
-        <button
-          class="btn btn-ghost btn-sm"
-          type="button"
-          @click="compartir"
-        >
-          <template v-if="compartido">
-            ✓ Enlace copiado
-          </template>
-          <template v-else>
-            Compartir
-          </template>
+      <div v-if="hayConstancia" class="cnst-topbar-actions">
+        <button class="btn btn-ghost btn-sm" type="button" @click="compartir">
+          <template v-if="compartido"> ✓ Enlace copiado </template>
+          <template v-else> Compartir </template>
         </button>
         <button
           class="btn btn-primary btn-sm"
@@ -168,9 +160,7 @@ function goBack() {
           type="button"
           @click="descargarPdf"
         >
-          <template v-if="descargando">
-            Generando PDF…
-          </template>
+          <template v-if="descargando"> Generando PDF… </template>
           <template v-else>
             Descargar PDF
             <IconSet name="arrow" />
@@ -179,40 +169,47 @@ function goBack() {
       </div>
     </div>
 
+    <!-- Sin constancia: no se pinta ningún documento. Ver nota en <script>. -->
+    <div v-if="cargando" class="cnst-wrap container cnst-estado">
+      <p>Buscando tu constancia…</p>
+    </div>
+
+    <div v-else-if="!hayConstancia" class="cnst-wrap container cnst-estado">
+      <h2>Aún no tienes constancia de este curso</h2>
+      <p>
+        La constancia se emite automáticamente al completar todas las lecciones del curso. Cuando
+        eso ocurra, aparecerá aquí con su folio y su código de verificación.
+      </p>
+      <button class="btn btn-primary btn-sm" type="button" @click="goBack">
+        Volver a mis constancias
+      </button>
+    </div>
+
     <!-- Documento (esto es lo que se exporta a PDF) -->
-    <div class="cnst-wrap container">
+    <div v-else class="cnst-wrap container">
       <div class="cnst-doc">
         <!-- Fondo decorativo -->
-        <img
-          src="/theme/constancia-fondo.webp"
-          class="cnst-fondo"
-          alt=""
-          aria-hidden="true"
-        >
+        <img src="/theme/constancia-fondo.webp" class="cnst-fondo" alt="" aria-hidden="true" />
         <!-- Pleca superior -->
         <img
           src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-top"
           alt=""
           aria-hidden="true"
-        >
+        />
         <!-- Pleca inferior -->
         <img
           src="/theme/constancia-pleca.webp"
           class="cnst-pleca cnst-pleca-bottom"
           alt=""
           aria-hidden="true"
-        >
+        />
 
         <!-- Contenido -->
         <div class="cnst-content">
           <!-- Logos institucionales -->
           <header class="cnst-head">
-            <img
-              :src="theme.logos.constancia"
-              class="cnst-logos"
-              :alt="theme.constancia.emisor"
-            >
+            <img :src="theme.logos.constancia" class="cnst-logos" :alt="theme.constancia.emisor" />
           </header>
 
           <!-- Cuerpo -->
@@ -220,17 +217,11 @@ function goBack() {
             <p class="cnst-pre">
               {{ theme.constancia.emisor }}
             </p>
-            <p class="cnst-pre cnst-pre-2">
-              Otorga el presente
-            </p>
+            <p class="cnst-pre cnst-pre-2">Otorga el presente</p>
 
-            <h1 class="cnst-titulo">
-              CONSTANCIA
-            </h1>
+            <h1 class="cnst-titulo">CONSTANCIA</h1>
 
-            <p class="cnst-a">
-              A
-            </p>
+            <p class="cnst-a">A</p>
 
             <p class="cnst-nombre">
               {{ fullName }}
@@ -238,12 +229,11 @@ function goBack() {
 
             <p class="cnst-descripcion">
               Por haber acreditado satisfactoriamente el curso de capacitación
-              <em>{{ cursoTitle }}</em>, impartido a través de {{ theme.app.name }}.
+              <em>{{ cursoTitle }}</em
+              >, impartido a través de {{ theme.app.name }}.
             </p>
 
-            <p class="cnst-duracion mono">
-              {{ cursoDuracion || '—' }} · Folio {{ folio }}
-            </p>
+            <p class="cnst-duracion mono">{{ cursoDuracion || '—' }} · Folio {{ folio }}</p>
           </section>
 
           <!-- Firma titular -->
@@ -260,14 +250,9 @@ function goBack() {
           <!-- Pie: lugar/fecha + QR -->
           <footer class="cnst-foot">
             <div class="cnst-foot-lugar">
-              <p class="cnst-lugar">
-                {{ settings.lugar }}, {{ emissionDate }}
-              </p>
+              <p class="cnst-lugar">{{ settings.lugar }}, {{ emissionDate }}</p>
             </div>
-            <div
-              class="cnst-foot-qr"
-              aria-label="Código de verificación"
-            >
+            <div class="cnst-foot-qr" aria-label="Código de verificación">
               <QrcodeVue
                 :value="verificationUrlReal"
                 :size="92"
@@ -496,6 +481,21 @@ function goBack() {
   font-size: 13px;
   color: var(--brand-ink);
 }
+.cnst-estado {
+  text-align: center;
+  padding: 3rem 1rem;
+  max-width: 40rem;
+}
+
+.cnst-estado h2 {
+  margin-bottom: 0.75rem;
+}
+
+.cnst-estado p {
+  margin-bottom: 1.5rem;
+  color: var(--muted, #555);
+}
+
 .cnst-foot-qr {
   display: flex;
   flex-direction: column;

@@ -14,9 +14,17 @@ import BadgeDisplay from '@/components/BadgeDisplay.vue'
 import MiCalendario from '@/components/MiCalendario.vue'
 import UserLevelBar from '@/components/UserLevelBar.vue'
 import { theme } from '@/lib/theme.js'
+import MisDatosPanel from '@/components/MisDatosPanel.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
+
+// Tras la baja el acceso ya está revocado en el servidor: se cierra sesión
+// para no dejar la interfaz mostrando datos de una cuenta que ya no existe.
+async function onBaja() {
+  await auth.logout()
+  router.push({ name: 'home' })
+}
 
 const user = computed(() => auth.user)
 
@@ -486,6 +494,10 @@ function goToHome() {
             </h3>
           </div>
         </div>
+      </div>
+      <!-- Derechos ARCO (LFPDPPP). Ver docs/CUMPLIMIENTO.md -->
+      <div class="container">
+        <MisDatosPanel @baja="onBaja" />
       </div>
     </section>
 

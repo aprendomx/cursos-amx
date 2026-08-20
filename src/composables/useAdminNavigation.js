@@ -59,6 +59,7 @@ export function useAdminNavigation() {
     ...(featureEnabled('sesiones_grabaciones')
       ? [{ key: 'grabaciones', label: 'Grabaciones' }]
       : []),
+    { key: 'modulos', label: 'Módulos' },
     { key: 'config', label: 'Configuraci\u00f3n' },
   ])
 

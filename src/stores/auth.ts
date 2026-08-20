@@ -1,10 +1,29 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase.js'
-import { USER as MOCK_USER } from '@/data.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { evaluarBadges } from '@/services/badgeEngine.js'
 import { emitirEvento } from '@/services/analytics'
+
+// Perfil vacío: es lo que se muestra antes de autenticarse y al cerrar sesión.
+// Antes se usaba el USER de mock de data.js, así que la UI llegaba a mostrar
+// el nombre de una persona inventada como si fuera la sesión actual.
+function perfilVacio() {
+  return {
+    nombre: '',
+    apellidos: '',
+    correo: '',
+    telefono: '',
+    dependencia: '',
+    iniciales: '',
+    es_admin: false,
+    es_instructor: false,
+    cursos_activos: 0,
+    cursos_completados: 0,
+    horas: 0,
+    constancias: 0,
+  }
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const session = ref<any>(null)
@@ -12,8 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
   const authLoading = ref(true)
   const hasRegistered = ref(false)
 
-  // User data: real profile when authenticated, mock fallback otherwise
-  const user = ref<any>({ ...MOCK_USER })
+  const user = ref<any>(perfilVacio())
 
   const isLoggedIn = computed(() => !!session.value)
   const isAdmin = computed(() => perfil.value?.es_admin === true)
@@ -79,7 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
         await fetchPerfil(newSession.user.id)
       } else {
         perfil.value = null
-        user.value = { ...MOCK_USER }
+        user.value = perfilVacio()
         hasRegistered.value = false
       }
     })
@@ -89,7 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
     await supabase.auth.signOut()
     session.value = null
     perfil.value = null
-    user.value = { ...MOCK_USER }
+    user.value = perfilVacio()
     hasRegistered.value = false
   }
 

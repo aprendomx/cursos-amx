@@ -20,21 +20,21 @@
 | :-- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 |     | Upload resumable de videos grandes, transcodificación automática a HLS ABR (360p/720p/1080p) con ffmpeg, y reproductor adaptativo. No necesitas Vimeo ni YouTube privado. |
 
-| 📜  | **Constancias con valor legal**                                                                                                                |
-| :-- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
-|     | Emite constancias en PDF con folio único y verificación pública por QR. Cualquier persona puede validar la autenticidad sin entrar al sistema. |
+| 📜  | **Constancias verificables**                                                                                                                                                                                                                                                                                                                                                                                                         |
+| :-- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Emite constancias en PDF con folio único no enumerable y verificación pública por QR contra la base emisora. Cualquier persona puede comprobar que el folio existe y a quién corresponde, sin entrar al sistema. **No sustituyen una firma electrónica avanzada**: el PDF no va firmado con e.firma, así que el respaldo es el registro en tu servidor, no el documento. Si tu procedimiento exige firma avanzada, hay que añadirla. |
 
-| ⚡  | **Rápido, offline-first**                                                                                   |
-| :-- | :---------------------------------------------------------------------------------------------------------- |
-|     | PWA instalable con cache de assets y modo oscuro. Los alumnos pueden continuar cursos sin conexión estable. |
+| ⚡  | **Rápido, instalable como app**                                                                                                                                                                                                                              |
+| :-- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | PWA instalable con cache de la aplicación y modo oscuro. El modo sin conexión (descarga de video y sincronización diferida) existe pero viene **apagado por defecto**: actívalo en Administración → Módulos y pruébalo con tu contenido antes de prometerlo. |
 
-| 🔧  | **Activa módulos en caliente**                                                                                                              |
-| :-- | :------------------------------------------------------------------------------------------------------------------------------------------ |
-|     | Foros, chat, entregas de archivos, aulas virtuales y evaluaciones se activan vía feature flags en runtime. No requiere rebuild ni redeploy. |
+| 🔧  | **Activa módulos en caliente**                                                                                                                                                                                                                   |
+| :-- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Foros, chat, entregas, aulas virtuales, analytics e IA se encienden y apagan desde el panel de administración, sin rebuild ni redeploy. Apagar un módulo además **cierra sus tablas** por RLS: no queda accesible por la API. Ver THEMING.md §5. |
 
-| 🏛️  | **Hecho para el sector público**                                                                                                                                                  |
-| :-- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|     | Licencia AGPL-3.0 (la misma libertad que Canvas LMS), self-hosted completo con Docker, y soporte para múltiples dependencias/instituciones. Tus datos nunca salen de tu servidor. |
+| 🏛️  | **Pensado para despliegue institucional**                                                                                                                                                                                                                                                                                                                                |
+| :-- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|     | Licencia AGPL-3.0 (la misma libertad que Canvas LMS), self-hosted completo con Docker, catálogo de dependencias y datos que nunca salen de tu servidor. Antes de operar con alumnos reales, revisa [docs/CUMPLIMIENTO.md](docs/CUMPLIMIENTO.md): qué resuelve el software y qué tiene que resolver la institución (aviso de privacidad, ARCO, retención, accesibilidad). |
 
 ---
 
@@ -51,7 +51,9 @@
 | Frappe LMS     | Vue + Python/Frappe          | MIT      |     ✅      |      ❌       |       ❌       |     ❌ (requiere theming)      |          ❌           |
 | CourseLit      | React + Node                 | MIT      |     ✅      |      ❌       |       ❌       |      ❌ (requiere código)      |          ❌           |
 
-> **Conclusión:** Cursos AMX es la única opción open source con stack JavaScript moderno, video HLS nativo, constancias verificables por QR y personalización completa vía configuración — sin necesidad de editar código ni depender de plugins de terceros.
+> **Conclusión:** Cursos AMX es la opción open source con stack JavaScript moderno, video HLS nativo, constancias verificables por QR y personalización de marca vía configuración.
+>
+> **Alcance de las dos últimas columnas, para no exagerar.** _White-label sin código_: cubre logos, textos, tipografías, la paleta `--brand-*` y las secciones de la landing (ver el contrato en THEMING.md §0.1). Una identidad que exija salirse de esas variables sí requiere CSS propio. _Feature flags runtime_: cubre los 31 módulos de THEMING.md §5, conmutables desde el panel; no es un sistema general de flags por usuario ni por curso.
 
 ---
 
@@ -75,7 +77,7 @@
 - **Prerender SEO** de rutas públicas con Playwright (`npm run prerender`)
 - **Video worker escalable** con `FOR UPDATE SKIP LOCKED` — soporta múltiples réplicas Docker sin conflictos
 - **Documentación API** OpenAPI completa en `docs/API.md`
-- **SSO/SAML** — guía de integración con IdP institucional en `docs/SSO_SAML.md`
+- **SSO/SAML** — Supabase Auth (GoTrue) soporta SAML 2.0; la guía para conectar tu IdP está en `docs/SSO_SAML.md`. La aplicación **no trae** pantalla de login SAML ni mapeo de atributos a `perfiles`: eso hay que cablearlo.
 
 ## Novedades v0.18.0 — Pendientes de la revisión técnica
 
@@ -388,6 +390,35 @@ Ver `docs/MANUAL_ACTUALIZACION.md` y `docker/` (stack Supabase + video-worker).
 scripts/deploy.sh
 ```
 
+## Curso tutorial preinstalado
+
+Toda instalación trae publicado el curso **«Cómo usar Cursos AMX»**
+(`/curso/tutorial-plataforma`), un manual de la propia plataforma que sirve
+además como contenido de prueba con el que verificar que todo funciona.
+
+Lo siembra `supabase/migrations/056_curso_tutorial.sql`, así que se aplica solo
+con `scripts/migrate.sh`, tanto en instalaciones nuevas como existentes.
+
+- **8 módulos, 26 lecciones, ~2h 25min.** Módulos 1–4 para el alumno, 5 para el
+  instructor, 6–7 para el administrador y 8 de cierre.
+- **Sin dependencias.** Todas las lecciones son de texto: no hay video que
+  transcodificar ni archivos que subir a Storage, y el curso se puede completar
+  —y emitir su constancia— en una instalación recién levantada con todos los
+  módulos apagados.
+- **Editable.** Está sembrado como cualquier otro curso: se puede adaptar desde
+  el panel de administración a las reglas de cada institución.
+
+Semillas opcionales en `supabase/seeds/` (no las aplica el runner de
+migraciones; se corren a mano con `psql`):
+
+| Archivo                  | Qué hace                                                                                                                                                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tutorial_examen.sql`    | Agrega la evaluación final del tutorial: 10 preguntas de opción única, múltiple y verdadero/falso. **Requiere `VITE_FEATURE_EVALUACIONES=true`**; sin ese flag la lección no se puede completar y bloquearía la constancia. |
+| `tutorial_uninstall.sql` | Elimina el curso tutorial. Para sacarlo del catálogo sin destruir constancias, basta con `publicado = false`.                                                                                                               |
+
+El contenido lo cubre `src/test/cursoTutorial.test.js`, que valida que el JSON
+de Tiptap de las 26 lecciones renderice con la whitelist del reproductor.
+
 ## Personalización de identidad gráfica
 
 Ver [THEMING.md](THEMING.md). Solo necesitas cambiar:
@@ -415,7 +446,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–055)
+  migrations/   Esquema versionado en SQL (001–056)
+  seeds/        Semillas opcionales, fuera del runner de migraciones
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics, zoom-meeting, zoom-webhook, transcribir-sesion)
 
 services/
@@ -429,7 +461,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 426 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 448 tests
 npm run test:unit:cov       # con cobertura v8 (umbral trinquete)
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)

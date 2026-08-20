@@ -110,6 +110,12 @@ async function enviar() {
       payload[p.id] = seleccion[p.id]
     }
     resultado.value = await calificarEvaluacion(props.leccionId, payload)
+    // Sin conexión el envío queda en la cola y no hay calificación: el
+    // servidor es quien califica. Se dice, en vez de mostrar 0% o inventar.
+    if (resultado.value?.diferido) {
+      enviando.value = false
+      return
+    }
     try {
       await emitirEvento({
         verb: 'answered',
@@ -142,7 +148,14 @@ function reintentar() {
 
     <template v-else-if="examen">
       <!-- Resultado -->
-      <div v-if="resultado" class="eval-result">
+      <div v-if="resultado?.diferido" class="eval-result eval-result-diferido" role="status">
+        <p>
+          <strong>Respuestas guardadas.</strong> No hay conexión ahora mismo, así que se enviarán a
+          calificar en cuanto vuelva. No hace falta que las escribas otra vez.
+        </p>
+      </div>
+
+      <div v-else-if="resultado" class="eval-result">
         <div class="eval-result-head" :class="resultado.aprobado ? 'is-ok' : 'is-fail'">
           <span class="eval-score">{{ resultado.puntaje }}%</span>
           <span class="eval-verdict">{{ resultado.aprobado ? 'Aprobado' : 'No aprobado' }}</span>
@@ -354,5 +367,12 @@ function reintentar() {
 }
 .eval-detalle li.is-fail {
   color: var(--brand-primary);
+}
+
+.eval-result-diferido {
+  border: 1px solid var(--warn, #b45309);
+  border-left-width: 4px;
+  border-radius: 0.35rem;
+  padding: 0.75rem 1rem;
 }
 </style>

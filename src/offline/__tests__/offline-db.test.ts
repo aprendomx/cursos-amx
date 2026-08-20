@@ -22,7 +22,7 @@ async function clearDB() {
   const db = await getDB()
   const tx = db.transaction(
     ['content', 'videos', 'videoSegments', 'syncQueue', 'settings'],
-    'readwrite',
+    'readwrite'
   )
   await Promise.all([
     tx.objectStore('content').clear(),
@@ -234,7 +234,8 @@ describe('offline-db', () => {
         retries: 0,
         createdAt: Date.now(),
       })
-      const idDone = await saveSyncAction({
+      // Se crea para que exista una acción 'done' que el filtro deba excluir.
+      await saveSyncAction({
         type: 'forum_post',
         payload: {},
         status: 'done',

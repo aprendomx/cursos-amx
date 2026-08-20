@@ -91,16 +91,11 @@ SELECT 'tarea_deadline' AS tipo,
        NULL AS extra
 FROM public.tareas t
 WHERE t.fecha_limite IS NOT NULL
-UNION ALL
-SELECT 'curso_fecha' AS tipo,
-       c.id,
-       c.titulo,
-       c.fecha_inicio AS fecha,
-       c.fecha_fin AS fin,
-       c.id AS curso_id,
-       NULL AS extra
-FROM public.cursos c
-WHERE c.fecha_inicio IS NOT NULL
+-- NOTA: aquí había una rama 'curso_fecha' que leía c.fecha_inicio / c.fecha_fin.
+-- `public.cursos` (001_schema.sql) no tiene esas columnas y nunca las ha
+-- tenido: un curso en este producto no tiene ventana de vigencia, se toma a
+-- ritmo propio. La rama hacía fallar la migración entera. Si en el futuro se
+-- añaden fechas al curso, esta rama vuelve en su propia migración.
 UNION ALL
 SELECT 'anuncio' AS tipo,
        a.id,
@@ -119,11 +114,12 @@ CREATE POLICY "rsvp: leer"
   ON public.sesiones_rsvp FOR SELECT TO authenticated
   USING (
     user_id = auth.uid()
+    -- `cursos` no tiene instructor_id: la relación vive en
+    -- public.cursos_instructores (023). is_instructor_de() ya cubre admin.
     OR EXISTS (
       SELECT 1 FROM public.sesiones_virtuales sv
-      JOIN public.cursos c ON sv.curso_id = c.id
       WHERE sv.id = sesiones_rsvp.sesion_id
-        AND c.instructor_id = auth.uid()
+        AND public.is_instructor_de(sv.curso_id)
     )
   );
 

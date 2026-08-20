@@ -1,11 +1,11 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { checkRateLimit } from '../_shared/rateLimit.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
+import { verifyPlayToken, playTokenSecret } from '../_shared/playToken.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 // Public URL the browser can reach (the hls.js client follows these URIs).
 const PUBLIC_URL = Deno.env.get('SUPABASE_PUBLIC_URL') || SUPABASE_URL
-const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const HLS_BUCKET = Deno.env.get('HLS_BUCKET') || 'video-hls'
 const SEG_TTL = Number(Deno.env.get('SEGMENT_TTL_SECONDS') || 4 * 3600)
@@ -23,24 +23,25 @@ const m3u8Headers = {
 }
 
 serve(async (req) => {
-  const rl = checkRateLimit(req)
+  const rl = await checkRateLimit(req, {
+    scope: 'hls-playlist',
+    max: 300,
+    ventanaSeg: 60,
+    client: createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    ),
+  })
   if (!rl.allowed) {
-    return new Response('too many requests', {
-      status: 429,
-      headers: {
-        'x-ratelimit-remaining': '0',
-        'x-ratelimit-reset': String(Math.ceil(rl.resetAt / 1000)),
-        'retry-after': String(rl.retryAfter ?? 60),
-      },
-    })
+    return rateLimitResponse(rl, { 'access-control-allow-origin': '*' })
   }
 
   const url = new URL(req.url)
   const videoId = url.searchParams.get('video')
   const objPath = url.searchParams.get('path')
-  const jwt = url.searchParams.get('t')
+  const playToken = url.searchParams.get('t')
 
-  if (!videoId || !objPath || !jwt) {
+  if (!videoId || !objPath || !playToken) {
     return new Response('bad request', { status: 400 })
   }
   // Block traversal
@@ -51,21 +52,18 @@ serve(async (req) => {
     return new Response('only m3u8 supported here', { status: 400 })
   }
 
-  // Re-authorize on every request — manifests are short-lived.
-  // Anon key as apikey (kong validates), user JWT in Authorization
-  // so PostgREST sets auth.uid() inside the RPC.
-  const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-    global: { headers: { Authorization: `Bearer ${jwt}` } },
-  })
-  const { data, error } = await userClient.rpc('get_video_playback', { p_video_id: videoId })
-  if (error) {
-    const msg = String(error.message || '')
-    if (/unauthorized|jwt/i.test(msg)) return new Response('unauthorized', { status: 401 })
-    if (/not ready/i.test(msg)) return new Response('not ready', { status: 404 })
-    return new Response('forbidden', { status: 403 })
+  // El token de reproducción está firmado sobre (videoId, userId, exp), así
+  // que reescribir el parámetro `video` en la URL lo invalida. La
+  // autorización de fondo (admin o inscrito, y video en estado 'ready') ya la
+  // hizo hls-playlist-url vía get_video_playback antes de emitirlo; aquí solo
+  // se comprueba que el token siga siendo válido y sea para ESTE video.
+  const verificacion = await verifyPlayToken(playToken, videoId, playTokenSecret())
+  if (!verificacion.ok) {
+    return new Response('unauthorized', {
+      status: 401,
+      headers: { 'x-reason': verificacion.reason ?? 'invalid token' },
+    })
   }
-  const row = Array.isArray(data) ? data[0] : data
-  if (!row) return new Response('not ready', { status: 404 })
 
   const fullObj = `hls/${videoId}/${objPath}`
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
@@ -73,16 +71,37 @@ serve(async (req) => {
   if (dlErr || !file) return new Response('not found', { status: 404 })
 
   const text = await file.text()
-  const rewritten = await rewriteManifest(text, videoId, objPath, jwt, admin)
+  const rewritten = await rewriteManifest(text, videoId, objPath, playToken, admin)
   return new Response(rewritten, { headers: m3u8Headers })
 })
+
+/**
+ * Lo mínimo que rewriteManifest necesita del cliente de Storage.
+ *
+ * Antes se declaraba `ReturnType<typeof createClient>`, que fija los genéricos
+ * POR DEFECTO de supabase-js y no coinciden con los del cliente ya construido
+ * (TS2345). Declarar la forma que de verdad se usa evita el desajuste y además
+ * documenta la dependencia real.
+ */
+interface FirmadorDeUrls {
+  storage: {
+    from(bucket: string): {
+      createSignedUrls(
+        paths: string[],
+        expiresIn: number
+        // signedUrl es `string | null`: la API devuelve una entrada por ruta
+        // aunque alguna falle. El código de abajo ya lo contempla.
+      ): Promise<{ data: { signedUrl: string | null }[] | null; error: unknown }>
+    }
+  }
+}
 
 async function rewriteManifest(
   text: string,
   videoId: string,
   manifestPath: string,
-  jwt: string,
-  admin: ReturnType<typeof createClient>
+  playToken: string,
+  admin: FirmadorDeUrls
 ): Promise<string> {
   const dir = manifestPath.includes('/') ? manifestPath.slice(0, manifestPath.lastIndexOf('/')) : ''
   const lines = text.split('\n')
@@ -104,7 +123,7 @@ async function rewriteManifest(
         `${PUBLIC_URL}/functions/v1/hls-playlist` +
         `?video=${encodeURIComponent(videoId)}` +
         `&path=${encodeURIComponent(childPath)}` +
-        `&t=${encodeURIComponent(jwt)}`
+        `&t=${encodeURIComponent(playToken)}`
       out[i] = proxied
     } else {
       // Segment (.ts) — sign and serve direct from Storage.

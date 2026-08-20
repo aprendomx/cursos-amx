@@ -12,13 +12,23 @@ frontend ya existen y solo quieres llevarlos a la última versión.
 
 ## 0. Antes de empezar
 
-- **Respaldo de la base** antes de cualquier migración en producción:
+- **El respaldo ya no es un paso manual.** `scripts/deploy.sh` hace `pg_dump`
+  automáticamente antes de aplicar migraciones, verifica que el volcado no
+  quedó truncado y aborta si falla. Los respaldos van a `backups/` (ignorado
+  por git). Solo si necesitas uno fuera del despliegue:
 
   ```bash
   docker compose -f docker/docker-compose.yml exec -T db \
     pg_dump -U postgres -d postgres --clean --if-exists \
     > backup-$(date +%Y%m%d-%H%M).sql
   ```
+
+- **El árbol de trabajo debe estar limpio.** El pre-vuelo aborta si hay
+  cambios sin confirmar, porque un `git pull` a medias deja el despliegue en
+  un estado indeterminado. Si lo que tienes modificado es
+  `theme/theme.config.js`, no lo confirmes: muévelo a
+  `theme/theme.config.local.js` (ver THEMING.md), que está fuera de git y no
+  entra en conflicto al actualizar.
 
 - **Ventana de mantenimiento** si la actualización toca migraciones que
   reescriben tablas grandes (revisa el diff de `supabase/migrations/`).
@@ -37,16 +47,25 @@ scripts/deploy.sh
 
 `deploy.sh` ejecuta, en orden:
 
-1. `git pull origin develop` — trae código, migraciones y funciones bind-mounted.
-2. `scripts/migrate.sh` — aplica solo las migraciones pendientes (transaccional).
-3. `docker compose restart functions` — recarga el Edge Runtime con las funciones nuevas.
-4. **Verificación** — el contenedor `functions` está `Up` y la función responde `401` (no `500`).
+0. **Pre-vuelo** — árbol de trabajo limpio y `pull` en fast-forward. Aborta si no.
+1. `git pull --ff-only origin main` — código, migraciones y funciones bind-mounted.
+2. **Respaldo** — `pg_dump` a `backups/`, con comprobación de que no quedó
+   truncado. Si falla, **no se migra**.
+3. `scripts/migrate.sh --dry-run` y luego la aplicación real (transaccional).
+   Si una migración falla, imprime el comando exacto de restauración.
+4. `docker compose restart functions` — recarga el Edge Runtime.
+5. **Verificación** — el contenedor `functions` está `Up`; las funciones que
+   deben exigir autenticación (`ai-proxy`, `transcribir-sesion`,
+   `notifications-worker`, `zoom-meeting`) no responden `200` sin token; el
+   número de migraciones registradas coincide con las de disco; ninguna tabla
+   de `public` quedó sin RLS; y `perfiles.es_admin` sigue sin ser escribible
+   por el rol `authenticated`. Sale con código ≠ 0 si algo de esto falla.
 
 Flags útiles:
 
 ```bash
 scripts/deploy.sh --dry-run        # muestra qué haría, sin ejecutar nada
-scripts/deploy.sh --branch main    # pull desde otra rama (def: develop)
+scripts/deploy.sh --branch develop  # pull desde otra rama (def: main)
 scripts/deploy.sh --no-pull        # usa el código ya presente (no hace git pull)
 scripts/deploy.sh --no-migrate     # omite migraciones
 scripts/deploy.sh --no-functions   # no reinicia el runtime de funciones
@@ -204,6 +223,37 @@ confirma que el reproductor obtiene el manifiesto y reproduce.
    ```
 
    Por eso el respaldo previo no es opcional cuando hay migraciones.
+
+---
+
+## 7.1 Límite de tasa de las Edge Functions
+
+El conteo vive en `public.rate_limit` (migración 068), compartido entre
+isolates. Antes era un `Map` en memoria que se reiniciaba en cada cold start y
+no compartía estado: en la práctica no limitaba nada.
+
+Para ver quién está topando:
+
+```sql
+select scope, bucket, intentos, ventana_inicio
+  from public.rate_limit
+ where ventana_inicio > now() - interval '5 minutes'
+ order by intentos desc limit 20;
+```
+
+Para levantar un bloqueo (por ejemplo, una IP institucional compartida por
+cientos de personas):
+
+```sql
+delete from public.rate_limit where bucket = '<IP>';
+```
+
+Si necesitas subir el cupo de forma permanente, los valores están en cada
+`supabase/functions/*/index.ts`, en la llamada a `checkRateLimit`. `ai-proxy`
+está configurada para **rechazar** si el contador no responde, porque cada
+petición de más cuesta dinero; las demás dejan pasar.
+
+La tabla se poda sola. No requiere mantenimiento.
 
 ---
 

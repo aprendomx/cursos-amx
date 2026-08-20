@@ -46,7 +46,7 @@ export async function eliminarForo(foroId) {
 export async function fetchHilos(foroId) {
   const { data, error } = await supabase
     .from('foro_hilos')
-    .select('*, perfiles(nombres, apellido_paterno), foro_respuestas(count)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno), foro_respuestas(count)')
     .eq('foro_id', foroId)
     .order('fijado', { ascending: false })
     .order('creado_en', { ascending: false })
@@ -66,7 +66,7 @@ export async function crearHilo(foroId, titulo, cuerpo) {
   const { data, error } = await supabase
     .from('foro_hilos')
     .insert({ foro_id: foroId, autor_id: session.user.id, titulo, cuerpo })
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .single()
   if (error) throw error
   return data
@@ -89,7 +89,7 @@ export async function editarHilo(hiloId, { titulo, cuerpo }) {
 export async function fetchRespuestas(hiloId) {
   const { data, error } = await supabase
     .from('foro_respuestas')
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .eq('hilo_id', hiloId)
     .order('creado_en')
     .limit(500)
@@ -110,7 +110,7 @@ export async function crearRespuesta(hiloId, cuerpo, respuestaPadreId = null) {
       cuerpo,
       respuesta_padre_id: respuestaPadreId,
     })
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .single()
   if (error) throw error
   return data

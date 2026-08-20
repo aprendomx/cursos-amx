@@ -5,6 +5,13 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { verifyZoomSignature, zoomUrlValidationResponse } from '../_shared/serviceAuth.ts'
+
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  })
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,15 +19,33 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json()
+    // El cuerpo se lee CRUDO: la firma de Zoom se calcula sobre los bytes tal
+    // como llegaron. Parsear y re-serializar cambia el hash.
+    const rawBody = await req.text()
+
+    const secretToken = Deno.env.get('ZOOM_WEBHOOK_SECRET_TOKEN')
+    const verificacion = await verifyZoomSignature(req, rawBody, secretToken)
+    if (!verificacion.ok) {
+      // Sin esto, cualquiera podía fabricar un `recording.completed` y hacer
+      // que el servidor descargara una URL arbitraria con service_role y la
+      // publicara como grabación del curso.
+      console.warn('[zoom-webhook] firma rechazada:', verificacion.reason)
+      return json({ error: 'unauthorized' }, 401)
+    }
+
+    const body = JSON.parse(rawBody)
     const event = body.event
     const payload = body.payload
 
+    // Reto de validación que Zoom envía al registrar el endpoint.
+    if (event === 'endpoint.url_validation') {
+      return json(await zoomUrlValidationResponse(payload?.plainToken ?? '', secretToken!))
+    }
+
     if (event !== 'recording.completed') {
-      return new Response(
-        JSON.stringify({ ok: true, ignored: event }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ ok: true, ignored: event }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const meetingId = String(payload.object?.id)
@@ -30,15 +55,14 @@ Deno.serve(async (req) => {
     )
 
     if (!videoFile) {
-      return new Response(
-        JSON.stringify({ ok: true, ignored: 'no_video' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ ok: true, ignored: 'no_video' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // Buscar sesión por zoom_meeting_id
@@ -50,10 +74,10 @@ Deno.serve(async (req) => {
 
     if (sesionError || !sesion) {
       console.error('[zoom-webhook] sesión no encontrada para meeting', meetingId)
-      return new Response(
-        JSON.stringify({ error: 'Sesión no encontrada' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ error: 'Sesión no encontrada' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Descargar video
@@ -91,7 +115,9 @@ Deno.serve(async (req) => {
         sesion_id: sesion.id,
         url_grabacion: urlData.publicUrl,
         duracion_segundos: videoFile.recording_duration || null,
-        tamano_mb: videoFile.file_size ? Math.round((videoFile.file_size / 1024 / 1024) * 100) / 100 : null,
+        tamano_mb: videoFile.file_size
+          ? Math.round((videoFile.file_size / 1024 / 1024) * 100) / 100
+          : null,
         estado: 'lista',
       })
       .select()
@@ -120,15 +146,14 @@ Deno.serve(async (req) => {
       console.error('[zoom-webhook] error iniciando transcripción:', await transcribeRes.text())
     }
 
-    return new Response(
-      JSON.stringify({ ok: true, grabacion_id: grabacion.id }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ ok: true, grabacion_id: grabacion.id }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (e: any) {
     console.error('[zoom-webhook] error general:', e.message)
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })

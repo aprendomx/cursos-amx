@@ -86,6 +86,17 @@
   --ink-3: #808080;
   --ink-4: #505050;
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
+     no llegan al 4.5:1 de WCAG AA (el azul del tema de ejemplo daba 2.17:1, y
+     es también el color del anillo de foco). applyTheme() en src/lib/theme.js
+     calcula estas variantes, o las toma de colors.<nombre>OnDark si el tema
+     las declara. Ver src/lib/contraste.js. */
+  --primary: var(--brand-primary-on-dark, #93b4ff);
+  --primary-700: var(--brand-primary-dark-on-dark, #b9ccff);
+  --success: var(--brand-secondary-on-dark, #5eccc0);
+  --warn: var(--brand-accent-on-dark, #f0a95c);
+  --danger: var(--brand-primary-on-dark, #93b4ff);
 }
 
 * {
@@ -346,11 +357,37 @@ select {
   font-style: italic;
 }
 
-/* Focus ring for accessibility */
+/* ----- Foco visible (WCAG 2.1 §2.4.7, nivel AA) ----- */
 :focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 3px;
   border-radius: 2px;
+}
+
+/* `.field input` (especificidad 0,1,1) declara `outline: none` y gana al
+   `:focus-visible` global (0,1,0): los campos de formulario se quedaban sin
+   anillo de foco, con un cambio de color de borde de 1px como única señal.
+   Esta regla lo restituye con especificidad suficiente. */
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ----- Movimiento reducido (WCAG 2.1 §2.3.3) -----
+   No había ninguna regla: quien tiene configurado "reducir movimiento" en su
+   sistema —por trastorno vestibular, migraña o simple preferencia— recibía
+   todas las transiciones y desplazamientos suaves igual. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Scrollbar */

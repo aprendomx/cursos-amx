@@ -40,9 +40,16 @@ export async function setStatus(videoId, status, fields = {}) {
   await pool.query(`update public.videos set ${sets.join(', ')} where id = $1`, vals)
 }
 
-export async function listStuck() {
-  // Jobs interrupted by a worker restart while transcoding.
-  const { rows } = await pool.query(`select id from public.videos where status = 'processing'`)
+export async function listStuck(workerId) {
+  // Jobs left in 'processing' by a PREVIOUS run of THIS worker.
+  //
+  // Filtering by worker_id matters once VIDEO_WORKER_REPLICAS > 1: without it,
+  // a worker booting would sweep up rows its live siblings are actively
+  // transcoding and yank them out from under them.
+  const { rows } = await pool.query(
+    `select id from public.videos where status = 'processing' and worker_id = $1`,
+    [workerId]
+  )
   return rows.map((r) => r.id)
 }
 
@@ -84,9 +91,36 @@ export async function claimNextPending(workerId) {
   }
 }
 
+/**
+ * Reencola un job que falló, si le quedan intentos. Devuelve true si se
+ * reencoló y false si se agotaron y queda en 'failed' definitivamente.
+ */
+export async function retryOrFail(videoId, maxRetries, errorMsg) {
+  const { rows } = await pool.query(
+    `update public.videos
+        set intentos = intentos + 1,
+            error_msg = $3,
+            ultimo_error_en = now(),
+            actualizado_en = now(),
+            worker_id = null,
+            status = case when intentos + 1 < $2 then 'pending' else 'failed' end
+      where id = $1
+      returning intentos, status`,
+    [videoId, maxRetries, errorMsg]
+  )
+  const fila = rows[0]
+  return fila?.status === 'pending'
+}
+
 export async function releaseJob(videoId) {
+  // Re-queue, don't just detach. The previous version only cleared worker_id
+  // and left status = 'processing' — but claimNextPending() only ever looks at
+  // 'pending', so the row became invisible to every worker forever. A restart
+  // mid-transcode silently lost the video, with no error and no alert.
   await pool.query(
-    `update public.videos set worker_id = null, actualizado_en = now() where id = $1`,
+    `update public.videos
+        set status = 'pending', worker_id = null, actualizado_en = now()
+      where id = $1 and status = 'processing'`,
     [videoId]
   )
 }

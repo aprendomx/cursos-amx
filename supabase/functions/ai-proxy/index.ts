@@ -1,4 +1,13 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { authorize, authErrorResponse } from '../_shared/auth.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
+
+/** Turno del historial que manda el asistente de estudio. */
+interface MensajeChat {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,10 +19,36 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Sin esto, esta función era un proxy ABIERTO a OpenAI pagado por la
+  // institución: el runtime corre con FUNCTIONS_VERIFY_JWT=false, así que
+  // cualquiera en internet podía gastar la API key sin autenticarse.
+  const rl = await checkRateLimit(req, {
+    scope: 'ai-proxy',
+    max: 20,
+    ventanaSeg: 60,
+    // Cada petición de más cuesta dinero real: si el contador
+    // compartido no responde, se rechaza en vez de dejar pasar.
+    failClosed: true,
+    client: createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    ),
+  })
+  if (!rl.allowed) {
+    return rateLimitResponse(rl, corsHeaders)
+  }
+
+  const admin = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
+  const auth = await authorize(req, admin)
+  if (!auth.ok) return authErrorResponse(auth)
+
   try {
     const { action, payload } = await req.json()
     const apiKey = Deno.env.get('OPENAI_API_KEY') || ''
-    
+
     if (!apiKey) {
       return new Response(JSON.stringify({ error: 'OPENAI_API_KEY no configurada' }), {
         status: 500,
@@ -40,7 +75,7 @@ Responde SOLO con un JSON válido en este formato exacto:
 }`
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [{ role: 'user', content: prompt }],
@@ -58,13 +93,14 @@ Responde SOLO con un JSON válido en este formato exacto:
 
       case 'summarize': {
         const { content, contentType } = payload
-        const prompt = contentType === 'video'
-          ? `Resume el siguiente transcript de video educativo en 5 bullet points claros y concisos:\n\n${content}`
-          : `Resume el siguiente texto educativo en 5 bullet points claros y concisos:\n\n${content}`
-        
+        const prompt =
+          contentType === 'video'
+            ? `Resume el siguiente transcript de video educativo en 5 bullet points claros y concisos:\n\n${content}`
+            : `Resume el siguiente texto educativo en 5 bullet points claros y concisos:\n\n${content}`
+
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages: [{ role: 'user', content: prompt }],
@@ -80,13 +116,16 @@ Responde SOLO con un JSON válido en este formato exacto:
       case 'chat': {
         const { message, context, history } = payload
         const messages = [
-          { role: 'system', content: `Eres un asistente de estudio útil. Responde basándote ÚNICAMENTE en el siguiente contenido del curso. Si no puedes responder con el contenido proporcionado, di "No tengo suficiente información para responder eso."\n\nContexto del curso:\n${context}` },
-          ...history.map((h) => ({ role: h.role, content: h.content })),
+          {
+            role: 'system',
+            content: `Eres un asistente de estudio útil. Responde basándote ÚNICAMENTE en el siguiente contenido del curso. Si no puedes responder con el contenido proporcionado, di "No tengo suficiente información para responder eso."\n\nContexto del curso:\n${context}`,
+          },
+          ...history.map((h: MensajeChat) => ({ role: h.role, content: h.content })),
           { role: 'user', content: message },
         ]
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: 'gpt-4o-mini',
             messages,
@@ -110,7 +149,10 @@ Responde SOLO con un JSON válido en este formato exacto:
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    // El binding de catch es `unknown`: hay que estrechar antes de leer
+    // .message, o se filtra un [object Object] al cliente.
+    const mensaje = error instanceof Error ? error.message : String(error)
+    return new Response(JSON.stringify({ error: mensaje }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

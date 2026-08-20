@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase.js'
 import { sbInsert } from '@/lib/sbRest'
 import { withCache, invalidateCache } from '@/composables/cache.js'
+import { ejecutarODiferir } from '@/offline/sync-queue'
 
 async function _fetchProgresoCurso(userId, cursoId) {
   const { data, error } = await supabase
@@ -33,12 +34,14 @@ export const fetchProgresoUsuario = withCache(
 )
 
 export async function marcarLeccionCompletada(leccionId) {
-  const { data, error } = await supabase.rpc('marcar_leccion_completada', {
-    p_leccion_id: leccionId,
+  // Terminar una lección sin conexión es el caso de uso central del modo
+  // offline: se difiere y se aplica al volver la red.
+  const { diferido, resultado } = await ejecutarODiferir('progress_update', {
+    leccion_id: leccionId,
+    completado: true,
   })
-  if (error) throw error
   invalidateCache(/^progreso:/)
-  return data
+  return { diferido, ...(resultado || {}) }
 }
 
 export async function actualizarSegundosVistos(leccionId, segundos) {

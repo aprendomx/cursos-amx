@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, computed, defineComponent, h } from 'vue'
+import { computed, defineComponent, h } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import { useLessonNavigation } from '../useLessonNavigation'
 
 vi.mock('@/lib/sbRest', () => ({
-  sbSelect: vi.fn(() => Promise.resolve({ data: [], count: null }))
+  sbSelect: vi.fn(() => Promise.resolve({ data: [], count: null })),
 }))
 
 import { sbSelect } from '@/lib/sbRest'
@@ -24,39 +24,54 @@ describe('useLessonNavigation', () => {
       setup() {
         result = fn()
         return () => h('div')
-      }
+      },
     })
     mount(Comp)
     return result
   }
 
   function factory(props: { cursoId: string; leccionId?: string } = { cursoId: 'c1' }) {
-    return withSetup(() => useLessonNavigation({
-      props,
-      session: computed(() => ({ access_token: 'tok', user: { id: 'u1' } })),
-      tweaks: computed(() => ({ playerLayout: 'split' })),
-      router: mockRouter as any,
-      updateTweaks: mockUpdateTweaks
-    }))
+    return withSetup(() =>
+      useLessonNavigation({
+        props,
+        session: computed(() => ({ access_token: 'tok', user: { id: 'u1' } })),
+        tweaks: computed(() => ({ playerLayout: 'split' })),
+        router: mockRouter as any,
+        updateTweaks: mockUpdateTweaks,
+      })
+    )
   }
 
   it.skip('carga lecciones y curso al montar', async () => {
     // TODO: fix mocking of sbSelect in vitest hoisted vi.mock
-    vi.mocked(sbSelect).mockResolvedValueOnce({ data: [{ titulo: 'Curso Test' }], count: null })
+    vi.mocked(sbSelect)
+      .mockResolvedValueOnce({ data: [{ titulo: 'Curso Test' }], count: null })
       .mockResolvedValueOnce({
-        data: [{
-          id: 'l1', modulo_id: 'm1', orden: 1, titulo: 'Lección 1',
-          tipo_material: 'video', duracion_seg: 60, url_youtube: '',
-          video_id: null, documento_path: null, documento_tipo: null,
-          contenido: null, modulos: { titulo: 'M1', orden: 1, curso_id: 'c1' },
-          requiere_entrega: false, entrega_tipos: null, entrega_max_mb: 10
-        }],
-        count: null
+        data: [
+          {
+            id: 'l1',
+            modulo_id: 'm1',
+            orden: 1,
+            titulo: 'Lección 1',
+            tipo_material: 'video',
+            duracion_seg: 60,
+            url_youtube: '',
+            video_id: null,
+            documento_path: null,
+            documento_tipo: null,
+            contenido: null,
+            modulos: { titulo: 'M1', orden: 1, curso_id: 'c1' },
+            requiere_entrega: false,
+            entrega_tipos: null,
+            entrega_max_mb: 10,
+          },
+        ],
+        count: null,
       })
-    
+
     const nav = factory({ cursoId: 'c1', leccionId: 'l1' })
     await flushPromises()
-    
+
     expect(nav.lecciones.value).toHaveLength(1)
     expect(nav.lecciones.value[0].titulo).toBe('Lección 1')
     expect(nav.cursoTitulo.value).toBe('Curso Test')
@@ -75,7 +90,10 @@ describe('useLessonNavigation', () => {
     nav.lecciones.value = [{ id: 'l1' } as any, { id: 'l2' } as any]
     nav.currentLeccion.value = 'l1'
     nav.goToNextLesson()
-    expect(mockRouter.push).toHaveBeenCalledWith({ name: 'player', params: { cursoId: 'c1', leccionId: 'l2' } })
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: 'player',
+      params: { cursoId: 'c1', leccionId: 'l2' },
+    })
   })
 
   it('fmtTime formatea segundos', () => {
@@ -87,7 +105,9 @@ describe('useLessonNavigation', () => {
   it('setVariant actualiza layout', () => {
     const nav = factory()
     nav.setVariant('stacked')
-    expect(mockUpdateTweaks).toHaveBeenCalledWith(expect.objectContaining({ playerLayout: 'stacked' }))
+    expect(mockUpdateTweaks).toHaveBeenCalledWith(
+      expect.objectContaining({ playerLayout: 'stacked' })
+    )
   })
 
   it('source computed determina tipo de contenido', () => {

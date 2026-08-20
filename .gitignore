@@ -33,3 +33,10 @@ test-results/
 docker/.env
 .superpowers/
 coverage/
+
+# Respaldos generados por scripts/deploy.sh
+backups/
+
+# Tema propio de la instalación (ver THEMING.md). No se versiona: así
+# un git pull nunca entra en conflicto con la identidad de la institución.
+theme/theme.config.local.js

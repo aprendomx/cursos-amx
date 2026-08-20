@@ -7,14 +7,16 @@ export interface VideoPlaybackOptions {
   totalTime: ComputedRef<number>
 }
 
-export function useVideoPlayback({ leccion, sourceKind, totalTime }: VideoPlaybackOptions) {
+export function useVideoPlayback({ leccion, totalTime }: VideoPlaybackOptions) {
   const playing = ref(false)
   const currentTime = ref(0)
   const completada = ref(false)
   const llegoAlFinal = ref(false)
 
   const localTotalTime = ref(totalTime.value)
-  watch(totalTime, (v) => { localTotalTime.value = v })
+  watch(totalTime, (v) => {
+    localTotalTime.value = v
+  })
 
   /* ── Playback simulation ──────────────────────────── */
   let playInterval: ReturnType<typeof window.setInterval> | null = null

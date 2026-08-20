@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase.js'
 export async function fetchMensajes(cursoId, { sesionId = null, limit = 100 } = {}) {
   let q = supabase
     .from('mensajes_chat')
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .eq('curso_id', cursoId)
     .order('creado_en', { ascending: true })
     .limit(limit)
@@ -28,7 +28,7 @@ export async function enviarMensaje({ cursoId, sesionId = null, contenido }) {
       user_id: session.user.id,
       contenido,
     })
-    .select('*, perfiles(nombres, apellido_paterno)')
+    .select('*, perfiles_publicos(nombres, apellido_paterno)')
     .single()
   if (error) throw error
   return data
@@ -67,7 +67,7 @@ export function useChatRealtime(cursoId, sesionId, { onInsert, onDelete } = {}) 
         if ((fila.sesion_id || null) !== (sesionId || null)) return
         const { data } = await supabase
           .from('mensajes_chat')
-          .select('*, perfiles(nombres, apellido_paterno)')
+          .select('*, perfiles_publicos(nombres, apellido_paterno)')
           .eq('id', fila.id)
           .single()
         if (data) onInsert?.(data)

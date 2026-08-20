@@ -4,7 +4,11 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
-import webPush from 'https://esm.sh/web-push@3.6.7'
+// Los tipos de @types/web-push declaran solo exports con nombre, aunque el
+// paquete sí tiene default en CommonJS. Se importa el namespace para que el
+// runtime funcione igual y `deno check` no falle con TS1192.
+import * as webPush from 'https://esm.sh/web-push@3.6.7'
+import { isServiceRole } from '../_shared/serviceAuth.ts'
 
 const BATCH_SIZE = 50
 
@@ -13,10 +17,20 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Solo el cron de Postgres invoca esta función, y lo hace con la
+  // service_role key (ver migración 062, que reprograma el job: la 051 la
+  // agendaba con la anon key, que es pública y no autentica nada).
+  if (!isServiceRole(req, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))) {
+    return new Response(JSON.stringify({ error: 'unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // 1. Leer lote de notificaciones pendientes
@@ -29,24 +43,24 @@ Deno.serve(async (req) => {
 
     if (fetchError) {
       console.error('[notifications-worker] error al leer notificaciones:', fetchError.message)
-      return new Response(
-        JSON.stringify({ error: fetchError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ error: fetchError.message }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     if (!notificaciones || notificaciones.length === 0) {
-      return new Response(
-        JSON.stringify({ processed: 0 }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ processed: 0 }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Precargar configuración de email (singleton)
     const emailConfig = await loadEmailConfig(supabaseAdmin)
 
     // Configurar VAPID una sola vez por invocación
-    const vapidPublicKey = Deno.env.get('VITE_VAPID_PUBLIC_KEY') || Deno.env.get('VAPID_PUBLIC_KEY') || ''
+    const vapidPublicKey =
+      Deno.env.get('VITE_VAPID_PUBLIC_KEY') || Deno.env.get('VAPID_PUBLIC_KEY') || ''
     const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY') || ''
     const vapidSubject = Deno.env.get('VAPID_SUBJECT') || 'mailto:admin@example.com'
     if (vapidPublicKey && vapidPrivateKey) {
@@ -61,30 +75,35 @@ Deno.serve(async (req) => {
         const result = await processNotification(supabaseAdmin, notif, emailConfig)
         processed++
         results.push({ id: notif.id, status: result })
-        } catch (err) {
-        console.error(`[notifications-worker] error procesando notificación ${notif.id}:`, (err as Error).message)
+      } catch (err) {
+        console.error(
+          `[notifications-worker] error procesando notificación ${notif.id}:`,
+          (err as Error).message
+        )
         try {
           await supabaseAdmin
             .from('notificaciones')
             .update({ estado: 'fallido', enviado_en: new Date().toISOString() })
             .eq('id', notif.id)
         } catch (updateErr) {
-          console.error(`[notifications-worker] error al marcar fallido ${notif.id}:`, (updateErr as Error).message)
+          console.error(
+            `[notifications-worker] error al marcar fallido ${notif.id}:`,
+            (updateErr as Error).message
+          )
         }
         results.push({ id: notif.id, status: 'fallido', error: (err as Error).message })
       }
     }
 
-    return new Response(
-      JSON.stringify({ processed, batch_size: notificaciones.length, results }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ processed, batch_size: notificaciones.length, results }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (e: any) {
     console.error('[notifications-worker] error general:', e.message)
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })
 
@@ -109,7 +128,7 @@ export async function loadEmailConfig(supabase: any) {
 export async function processNotification(
   supabase: any,
   notif: any,
-  emailConfig: any,
+  emailConfig: any
 ): Promise<'enviado' | 'fallido' | 'silenciado'> {
   // 2. Cargar preferencias del usuario
   const { data: pref } = await supabase
@@ -161,7 +180,8 @@ export async function processNotification(
 }
 
 export async function sendPush(supabase: any, notif: any): Promise<boolean> {
-  const vapidPublicKey = Deno.env.get('VITE_VAPID_PUBLIC_KEY') || Deno.env.get('VAPID_PUBLIC_KEY') || ''
+  const vapidPublicKey =
+    Deno.env.get('VITE_VAPID_PUBLIC_KEY') || Deno.env.get('VAPID_PUBLIC_KEY') || ''
   const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY') || ''
 
   if (!vapidPublicKey || !vapidPrivateKey) {
@@ -203,7 +223,7 @@ export async function sendPush(supabase: any, notif: any): Promise<boolean> {
             auth: sub.auth,
           },
         },
-        payload,
+        payload
       )
       anySuccess = true
     } catch (err) {
@@ -211,7 +231,10 @@ export async function sendPush(supabase: any, notif: any): Promise<boolean> {
       if (statusCode === 410 || statusCode === 404) {
         expiredIds.push(sub.id)
       } else {
-        console.error(`[notifications-worker] error enviando push a ${sub.endpoint}:`, (err as Error).message)
+        console.error(
+          `[notifications-worker] error enviando push a ${sub.endpoint}:`,
+          (err as Error).message
+        )
         anyFailure = true
       }
     }
@@ -224,7 +247,10 @@ export async function sendPush(supabase: any, notif: any): Promise<boolean> {
       .delete()
       .in('id', expiredIds)
     if (deleteError) {
-      console.error('[notifications-worker] error al eliminar suscripciones expiradas:', deleteError.message)
+      console.error(
+        '[notifications-worker] error al eliminar suscripciones expiradas:',
+        deleteError.message
+      )
     }
   }
 
@@ -239,7 +265,9 @@ export async function sendEmail(supabase: any, notif: any, emailConfig: any): Pr
   }
 
   if (emailConfig.proveedor !== 'resend') {
-    console.warn(`[notifications-worker] proveedor de email '${emailConfig.proveedor}' no soportado, saltando`)
+    console.warn(
+      `[notifications-worker] proveedor de email '${emailConfig.proveedor}' no soportado, saltando`
+    )
     return true // Proveedor no soportado no es error de la notificación
   }
 

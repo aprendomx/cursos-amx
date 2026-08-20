@@ -75,12 +75,25 @@ jobs:
         with:
           deno-version: v2.x
 
+      # Comprobación de tipos de las Edge Functions. No estaba: el job solo
+      # corría `deno test`, así que cuatro errores de tipos —dos en ai-proxy,
+      # uno en hls-playlist y uno en notifications-worker— llevaban tiempo ahí
+      # sin que nada los señalara.
+      - name: Type-check edge functions
+        run: >-
+          deno check --node-modules-dir=none
+          supabase/functions/_shared/*.ts
+          supabase/functions/*/index.ts
+
       - name: Run edge function tests
         # --node-modules-dir=none: sin él, Deno detecta el package.json del
         # root (modo BYONM) y exige un node_modules que este job no tiene.
         run: >-
           deno test --allow-all --node-modules-dir=none
           supabase/functions/_shared/auth.test.ts
+          supabase/functions/_shared/serviceAuth.test.ts
+          supabase/functions/_shared/playToken.test.ts
+          supabase/functions/_shared/rateLimit.test.ts
           supabase/functions/bulk-invite/index.test.ts
           supabase/functions/analytics/index.test.ts
           supabase/functions/push-notify/index.test.ts
@@ -135,6 +148,55 @@ jobs:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
 
+  # Aplica TODO el set de migraciones a un Postgres limpio y verifica el
+  # esquema resultante. Es el job que faltaba: sin él, un error de SQL solo
+  # se descubre cuando alguien intenta instalar desde cero.
+  test-migrations:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # Misma imagen que docker/docker-compose.yml, para que pg_cron y
+        # pg_net existan de verdad y no haya que simularlos.
+        image: supabase/postgres:15.8.1.085
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create test database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -p 55432 -U postgres -c "create database amx_test;"
+
+      # Base nueva, no la `postgres` de la imagen: ahí `auth` y `storage` ya
+      # existen, pertenecen a supabase_auth_admin / supabase_storage_admin y el
+      # usuario `postgres` de esta imagen no puede alterarlas —storage.buckets
+      # llega además sin las columnas que usan las migraciones 016/019/020/025—.
+      #
+      # STUB_EXTENSIONS=1 neutraliza `create extension pg_cron/pg_net`, que solo
+      # se pueden instalar en la base que indica cron.database_name. Los stubs
+      # aportan firmas compatibles de cron.schedule/unschedule.
+      #
+      # LO QUE ESTO NO CUBRE: que pg_cron y pg_net existan de verdad y que los
+      # jobs queden agendados. Se comprueba en el despliegue, donde
+      # scripts/deploy.sh verifica el esquema resultante.
+      - name: Apply migrations and verify schema
+        env:
+          DB_URL: postgres://postgres:postgres@localhost:55432/amx_test
+          STUB_EXTENSIONS: '1'
+        run: scripts/test-migrations.sh
+
   # Check agregado: la protección de la rama main exige un status llamado
   # "ci". Reúne los jobs bloqueantes (los informativos test-e2e y audit
   # quedan fuera a propósito).
@@ -145,6 +207,7 @@ jobs:
       - type-check
       - test-unit
       - test-edge-functions
+      - test-migrations
       - build
     steps:
       - name: All required checks passed
@@ -187,3 +250,6 @@ jobs:
 
       - name: Build application
         run: npm run build
+
+      - name: Check bundle budget
+        run: node scripts/check-bundle.js

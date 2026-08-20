@@ -38,6 +38,38 @@ const fechaFormateada = computed(() => {
   return `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`
 })
 
+// La verificación ya no es binaria: una constancia puede estar revocada, y
+// ese caso NO debe presentarse como "válida" ni como "no existe" (migración
+// 066). Quien recibe el documento tiene derecho a saber que fue anulado y por
+// qué.
+const revocada = computed(() => data.value?.estado === 'revocada')
+
+// La frase se arma en el script, no en la plantilla: intercalar un <template>
+// condicional dentro del párrafo deja el espaciado a merced de cómo el
+// formateador parta las líneas, y ahí acaba saliendo un espacio suelto antes
+// del punto.
+const frasePeriodo = computed(() => (fechaRevocacion.value ? ` el ${fechaRevocacion.value}` : ''))
+
+const fechaRevocacion = computed(() => {
+  if (!data.value?.revocada_en) return ''
+  const d = new Date(data.value.revocada_en)
+  const meses = [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+  ]
+  return `${d.getDate()} de ${meses[d.getMonth()]} de ${d.getFullYear()}`
+})
+
 const hashTruncado = computed(() => {
   const h = data.value?.hash_verif || ''
   return h.length > 12 ? '…' + h.slice(-12) : h
@@ -108,16 +140,27 @@ function goHome() {
       <div v-else class="verificar-card">
         <p class="eyebrow" :style="{ color: 'var(--ink-3)' }">VERIFICACI&Oacute;N OFICIAL</p>
 
-        <span class="chip chip-verde verificar-chip">
+        <span v-if="revocada" class="chip verificar-chip verificar-chip-revocada"> Revocada </span>
+        <span v-else class="chip chip-verde verificar-chip">
           <IconSet name="check" />
           V&aacute;lida
         </span>
+
+        <div v-if="revocada" class="verificar-revocada-aviso" role="alert">
+          <p>
+            <strong>Esta constancia fue revocada</strong>{{ frasePeriodo }}. Ya no acredita lo que
+            describe.
+          </p>
+          <p v-if="data.motivo_revocacion">Motivo: {{ data.motivo_revocacion }}</p>
+        </div>
 
         <h1 class="display verificar-name">
           {{ data.nombre_persona }}
         </h1>
 
-        <p :style="{ color: 'var(--ink-2)', fontSize: '15px' }">acredit&oacute; el curso de</p>
+        <p :style="{ color: 'var(--ink-2)', fontSize: '15px' }">
+          {{ revocada ? 'aparecía como acreditando el curso de' : 'acreditó el curso de' }}
+        </p>
 
         <h2 class="display-italic verificar-curso">
           {{ data.titulo_curso }}
@@ -235,5 +278,25 @@ function goHome() {
     grid-template-columns: 1fr;
     gap: calc(var(--unit) * 2);
   }
+}
+
+.verificar-chip-revocada {
+  background: #fdecea;
+  color: #b00020;
+  border: 1px solid currentColor;
+}
+
+.verificar-revocada-aviso {
+  border: 1px solid #b00020;
+  border-left-width: 4px;
+  border-radius: 0.35rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  color: #b00020;
+  text-align: left;
+}
+
+.verificar-revocada-aviso p + p {
+  margin-top: 0.35rem;
 }
 </style>

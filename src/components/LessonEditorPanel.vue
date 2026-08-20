@@ -51,6 +51,8 @@ import DocumentoUploadField from '@/components/DocumentoUploadField.vue'
 import EvaluacionEditor from '@/components/EvaluacionEditor.vue'
 import LessonRichTextEditor from '@/components/LessonRichTextEditor.vue'
 import { parseDuracionToSeg, segToDuracion } from '@/lib/duracion.js'
+import { esVttValido } from '@/lib/webvtt.js'
+import { obtenerSubtitulos, guardarSubtitulos, borrarSubtitulos } from '@/services/subtitulos.js'
 
 const props = defineProps({
   lesson: { type: Object, default: null },
@@ -64,6 +66,75 @@ const local = ref(null)
 const dirty = ref(false)
 const richRef = ref(null)
 const duracionStr = ref('')
+
+// Subtítulos (WCAG 2.1 §1.2.2, nivel A). Se valida al vuelo porque un WebVTT
+// mal formado no da error: el navegador descarta la pista en silencio y el
+// alumno ve el botón de subtítulos sin que aparezca texto.
+const subtitulosError = ref('')
+const subtitulosCargados = ref(false)
+const subtitulosIdioma = ref('es')
+const subtitulosGuardando = ref(false)
+
+// Los subtítulos viven en `leccion_subtitulos` y se guardan aparte del patch
+// de la lección: es un texto grande y opcional que no debe viajar con el
+// resto del formulario.
+watch(
+  () => local.value?.id,
+  async (leccionId) => {
+    subtitulosCargados.value = false
+    subtitulosError.value = ''
+    if (!leccionId) return
+    try {
+      const fila = await obtenerSubtitulos(leccionId)
+      subtitulosCargados.value = !!fila?.contenido_vtt
+      subtitulosIdioma.value = fila?.idioma || 'es'
+    } catch {
+      subtitulosCargados.value = false
+    }
+  },
+  { immediate: true }
+)
+
+function onSubtitulosArchivo(evento) {
+  const archivo = evento.target.files?.[0]
+  if (!archivo) return
+  const lector = new FileReader()
+  lector.onload = async () => {
+    const texto = String(lector.result || '')
+    // Un WebVTT mal formado no da error: el navegador descarta la pista en
+    // silencio y el alumno ve el botón de subtítulos sin que aparezca texto.
+    if (!esVttValido(texto)) {
+      subtitulosError.value =
+        'El archivo no parece un WebVTT válido. Debe empezar con «WEBVTT» y usar ' +
+        'tiempos 00:00:00.000 --> 00:00:00.000 (los .srt usan coma: conviértelos).'
+      return
+    }
+    subtitulosGuardando.value = true
+    try {
+      await guardarSubtitulos(local.value.id, texto, subtitulosIdioma.value)
+      subtitulosError.value = ''
+      subtitulosCargados.value = true
+    } catch (e) {
+      subtitulosError.value = e?.message || 'No se pudieron guardar los subtítulos.'
+    } finally {
+      subtitulosGuardando.value = false
+    }
+  }
+  lector.readAsText(archivo)
+}
+
+async function quitarSubtitulos() {
+  subtitulosGuardando.value = true
+  try {
+    await borrarSubtitulos(local.value.id)
+    subtitulosCargados.value = false
+    subtitulosError.value = ''
+  } catch (e) {
+    subtitulosError.value = e?.message || 'No se pudieron quitar los subtítulos.'
+  } finally {
+    subtitulosGuardando.value = false
+  }
+}
 let preguntasSnapshot = ''
 
 watch(
@@ -128,10 +199,7 @@ function guardar() {
   <!-- Finding 1: teleport to body so position:fixed escapes any transform-retaining ancestor -->
   <teleport to="body">
     <template v-if="abierto">
-      <div
-        class="panel-backdrop"
-        @click="onEsc"
-      />
+      <div class="panel-backdrop" @click="onEsc" />
       <aside
         class="panel"
         role="dialog"
@@ -142,17 +210,8 @@ function guardar() {
       >
         <header class="panel-header">
           <h3>{{ t('builder.editLesson') }}</h3>
-          <span
-            v-if="dirty"
-            class="unsaved"
-          >{{ t('builder.unsaved') }}</span>
-          <button
-            class="panel-close"
-            :aria-label="t('builder.cancel')"
-            @click="onEsc"
-          >
-            ✕
-          </button>
+          <span v-if="dirty" class="unsaved">{{ t('builder.unsaved') }}</span>
+          <button class="panel-close" :aria-label="t('builder.cancel')" @click="onEsc">✕</button>
         </header>
 
         <div class="panel-body">
@@ -163,16 +222,12 @@ function guardar() {
               data-test="lesson-titulo"
               type="text"
               @input="marcarDirty"
-            >
+            />
           </label>
 
           <fieldset class="field">
             <legend>{{ t('builder.source') }}</legend>
-            <label
-              v-for="f in FUENTES"
-              :key="f"
-              class="radio"
-            >
+            <label v-for="f in FUENTES" :key="f" class="radio">
               <input
                 v-model="local.fuente"
                 type="radio"
@@ -180,23 +235,20 @@ function guardar() {
                 :value="f"
                 :data-test="`fuente-${f}`"
                 @change="marcarDirty"
-              >
+              />
               {{ t(`builder.source${f.charAt(0).toUpperCase() + f.slice(1)}`) }}
             </label>
           </fieldset>
 
           <!-- Finding 4: i18n keys for hardcoded YouTube literals -->
-          <label
-            v-if="local.fuente === 'youtube'"
-            class="field"
-          >
+          <label v-if="local.fuente === 'youtube'" class="field">
             {{ t('builder.youtubeUrl') }}
             <input
               v-model="local.url_youtube"
               type="url"
               placeholder="https://youtube.com/watch?v=…"
               @input="marcarDirty"
-            >
+            />
             <iframe
               v-if="/youtu\.?be/.test(local.url_youtube || '')"
               class="yt-preview"
@@ -218,6 +270,45 @@ function guardar() {
             "
           />
 
+          <!-- Subtítulos: obligatorios para WCAG 2.1 §1.2.2 (nivel A) en todo
+               video con audio. Ver docs/CUMPLIMIENTO.md y src/lib/webvtt.js -->
+          <div v-if="local.fuente === 'youtube' || local.fuente === 'hls'" class="subtitulos-campo">
+            <label :for="`subtitulos-${local.id}`">
+              Subtítulos (WebVTT)
+              <span v-if="!subtitulosCargados" class="subtitulos-falta"
+                >— sin subtítulos: esta lección no cumple WCAG nivel A</span
+              >
+              <span v-else class="subtitulos-ok">— pista cargada</span>
+            </label>
+            <input
+              :id="`subtitulos-${local.id}`"
+              type="file"
+              accept=".vtt,text/vtt"
+              :disabled="subtitulosGuardando"
+              @change="onSubtitulosArchivo"
+            />
+            <label :for="`subtitulos-idioma-${local.id}`">Idioma de los subtítulos</label>
+            <input
+              :id="`subtitulos-idioma-${local.id}`"
+              v-model="subtitulosIdioma"
+              type="text"
+              maxlength="8"
+              placeholder="es"
+            />
+            <button
+              v-if="subtitulosCargados"
+              type="button"
+              class="btn btn-ghost btn-sm"
+              :disabled="subtitulosGuardando"
+              @click="quitarSubtitulos"
+            >
+              Quitar subtítulos
+            </button>
+            <p v-if="subtitulosError" class="subtitulos-error" role="alert">
+              {{ subtitulosError }}
+            </p>
+          </div>
+
           <!-- DocumentoUploadField: real props leccionId + documentoPath + documentoTipo, emit documento-updated -->
           <DocumentoUploadField
             v-if="local.fuente === 'documento'"
@@ -234,10 +325,7 @@ function guardar() {
           />
 
           <!-- EvaluacionEditor: real prop preguntas (mutates in-place, no emits) -->
-          <EvaluacionEditor
-            v-if="local.fuente === 'examen'"
-            :preguntas="local.preguntas"
-          />
+          <EvaluacionEditor v-if="local.fuente === 'examen'" :preguntas="local.preguntas" />
 
           <!-- Fix 3: Eval config fields (only for examen) -->
           <template v-if="local.fuente === 'examen'">
@@ -250,7 +338,7 @@ function guardar() {
                 min="0"
                 max="100"
                 @input="marcarDirty"
-              >
+              />
             </label>
             <label class="field">
               {{ t('builder.maxAttempts') }}
@@ -260,7 +348,7 @@ function guardar() {
                 type="number"
                 min="1"
                 @input="marcarDirty"
-              >
+              />
             </label>
           </template>
 
@@ -273,12 +361,7 @@ function guardar() {
 
           <label class="field">
             {{ t('builder.duration') }}
-            <input
-              v-model="duracionStr"
-              type="text"
-              placeholder="12:30"
-              @input="marcarDirty"
-            >
+            <input v-model="duracionStr" type="text" placeholder="12:30" @input="marcarDirty" />
           </label>
 
           <!-- Fix 3: Entrega fields (always visible) -->
@@ -289,7 +372,7 @@ function guardar() {
                 data-test="requiere-entrega"
                 type="checkbox"
                 @change="marcarDirty"
-              >
+              />
               {{ t('builder.requiresDelivery') }}
             </label>
           </label>
@@ -301,7 +384,7 @@ function guardar() {
               type="text"
               placeholder="pdf, docx, zip, png, jpg"
               @input="marcarDirty"
-            >
+            />
           </label>
           <label class="field">
             {{ t('builder.deliveryMaxMb') }}
@@ -312,23 +395,15 @@ function guardar() {
               min="1"
               max="50"
               @input="marcarDirty"
-            >
+            />
           </label>
         </div>
 
         <footer class="panel-footer">
-          <button
-            class="btn-secondary"
-            data-test="panel-cancel"
-            @click="emit('close')"
-          >
+          <button class="btn-secondary" data-test="panel-cancel" @click="emit('close')">
             {{ t('builder.cancel') }}
           </button>
-          <button
-            class="btn-primary"
-            data-test="panel-save"
-            @click="guardar"
-          >
+          <button class="btn-primary" data-test="panel-save" @click="guardar">
             {{ t('builder.save') }}
           </button>
         </footer>
@@ -451,5 +526,30 @@ fieldset.field {
   border-radius: 8px;
   padding: 8px 18px;
   cursor: pointer;
+}
+</style>
+
+<style scoped>
+.subtitulos-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}
+
+.subtitulos-falta {
+  color: #b45309;
+  font-size: 0.85em;
+}
+
+.subtitulos-ok {
+  color: #0f766e;
+  font-size: 0.85em;
+}
+
+.subtitulos-error {
+  color: #b00020;
+  font-size: 0.9em;
+  max-width: 60ch;
 }
 </style>

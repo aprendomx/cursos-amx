@@ -3,18 +3,41 @@ import { mkdir, readdir, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { logger } from './logger.js'
 
-function run(cmd, args, { cwd } = {}) {
+// Corta un proceso colgado. Sin esto, un ffmpeg que se queda esperando ocupa
+// un slot de MAX_CONCURRENT indefinidamente y el worker deja de procesar sin
+// que nada lo señale.
+const TIMEOUT_MS = Number(process.env.FFMPEG_TIMEOUT_MS || 2 * 3600 * 1000)
+
+function run(cmd, args, { cwd, timeoutMs = TIMEOUT_MS } = {}) {
   return new Promise((resolve, reject) => {
     const p = spawn(cmd, args, { cwd, stdio: ['ignore', 'pipe', 'pipe'] })
     let stderr = ''
+    let cortado = false
+
+    const temporizador = setTimeout(() => {
+      cortado = true
+      logger('error', 'process timed out', { cmd, timeoutMs })
+      p.kill('SIGKILL')
+    }, timeoutMs)
+
     p.stderr.on('data', (d) => {
       stderr += d.toString()
+      // El stderr de ffmpeg crece sin límite (una línea de progreso por
+      // fotograma). Se conserva solo la cola, que es lo único que sirve para
+      // diagnosticar.
+      if (stderr.length > 8000) stderr = stderr.slice(-4000)
     })
     p.on('error', (err) => {
+      clearTimeout(temporizador)
       logger('error', 'spawn error', { cmd, err: String(err) })
       reject(err)
     })
     p.on('close', (code) => {
+      clearTimeout(temporizador)
+      if (cortado) {
+        reject(new Error(`${cmd} excedió el tiempo límite (${timeoutMs} ms)`))
+        return
+      }
       if (code === 0) resolve()
       else {
         const tail = stderr.slice(-2000)
@@ -102,7 +125,10 @@ export async function transcodeHls(source, outDir, srcHeight) {
     .join('; ')
   const filter = `[0:v]split=${variants.length}${splitLabels}; ${scales}`
 
-  const args = ['-y', '-i', source, '-filter_complex', filter]
+  // -threads acota el uso de CPU: sin tope, ffmpeg toma todos los núcleos
+  // del anfitrión, que también corre Postgres.
+  const hilos = Number(process.env.FFMPEG_THREADS || 2)
+  const args = ['-y', '-threads', String(hilos), '-i', source, '-filter_complex', filter]
 
   variants.forEach((v, i) => {
     args.push('-map', `[v${i}out]`)

@@ -1,8 +1,34 @@
 # Plan de migración a TypeScript — `src/services` y `src/composables`
 
-> Generado como parte de la revisión técnica (Fase 3). Estado: `vue-tsc --noEmit`
-> corre en verde y es bloqueante en CI, con `allowJs: true` y `strict: false`,
-> así que la migración puede ser gradual archivo por archivo.
+> **Estado a día de hoy:** 34 archivos `.ts`, 69 `.js` y 116 `.vue`
+> (los `.vue` siguen todos en JavaScript). `vue-tsc --noEmit` corre en verde y
+> es bloqueante en CI. Desde la revisión de accesibilidad y calidad, **ESLint
+> también cubre los `.ts`** (antes la configuración solo declaraba
+> `files: ['**/*.{js,vue}']`, así que el código tipado no se analizaba: al
+> cubrirlo aparecieron 12 errores de variables e imports sin usar que llevaban
+> tiempo ahí, uno de ellos un `computed` que se calculaba y no se devolvía).
+
+## Rumbo decidido
+
+**Congelar el avance por archivos sueltos; migrar solo lo que se toque.**
+
+El razonamiento: con 34 de 103 archivos no-Vue migrados y cero
+`.vue`, el avance parcial cuesta —dos convenciones conviviendo, dos formas de
+declarar props— sin haber rendido todavía, porque la mayor superficie de error
+está en las plantillas, que siguen sin tipos.
+
+En concreto:
+
+- **No** abrir una tarea de "migrar N archivos" sin una razón funcional.
+- **Sí** migrar un archivo cuando ya se va a modificar por otro motivo.
+- **Sí** escribir en TypeScript todo lo nuevo (`src/lib/`, `src/services/`).
+- La migración de los `.vue` es una decisión aparte: exige `vue-tsc` en modo
+  estricto sobre plantillas y es un proyecto en sí mismo, no un goteo.
+
+`@typescript-eslint/no-explicit-any` está en **aviso**, no en error: el código
+que envuelve respuestas de supabase-js vive de `any` y ponerlo en error
+bloquearía el CI sin mejorar nada hoy. Cuando el número de avisos baje lo
+bastante, súbelo a error para que no vuelva a crecer.
 
 ## Criterio de priorización
 

@@ -44,33 +44,39 @@ function handleSend() {
         <span class="chat-live-dot pulsing" />
       </div>
     </div>
-    <div
-      ref="chatContainerRef"
-      class="chat-messages"
-    >
+    <div ref="chatContainerRef" class="chat-messages">
       <div
         v-for="c in comentarios"
         :key="c.id"
         class="chat-msg"
         :class="{ 'chat-msg-incoming': c.incoming, 'chat-msg-destacado': c.destacado }"
       >
-        <div
-          class="chat-avatar"
-          :class="{ 'chat-avatar-instructor': c.esInstructor }"
-        >
+        <div class="chat-avatar" :class="{ 'chat-avatar-instructor': c.esInstructor }">
           {{ c.user.charAt(0) }}
         </div>
         <div class="chat-body">
           <div class="chat-meta">
             <span class="chat-name">{{ c.user }}</span>
-            <span
-              v-if="c.esInstructor"
-              class="chat-badge-instructor mono"
-            >{{
+            <span v-if="c.esInstructor" class="chat-badge-instructor mono">{{
               $t('chat.badgeInstructor')
             }}</span>
             <span class="chat-dep mono">{{ c.dep }}</span>
             <span class="chat-time">{{ c.t }}</span>
+            <!-- Un comentario propio se pinta antes de confirmarse. Si quedó en
+                 la cola o lo rechazaron, hay que decirlo: antes se mostraba
+                 igual que uno guardado y se perdía en silencio. -->
+            <span
+              v-if="c.estado === 'pendiente'"
+              class="chat-estado chat-estado-pendiente mono"
+              :title="'Se enviará cuando vuelva la conexión'"
+              >sin enviar</span
+            >
+            <span
+              v-else-if="c.estado === 'fallido'"
+              class="chat-estado chat-estado-fallido mono"
+              :title="'No se pudo guardar'"
+              >no enviado</span
+            >
           </div>
           <p class="chat-text">
             {{ c.texto }}
@@ -84,11 +90,8 @@ function handleSend() {
         type="text"
         :placeholder="$t('chat.placeholder')"
         @keydown.enter="handleSend"
-      >
-      <button
-        class="chat-send"
-        @click="handleSend"
-      >
+      />
+      <button class="chat-send" @click="handleSend">
         <IconSet name="send" />
       </button>
     </div>
@@ -276,5 +279,20 @@ function handleSend() {
 }
 .chat-send:hover {
   transform: scale(1.06);
+}
+
+.chat-estado {
+  font-size: 0.72em;
+  border-radius: 999px;
+  padding: 0 0.45em;
+  border: 1px solid currentColor;
+}
+
+.chat-estado-pendiente {
+  color: var(--warn, #b45309);
+}
+
+.chat-estado-fallido {
+  color: #b00020;
 }
 </style>

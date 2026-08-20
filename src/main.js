@@ -35,7 +35,11 @@ app.use(i18n)
 
 applyTheme()
 
-app.mount('#app')
-
-// Carga feature flags en caliente (no bloquea el montado; tiene fallback build-time)
-loadFeatureFlags()
+// Los flags se cargan ANTES de montar. featureEnabled() es síncrona y la usan
+// ~90 sitios; si se montara primero, el primer render usaría los defaults de
+// build y podría pintar un módulo que la base tiene apagado — cuyas tablas,
+// desde la migración 063, devuelven 403. loadFeatureFlags nunca rechaza: si
+// la consulta falla, deja los defaults de build-time y sigue.
+loadFeatureFlags().finally(() => {
+  app.mount('#app')
+})
