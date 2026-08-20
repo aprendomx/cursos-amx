@@ -44,6 +44,12 @@ const fechaFormateada = computed(() => {
 // qué.
 const revocada = computed(() => data.value?.estado === 'revocada')
 
+// La frase se arma en el script, no en la plantilla: intercalar un <template>
+// condicional dentro del párrafo deja el espaciado a merced de cómo el
+// formateador parta las líneas, y ahí acaba saliendo un espacio suelto antes
+// del punto.
+const frasePeriodo = computed(() => (fechaRevocacion.value ? ` el ${fechaRevocacion.value}` : ''))
+
 const fechaRevocacion = computed(() => {
   if (!data.value?.revocada_en) return ''
   const d = new Date(data.value.revocada_en)
@@ -142,9 +148,8 @@ function goHome() {
 
         <div v-if="revocada" class="verificar-revocada-aviso" role="alert">
           <p>
-            <strong>Esta constancia fue revocada</strong>
-            <template v-if="fechaRevocacion"> el {{ fechaRevocacion }} </template>. Ya no acredita
-            lo que describe.
+            <strong>Esta constancia fue revocada</strong>{{ frasePeriodo }}. Ya no acredita lo que
+            describe.
           </p>
           <p v-if="data.motivo_revocacion">Motivo: {{ data.motivo_revocacion }}</p>
         </div>
