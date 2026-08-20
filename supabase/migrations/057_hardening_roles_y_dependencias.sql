@@ -18,13 +18,15 @@
 -- (1) perfiles: los campos de rol solo los cambia un administrador
 -- ---------------------------------------------------------------------
 
--- Defensa principal: privilegio de columna. Ni siquiera una política
--- permisiva puede otorgar un UPDATE sobre una columna sin GRANT.
+-- OJO: este revoke NO es suficiente por sí solo, aunque lo parezca.
+-- Supabase concede UPDATE a nivel de TABLA sobre todo `public` a los roles
+-- anon/authenticated, y en PostgreSQL un revoke de COLUMNA no anula un grant
+-- de TABLA. Se conserva como capa adicional, pero la defensa efectiva es el
+-- trigger de más abajo. Ver la migración 069, que lo documenta y lo refuerza.
 revoke update (es_admin, es_instructor) on public.perfiles from authenticated, anon;
 
--- Defensa secundaria: trigger. Cubre las rutas que NO pasan por los
--- privilegios de columna — funciones `security definer` que corren como
--- owner y cualquier acceso con un rol distinto de authenticated/anon.
+-- DEFENSA EFECTIVA. Es lo único que bloquea de verdad la escalada, verificado
+-- en producción. No lo retires pensando que basta con el revoke de arriba.
 create or replace function public.perfiles_guard_roles()
 returns trigger
 language plpgsql
