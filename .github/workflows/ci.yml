@@ -220,6 +220,17 @@ jobs:
       - name: Run crear-admin.sh checks
         run: scripts/test-crear-admin.sh
 
+  # La verificación del despliegue fallaba en abierto: una comprobación que no
+  # se podía ejecutar se reportaba como superada, y así pasaron inadvertidos
+  # funciones caídas, RLS sin comprobar y una comprobación de escalada de
+  # privilegios que nunca corrió. Aquí se fija su tabla de clasificación.
+  test-deploy-verificacion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check deploy verification logic
+        run: scripts/test-deploy-verificacion.sh
+
   # Check agregado: la protección de la rama main exige un status llamado
   # "ci". Reúne los jobs bloqueantes (los informativos test-e2e y audit
   # quedan fuera a propósito).
@@ -233,6 +244,7 @@ jobs:
       - test-migrations
       - test-kong-config
       - test-crear-admin
+      - test-deploy-verificacion
       - build
     steps:
       - name: All required checks passed

@@ -5,7 +5,8 @@
 #   2) RESPALDO           (pg_dump antes de tocar el esquema — no es opcional)
 #   3) migraciones        (dry-run informativo + scripts/migrate.sh)
 #   4) restart functions  (recarga el Edge Runtime con las funciones nuevas)
-#   5) verificación       (contenedor Up, función responde 401, esquema sano)
+#   5) verificación       (contenedor Up, funciones exigen 401, esquema sano,
+#                          escalada de privilegios bloqueada)
 #   6) primer admin       (si la instalación no tiene ninguno, lo crea)
 #
 # Pensado para correrse EN EL SERVIDOR, desde la raíz del repo (donde viven
@@ -21,6 +22,12 @@
 #   scripts/deploy.sh --backup-dir DIR  # dónde dejar el respaldo (def: ./backups)
 #   scripts/deploy.sh --skip-backup     # PELIGROSO: migrar sin respaldo previo
 #   scripts/deploy.sh --dry-run       # muestra lo que haría sin ejecutar
+#
+# URL de verificación: se toma API_EXTERNAL_URL de docker/.env. Es la URL de la
+# API (https://api.tu-dominio.org), NO la del frontend: todas las
+# comprobaciones van contra $URL/functions/v1/… y contra la URL equivocada
+# responden 404. Para anularla:
+#   PUBLIC_URL=https://api.tu-dominio.org scripts/deploy.sh
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -34,9 +41,13 @@ DRY_RUN=0
 SKIP_BACKUP=0
 BRANCH="main"
 BACKUP_DIR="$ROOT/backups"
-# URL pública para el chequeo final (obligatoria): PUBLIC_URL=https://... scripts/deploy.sh
-PUBLIC_URL="${PUBLIC_URL:?Define PUBLIC_URL (ej. PUBLIC_URL=https://cursos.tu-dominio.org)}"
+# La URL contra la que se verifica es la de la API, no la del frontend: todas
+# las comprobaciones van contra $URL_API/functions/v1/…. Se resuelve en
+# resolver_url_api(), ya con los argumentos parseados.
+URL_API=""
+ORIGEN_URL=""
 
+parsear_argumentos() {
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-pull)      DO_PULL=0; shift ;;
@@ -47,10 +58,12 @@ while [[ $# -gt 0 ]]; do
     --branch)       BRANCH="$2"; shift 2 ;;
     --backup-dir)   BACKUP_DIR="$2"; shift 2 ;;
     --skip-backup)  SKIP_BACKUP=1; shift ;;
-    -h|--help)      sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help)      sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "opción desconocida: $1 (ver --help)" >&2; exit 1 ;;
   esac
 done
+}
+
 
 compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
 
@@ -58,6 +71,127 @@ run() {
   echo "    \$ $*"
   if [[ "$DRY_RUN" -eq 0 ]]; then "$@"; fi
 }
+
+
+# Lee UNA variable de docker/.env en un subshell. No se hace `set -a; source`
+# porque eso volcaría el archivo entero sobre el entorno del script y sus
+# propias variables (BRANCH, BACKUP_DIR…) podrían quedar pisadas en silencio.
+leer_var_env() {
+  local archivo="$ROOT/docker/.env"
+  [[ -f "$archivo" ]] || return 0
+  (
+    set +u
+    set -a
+    # shellcheck disable=SC1090
+    source "$archivo" >/dev/null 2>&1 || true
+    set +a
+    printf '%s' "${!1:-}"
+  )
+}
+
+# PUBLIC_URL dejó de ser obligatoria: por defecto se toma API_EXTERNAL_URL de
+# docker/.env, que es la URL correcta y ya está declarada ahí. Antes había que
+# pasarla a mano y el ejemplo de la cabecera apuntaba al frontend; con esa URL
+# todas las funciones responden 404 y la verificación las daba por buenas.
+resolver_url_api() {
+  if [[ -n "${PUBLIC_URL:-}" ]]; then
+    URL_API="${PUBLIC_URL%/}"
+    ORIGEN_URL="la variable PUBLIC_URL"
+  else
+    URL_API="$(leer_var_env API_EXTERNAL_URL)"
+    URL_API="${URL_API%/}"
+    ORIGEN_URL="API_EXTERNAL_URL de docker/.env"
+  fi
+
+  if [[ -z "$URL_API" ]]; then
+    echo "✘ No se pudo determinar la URL de la API." >&2
+    echo "  Define API_EXTERNAL_URL en $ROOT/docker/.env, o pasa" >&2
+    echo "  PUBLIC_URL=https://api.tu-dominio.org scripts/deploy.sh" >&2
+    exit 1
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Clasificación de resultados
+# ---------------------------------------------------------------------------
+# La verificación fallaba EN ABIERTO: cuando una comprobación no se podía
+# ejecutar, se reportaba como superada. Tres casos reales, encontrados en la
+# instalación de aprendo.mx:
+#
+#   * el grupo de funciones hacía `if 200 -> ✘ else -> ✔`, así que 404 (función
+#     ausente), 500 (el runtime no la encuentra) y 000 (sin conexión) pasaban
+#     como «exige autenticación»;
+#   * la comprobación de RLS imprimía «todas las tablas tienen RLS» cuando el
+#     psql fallaba;
+#   * la de escalada de privilegios llevaba un uuid inválido, nunca corrió, y
+#     su fallo era un aviso que nadie contaba.
+#
+# La regla es una y vive aquí: lo que no se pudo comprobar NO está bien. Estas
+# dos funciones son puras —no imprimen, no tocan nada— para poder probarlas sin
+# levantar el stack (scripts/test-deploy-verificacion.sh).
+
+# clasificar_http <esperados-separados-por-coma> <codigo>
+# Imprime "<veredicto>|<mensaje>" con veredicto ok | problema | no_ejecutable.
+clasificar_http() {
+  local esperados="$1" codigo="$2"
+
+  # 000 y la cadena vacía no son códigos de estado: son la AUSENCIA de
+  # respuesta. Merecen su propio mensaje, porque se reparan en otro sitio que
+  # un 404.
+  if [[ -z "$codigo" || "$codigo" == "000" ]]; then
+    echo "no_ejecutable|no hubo respuesta (¿contenedor caído o URL inalcanzable?)"
+    return 0
+  fi
+
+  if [[ ",$esperados," == *",$codigo,"* ]]; then
+    echo "ok|responde $codigo"
+    return 0
+  fi
+
+  case "$codigo" in
+    200|201|204) echo "problema|responde $codigo SIN exigir autenticación" ;;
+    404)         echo "problema|responde 404: la función no está desplegada" ;;
+    5*)          echo "problema|responde $codigo: la función no está respondiendo" ;;
+    *)           echo "problema|responde $codigo, que no es lo esperado ($esperados)" ;;
+  esac
+}
+
+# clasificar_sql <estado-de-salida> <salida>
+# Imprime "<veredicto>|<valor-o-mensaje>". El valor solo se devuelve cuando la
+# consulta se ejecutó: quien llama decide qué significa.
+clasificar_sql() {
+  local estado="$1" salida="$2"
+  salida="${salida#"${salida%%[![:space:]]*}"}"
+  salida="${salida%"${salida##*[![:space:]]}"}"
+
+  if [[ "$estado" != "0" ]]; then
+    echo "no_ejecutable|psql terminó con código $estado"
+    return 0
+  fi
+  if [[ -z "$salida" || "$salida" == "?" ]]; then
+    echo "no_ejecutable|la consulta no devolvió resultado"
+    return 0
+  fi
+  echo "ok|$salida"
+}
+
+# Consume un veredicto y decide qué imprimir y si suma a $problemas. Es el
+# ÚNICO sitio donde se incrementa el contador: mientras cada comprobación
+# decidiera por su cuenta qué es un éxito, la siguiente que se añadiera podría
+# volver a fallar en abierto.
+registrar() {
+  local etiqueta="$1" veredicto="${2%%|*}" detalle="${2#*|}"
+  case "$veredicto" in
+    ok)            echo "    ✔ $etiqueta: $detalle" ;;
+    problema)      echo "    ✘ $etiqueta: $detalle" >&2; problemas=$((problemas + 1)) ;;
+    no_ejecutable) echo "    ✘ $etiqueta: NO SE PUDO COMPROBAR — $detalle" >&2
+                   problemas=$((problemas + 1)) ;;
+  esac
+}
+
+main() {
+  parsear_argumentos "$@"
+  resolver_url_api
 
 # Archivos sin los que el stack NO arranca. Estuvieron sin versionar y docker
 # los creaba como directorios vacíos: vector entraba en bucle de reinicio y el
@@ -209,91 +343,153 @@ fi
 
 echo "==> [5/6] Verificación"
 problemas=0
+echo "    URL de la API: $URL_API  (origen: $ORIGEN_URL)"
 if [[ "$DRY_RUN" -eq 1 ]]; then
-  echo "    [dry-run] compose ps functions; curl $PUBLIC_URL/functions/v1/...; chequeos de esquema"
+  echo "    [dry-run] compose ps functions; sondeo de $URL_API; curl a las"
+  echo "              funciones; chequeos de esquema y de escalada"
 else
   compose ps functions || true
 
-  # --- 1. El Edge Runtime carga ---
-  code="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
-    "$PUBLIC_URL/functions/v1/admin-set-password" || echo 000)"
-  case "$code" in
-    401|400) echo "    ✔ Edge Runtime arriba (admin-set-password rechaza sin token: $code)" ;;
-    500|502|503|000)
-      echo "    ✘ admin-set-password devuelve $code: el contenedor 'functions' está caído." >&2
+  # --- 1. ¿La URL enruta a la API? ---
+  # Sin esto, una URL equivocada produce una tanda de ✔ falsos: contra el
+  # frontend TODAS las funciones responden 404. Se sondea antes que nada y, si
+  # no responde como API, se omite el grupo entero en lugar de mentir.
+  sonda="$(curl -s -o /dev/null -w '%{http_code}' "$URL_API/auth/v1/health" || echo 000)"
+  api_viva=0
+  case "$sonda" in
+    401|403|200)
+      echo "    ✔ La URL enruta a la API (auth responde $sonda)"
+      api_viva=1 ;;
+    *)
+      echo "    ✘ $URL_API no responde como API (auth devolvió $sonda)." >&2
+      echo "      Origen de la URL: $ORIGEN_URL. Debe ser la URL de la API," >&2
+      echo "      no la del frontend. Se omiten las comprobaciones de funciones:" >&2
+      echo "      contra la URL equivocada todas darían un resultado engañoso." >&2
       problemas=$((problemas + 1)) ;;
-    *) echo "    ⚠  admin-set-password devuelve $code (inesperado): revisa a mano." ;;
   esac
 
-  # --- 2. Las funciones que antes eran anónimas ahora rechazan ---
-  # Si alguna de estas responde 200 sin token, la migración de seguridad no
-  # llegó al runtime (típicamente: falta reiniciar el contenedor 'functions').
-  for fn in ai-proxy transcribir-sesion notifications-worker zoom-meeting; do
-    c="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
-      -H 'content-type: application/json' -d '{}' \
-      "$PUBLIC_URL/functions/v1/$fn" || echo 000)"
-    if [[ "$c" == "200" ]]; then
-      echo "    ✘ $fn responde 200 SIN autenticación. Revisa el despliegue." >&2
-      problemas=$((problemas + 1))
-    else
-      echo "    ✔ $fn exige autenticación (HTTP $c)"
-    fi
-  done
-
-  # --- 3. Esquema: migraciones registradas y RLS en todas las tablas ---
-  aplicadas="$(compose exec -T db psql -U postgres -d postgres -At \
-    -c "select count(*) from public._migraciones;" 2>/dev/null || echo '?')"
-  en_disco="$(ls -1 "$ROOT"/supabase/migrations/0*.sql | wc -l | tr -d ' ')"
-  echo "    Migraciones: $aplicadas registradas / $en_disco en disco"
-  if [[ "$aplicadas" != "$en_disco" ]]; then
-    echo "    ⚠  No coinciden. Revisa 'scripts/migrate.sh --dry-run'."
+  # --- 2. Las funciones exigen autenticación ---
+  # Solo 401/403 cuentan como superado. Un 404 o un 5xx significan que la
+  # función no está respondiendo, no que esté protegida.
+  if [[ "$api_viva" -eq 1 ]]; then
+    for fn in admin-set-password ai-proxy transcribir-sesion notifications-worker zoom-meeting; do
+      c="$(curl -s -o /dev/null -w '%{http_code}' -X POST \
+        -H 'content-type: application/json' -d '{}' \
+        "$URL_API/functions/v1/$fn" || echo 000)"
+      registrar "$fn" "$(clasificar_http '401,403' "$c")"
+    done
   fi
 
-  sin_rls="$(compose exec -T db psql -U postgres -d postgres -At -c \
-    "select string_agg(c.relname, ', ') from pg_class c
+  # --- 3. Migraciones registradas ---
+  if aplicadas="$(compose exec -T db psql -U postgres -d postgres -At \
+    -c "select count(*) from public._migraciones;" 2>/dev/null)"
+  then estado_sql=0; else estado_sql=$?; fi
+  en_disco="$(ls -1 "$ROOT"/supabase/migrations/0*.sql | wc -l | tr -d ' ')"
+  veredicto="$(clasificar_sql "$estado_sql" "$aplicadas")"
+  if [[ "${veredicto%%|*}" != "ok" ]]; then
+    registrar "migraciones" "$veredicto"
+  elif [[ "${veredicto#*|}" != "$en_disco" ]]; then
+    registrar "migraciones" "problema|${veredicto#*|} registradas / $en_disco en disco: no coinciden (scripts/migrate.sh --dry-run)"
+  else
+    registrar "migraciones" "ok|$en_disco registradas / $en_disco en disco"
+  fi
+
+  # --- 4. RLS en todas las tablas de public ---
+  # Se pregunta por el NÚMERO de tablas desprotegidas y no por su lista: así
+  # «ninguna» es un 0 legítimo y se distingue de una consulta que no corrió,
+  # que antes se colaba como ✔.
+  if sin_rls="$(compose exec -T db psql -U postgres -d postgres -At -c \
+    "select count(*) || ':' || coalesce(string_agg(c.relname, ', '), '') from pg_class c
        join pg_namespace n on n.oid = c.relnamespace
       where n.nspname = 'public' and c.relkind = 'r'
-        and not c.relrowsecurity;" 2>/dev/null || echo '?')"
-  if [[ -n "$sin_rls" && "$sin_rls" != "?" ]]; then
-    echo "    ✘ Tablas SIN RLS (con la anon key en el cliente, son públicas): $sin_rls" >&2
-    problemas=$((problemas + 1))
+        and not c.relrowsecurity;" 2>/dev/null)"
+  then estado_sql=0; else estado_sql=$?; fi
+  veredicto="$(clasificar_sql "$estado_sql" "$sin_rls")"
+  if [[ "${veredicto%%|*}" != "ok" ]]; then
+    registrar "RLS" "$veredicto"
   else
-    echo "    ✔ Todas las tablas de public tienen RLS habilitado"
+    valor="${veredicto#*|}"
+    if [[ "${valor%%:*}" == "0" ]]; then
+      registrar "RLS" "ok|todas las tablas de public lo tienen habilitado"
+    else
+      registrar "RLS" "problema|tablas SIN RLS (públicas con la anon key): ${valor#*:}"
+    fi
   fi
 
-  # --- 4. La escalada de privilegios sigue bloqueada ---
+  # --- 5. La escalada de privilegios sigue bloqueada ---
   # Se comprueba FUNCIONALMENTE, no con has_column_privilege: ese devuelve true
   # aunque el sistema esté protegido, porque Supabase concede UPDATE a nivel de
   # tabla y un revoke de columna no lo anula. Lo que bloquea de verdad es el
   # trigger perfiles_guard_roles (migraciones 057 y 069), así que se prueba
   # intentando la escalada dentro de una transacción que luego se revierte.
-  escalada="$(compose exec -T db psql -U postgres -d postgres -At <<'SQL' 2>/dev/null || echo '?'
+  #
+  # El uuid de abajo llevaba '4beef' —cinco dígitos— y Postgres rechazaba el
+  # literal entero: esta comprobación NUNCA llegó a ejecutarse, y su fallo era
+  # un aviso que no contaba. Ahora el error de psql se captura y se reporta.
+  #
+  # La primera línea del resultado comprueba que auth.uid() resuelve al usuario
+  # simulado. Sin eso, el update no afectaría a ninguna fila y la comprobación
+  # pasaría sin haber probado nada — el mismo falso verde que la migración 069
+  # denuncia del has_column_privilege.
+  if escalada="$(compose exec -T db psql -U postgres -d postgres -At <<'SQL' 2>&1
 begin;
 insert into auth.users (id, email)
-  values ('00000000-dead-4beef-8000-000000000001', 'verificacion@local')
+  values ('00000000-dead-4bee-8000-000000000001', 'verificacion@local')
   on conflict (id) do nothing;
 insert into public.perfiles (id, nombres, apellido_paterno, correo)
-  values ('00000000-dead-4beef-8000-000000000001', 'Verificacion', 'Despliegue', 'verificacion@local')
+  values ('00000000-dead-4bee-8000-000000000001', 'Verificacion', 'Despliegue', 'verificacion@local')
   on conflict (id) do nothing;
 do $guard$
 begin
   set local role authenticated;
-  set local request.jwt.claim.sub = '00000000-dead-4beef-8000-000000000001';
+  set local request.jwt.claim.sub = '00000000-dead-4bee-8000-000000000001';
+  perform set_config('sesion.uid_efectivo',
+    coalesce(auth.uid()::text, 'NULO'), true);
   update public.perfiles set es_admin = true where id = auth.uid();
   reset role;
 exception when others then reset role;
 end $guard$;
-select coalesce((select es_admin from public.perfiles
-                  where id = '00000000-dead-4beef-8000-000000000001'), false)::text;
+select case when current_setting('sesion.uid_efectivo', true)
+              = '00000000-dead-4bee-8000-000000000001'
+            then 'SESION_OK' else 'SESION_INEFECTIVA' end
+       || '/' ||
+       coalesce((select es_admin from public.perfiles
+                  where id = '00000000-dead-4bee-8000-000000000001'), false)::text;
 rollback;
 SQL
 )"
-  case "$escalada" in
-    *t*) echo "    ✘ ESCALADA ABIERTA: un usuario puede hacerse administrador." >&2
-         problemas=$((problemas + 1)) ;;
-    *f*) echo "    ✔ La escalada a administrador está bloqueada (probada en vivo)" ;;
-    *)   echo "    ⚠  No se pudo comprobar la escalada de privilegios." ;;
-  esac
+  then estado_sql=0; else estado_sql=$?; fi
+  # De toda la salida de psql interesa la línea del veredicto.
+  # El `|| true` no es decorativo: grep sin coincidencias devuelve 1 y con
+  # pipefail mataría el script justo cuando hay que reportar que falló.
+  resultado="$(printf '%s\n' "$escalada" | grep -oE 'SESION_(OK|INEFECTIVA)/(t|f|true|false)' | tail -1 || true)"
+  if [[ "$estado_sql" != "0" || -z "$resultado" ]]; then
+    detalle="$(printf '%s' "$escalada" | grep -iE 'error|fatal' | head -1 || true)"
+    registrar "escalada de privilegios" \
+      "no_ejecutable|${detalle:-psql no devolvió un veredicto interpretable}"
+  else
+    case "$resultado" in
+      SESION_INEFECTIVA/*)
+        registrar "escalada de privilegios" \
+          "problema|la sesión simulada no resolvió auth.uid(): la comprobación habría pasado sin probar nada" ;;
+      */t|*/true)
+        registrar "escalada de privilegios" \
+          "problema|ABIERTA: un usuario puede hacerse administrador" ;;
+      *)
+        registrar "escalada de privilegios" "ok|bloqueada (probada en vivo)" ;;
+    esac
+  fi
+
+  # La comprobación anterior revierte su transacción; se confirma que no dejó
+  # rastro, porque una verificación que ensucia la base no es una verificación.
+  if resto="$(compose exec -T db psql -U postgres -d postgres -At \
+    -c "select count(*) from auth.users where email = 'verificacion@local';" 2>/dev/null)"
+  then estado_sql=0; else estado_sql=$?; fi
+  veredicto="$(clasificar_sql "$estado_sql" "$resto")"
+  if [[ "${veredicto%%|*}" == "ok" && "${veredicto#*|}" != "0" ]]; then
+    registrar "limpieza de la comprobación" \
+      "problema|quedaron ${veredicto#*|} filas de prueba en auth.users"
+  fi
 fi
 
 # ---------------------------------------------------------------------------
@@ -320,7 +516,10 @@ else
 
   case "$admins" in
     '?'|'')
-      echo "    ⚠  No se pudo contar los administradores. Revísalo a mano." ;;
+      # Misma regla que el resto de la verificación: lo que no se pudo
+      # comprobar no está bien.
+      echo "    ✘ No se pudo contar los administradores." >&2
+      problemas=$((problemas + 1)) ;;
     0)
       if [[ -t 0 ]]; then
         echo "    Detectados 0 administradores."
@@ -356,4 +555,12 @@ fi
 echo "==> Despliegue terminado."
 if [[ -n "$BACKUP_FILE" ]]; then
   echo "    Respaldo: $BACKUP_FILE"
+fi
+
+}
+
+# Solo se despliega al ejecutarlo. Con `source` únicamente se definen las
+# funciones, que es como las prueba scripts/test-deploy-verificacion.sh.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
 fi
