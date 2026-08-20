@@ -3,9 +3,24 @@ import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { fileURLToPath, URL } from 'node:url'
-import theme from './theme/theme.config.js'
+import { existsSync } from 'node:fs'
 
-const themeHtmlPlugin = () => ({
+// Resolución del tema, en Node, antes de construir la config.
+//
+// Una institución personaliza `theme/theme.config.local.js`, que NO está
+// versionado: así `git pull` (paso 1 de scripts/deploy.sh) nunca entra en
+// conflicto con su identidad gráfica. Si no existe, se usa el ejemplo, para
+// que un clon recién hecho arranque sin configurar nada.
+//
+// El alias '@theme' es lo que importa el resto del código: así la resolución
+// vive en un solo sitio y funciona igual en dev, build y vitest.
+const themeLocalPath = fileURLToPath(new URL('./theme/theme.config.local.js', import.meta.url))
+const themeExamplePath = fileURLToPath(new URL('./theme/theme.config.example.js', import.meta.url))
+const themePath = existsSync(themeLocalPath) ? themeLocalPath : themeExamplePath
+
+// El tema llega por parámetro: ya no es un import de módulo, sino un valor
+// resuelto en tiempo de config (local si existe, ejemplo si no).
+const themeHtmlPlugin = (theme) => ({
   name: 'theme-html',
   transformIndexHtml(html) {
     return html
@@ -16,10 +31,11 @@ const themeHtmlPlugin = () => ({
 })
 
 // https://vite.dev/config/
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
+  const theme = (await import(themePath)).default
   const plugins = [
-    themeHtmlPlugin(),
+    themeHtmlPlugin(theme),
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -60,6 +76,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
+        '@theme': themePath,
       },
     },
     build: {

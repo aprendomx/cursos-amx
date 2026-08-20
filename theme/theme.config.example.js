@@ -1,7 +1,21 @@
-// theme/theme.config.js — ÚNICA fuente de identidad gráfica de la instalación.
-// Personaliza este archivo (y los assets en public/theme/) para tu institución.
-// Claves requeridas: ver REQUIRED en src/lib/theme.js. Guía completa: THEMING.md
+// theme/theme.config.example.js — tema por defecto (neutro).
+//
+// NO edites este archivo: es el que se actualiza con cada `git pull`.
+// Para personalizar tu instalación:
+//
+//     cp theme/theme.config.example.js theme/theme.config.local.js
+//
+// y edita tu copia. `theme.config.local.js` está fuera de git, así que
+// sobrevive a las actualizaciones sin conflictos de merge.
+//
+// Claves requeridas: ver REQUIRED en src/lib/theme.js.
+// Contrato de estabilidad y guía completa: THEMING.md
 export default {
+  // Versión del contrato de theming que usa este archivo. Si actualizas la
+  // aplicación y el arranque se queja de esta clave, THEMING.md dice qué
+  // cambió. Puedes omitirla: entonces se asume la versión vigente.
+  schemaVersion: 1,
+
   app: {
     name: 'Cursos AMX',
     shortName: 'CursosAMX',
@@ -38,6 +52,22 @@ export default {
     accent: '#b45309',
     accentSoft: '#fde68a',
     ink: '#161a1d',
+
+    // Variantes para modo oscuro (OPCIONALES).
+    //
+    // Los colores de arriba están pensados sobre papel blanco. Sobre el fondo
+    // oscuro (#0f1115) suelen quedar por debajo del 4.5:1 que exige WCAG AA
+    // —el azul de este ejemplo da 2.17:1— y ese mismo color es el del anillo
+    // de foco, así que el foco tampoco se vería.
+    //
+    // Si no declaras estas claves, la aplicación las deriva aclarando lo justo
+    // para cumplir, conservando el tono. Decláralas solo si tu manual de
+    // identidad ya define colores para fondo oscuro.
+    //
+    // primaryOnDark: '#93b4ff',
+    // primaryDarkOnDark: '#b9ccff',
+    // secondaryOnDark: '#5eccc0',
+    // accentOnDark: '#f0a95c',
   },
   fonts: {
     // Familias cargadas en index.html (Google Fonts, licencia abierta).
@@ -61,6 +91,10 @@ export default {
       {
         title: 'Institucional',
         links: [
+          // OBLIGATORIO antes de abrir el registro: publica tu aviso y pon
+          // aquí su URL. Con href '#' estás recabando el consentimiento de
+          // `perfiles.aviso_privacidad` a un documento que no existe.
+          // Plantilla: docs/AVISO_PRIVACIDAD.md · Contexto: docs/CUMPLIMIENTO.md
           { label: 'Aviso de privacidad', href: '#' },
           { label: 'Términos de uso', href: '#' },
           { label: 'Contacto', href: '#' },
