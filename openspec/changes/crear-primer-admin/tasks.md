@@ -45,11 +45,11 @@
 
 ## 6. Verificación manual contra la instancia de desarrollo
 
-- [ ] 6.1 Sobre una base sin administradores: correr `scripts/deploy.sh` y comprobar que el paso 6/6 dispara la creación y que la cuenta resultante inicia sesión y abre el panel.
-- [ ] 6.2 Repetir el despliegue y comprobar que el paso informa que ya hay administradores y no modifica nada.
-- [ ] 6.3 Ejecutar el comando sobre un usuario registrado por la interfaz y comprobar que se promueve conservando su contraseña.
-- [ ] 6.4 Ejecutar el comando dos veces con el mismo correo y comprobar que la segunda no falla ni regenera la contraseña.
-- [ ] 6.5 Revisar `docker/.env` y `docker compose logs` y confirmar que la contraseña generada no aparece en ninguno.
+- [x] 6.1 Sobre una base sin administradores: correr `scripts/deploy.sh` y comprobar que el paso 6/6 dispara la creación y que la cuenta resultante inicia sesión y abre el panel. — Verificado en 5.78.44.10: con 0 admins y TTY, `deploy.sh` lanzó `crear-admin.sh`; la cuenta creada obtuvo token de `/auth/v1/token` (correo ya confirmado) y quedó con `es_admin = true`, que es lo que el panel exige. No se abrió el navegador.
+- [x] 6.2 Repetir el despliegue y comprobar que el paso informa que ya hay administradores y no modifica nada. — «✔ Ya existen 1 administrador(es). Nada que hacer.»
+- [x] 6.3 Ejecutar el comando sobre un usuario registrado por la interfaz y comprobar que se promueve conservando su contraseña. — Promovida la cuenta real del operador sin llamar a GoTrue ni tocar `encrypted_password`.
+- [x] 6.4 Ejecutar el comando dos veces con el mismo correo y comprobar que la segunda no falla ni regenera la contraseña. — «✔ ya era administrador. Nada que hacer.», código 0.
+- [x] 6.5 Revisar `docker/.env` y `docker compose logs` y confirmar que la contraseña generada no aparece en ninguno. — 0 coincidencias en `.env`, en los logs de `auth`/`kong`/`db`/`functions`, en el repo y en los historiales de shell.
 
 ## 7. Documentación
 
