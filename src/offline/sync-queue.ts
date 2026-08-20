@@ -12,31 +12,61 @@ import { featureEnabled } from '@/lib/featureFlags'
 const MAX_RETRIES = 5
 const BACKOFF_BASE_MS = 1000
 
-const endpointMap: Record<
-  SyncActionType,
-  (payload: Record<string, unknown>) => Promise<unknown>
-> = {
-  quiz_submit: async (payload) => {
-    const { error } = await supabase.from('intentos_evaluacion').insert(payload)
-    if (error) throw error
-  },
-  forum_post: async (payload) => {
-    const { error } = await supabase.from('comentarios').insert(payload)
-    if (error) throw error
-  },
-  assignment_submit: async (payload) => {
-    const { error } = await supabase.from('entregas').insert(payload)
-    if (error) throw error
-  },
-  progress_update: async (payload) => {
-    const { error } = await supabase.from('progreso').upsert(payload)
-    if (error) throw error
-  },
-}
+// Cada acción diferida usa EXACTAMENTE la misma ruta de servidor que su
+// equivalente en línea. Es deliberado: si la cola escribiera directo a las
+// tablas, se saltaría la validación que vive en las RPC.
+//
+// El caso grave era `quiz_submit`, que insertaba en `intentos_evaluacion` un
+// payload con `puntaje` y `aprobado` calculados en el CLIENTE. Hoy falla
+// siempre (esa tabla no tiene política de INSERT, y es correcto que no la
+// tenga), pero era una trampa cargada: bastaba con que alguien "arreglara" el
+// 403 añadiendo la política para que el alumno pudiera autocalificarse y se
+// rompiera el diseño de calificar_evaluacion.
+const endpointMap: Record<SyncActionType, (payload: Record<string, unknown>) => Promise<unknown>> =
+  {
+    // El servidor califica: el cliente solo manda las respuestas.
+    quiz_submit: async (payload) => {
+      const { error } = await supabase.rpc('calificar_evaluacion', {
+        p_leccion: payload.leccion_id,
+        p_respuestas: payload.respuestas ?? {},
+      })
+      if (error) throw error
+    },
+    forum_post: async (payload) => {
+      const { error } = await supabase.from('comentarios').insert(payload)
+      if (error) throw error
+    },
+    assignment_submit: async (payload) => {
+      const { error } = await supabase.rpc('registrar_entrega', {
+        p_leccion_id: payload.leccion_id,
+        p_archivo_path: payload.archivo_path,
+        p_archivo_nombre: payload.archivo_nombre,
+        p_archivo_tipo: payload.archivo_tipo,
+        p_archivo_bytes: payload.archivo_bytes,
+      })
+      if (error) throw error
+    },
+    // guardar_posicion acota los segundos a la duración real de la lección y
+    // marcar_leccion_completada verifica inscripción y continuidad (059).
+    progress_update: async (payload) => {
+      const { error } = await supabase.rpc('guardar_posicion', {
+        p_leccion: payload.leccion_id,
+        p_segundos: Math.max(0, Math.floor(Number(payload.segundos_vistos) || 0)),
+      })
+      if (error) throw error
+
+      if (payload.completado === true) {
+        const { error: errCompletar } = await supabase.rpc('marcar_leccion_completada', {
+          p_leccion_id: payload.leccion_id,
+        })
+        if (errCompletar) throw errCompletar
+      }
+    },
+  }
 
 export async function enqueue(
   type: SyncActionType,
-  payload: Record<string, unknown>,
+  payload: Record<string, unknown>
 ): Promise<number> {
   if (!featureEnabled('offline_sync')) {
     await endpointMap[type](payload)
@@ -107,9 +137,7 @@ export async function sync(): Promise<{ done: number; errors: number }> {
 
 export async function retryFailed(): Promise<void> {
   const all = await getAllActions()
-  const failed = all.filter(
-    (a) => a.status === 'error' && (a.retries || 0) >= MAX_RETRIES,
-  )
+  const failed = all.filter((a) => a.status === 'error' && (a.retries || 0) >= MAX_RETRIES)
 
   for (const action of failed) {
     if (action.id) {

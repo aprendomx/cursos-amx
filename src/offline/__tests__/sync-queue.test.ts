@@ -5,6 +5,7 @@ import { getPendingActions, getAllActions, getDB } from '../offline-db'
 const mocks = vi.hoisted(() => ({
   insert: vi.fn(),
   upsert: vi.fn(),
+  rpc: vi.fn(),
   featureEnabled: vi.fn(),
 }))
 
@@ -14,6 +15,7 @@ vi.mock('@/lib/supabase.js', () => ({
       insert: mocks.insert,
       upsert: mocks.upsert,
     })),
+    rpc: mocks.rpc,
   },
 }))
 
@@ -33,6 +35,7 @@ beforeEach(async () => {
   mocks.featureEnabled.mockReturnValue(true)
   mocks.insert.mockReset().mockResolvedValue({ data: null, error: null })
   mocks.upsert.mockReset().mockResolvedValue({ data: null, error: null })
+  mocks.rpc.mockReset().mockResolvedValue({ data: null, error: null })
 })
 
 afterEach(() => {
@@ -41,7 +44,7 @@ afterEach(() => {
 
 describe('sync-queue', () => {
   it('encola una acción', async () => {
-    const payload = { quizId: 1, answers: ['A'] }
+    const payload = { leccion_id: 'lec-1', respuestas: { p1: ['o1'] } }
     const id = await enqueue('quiz_submit', payload)
 
     expect(id).toBeGreaterThan(0)
@@ -55,25 +58,30 @@ describe('sync-queue', () => {
   })
 
   it('sync envía acciones pendientes', async () => {
-    const payload = { quizId: 2, answers: ['B'] }
+    const payload = { leccion_id: 'lec-2', respuestas: { p1: ['o2'] } }
     await enqueue('quiz_submit', payload)
 
     const result = await sync()
 
     expect(result.done).toBe(1)
     expect(result.errors).toBe(0)
-    expect(mocks.insert).toHaveBeenCalledTimes(1)
-    expect(mocks.insert).toHaveBeenCalledWith(payload)
+    expect(mocks.rpc).toHaveBeenCalledTimes(1)
+    // Por RPC, no por INSERT directo: el servidor califica, no el cliente.
+    expect(mocks.insert).not.toHaveBeenCalled()
+    expect(mocks.rpc).toHaveBeenCalledWith('calificar_evaluacion', {
+      p_leccion: payload.leccion_id,
+      p_respuestas: payload.respuestas,
+    })
 
     const pending = await getPendingActions()
     expect(pending).toHaveLength(0)
   })
 
   it('sync maneja errores de red sin marcar error inmediato', async () => {
-    const payload = { quizId: 3, answers: ['C'] }
+    const payload = { leccion_id: 'lec-3', respuestas: { p1: ['o3'] } }
     await enqueue('quiz_submit', payload)
 
-    mocks.insert.mockRejectedValueOnce({ status: 0, message: 'Network Error' })
+    mocks.rpc.mockRejectedValueOnce({ status: 0, message: 'Network Error' })
 
     const result = await sync()
 
@@ -87,10 +95,10 @@ describe('sync-queue', () => {
   })
 
   it('sync maneja errores de validación marcando error', async () => {
-    const payload = { quizId: 4, answers: ['D'] }
+    const payload = { leccion_id: 'lec-4', respuestas: { p1: ['o4'] } }
     await enqueue('quiz_submit', payload)
 
-    mocks.insert.mockRejectedValueOnce({ status: 400, message: 'Bad Request' })
+    mocks.rpc.mockRejectedValueOnce({ status: 400, message: 'Bad Request' })
 
     const result = await sync()
 
