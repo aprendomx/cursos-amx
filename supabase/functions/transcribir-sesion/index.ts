@@ -5,6 +5,8 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { authorize, authErrorResponse } from '../_shared/auth.ts'
+import { isServiceRole } from '../_shared/serviceAuth.ts'
 
 const WHISPER_API_URL = 'https://api.openai.com/v1/audio/transcriptions'
 const FALLBACK_TIMEOUT_MS = 120_000 // 2 minutos para local antes de fallback
@@ -17,21 +19,32 @@ Deno.serve(async (req) => {
   let sesionId: string | null = null
 
   try {
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+
+    // Dos invocadores legítimos: zoom-webhook (service_role, función a
+    // función) y el panel de administración (JWT de admin/instructor).
+    // Sin esta comprobación, cualquiera podía pasar una audio_url arbitraria
+    // y hacer que el servidor la descargara con service_role — SSRF, más el
+    // gasto de créditos de transcripción y la escritura sobre la
+    // transcripción de cualquier sesion_id.
+    if (!isServiceRole(req, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))) {
+      const auth = await authorize(req, supabaseAdmin, { anyOf: ['admin', 'instructor'] })
+      if (!auth.ok) return authErrorResponse(auth)
+    }
+
     const body = await req.json()
     const { sesion_id, grabacion_id, audio_url } = body
     sesionId = sesion_id
 
     if (!sesion_id || !audio_url) {
-      return new Response(
-        JSON.stringify({ error: 'Faltan sesion_id o audio_url' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ error: 'Faltan sesion_id o audio_url' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
-
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    )
 
     // Insertar registro pendiente
     const { data: tx, error: txError } = await supabaseAdmin
@@ -43,7 +56,7 @@ Deno.serve(async (req) => {
           estado: 'procesando',
           texto_completo: '',
         },
-        { onConflict: 'sesion_id' },
+        { onConflict: 'sesion_id' }
       )
       .select()
       .single()
@@ -64,10 +77,14 @@ Deno.serve(async (req) => {
         source = 'faster-whisper'
         console.log('[transcribir-sesion] faster-whisper OK')
       } catch (localErr: any) {
-        console.warn(`[transcribir-sesion] faster-whisper falló: ${localErr.message}. Intentando OpenAI...`)
+        console.warn(
+          `[transcribir-sesion] faster-whisper falló: ${localErr.message}. Intentando OpenAI...`
+        )
       }
     } else {
-      console.log('[transcribir-sesion] WHISPER_SERVICE_URL no configurado, usando OpenAI directamente')
+      console.log(
+        '[transcribir-sesion] WHISPER_SERVICE_URL no configurado, usando OpenAI directamente'
+      )
     }
 
     // ── 2. Fallback a OpenAI ──
@@ -83,9 +100,8 @@ Deno.serve(async (req) => {
 
     // ── 3. Guardar en DB ──
     const duracionMin = result.duration ? result.duration / 60 : 0
-    const costoUsd = source === 'openai' && duracionMin > 0
-      ? Math.round(duracionMin * 0.006 * 10000) / 10000
-      : 0 // Local es gratis
+    const costoUsd =
+      source === 'openai' && duracionMin > 0 ? Math.round(duracionMin * 0.006 * 10000) / 10000 : 0 // Local es gratis
 
     const { error: updateError } = await supabaseAdmin
       .from('sesiones_transcripciones')
@@ -109,7 +125,7 @@ Deno.serve(async (req) => {
         source,
         costo_usd: costoUsd,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (e: any) {
     console.error('[transcribir-sesion] error:', e.message)
@@ -119,7 +135,7 @@ Deno.serve(async (req) => {
       try {
         const supabaseAdmin = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
-          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
         )
         await supabaseAdmin
           .from('sesiones_transcripciones')
@@ -130,10 +146,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })
 

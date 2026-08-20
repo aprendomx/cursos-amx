@@ -4,6 +4,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
+import { authorize, authErrorResponse } from '../_shared/auth.ts'
 
 const ZOOM_API_BASE = 'https://api.zoom.us/v2'
 const ZOOM_OAUTH_URL = 'https://zoom.us/oauth/token'
@@ -14,27 +15,26 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // ── Auth ──
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
-    }
-
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
+
+    // ── Auth ──
+    // La versión anterior solo comprobaba que EXISTIERA la cabecera
+    // Authorization; nunca validaba el token. Con FUNCTIONS_VERIFY_JWT=false,
+    // `Authorization: x` bastaba para crear y borrar reuniones en la cuenta
+    // Zoom de la institución.
+    const auth = await authorize(req, supabaseAdmin, { anyOf: ['admin', 'instructor'] })
+    if (!auth.ok) return authErrorResponse(auth)
 
     // ── Zoom config (DB o env) ──
     const zoomConfig = await loadZoomConfig(supabaseAdmin)
     if (!zoomConfig) {
-      return new Response(
-        JSON.stringify({ error: 'Zoom no configurado' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ error: 'Zoom no configurado' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const accessToken = await getZoomAccessToken(supabaseAdmin, zoomConfig)
@@ -76,10 +76,10 @@ Deno.serve(async (req) => {
       if (!res.ok) {
         const err = await res.text()
         console.error('[zoom-meeting] error creando reunión:', err)
-        return new Response(
-          JSON.stringify({ error: 'Error al crear reunión Zoom', detail: err }),
-          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-        )
+        return new Response(JSON.stringify({ error: 'Error al crear reunión Zoom', detail: err }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
       }
 
       const data = await res.json()
@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
           start_url: data.start_url,
           password: data.password || null,
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -106,26 +106,25 @@ Deno.serve(async (req) => {
         console.error('[zoom-meeting] error eliminando reunión:', err)
         return new Response(
           JSON.stringify({ error: 'Error al eliminar reunión Zoom', detail: err }),
-          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+          { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      return new Response(
-        JSON.stringify({ ok: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      )
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   } catch (e: any) {
     console.error('[zoom-meeting] error general:', e.message)
-    return new Response(
-      JSON.stringify({ error: e.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 })
 
@@ -159,10 +158,7 @@ async function loadZoomConfig(supabase: any): Promise<ZoomConfig | null> {
   }
 
   // 2. Fallback a DB
-  const { data, error } = await supabase
-    .from('zoom_configuracion')
-    .select('*')
-    .single()
+  const { data, error } = await supabase.from('zoom_configuracion').select('*').single()
 
   if (error || !data) {
     console.error('[zoom-meeting] no se encontró configuración Zoom:', error?.message)
