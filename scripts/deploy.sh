@@ -121,6 +121,18 @@ else
   echo "==> [1/5] git pull omitido (--no-pull)"
 fi
 
+# Kong es la puerta de toda la API. Si su configuración no parsea tras la
+# sustitución de variables, el contenedor no arranca y la instalación queda
+# sin backend, aunque el frontend siga sirviéndose. Se comprueba aquí, después
+# del pull y antes de tocar la base, para no descubrirlo al reiniciar el stack.
+if [[ -x "$ROOT/scripts/test-kong-config.sh" ]]; then
+  echo "==> Verificando la configuración de Kong"
+  if ! "$ROOT/scripts/test-kong-config.sh" | sed 's/^/    /'; then
+    echo "    ✘ kong.yml no parsea tras renderizarse. Se aborta el despliegue." >&2
+    exit 1
+  fi
+fi
+
 BACKUP_FILE=""
 if [[ "$DO_MIGRATE" -eq 1 ]]; then
   echo "==> [2/5] Respaldo de la base"
@@ -237,7 +249,7 @@ else
     "select string_agg(c.relname, ', ') from pg_class c
        join pg_namespace n on n.oid = c.relnamespace
       where n.nspname = 'public' and c.relkind = 'r'
-        and c.relname <> '_migraciones' and not c.relrowsecurity;" 2>/dev/null || echo '?')"
+        and not c.relrowsecurity;" 2>/dev/null || echo '?')"
   if [[ -n "$sin_rls" && "$sin_rls" != "?" ]]; then
     echo "    ✘ Tablas SIN RLS (con la anon key en el cliente, son públicas): $sin_rls" >&2
     problemas=$((problemas + 1))

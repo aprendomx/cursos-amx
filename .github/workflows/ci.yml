@@ -197,6 +197,17 @@ jobs:
           STUB_EXTENSIONS: '1'
         run: scripts/test-migrations.sh
 
+  # La configuración de Kong se renderiza en el arranque y sus expresiones Lua
+  # llevan comillas simples. Un reformateo automático del YAML basta para dejar
+  # la instalación sin gateway —y por tanto sin API— sin que el archivo crudo
+  # se vea mal. Se verifica renderizando.
+  test-kong-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render kong.yml and parse it
+        run: scripts/test-kong-config.sh
+
   # Check agregado: la protección de la rama main exige un status llamado
   # "ci". Reúne los jobs bloqueantes (los informativos test-e2e y audit
   # quedan fuera a propósito).
@@ -208,6 +219,7 @@ jobs:
       - test-unit
       - test-edge-functions
       - test-migrations
+      - test-kong-config
       - build
     steps:
       - name: All required checks passed

@@ -37,6 +37,14 @@ coverage/
 # Respaldos generados por scripts/deploy.sh
 backups/
 
+# Estado en vivo del stack. Estos directorios los escriben los contenedores,
+# no las personas. Si git los ve como "no rastreados", un `git stash -u` o un
+# `git clean -fd` los borra —incluido el directorio de datos de Postgres, con
+# la base entera adentro— mientras el motor está corriendo.
+docker/volumes/db/data/
+docker/volumes/storage/
+docker/volumes/logs/*.log
+
 # Tema propio de la instalación (ver THEMING.md). No se versiona: así
 # un git pull nunca entra en conflicto con la identidad de la institución.
 theme/theme.config.local.js

@@ -52,11 +52,17 @@ else
   echo "==> Modo: docker ($COMPOSE_FILE, servicio db)"
 fi
 
-# Conectividad + tabla de registro
+# Conectividad + tabla de registro.
+#
+# El ledger lleva RLS sin políticas y sin GRANTs: es bookkeeping del instalador
+# y no tiene por qué ser legible con la anon key, que revela la versión exacta
+# del esquema. Los roles que lo usan (postgres, supabase_admin) saltan RLS.
 run_psql -c "create table if not exists public._migraciones (
   nombre text primary key,
   aplicada_en timestamptz not null default now()
-);" >/dev/null
+);
+alter table public._migraciones enable row level security;
+revoke all on table public._migraciones from anon, authenticated;" >/dev/null
 
 aplicadas="$(run_psql -At -c "select nombre from public._migraciones order by nombre;")"
 

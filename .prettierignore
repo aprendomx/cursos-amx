@@ -1,0 +1,10 @@
+dist
+coverage
+node_modules
+
+# Configuración declarativa de Kong. Sus valores se sustituyen en el arranque
+# (docker/volumes/api/kong-entrypoint.sh) y las expresiones Lua que se inyectan
+# contienen comillas simples. Si Prettier reescribe "Header: $VAR" a
+# 'Header: $VAR', el YAML renderizado queda roto y Kong no levanta: sin gateway,
+# no hay API. Las comillas dobles de este archivo son funcionales, no de estilo.
+docker/volumes/api/kong.yml
