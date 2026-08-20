@@ -1,4 +1,22 @@
 export const CURSOS = [
+  // Espejo del curso sembrado por supabase/migrations/056_curso_tutorial.sql,
+  // para que el tutorial también aparezca en el modo demo sin Supabase.
+  {
+    id: 'c0',
+    slug: 'tutorial-plataforma',
+    titulo: 'Cómo usar Cursos AMX',
+    descripcion:
+      'Recorrido completo por la plataforma: desde crear tu cuenta y tomar tu primer curso hasta publicar el tuyo como instructor y administrar la instalación.',
+    duracion: '2h 25min',
+    lecciones: 26,
+    modulos: 8,
+    nivel: 'Fundamental',
+    instructor: 'Equipo Cursos AMX',
+    instructor_cargo: 'Documentación de la plataforma',
+    imagen: 'Tutorial',
+    inscritos: 0,
+    progreso: 0,
+  },
   {
     id: 'c1',
     slug: 'transparencia-rendicion-cuentas',

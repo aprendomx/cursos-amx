@@ -2,6 +2,38 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [No publicado]
+
+### Agregado
+
+- **Curso tutorial preinstalado** — «Cómo usar Cursos AMX»
+  (`/curso/tutorial-plataforma`), sembrado por
+  `supabase/migrations/056_curso_tutorial.sql` y publicado por defecto en toda
+  instalación. 8 módulos y 26 lecciones (~2h 25min) que documentan la
+  plataforma desde las tres perspectivas: alumno (módulos 1–4), instructor
+  (5) y administrador (6–7), más un cierre con ejercicios (8).
+  Todas las lecciones son de tipo `lectura` con contenido Tiptap: no dependen
+  de video, Storage ni de ningún feature flag, de modo que el curso se puede
+  completar —y emitir su constancia— en una instalación recién levantada.
+  La migración es idempotente (UUIDs fijos + `on conflict do update`), así que
+  reaplicarla refresca el contenido sin duplicar filas ni perder progreso.
+- **Semillas opcionales en `supabase/seeds/`** (fuera de `scripts/migrate.sh`,
+  se aplican a mano con `psql`): `tutorial_examen.sql` agrega la evaluación
+  final del tutorial —10 preguntas de tipos básicos— para instalaciones con
+  `VITE_FEATURE_EVALUACIONES=true`, y `tutorial_uninstall.sql` lo elimina.
+  El examen se dejó fuera de la migración a propósito: con las evaluaciones
+  apagadas (el default) el panel de preguntas no se monta y una lección
+  `examen` sería imposible de completar, bloqueando la constancia del curso.
+- **`src/test/cursoTutorial.test.js`** — valida que el JSON de Tiptap de las 26
+  lecciones sea parseable y renderice con la whitelist `EXTENSIONES_TEXTO` del
+  reproductor, que la duración declarada del curso cuadre con la suma de sus
+  lecciones y que la migración no siembre lecciones tipo `examen`.
+
+### Cambiado
+
+- `src/data.js` — el curso tutorial también aparece en el modo demo sin
+  Supabase.
+
 ## [0.20.0] — 2026-07-16
 
 ### Cambiado

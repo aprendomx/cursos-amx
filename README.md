@@ -390,6 +390,35 @@ Ver `docs/MANUAL_ACTUALIZACION.md` y `docker/` (stack Supabase + video-worker).
 scripts/deploy.sh
 ```
 
+## Curso tutorial preinstalado
+
+Toda instalación trae publicado el curso **«Cómo usar Cursos AMX»**
+(`/curso/tutorial-plataforma`), un manual de la propia plataforma que sirve
+además como contenido de prueba con el que verificar que todo funciona.
+
+Lo siembra `supabase/migrations/056_curso_tutorial.sql`, así que se aplica solo
+con `scripts/migrate.sh`, tanto en instalaciones nuevas como existentes.
+
+- **8 módulos, 26 lecciones, ~2h 25min.** Módulos 1–4 para el alumno, 5 para el
+  instructor, 6–7 para el administrador y 8 de cierre.
+- **Sin dependencias.** Todas las lecciones son de texto: no hay video que
+  transcodificar ni archivos que subir a Storage, y el curso se puede completar
+  —y emitir su constancia— en una instalación recién levantada con todos los
+  módulos apagados.
+- **Editable.** Está sembrado como cualquier otro curso: se puede adaptar desde
+  el panel de administración a las reglas de cada institución.
+
+Semillas opcionales en `supabase/seeds/` (no las aplica el runner de
+migraciones; se corren a mano con `psql`):
+
+| Archivo                  | Qué hace                                                                                                                                                                                                                    |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tutorial_examen.sql`    | Agrega la evaluación final del tutorial: 10 preguntas de opción única, múltiple y verdadero/falso. **Requiere `VITE_FEATURE_EVALUACIONES=true`**; sin ese flag la lección no se puede completar y bloquearía la constancia. |
+| `tutorial_uninstall.sql` | Elimina el curso tutorial. Para sacarlo del catálogo sin destruir constancias, basta con `publicado = false`.                                                                                                               |
+
+El contenido lo cubre `src/test/cursoTutorial.test.js`, que valida que el JSON
+de Tiptap de las 26 lecciones renderice con la whitelist del reproductor.
+
 ## Personalización de identidad gráfica
 
 Ver [THEMING.md](THEMING.md). Solo necesitas cambiar:
@@ -417,7 +446,8 @@ theme/
   sections/         Secciones custom de landing
 
 supabase/
-  migrations/   Esquema versionado en SQL (001–055)
+  migrations/   Esquema versionado en SQL (001–056)
+  seeds/        Semillas opcionales, fuera del runner de migraciones
   functions/    Edge Functions Deno (hls-playlist, hls-playlist-url, documento-url, bulk-invite, ai-proxy, analytics, push-notify, admin-set-password, notifications-worker, video-analytics, zoom-meeting, zoom-webhook, transcribir-sesion)
 
 services/
@@ -431,7 +461,7 @@ docker/
 ## Testing
 
 ```bash
-npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 426 tests
+npm run test:unit           # Vitest + Vue Test Utils (jsdom) — 448 tests
 npm run test:unit:cov       # con cobertura v8 (umbral trinquete)
 npm run test:unit:watch     # modo watch
 npm run test:e2e            # Playwright (Chromium)
