@@ -1,13 +1,21 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { setupGuards } from './guards.js'
+
+// Solo la landing va estática: es la primera pantalla y no debe esperar a un
+// chunk aparte. Todo lo demás se carga bajo demanda.
+//
+// Antes, 8 de las 10 rutas eran import estático, así que quien solo miraba el
+// catálogo descargaba el reproductor, el generador de PDF, el lector de QR y
+// el editor de texto enriquecido. Ver el desglose de chunks en vite.config.js.
 import LandingPage from '@/pages/LandingPage.vue'
-import LoginPage from '@/pages/LoginPage.vue'
-import RegistroPage from '@/pages/RegistroPage.vue'
-import CursoDetalle from '@/pages/CursoDetalle.vue'
-import PlayerPage from '@/pages/PlayerPage.vue'
-import PerfilPage from '@/pages/PerfilPage.vue'
-import ConstanciaPage from '@/pages/ConstanciaPage.vue'
-import VerificarPage from '@/pages/VerificarPage.vue'
+
+const LoginPage = () => import('@/pages/LoginPage.vue')
+const RegistroPage = () => import('@/pages/RegistroPage.vue')
+const CursoDetalle = () => import('@/pages/CursoDetalle.vue')
+const PlayerPage = () => import('@/pages/PlayerPage.vue')
+const PerfilPage = () => import('@/pages/PerfilPage.vue')
+const ConstanciaPage = () => import('@/pages/ConstanciaPage.vue')
+const VerificarPage = () => import('@/pages/VerificarPage.vue')
 
 const routes = [
   { path: '/', name: 'home', component: LandingPage },
@@ -38,13 +46,13 @@ const routes = [
     path: '/admin',
     name: 'admin',
     component: () => import('@/pages/AdminPage.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresAdmin: true },
   },
   {
     path: '/instructor',
     name: 'instructor',
     component: () => import('@/pages/InstructorPage.vue'),
-    meta: { requiresAuth: true },
+    meta: { requiresAuth: true, requiresInstructor: true },
   },
   {
     path: '/verificar/:folio',
