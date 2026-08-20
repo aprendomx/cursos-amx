@@ -10,7 +10,7 @@ export interface HlsPlaybackOptions {
   session: ComputedRef<{ access_token: string } | null>
 }
 
-export function useHlsPlayback({ videoId, leccionId, session }: HlsPlaybackOptions) {
+export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
   const videoEl = ref<HTMLVideoElement | null>(null)
   const hlsMasterUrl = ref<string | null>(null)
   const hlsPoster = ref<string | null>(null)
@@ -98,8 +98,7 @@ export function useHlsPlayback({ videoId, leccionId, session }: HlsPlaybackOptio
   function onHlsEnded() {
     if (!leccionId.value) return
     flushSave(leccionId.value, totalTime.value)
-    marcarLeccionCompletada(leccionId.value)
-      .catch(() => {})
+    marcarLeccionCompletada(leccionId.value).catch(() => {})
   }
 
   watch(

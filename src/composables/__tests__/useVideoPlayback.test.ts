@@ -1,18 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, computed, nextTick } from 'vue'
+import { computed, nextTick } from 'vue'
 import { useVideoPlayback } from '../useVideoPlayback'
 
-vi.mock('@/services/progreso.js', () => ({ marcarLeccionCompletada: vi.fn(() => Promise.resolve()) }))
+vi.mock('@/services/progreso.js', () => ({
+  marcarLeccionCompletada: vi.fn(() => Promise.resolve()),
+}))
 import { marcarLeccionCompletada } from '@/services/progreso.js'
 
 describe('useVideoPlayback', () => {
-  beforeEach(() => { vi.clearAllMocks(); vi.useRealTimers() })
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useRealTimers()
+  })
 
   function factory() {
     return useVideoPlayback({
       leccion: computed(() => ({ id: 'l1', duracion_seg: 60 }) as any),
       sourceKind: computed(() => 'youtube'),
-      totalTime: computed(() => 60)
+      totalTime: computed(() => 60),
     })
   }
 
@@ -32,9 +37,9 @@ describe('useVideoPlayback', () => {
   it('marca completado al llegar al final', async () => {
     vi.useFakeTimers()
     const pb = useVideoPlayback({
-      leccion: computed(() => ({ id: 'l1', duracion_seg: 10 } as any)),
+      leccion: computed(() => ({ id: 'l1', duracion_seg: 10 }) as any),
       sourceKind: computed(() => 'youtube'),
-      totalTime: computed(() => 10)
+      totalTime: computed(() => 10),
     })
     pb.togglePlay()
     await nextTick()

@@ -8,7 +8,6 @@ import {
   getVideoMetadata,
   saveSegment,
   saveVideoMetadata,
-  setSetting,
 } from './offline-db'
 
 const DEFAULT_MAX_BYTES = 2 * 1024 * 1024 * 1024
@@ -20,17 +19,14 @@ function checkEnabled(): boolean {
 
 async function evictIfNeeded(requiredBytes: number): Promise<void> {
   let used = await getUsedSpace()
-  const max =
-    (await getSetting<number>('maxStorageBytes')) || DEFAULT_MAX_BYTES
+  const max = (await getSetting<number>('maxStorageBytes')) || DEFAULT_MAX_BYTES
   const threshold = max * 0.8
 
   if (used + requiredBytes <= threshold) {
     return
   }
 
-  const videos = (await getAllVideos()).sort(
-    (a, b) => a.lastPlayed - b.lastPlayed,
-  )
+  const videos = (await getAllVideos()).sort((a, b) => a.lastPlayed - b.lastPlayed)
 
   for (const video of videos) {
     if (used + requiredBytes <= threshold) {
@@ -45,7 +41,7 @@ export async function downloadVideo(
   videoId: string,
   leccionId: string,
   playlistUrl: string,
-  onProgress?: (pct: number) => void,
+  onProgress?: (pct: number) => void
 ): Promise<void> {
   if (!checkEnabled()) {
     throw new Error('offline_video_cache no está habilitado')
@@ -73,9 +69,7 @@ export async function downloadVideo(
   for (let i = 0; i < segmentUrls.length; i++) {
     const segResponse = await fetch(segmentUrls[i])
     if (!segResponse.ok) {
-      throw new Error(
-        `Error al descargar segmento ${i}: ${segResponse.status}`,
-      )
+      throw new Error(`Error al descargar segmento ${i}: ${segResponse.status}`)
     }
     const buffer = await segResponse.arrayBuffer()
     totalSize += buffer.byteLength
@@ -109,7 +103,7 @@ export async function getPlaylist(videoId: string): Promise<string | undefined> 
 
 export async function getCachedSegment(
   videoId: string,
-  index: number,
+  index: number
 ): Promise<ArrayBuffer | undefined> {
   if (!checkEnabled()) return undefined
   const segment = await getSegment(videoId, index)
@@ -138,8 +132,7 @@ export async function getCacheStats(): Promise<{
     return { used: 0, max: 0, videos: 0 }
   }
   const used = await getUsedSpace()
-  const max =
-    (await getSetting<number>('maxStorageBytes')) || DEFAULT_MAX_BYTES
+  const max = (await getSetting<number>('maxStorageBytes')) || DEFAULT_MAX_BYTES
   const allVideos = await getAllVideos()
   return { used, max, videos: allVideos.length }
 }

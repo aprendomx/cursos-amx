@@ -1,4 +1,4 @@
-import { ref, computed, watch, onMounted, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, onMounted, type Ref, type ComputedRef } from 'vue'
 import type { Router } from 'vue-router'
 import { sbSelect } from '@/lib/sbRest'
 
@@ -37,7 +37,13 @@ export interface LessonNavigationOptions {
   updateTweaks: (tweaks: Record<string, unknown>) => void
 }
 
-export function useLessonNavigation({ props, session, tweaks, router, updateTweaks }: LessonNavigationOptions) {
+export function useLessonNavigation({
+  props,
+  session,
+  tweaks,
+  router,
+  updateTweaks,
+}: LessonNavigationOptions) {
   /* ── State ────────────────────────────────────────── */
   const currentLeccion = ref(props.leccionId || '')
   const lecciones: Ref<PlayerLesson[]> = ref([])
@@ -96,7 +102,9 @@ export function useLessonNavigation({ props, session, tweaks, router, updateTwea
   }
 
   const variant = computed(() => tweaks.value.playerLayout || 'split')
-  const progress = computed(() => Math.min((lecciones.value.filter((l) => l.completado).length / (lecciones.value.length || 1)), 1))
+  const progress = computed(() =>
+    Math.min(lecciones.value.filter((l) => l.completado).length / (lecciones.value.length || 1), 1)
+  )
 
   function fmtTime(s: number) {
     const m = Math.floor(s / 60)
@@ -223,6 +231,7 @@ export function useLessonNavigation({ props, session, tweaks, router, updateTwea
   onMounted(cargar)
 
   return {
+    progress,
     currentLeccion,
     lecciones,
     leccion,
