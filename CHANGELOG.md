@@ -6,6 +6,30 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **La verificación del despliegue deja de fallar en abierto** — al terminar,
+  `scripts/deploy.sh` reportaba como superada cualquier comprobación que no
+  hubiera podido ejecutar. Se corrigen tres casos encontrados desplegando en
+  vivo: la comprobación de escalada de privilegios **nunca había corrido**
+  (su uuid llevaba cinco dígitos hexadecimales en el tercer grupo y Postgres
+  rechazaba el literal, con el fallo degradado a un aviso que nadie contaba);
+  las funciones que «exigen autenticación» pasaban en verde respondiendo `404`,
+  `500` o sin conexión, porque solo `200` se trataba como fallo; y la
+  comprobación de RLS afirmaba «todas las tablas lo tienen habilitado» cuando
+  la consulta fallaba. La regla —lo que no se pudo comprobar cuenta como
+  problema— vive ahora en un solo sitio. La comprobación de escalada verifica
+  además que su sesión simulada resuelve `auth.uid()`, para no poder pasar por
+  no haber afectado a ninguna fila.
+
+  `PUBLIC_URL` deja de ser obligatoria: se toma `API_EXTERNAL_URL` de
+  `docker/.env`. Es la URL de la **API**; el ejemplo anterior apuntaba al
+  frontend, contra el cual las cinco comprobaciones de funciones daban `404` y
+  se reportaban como superadas. Antes de ese grupo se sondea que la URL enrute
+  a la API y, si no, se omite el grupo en lugar de emitir resultados
+  engañosos.
+
+  **Cambio de comportamiento:** despliegues que antes terminaban en verde sobre
+  una instalación degradada ahora salen con error.
+
 - **Primer administrador al instalar** — `scripts/crear-admin.sh` crea o
   promueve al primer administrador de una instalación, y `scripts/deploy.sh` lo
   invoca en un paso nuevo `[6/6]` cuando detecta que no hay ninguno. Hasta

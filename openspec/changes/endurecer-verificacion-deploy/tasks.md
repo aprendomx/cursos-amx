@@ -1,7 +1,7 @@
 ## 1. Hacer `deploy.sh` sourceable
 
 - [x] 1.1 Envolver el cuerpo ejecutable de `scripts/deploy.sh` de modo que un `source` defina las funciones sin disparar el despliegue, con la misma guarda `[[ "${BASH_SOURCE[0]}" == "${0}" ]]` que usa `scripts/crear-admin.sh`.
-- [ ] 1.2 Comprobar que `PUBLIC_URL=… scripts/deploy.sh --dry-run` produce exactamente la misma salida que antes del cambio (diff contra la salida guardada).
+- [x] 1.2 Comprobar que `PUBLIC_URL=… scripts/deploy.sh --dry-run` produce exactamente la misma salida que antes del cambio (diff contra la salida guardada). — Diff de 57 líneas contra la referencia capturada antes del refactor: idénticas salvo las tres líneas nuevas previstas (la que anuncia la URL y su origen, y la redacción del `[dry-run]` de verificación). El envoltorio en `main()` no alteró el comportamiento.
 
 ## 2. Clasificación común de resultados
 
@@ -45,13 +45,13 @@
 
 ## 7. Verificación manual contra la instalación de desarrollo
 
-- [ ] 7.1 Correr el despliegue con una `PUBLIC_URL` deliberadamente equivocada (la del frontend) y comprobar que reporta el problema y **no** emite ✔ de funciones.
-- [ ] 7.2 Correr el despliegue sin `PUBLIC_URL` y comprobar que toma `API_EXTERNAL_URL` y lo dice.
-- [ ] 7.3 Comprobar que la escalada de privilegios ahora se ejecuta y reporta «bloqueada», sin `⚠`.
-- [ ] 7.4 Contar filas de `auth.users` y `public.perfiles` antes y después del despliegue y confirmar que no cambian.
-- [ ] 7.5 Detener el contenedor de una función, desplegar y confirmar que se reporta como problema en vez de como «exige autenticación». Volver a levantarla.
+- [x] 7.1 Correr el despliegue con una `PUBLIC_URL` deliberadamente equivocada (la del frontend) y comprobar que reporta el problema y **no** emite ✔ de funciones. — Con `PUBLIC_URL=https://cursos.aprendo.mx` (frontend): `✘ no responde como API (auth devolvió 404)`, grupo de funciones omitido, salida ≠ 0.
+- [x] 7.2 Correr el despliegue sin `PUBLIC_URL` y comprobar que toma `API_EXTERNAL_URL` y lo dice. — `URL de la API: https://api.aprendo.mx (origen: API_EXTERNAL_URL de docker/.env)`.
+- [x] 7.3 Comprobar que la escalada de privilegios ahora se ejecuta y reporta «bloqueada», sin `⚠`. — `✔ escalada de privilegios: bloqueada (probada en vivo)`, por primera vez de verdad.
+- [x] 7.4 Contar filas de `auth.users` y `public.perfiles` antes y después del despliegue y confirmar que no cambian. — 1 usuario / 1 perfil antes y después; 0 filas de `verificacion@local`.
+- [x] 7.5 Detener el contenedor de una función, desplegar y confirmar que se reporta como problema en vez de como «exige autenticación». Volver a levantarla. — Con `functions` detenido: 5 ✘ «la función no está respondiendo» y salida ≠ 0, donde antes salían 5 ✔. Contenedor restaurado y respondiendo 401.
 
 ## 8. Documentación
 
-- [ ] 8.1 Documentar en `README.md` y `docs/MANUAL_ACTUALIZACION.md` que `PUBLIC_URL` es la URL de la API y que se toma sola de `docker/.env`.
-- [ ] 8.2 Añadir la entrada en `CHANGELOG.md` bajo «No publicado», señalando el cambio de comportamiento: despliegues que antes terminaban en verde sobre una instalación degradada ahora fallan.
+- [x] 8.1 Documentar en `README.md` y `docs/MANUAL_ACTUALIZACION.md` que `PUBLIC_URL` es la URL de la API y que se toma sola de `docker/.env`.
+- [x] 8.2 Añadir la entrada en `CHANGELOG.md` bajo «No publicado», señalando el cambio de comportamiento: despliegues que antes terminaban en verde sobre una instalación degradada ahora fallan.

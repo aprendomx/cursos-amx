@@ -248,6 +248,34 @@ docker compose -f docker/docker-compose.yml exec -T db \
 
 ---
 
+## 6.2 Qué verifica el despliegue
+
+`scripts/deploy.sh` termina comprobando la instalación. La regla es que **una
+comprobación que no se puede ejecutar cuenta como problema**, no como
+comprobación superada — antes no era así, y por eso pasaron inadvertidas
+funciones caídas y una comprobación de escalada de privilegios que nunca llegó
+a correr.
+
+| Comprobación            | Supera con                              |
+| ----------------------- | --------------------------------------- |
+| La URL enruta a la API  | `auth` responde `401`/`403`/`200`       |
+| Cada función            | responde `401` o `403` sin credenciales |
+| Migraciones             | registradas = archivos en disco         |
+| RLS                     | cero tablas de `public` sin RLS         |
+| Escalada de privilegios | el intento es rechazado, en vivo        |
+| Primer administrador    | existe al menos uno                     |
+
+La URL se toma de `API_EXTERNAL_URL` en `docker/.env`; es la de la **API**, no
+la del frontend. Si no enruta a la API, el despliegue lo dice y **omite** las
+comprobaciones de funciones en lugar de darlas por buenas: contra el frontend
+todas responden `404`.
+
+La comprobación de escalada intenta la operación de verdad, dentro de una
+transacción que revierte, y confirma además que su sesión simulada resuelve
+`auth.uid()` — sin eso podría pasar por no haber afectado a ninguna fila.
+
+---
+
 ## 7. Rollback
 
 1. **Código / funciones** — vuelve al commit anterior y recarga:

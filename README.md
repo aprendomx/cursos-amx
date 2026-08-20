@@ -390,6 +390,20 @@ Ver `docs/MANUAL_ACTUALIZACION.md` y `docker/` (stack Supabase + video-worker).
 scripts/deploy.sh
 ```
 
+Al terminar, `deploy.sh` verifica la instalación: que las funciones exijan
+autenticación, que todas las tablas tengan RLS, que las migraciones estén
+aplicadas y que la escalada a administrador siga bloqueada. **Una comprobación
+que no se puede ejecutar cuenta como problema**, nunca como comprobación
+superada: una instalación degradada no debe terminar en verde.
+
+La URL contra la que se verifica se toma de `API_EXTERNAL_URL` en
+`docker/.env`. Es la URL de la **API**, no la del frontend — todas las
+comprobaciones van contra `/functions/v1/…`. Para anularla:
+
+```bash
+PUBLIC_URL=https://api.tu-dominio.org scripts/deploy.sh
+```
+
 ### El primer administrador
 
 Una instalación nueva no tiene a nadie que pueda entrar al panel: el rol vive en
