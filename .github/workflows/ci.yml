@@ -208,6 +208,18 @@ jobs:
       - name: Render kong.yml and parse it
         run: scripts/test-kong-config.sh
 
+  # El script que crea al primer administrador es el único camino soportado
+  # para que una instalación nueva tenga a alguien que pueda entrar al panel.
+  # Sus caminos de error —correo inválido, contraseña corta, falta de terminal—
+  # son los que nadie prueba a mano, y que se cuelgue esperando entrada en un
+  # despliegue automatizado no se descubriría hasta que pasara en producción.
+  test-crear-admin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run crear-admin.sh checks
+        run: scripts/test-crear-admin.sh
+
   # Check agregado: la protección de la rama main exige un status llamado
   # "ci". Reúne los jobs bloqueantes (los informativos test-e2e y audit
   # quedan fuera a propósito).
@@ -220,6 +232,7 @@ jobs:
       - test-edge-functions
       - test-migrations
       - test-kong-config
+      - test-crear-admin
       - build
     steps:
       - name: All required checks passed

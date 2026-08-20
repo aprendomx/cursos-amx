@@ -202,6 +202,52 @@ confirma que el reproductor obtiene el manifiesto y reproduce.
 
 ---
 
+## 6.1 Primer administrador
+
+El rol de administrador vive en `perfiles.es_admin` y **nadie puede otorgárselo
+a sí mismo**: lo impide el trigger `perfiles_guard_roles` (migraciones 057 y
+069), que es la única defensa efectiva contra la escalada de privilegios. Por
+eso una instalación nueva necesita un paso explícito.
+
+`scripts/deploy.sh` lo cubre en su paso `[6/6]`: cuenta los administradores y
+solo si no hay ninguno crea el primero. Si ya existen, no toca nada.
+
+Para correrlo por separado:
+
+```bash
+scripts/crear-admin.sh                    # pregunta lo que falte
+scripts/crear-admin.sh --email tu@correo.mx --nombres Ana --apellido-paterno Ruiz
+```
+
+Qué hace según el caso:
+
+| Situación            | Resultado                                                                          |
+| -------------------- | ---------------------------------------------------------------------------------- |
+| El correo no existe  | Crea la cuenta y muestra **una sola vez** una contraseña generada de 24 caracteres |
+| El correo ya existe  | Solo lo promueve; conserva su contraseña y sus datos personales                    |
+| Ya era administrador | No modifica nada y termina con código `0`                                          |
+
+La cuenta se da de alta por la API admin de GoTrue (no con un `insert` en
+`auth.users`, que produciría un usuario incapaz de iniciar sesión por faltarle
+la fila en `auth.identities`), y la promoción se aplica por `psql`, que es el
+caso que el trigger permite explícitamente.
+
+**La contraseña generada no se guarda en ningún lado**: ni en `docker/.env`, ni
+en los logs, ni en la línea de comandos. Anótala cuando aparezca.
+
+En un despliegue sin terminal interactiva no se pregunta nada: `deploy.sh`
+emite una advertencia con el comando a correr y termina señalando el problema,
+porque una instalación sin administrador no la puede usar nadie.
+
+Para comprobar cuántos hay:
+
+```bash
+docker compose -f docker/docker-compose.yml exec -T db \
+  psql -U postgres -d postgres -At -c "select count(*) from public.perfiles where es_admin;"
+```
+
+---
+
 ## 7. Rollback
 
 1. **Código / funciones** — vuelve al commit anterior y recarga:
@@ -259,14 +305,16 @@ La tabla se poda sola. No requiere mantenimiento.
 
 ## 8. Problemas frecuentes
 
-| Síntoma                              | Causa probable                                                             | Solución                                                                         |
-| ------------------------------------ | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Funciones devuelven `500`/`502`      | Falta `volumes/functions/main/index.ts` o error de sintaxis en una función | Copia el router del upstream; revisa `logs functions`                            |
-| `video-worker` no procesa            | No hay `LISTENING video_jobs` en logs                                      | `up -d --build video-worker`; revisa `FILE_SIZE_LIMIT` y credenciales de storage |
-| Migración "ya aplicada" inesperada   | Quedó registrada en `public._migraciones`                                  | `scripts/migrate.sh --dry-run` para ver el estado real                           |
-| Cambió un `VITE_*` y no surte efecto | Las vars se incrustan en build                                             | `npm run build` de nuevo y republica                                             |
-| Uploads de video fallan (413)        | Reverse proxy con límite bajo                                              | `client_max_body_size 100M` en el proxy (ver README / `docker/README.md`)        |
-| Realtime/chat no conecta             | WebSockets no proxeados                                                    | Bloque `location /realtime/v1/` con `Upgrade`/`Connection` (ver README)          |
+| Síntoma                              | Causa probable                                                             | Solución                                                                                                                                                                                                              |
+| ------------------------------------ | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Funciones devuelven `500`/`502`      | Falta `volumes/functions/main/index.ts` o error de sintaxis en una función | Copia el router del upstream; revisa `logs functions`                                                                                                                                                                 |
+| `video-worker` no procesa            | No hay `LISTENING video_jobs` en logs                                      | `up -d --build video-worker`; revisa `FILE_SIZE_LIMIT` y credenciales de storage                                                                                                                                      |
+| Migración "ya aplicada" inesperada   | Quedó registrada en `public._migraciones`                                  | `scripts/migrate.sh --dry-run` para ver el estado real                                                                                                                                                                |
+| Cambió un `VITE_*` y no surte efecto | Las vars se incrustan en build                                             | `npm run build` de nuevo y republica                                                                                                                                                                                  |
+| Uploads de video fallan (413)        | Reverse proxy con límite bajo                                              | `client_max_body_size 100M` en el proxy (ver README / `docker/README.md`)                                                                                                                                             |
+| Realtime/chat no conecta             | WebSockets no proxeados                                                    | Bloque `location /realtime/v1/` con `Upgrade`/`Connection` (ver README)                                                                                                                                               |
+| Se perdió la contraseña del admin    | Se muestra una sola vez y no se guarda                                     | Desde otra sesión de admin: Administración → Usuarios → cambiar contraseña (`admin-set-password`). Si no queda ninguna sesión de admin, `scripts/crear-admin.sh --email otro@correo.mx` crea un segundo administrador |
+| Nadie puede entrar al panel          | La instalación quedó sin ningún `es_admin`                                 | `scripts/crear-admin.sh` (ver §6.1)                                                                                                                                                                                   |
 
 ---
 
@@ -274,4 +322,4 @@ La tabla se poda sola. No requiere mantenimiento.
 
 - Instalación desde cero: [README.md](../README.md)
 - Despliegue del stack self-hosted: [docker/README.md](../docker/README.md)
-- Scripts: `scripts/deploy.sh`, `scripts/migrate.sh` (ambos con `--help`)
+- Scripts: `scripts/deploy.sh`, `scripts/migrate.sh`, `scripts/crear-admin.sh` (todos con `--help`)

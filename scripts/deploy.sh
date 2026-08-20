@@ -6,6 +6,7 @@
 #   3) migraciones        (dry-run informativo + scripts/migrate.sh)
 #   4) restart functions  (recarga el Edge Runtime con las funciones nuevas)
 #   5) verificación       (contenedor Up, función responde 401, esquema sano)
+#   6) primer admin       (si la instalación no tiene ninguno, lo crea)
 #
 # Pensado para correrse EN EL SERVIDOR, desde la raíz del repo (donde viven
 # docker/ y scripts/).
@@ -15,6 +16,7 @@
 #   scripts/deploy.sh --no-pull       # no hace git pull (usa lo ya presente)
 #   scripts/deploy.sh --no-migrate    # omite las migraciones (y el respaldo)
 #   scripts/deploy.sh --no-functions  # no reinicia el runtime de funciones
+#   scripts/deploy.sh --no-admin      # omite el paso del primer administrador
 #   scripts/deploy.sh --branch develop  # rama a la que hacer pull (def: main)
 #   scripts/deploy.sh --backup-dir DIR  # dónde dejar el respaldo (def: ./backups)
 #   scripts/deploy.sh --skip-backup     # PELIGROSO: migrar sin respaldo previo
@@ -27,6 +29,7 @@ COMPOSE_FILE="$ROOT/docker/docker-compose.yml"
 DO_PULL=1
 DO_MIGRATE=1
 DO_FUNCTIONS=1
+DO_ADMIN=1
 DRY_RUN=0
 SKIP_BACKUP=0
 BRANCH="main"
@@ -39,11 +42,12 @@ while [[ $# -gt 0 ]]; do
     --no-pull)      DO_PULL=0; shift ;;
     --no-migrate)   DO_MIGRATE=0; shift ;;
     --no-functions) DO_FUNCTIONS=0; shift ;;
+    --no-admin)     DO_ADMIN=0; shift ;;
     --dry-run)      DRY_RUN=1; shift ;;
     --branch)       BRANCH="$2"; shift 2 ;;
     --backup-dir)   BACKUP_DIR="$2"; shift 2 ;;
     --skip-backup)  SKIP_BACKUP=1; shift ;;
-    -h|--help)      sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help)      sed -n '2,32p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "opción desconocida: $1 (ver --help)" >&2; exit 1 ;;
   esac
 done
@@ -89,7 +93,7 @@ if [[ -d "$ROOT/docker/volumes/db/data" && ! -f "$ROOT/docker/volumes/db/roles.s
   echo "⚠  El volumen de datos existe pero faltan los scripts de init." >&2
 fi
 
-echo "==> [0/5] Pre-vuelo"
+echo "==> [0/6] Pre-vuelo"
 if [[ "$DO_PULL" -eq 1 ]]; then
   # Un árbol sucio hace que `git pull` aborte a media faena y deje el
   # despliegue en un estado indeterminado. Se detecta ANTES de tocar nada.
@@ -115,10 +119,10 @@ else
 fi
 
 if [[ "$DO_PULL" -eq 1 ]]; then
-  echo "==> [1/5] git pull origin $BRANCH"
+  echo "==> [1/6] git pull origin $BRANCH"
   run git -C "$ROOT" pull --ff-only origin "$BRANCH"
 else
-  echo "==> [1/5] git pull omitido (--no-pull)"
+  echo "==> [1/6] git pull omitido (--no-pull)"
 fi
 
 # Kong es la puerta de toda la API. Si su configuración no parsea tras la
@@ -135,7 +139,7 @@ fi
 
 BACKUP_FILE=""
 if [[ "$DO_MIGRATE" -eq 1 ]]; then
-  echo "==> [2/5] Respaldo de la base"
+  echo "==> [2/6] Respaldo de la base"
   if [[ "$SKIP_BACKUP" -eq 1 ]]; then
     echo "    ⚠  OMITIDO por --skip-backup. Las migraciones no tienen bajada:"
     echo "       si algo sale mal, la única reversa es un respaldo que no existe."
@@ -162,7 +166,7 @@ if [[ "$DO_MIGRATE" -eq 1 ]]; then
     fi
   fi
 
-  echo "==> [3/5] Migraciones"
+  echo "==> [3/6] Migraciones"
   echo "    --- pendientes ---"
   run "$ROOT/scripts/migrate.sh" --dry-run
   if ! run "$ROOT/scripts/migrate.sh"; then
@@ -175,12 +179,12 @@ if [[ "$DO_MIGRATE" -eq 1 ]]; then
     exit 1
   fi
 else
-  echo "==> [2/5] Respaldo omitido (--no-migrate)"
-  echo "==> [3/5] Migraciones omitidas (--no-migrate)"
+  echo "==> [2/6] Respaldo omitido (--no-migrate)"
+  echo "==> [3/6] Migraciones omitidas (--no-migrate)"
 fi
 
 if [[ "$DO_FUNCTIONS" -eq 1 ]]; then
-  echo "==> [4/5] Recargando Edge Functions"
+  echo "==> [4/6] Recargando Edge Functions"
 
   # Las funciones se escriben en supabase/functions/ pero el contenedor monta
   # docker/volumes/functions/. Sin sincronizar, se despliega lo que hubiera ahí
@@ -200,10 +204,10 @@ if [[ "$DO_FUNCTIONS" -eq 1 ]]; then
   echo "    --- logs recientes de functions ---"
   if [[ "$DRY_RUN" -eq 0 ]]; then compose logs --tail=30 functions || true; fi
 else
-  echo "==> [4/5] Functions sin tocar (--no-functions)"
+  echo "==> [4/6] Functions sin tocar (--no-functions)"
 fi
 
-echo "==> [5/5] Verificación"
+echo "==> [5/6] Verificación"
 problemas=0
 if [[ "$DRY_RUN" -eq 1 ]]; then
   echo "    [dry-run] compose ps functions; curl $PUBLIC_URL/functions/v1/...; chequeos de esquema"
@@ -289,6 +293,55 @@ SQL
          problemas=$((problemas + 1)) ;;
     *f*) echo "    ✔ La escalada a administrador está bloqueada (probada en vivo)" ;;
     *)   echo "    ⚠  No se pudo comprobar la escalada de privilegios." ;;
+  esac
+fi
+
+# ---------------------------------------------------------------------------
+# [6/6] Primer administrador
+# ---------------------------------------------------------------------------
+# Una instalación sin nadie con es_admin no la puede administrar nadie: el
+# trigger perfiles_guard_roles (057 y 069) impide que un usuario se promueva a
+# sí mismo, y con razón. Hasta que existió este paso, deploy.sh terminaba en
+# verde sobre una instalación inutilizable.
+#
+# El disparador es el CONTEO, no «es la primera instalación»: así también hace
+# lo correcto si alguien borra al último administrador por accidente.
+if [[ "$DO_ADMIN" -eq 0 ]]; then
+  echo "==> [6/6] Primer administrador omitido (--no-admin)"
+elif [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "==> [6/6] Primer administrador"
+  echo "    [dry-run] contaría los administradores y, si no hubiera ninguno,"
+  echo "              ejecutaría scripts/crear-admin.sh"
+else
+  echo "==> [6/6] Primer administrador"
+  admins="$(compose exec -T db psql -U postgres -d postgres -At \
+    -c "select count(*) from public.perfiles where es_admin;" 2>/dev/null \
+    | tr -d '[:space:]' || echo '?')"
+
+  case "$admins" in
+    '?'|'')
+      echo "    ⚠  No se pudo contar los administradores. Revísalo a mano." ;;
+    0)
+      if [[ -t 0 ]]; then
+        echo "    Detectados 0 administradores."
+        echo "    → creando el primero…"
+        # Si el operador cancela o el alta falla, se cuenta como problema en
+        # lugar de abortar el despliegue con un error crudo de set -e.
+        if ! "$ROOT/scripts/crear-admin.sh"; then
+          echo "    ✘ No se pudo crear el primer administrador." >&2
+          problemas=$((problemas + 1))
+        fi
+      else
+        # Sin terminal no se pregunta nada: se avisa y se cuenta como problema,
+        # para no reportar éxito sobre una instalación que nadie puede usar.
+        echo "    ✘ No hay ningún administrador y no hay terminal interactiva" >&2
+        echo "      para crearlo. Nadie puede entrar al panel. Corre ahora:" >&2
+        echo "" >&2
+        echo "        scripts/crear-admin.sh" >&2
+        problemas=$((problemas + 1))
+      fi ;;
+    *)
+      echo "    ✔ Ya existen $admins administrador(es). Nada que hacer." ;;
   esac
 fi
 

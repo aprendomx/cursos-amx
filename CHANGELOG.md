@@ -6,6 +6,23 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Primer administrador al instalar** — `scripts/crear-admin.sh` crea o
+  promueve al primer administrador de una instalación, y `scripts/deploy.sh` lo
+  invoca en un paso nuevo `[6/6]` cuando detecta que no hay ninguno. Hasta
+  ahora, una instalación nueva quedaba sin nadie capaz de entrar al panel: el
+  rol vive en `perfiles.es_admin` y el trigger `perfiles_guard_roles` impide
+  —correctamente— que un usuario se promueva a sí mismo, así que la única
+  salida era escribir el `UPDATE` a mano dentro del contenedor. La cuenta se da
+  de alta por la API admin de GoTrue, la contraseña generada se muestra una
+  sola vez y no se guarda en ningún archivo ni viaja por la línea de comandos.
+  Volver a ejecutarlo es seguro: no duplica cuentas ni regenera contraseñas.
+  Sin migraciones y sin cambios en el modelo de permisos.
+
+  **Cambio de comportamiento en `deploy.sh`:** un despliegue sin terminal
+  interactiva (CI, `cron`) sobre una instalación sin administradores ahora
+  advierte y termina con error en vez de reportar éxito. Se omite con
+  `--no-admin`.
+
 - **Avance por módulo** — el reproductor muestra qué tanto llevas del módulo en
   curso, no solo del curso completo, y el panel de instructor resume el grupo
   módulo por módulo (cuántas personas iniciaron, cuántas terminaron y el
