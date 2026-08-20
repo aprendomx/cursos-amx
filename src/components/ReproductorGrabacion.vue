@@ -1,14 +1,47 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, computed, onBeforeUnmount } from 'vue'
 import { useReproductor } from '@/composables/useReproductor.js'
+import { segmentosAVtt, crearUrlVtt } from '@/lib/webvtt.js'
 
 const props = defineProps({
   grabacion: { type: Object, required: true },
 })
 
 const videoRef = ref(null)
-const { tiempoActual, segmentoActual, textoCercano, cargarTranscripcion, saltarATiempo } =
-  useReproductor(props.grabacion.sesion_id)
+const {
+  tiempoActual,
+  segmentoActual,
+  textoCercano,
+  transcripcion,
+  cargarTranscripcion,
+  saltarATiempo,
+} = useReproductor(props.grabacion.sesion_id)
+
+// Subtítulos (WCAG 2.1 §1.2.2, nivel A). Los segmentos de Whisper ya estaban
+// aquí; solo faltaba convertirlos a WebVTT y montarlos como <track>.
+const urlSubtitulos = ref(null)
+const idiomaSubtitulos = computed(() => transcripcion.value?.idioma || 'es')
+
+function liberarUrl() {
+  if (urlSubtitulos.value) {
+    URL.revokeObjectURL(urlSubtitulos.value)
+    urlSubtitulos.value = null
+  }
+}
+
+watch(
+  () => transcripcion.value?.segmentos,
+  (segmentos) => {
+    liberarUrl()
+    const vtt = segmentosAVtt(segmentos)
+    // Sin cues no se monta la pista: un <track> vacío le anuncia al usuario
+    // unos subtítulos que no existen.
+    if (vtt) urlSubtitulos.value = crearUrlVtt(vtt)
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(liberarUrl)
 
 function onTimeUpdate() {
   if (videoRef.value) {
@@ -32,9 +65,19 @@ watch(() => props.grabacion.sesion_id, cargarTranscripcion, { immediate: true })
       ref="videoRef"
       class="video-player"
       controls
+      crossorigin="anonymous"
       :src="grabacion.url_grabacion"
       @timeupdate="onTimeUpdate"
-    />
+    >
+      <track
+        v-if="urlSubtitulos"
+        kind="captions"
+        :src="urlSubtitulos"
+        :srclang="idiomaSubtitulos"
+        label="Subtítulos"
+        default
+      />
+    </video>
 
     <div v-if="textoCercano" class="transcripcion-panel">
       <h4>Transcripción</h4>

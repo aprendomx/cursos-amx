@@ -1,10 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import DocumentoViewer from '@/components/DocumentoViewer.vue'
 import EvaluacionPanel from '@/components/EvaluacionPanel.vue'
 import PlayerTextoSurface from '@/components/PlayerTextoSurface.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
+import { esVttValido, crearUrlVtt } from '@/lib/webvtt.js'
+import { obtenerSubtitulos } from '@/services/subtitulos.js'
 
 const props = defineProps({
   source: {
@@ -51,6 +53,46 @@ const props = defineProps({
     default: false,
   },
 })
+
+// Subtítulos de la lección (WCAG 2.1 §1.2.2, nivel A). El WebVTT vive en
+// lecciones.subtitulos_vtt (migración 065). Se sirve como Blob URL para no
+// necesitar un endpoint aparte.
+//
+// El <track> NO se monta si el VTT no es válido: un track roto hace que el
+// navegador descarte la pista y el usuario ve el botón de subtítulos sin que
+// aparezca ningún texto — peor que no ofrecerlos.
+const urlSubtitulos = ref(null)
+const idiomaSubtitulos = ref('es')
+
+function liberarUrlSubtitulos() {
+  if (urlSubtitulos.value) {
+    URL.revokeObjectURL(urlSubtitulos.value)
+    urlSubtitulos.value = null
+  }
+}
+
+// Se piden al cambiar de lección, no con la lista del curso: el WebVTT de 26
+// lecciones en la carga inicial sería medio megabyte que casi nunca se usa.
+watch(
+  () => props.leccion?.id,
+  async (leccionId) => {
+    liberarUrlSubtitulos()
+    if (!leccionId) return
+    try {
+      const fila = await obtenerSubtitulos(leccionId)
+      if (fila && esVttValido(fila.contenido_vtt)) {
+        idiomaSubtitulos.value = fila.idioma || 'es'
+        urlSubtitulos.value = crearUrlVtt(fila.contenido_vtt)
+      }
+    } catch {
+      // Sin subtítulos se sigue reproduciendo: no se bloquea la lección por
+      // no poder pintar la pista.
+    }
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(liberarUrlSubtitulos)
 
 const emit = defineEmits([
   'togglePlay',
@@ -138,10 +180,20 @@ function onEnded() {
         :poster="hlsPoster"
         playsinline
         controls
+        crossorigin="anonymous"
         @timeupdate="onTimeUpdate"
         @loadedmetadata="onLoadedMetadata"
         @ended="onEnded"
-      />
+      >
+        <track
+          v-if="urlSubtitulos"
+          kind="captions"
+          :src="urlSubtitulos"
+          :srclang="idiomaSubtitulos"
+          label="Subtítulos"
+          default
+        />
+      </video>
       <DocumentoViewer
         v-else-if="source.kind === 'documento'"
         :leccion-id="source.leccionId"
@@ -165,8 +217,10 @@ function onEnded() {
           <div class="video-radial" />
         </div>
         <div class="slide-content">
-          <span class="slide-eyebrow eyebrow">{{ moduloTitulo || 'Lección' }} &middot;
-            {{ String(leccion.orden || 1).padStart(2, '0') }}</span>
+          <span class="slide-eyebrow eyebrow"
+            >{{ moduloTitulo || 'Lección' }} &middot;
+            {{ String(leccion.orden || 1).padStart(2, '0') }}</span
+          >
           <h2 class="slide-heading display">
             {{ leccion.titulo || 'Lección' }}
           </h2>
@@ -192,11 +246,7 @@ function onEnded() {
       </div>
 
       <!-- Completion overlay -->
-      <div
-        v-if="source.kind === 'none' && completada"
-        class="completion-overlay"
-        @click.stop
-      >
+      <div v-if="source.kind === 'none' && completada" class="completion-overlay" @click.stop>
         <div class="completion-inner">
           <div class="completion-circle">
             <IconSet name="check" />
@@ -206,28 +256,17 @@ function onEnded() {
       </div>
 
       <!-- Bottom controls (solo si no hay iframe real) -->
-      <div
-        v-if="source.kind === 'none'"
-        class="video-controls"
-        @click.stop
-      >
-        <div
-          class="controls-progress"
-          @click="onSeek"
-        >
-          <div
-            class="controls-progress-fill"
-            :style="{ width: progress * 100 + '%' }"
-          />
+      <div v-if="source.kind === 'none'" class="video-controls" @click.stop>
+        <div class="controls-progress" @click="onSeek">
+          <div class="controls-progress-fill" :style="{ width: progress * 100 + '%' }" />
         </div>
         <div class="controls-bar">
-          <button
-            class="controls-play"
-            @click="emit('togglePlay')"
-          >
+          <button class="controls-play" @click="emit('togglePlay')">
             <IconSet :name="playing ? 'close' : 'play'" />
           </button>
-          <span class="controls-time mono">{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span>
+          <span class="controls-time mono"
+            >{{ fmtTime(currentTime) }} / {{ fmtTime(totalTime) }}</span
+          >
           <span class="controls-status mono">{{
             source.kind === 'hls' ? 'HLS' : 'Simulador (sin URL)'
           }}</span>
@@ -235,24 +274,15 @@ function onEnded() {
       </div>
     </div>
 
-    <div
-      v-if="source.kind === 'documento'"
-      class="doc-actions"
-    >
+    <div v-if="source.kind === 'documento'" class="doc-actions">
       <button
         class="btn btn-primary doc-mark-btn"
         :disabled="!llegoAlFinal || completada"
         @click="emit('marcarLecturaCompletada')"
       >
-        <template v-if="completada">
-          ✓ Lección completada
-        </template>
-        <template v-else-if="llegoAlFinal">
-          Marcar como leída
-        </template>
-        <template v-else>
-          Desliza hasta el final para habilitar
-        </template>
+        <template v-if="completada"> ✓ Lección completada </template>
+        <template v-else-if="llegoAlFinal"> Marcar como leída </template>
+        <template v-else> Desliza hasta el final para habilitar </template>
       </button>
     </div>
   </div>
