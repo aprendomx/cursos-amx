@@ -58,7 +58,17 @@ correr() {
         *"coalesce(es_admin"*)
           echo "db:es_admin" >> "$TMP/llamadas"; printf "%s" "${CA_ES_ADMIN:-f}" ;;
         *"update public.perfiles"*)
-          echo "db:promover" >> "$TMP/llamadas"; printf "%s" "${CA_FILAS:-1}" ;;
+          echo "db:promover" >> "$TMP/llamadas"
+          # psql -At imprime SU ETIQUETA DE COMANDO además de las filas: un
+          # `update ... returning 1` suelto devuelve "1\nUPDATE 1", no "1".
+          # El doble lo reproduce porque el script real se tragó ese defecto
+          # en el servidor: la promoción funcionaba, la comprobación fallaba y
+          # la contraseña recién generada se perdía. Envolver el update en un
+          # CTE deja la salida limpia; si alguien lo desenvuelve, esto falla.
+          case "$consulta" in
+            *"with promovido as"*) printf "%s" "${CA_FILAS:-1}" ;;
+            *) printf "%s\nUPDATE %s" "${CA_FILAS:-1}" "${CA_FILAS:-1}" ;;
+          esac ;;
         *)
           echo "db:desconocida" >> "$TMP/llamadas" ;;
       esac

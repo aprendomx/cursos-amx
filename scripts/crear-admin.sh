@@ -383,8 +383,15 @@ print(json.loads(os.environ["CA_CUERPO"]).get("id", ""))
 # auth.uid() es nulo. No se toca la contraseña ni los datos personales.
 promover() {
   local uid="$1" filas
-  filas="$(db_psql -c "update public.perfiles set es_admin = true, actualizado_en = now() where id = '$uid' returning 1;" \
-    | tr -d '[:space:]')"
+  # El UPDATE va envuelto en un CTE para que la salida sea UNA sola cifra.
+  # Con `update ... returning 1`, psql -At imprime también su etiqueta de
+  # comando y devuelve "1\nUPDATE 1": la comprobación de abajo fallaba aunque
+  # la promoción hubiera funcionado, y el script moría sin llegar a mostrar la
+  # contraseña recién generada, que se perdía para siempre.
+  filas="$(db_psql -c "with promovido as (
+      update public.perfiles set es_admin = true, actualizado_en = now()
+       where id = '$uid' returning 1
+    ) select count(*) from promovido;" | tr -d '[:space:]')"
 
   if [[ "$filas" != "1" ]]; then
     {
