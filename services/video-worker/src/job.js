@@ -1,11 +1,14 @@
 import path from 'node:path'
 import { mkdir, rm, stat } from 'node:fs/promises'
-import { getVideoRow, setStatus } from './db.js'
+import { getVideoRow, setStatus, retryOrFail } from './db.js'
 import { downloadFromIngest, uploadToHls } from './storage.js'
 import { probe, makePoster, transcodeHls, walk } from './transcode.js'
 import { logJob } from './logger.js'
 
 const WORK = process.env.WORK_DIR || '/tmp/video-worker'
+// Un fallo transitorio (red al descargar el origen, storage temporalmente
+// caído) no debe ser terminal. Se reintenta antes de rendirse.
+const MAX_RETRIES = Number(process.env.JOB_MAX_RETRIES || 3)
 
 function contentTypeFor(name) {
   if (name.endsWith('.m3u8')) return 'application/vnd.apple.mpegurl'
@@ -59,8 +62,12 @@ export async function runJob(videoId) {
     logJob('info', 'ready', videoId)
   } catch (err) {
     const msg = String(err?.message || err).slice(0, 2000)
-    logJob('error', 'job failed', videoId, { err: msg })
-    await setStatus(videoId, 'failed', { error_msg: msg })
+    const reencolado = await retryOrFail(videoId, MAX_RETRIES, msg)
+    if (reencolado) {
+      logJob('warn', 'job failed, re-queued', videoId, { err: msg, maxRetries: MAX_RETRIES })
+    } else {
+      logJob('error', 'job failed permanently', videoId, { err: msg, maxRetries: MAX_RETRIES })
+    }
   } finally {
     await rm(dir, { recursive: true, force: true }).catch(() => {})
   }

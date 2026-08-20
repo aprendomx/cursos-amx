@@ -93,14 +93,15 @@ async function backupPoll() {
 
 async function main() {
   // Resume jobs that were processing when this container restarted.
-  // We should NOT claim jobs that another active worker already has.
-  // For simplicity: stuck jobs are marked 'pending' so any worker can pick them up.
-  const stuck = await listStuck()
+  // Only our own (listStuck filters by worker_id), so we never disturb a
+  // sibling replica's in-flight work. releaseJob puts them back to 'pending'
+  // so any worker — including this one — can claim them again.
+  const stuck = await listStuck(WORKER_ID)
   if (stuck.length) {
-    logger('warn', 'found stuck jobs', { count: stuck.length })
+    logger('warn', 'found stuck jobs', { count: stuck.length, worker: WORKER_ID })
     for (const id of stuck) {
       await releaseJob(id)
-      logger('info', 'released stuck job', { id })
+      logger('info', 're-queued stuck job', { id })
     }
   }
 
@@ -108,14 +109,16 @@ async function main() {
   await startListener()
   setInterval(backupPoll, 60_000)
   await backupPoll()
-  setInterval(
-    () => {
-      Promise.all([sweepIngest(), sweepDocs()])
-        .then(([nIng, nDoc]) => logger('info', 'cleanup', { ingest: nIng, docs: nDoc }))
-        .catch((err) => logger('error', 'cleanup failed', { err: String(err) }))
-    },
-    7 * 24 * 3600 * 1000
-  )
+
+  const barrer = () =>
+    Promise.all([sweepIngest(), sweepDocs()])
+      .then(([nIng, nDoc]) => logger('info', 'cleanup', { ingest: nIng, docs: nDoc }))
+      .catch((err) => logger('error', 'cleanup failed', { err: String(err) }))
+
+  // El primer barrido va al arrancar, no dentro de siete días: un contenedor
+  // que se reinicia con más frecuencia que el intervalo no barría NUNCA.
+  barrer()
+  setInterval(barrer, 7 * 24 * 3600 * 1000)
 }
 
 main().catch((err) => {

@@ -6,22 +6,44 @@ import { logger } from './logger.js'
 const INGEST = process.env.INGEST_BUCKET || 'video-ingest'
 const DOCS_BUCKET = process.env.DOCS_BUCKET || 'lesson-docs'
 
+const PAGE = 1000
+
+// Pagina de verdad. La versión anterior pedía { limit: 1000, offset: 0 } una
+// sola vez: pasados los 1000 objetos, el resto era invisible para el barrido
+// y los huérfanos se acumulaban indefinidamente.
 async function listAllObjects(bucket) {
-  const res = await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/list/${bucket}`, {
-    method: 'POST',
-    headers: {
-      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-      authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ prefix: '', limit: 1000, offset: 0 }),
-  })
-  if (!res.ok) {
-    const body = await res.text().catch(() => '')
-    logger('error', 'list objects failed', { bucket, status: res.status, body: body.slice(0, 500) })
-    throw new Error(`list ${bucket}: ${res.status}`)
+  const todos = []
+  let offset = 0
+
+  for (;;) {
+    const res = await fetch(`${process.env.SUPABASE_URL}/storage/v1/object/list/${bucket}`, {
+      method: 'POST',
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+        authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ prefix: '', limit: PAGE, offset }),
+    })
+    if (!res.ok) {
+      const body = await res.text().catch(() => '')
+      logger('error', 'list objects failed', {
+        bucket,
+        status: res.status,
+        offset,
+        body: body.slice(0, 500),
+      })
+      throw new Error(`list ${bucket}: ${res.status}`)
+    }
+    const pagina = await res.json()
+    if (!Array.isArray(pagina) || pagina.length === 0) break
+    todos.push(...pagina)
+    if (pagina.length < PAGE) break
+    offset += PAGE
   }
-  return await res.json()
+
+  logger('info', 'listed objects', { bucket, total: todos.length })
+  return todos
 }
 
 async function deleteFromBucket(bucket, objectPath) {
