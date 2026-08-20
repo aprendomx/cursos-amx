@@ -1,0 +1,11 @@
+# Las Edge Functions se escriben en supabase/functions/ y scripts/deploy.sh las
+# sincroniza aquí, que es lo que el contenedor monta. Versionar copias en este
+# directorio ya causó un despliegue con funciones viejas: había 5 desactualizadas
+# frente a las 13 reales.
+#
+# Solo `main/` se versiona: es el router del Edge Runtime, no es una función del
+# producto y no existe en supabase/functions/. Sin él el contenedor no arranca.
+*
+!.gitignore
+!main/
+!main/**

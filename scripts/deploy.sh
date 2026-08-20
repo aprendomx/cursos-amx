@@ -55,11 +55,38 @@ run() {
   if [[ "$DRY_RUN" -eq 0 ]]; then "$@"; fi
 }
 
-# Aviso si falta el router main/ (no versionado): sin él el runtime no arranca
-# y TODAS las funciones devuelven 500 vía Kong.
-if [[ ! -f "$ROOT/docker/volumes/functions/main/index.ts" ]]; then
-  echo "⚠  Falta docker/volumes/functions/main/index.ts (router del Edge Runtime)."
-  echo "   Sin él el contenedor 'functions' no levanta. Cópialo del upstream antes de continuar."
+# Archivos sin los que el stack NO arranca. Estuvieron sin versionar y docker
+# los creaba como directorios vacíos: vector entraba en bucle de reinicio y el
+# resto de servicios caía detrás, con un error que no señalaba la causa.
+faltan=()
+for f in \
+  docker/volumes/functions/main/index.ts \
+  docker/volumes/api/kong.yml \
+  docker/volumes/logs/vector.yml \
+  docker/volumes/pooler/pooler.exs \
+  docker/volumes/db/roles.sql \
+  docker/volumes/db/jwt.sql \
+  docker/volumes/db/realtime.sql \
+  docker/volumes/db/webhooks.sql \
+  docker/volumes/db/logs.sql \
+  docker/volumes/db/pooler.sql \
+  docker/volumes/db/_supabase.sql
+do
+  [[ -f "$ROOT/$f" ]] || faltan+=("$f")
+done
+if [[ ${#faltan[@]} -gt 0 ]]; then
+  echo "✘ Faltan archivos de configuración del stack:" >&2
+  printf '    %s\n' "${faltan[@]}" >&2
+  echo "  Sin ellos docker los crea como DIRECTORIOS y el stack no levanta." >&2
+  echo "  Recupéralos del repositorio (git checkout docker/volumes) antes de continuar." >&2
+  exit 1
+fi
+
+# Los scripts de db/ solo se ejecutan al inicializar el volumen por primera vez.
+# Si ya existe data/ pero los roles no están, los servicios fallarán con
+# "password authentication failed": es más útil avisarlo aquí.
+if [[ -d "$ROOT/docker/volumes/db/data" && ! -f "$ROOT/docker/volumes/db/roles.sql" ]]; then
+  echo "⚠  El volumen de datos existe pero faltan los scripts de init." >&2
 fi
 
 echo "==> [0/5] Pre-vuelo"
@@ -142,6 +169,21 @@ fi
 
 if [[ "$DO_FUNCTIONS" -eq 1 ]]; then
   echo "==> [4/5] Recargando Edge Functions"
+
+  # Las funciones se escriben en supabase/functions/ pero el contenedor monta
+  # docker/volumes/functions/. Sin sincronizar, se despliega lo que hubiera ahí
+  # de antes: en la instalación de aprendo.mx había 5 funciones viejas frente a
+  # las 13 del repositorio, y ninguna de las correcciones de autenticación
+  # llegaba al runtime.
+  echo "    Sincronizando supabase/functions -> docker/volumes/functions"
+  for fn in "$ROOT"/supabase/functions/*/; do
+    nombre="$(basename "$fn")"
+    run rm -rf "$ROOT/docker/volumes/functions/$nombre"
+    run cp -r "$fn" "$ROOT/docker/volumes/functions/$nombre"
+  done
+  if [[ -f "$ROOT/supabase/functions/deno.json" ]]; then
+    run cp "$ROOT/supabase/functions/deno.json" "$ROOT/docker/volumes/functions/"
+  fi
   run compose restart functions
   echo "    --- logs recientes de functions ---"
   if [[ "$DRY_RUN" -eq 0 ]]; then compose logs --tail=30 functions || true; fi
@@ -203,16 +245,39 @@ else
     echo "    ✔ Todas las tablas de public tienen RLS habilitado"
   fi
 
-  # --- 4. Los roles de perfiles siguen blindados (migración 057) ---
-  escribible="$(compose exec -T db psql -U postgres -d postgres -At -c \
-    "select has_column_privilege('authenticated', 'public.perfiles', 'es_admin', 'UPDATE');" \
-    2>/dev/null || echo '?')"
-  if [[ "$escribible" == "t" ]]; then
-    echo "    ✘ 'authenticated' puede escribir perfiles.es_admin: escalada de privilegios abierta." >&2
-    problemas=$((problemas + 1))
-  elif [[ "$escribible" == "f" ]]; then
-    echo "    ✔ perfiles.es_admin no es escribible por 'authenticated'"
-  fi
+  # --- 4. La escalada de privilegios sigue bloqueada ---
+  # Se comprueba FUNCIONALMENTE, no con has_column_privilege: ese devuelve true
+  # aunque el sistema esté protegido, porque Supabase concede UPDATE a nivel de
+  # tabla y un revoke de columna no lo anula. Lo que bloquea de verdad es el
+  # trigger perfiles_guard_roles (migraciones 057 y 069), así que se prueba
+  # intentando la escalada dentro de una transacción que luego se revierte.
+  escalada="$(compose exec -T db psql -U postgres -d postgres -At <<'SQL' 2>/dev/null || echo '?'
+begin;
+insert into auth.users (id, email)
+  values ('00000000-dead-4beef-8000-000000000001', 'verificacion@local')
+  on conflict (id) do nothing;
+insert into public.perfiles (id, nombres, apellido_paterno, correo)
+  values ('00000000-dead-4beef-8000-000000000001', 'Verificacion', 'Despliegue', 'verificacion@local')
+  on conflict (id) do nothing;
+do $guard$
+begin
+  set local role authenticated;
+  set local request.jwt.claim.sub = '00000000-dead-4beef-8000-000000000001';
+  update public.perfiles set es_admin = true where id = auth.uid();
+  reset role;
+exception when others then reset role;
+end $guard$;
+select coalesce((select es_admin from public.perfiles
+                  where id = '00000000-dead-4beef-8000-000000000001'), false)::text;
+rollback;
+SQL
+)"
+  case "$escalada" in
+    *t*) echo "    ✘ ESCALADA ABIERTA: un usuario puede hacerse administrador." >&2
+         problemas=$((problemas + 1)) ;;
+    *f*) echo "    ✔ La escalada a administrador está bloqueada (probada en vivo)" ;;
+    *)   echo "    ⚠  No se pudo comprobar la escalada de privilegios." ;;
+  esac
 fi
 
 if [[ "$problemas" -gt 0 ]]; then
