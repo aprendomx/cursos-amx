@@ -49,6 +49,7 @@ export function useAdminNavigation() {
       : []),
     { key: 'constancias', label: 'Constancias' },
     { key: 'funcionarios', label: 'Funcionarios' },
+    { key: 'disenos', label: 'Diseños' },
     ...(featureEnabled('reportes_avanzados') ? [{ key: 'reportes', label: 'Reportes' }] : []),
     ...(featureEnabled('notificaciones')
       ? [{ key: 'notificaciones', label: 'Notificaciones' }]
