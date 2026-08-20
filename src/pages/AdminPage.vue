@@ -7,6 +7,7 @@ import AdminInstructorManager from '@/components/AdminInstructorManager.vue'
 import AdminConstancias from '@/components/AdminConstancias.vue'
 import AdminReportes from '@/components/AdminReportes.vue'
 import AdminConfig from '@/components/AdminConfig.vue'
+import AdminModulos from '@/components/AdminModulos.vue'
 import AdminRubricaManager from '@/components/AdminRubricaManager.vue'
 import AdminCohortManager from '@/components/AdminCohortManager.vue'
 import AdminBadgeManager from '@/components/AdminBadgeManager.vue'
@@ -120,6 +121,7 @@ function handleDeleted(curso) {
 
       <AdminReportes v-else-if="activeSection === 'reportes'" :session="session" />
 
+      <AdminModulos v-else-if="activeSection === 'modulos'" />
       <AdminConfig v-else-if="activeSection === 'config'" />
 
       <AdminRubricaManager v-else-if="activeSection === 'rubricas'" />

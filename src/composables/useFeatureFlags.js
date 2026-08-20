@@ -1,6 +1,6 @@
 import { ref, readonly } from 'vue'
 import { supabase } from '@/lib/supabase.js'
-import { FEATURES } from '@/lib/featureFlags.js'
+import { featureEnabled, setRuntimeFlags } from '@/lib/featureFlags.js'
 
 const runtimeFlags = ref(null)
 const loaded = ref(false)
@@ -37,6 +37,10 @@ export async function loadFeatureFlags() {
     cache = map
     cacheTs = now
     runtimeFlags.value = map
+    // Publica los flags en la capa síncrona: es lo que hace que los ~90
+    // sitios que llaman featureEnabled() vean el valor de la base y no el
+    // de build-time.
+    setRuntimeFlags(map)
     loaded.value = true
     return map
   } catch (e) {
@@ -51,12 +55,9 @@ export async function loadFeatureFlags() {
   }
 }
 
+// Se conserva por compatibilidad: delega en la única implementación.
 export function isEnabled(key) {
-  // Prioridad: runtime > build-time
-  if (runtimeFlags.value && key in runtimeFlags.value) {
-    return runtimeFlags.value[key] === true
-  }
-  return FEATURES[key] === true
+  return featureEnabled(key)
 }
 
 export function useFeatureFlags() {
