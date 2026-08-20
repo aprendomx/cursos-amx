@@ -145,13 +145,15 @@ export default defineConfig(async ({ mode }) => {
         reporter: ['text-summary', 'html', 'lcov'],
         include: ['src/**/*.{js,ts,vue}'],
         exclude: ['src/test/**', 'src/**/*.{test,spec}.{js,ts}', 'src/sw.js', 'src/main.js'],
-        // Trinquete: apenas debajo de la cobertura actual (~35% líneas).
-        // Subir gradualmente hacia ~60% conforme se añadan tests.
+        // Trinquete: apenas debajo de la cobertura actual (~42% líneas).
+        // Solo sube; cada vez que una tanda de pruebas mueva el número, se
+        // ajusta aquí para que lo ganado no se pueda perder sin darse cuenta.
+        // Objetivo: ~60%. Lo más flojo hoy es src/components (34.8%).
         thresholds: {
-          statements: 31,
-          branches: 23,
-          functions: 29,
-          lines: 33,
+          statements: 39,
+          branches: 31,
+          functions: 35,
+          lines: 41,
         },
       },
     },
