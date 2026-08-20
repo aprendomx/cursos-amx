@@ -1,108 +1,223 @@
 -- supabase/test/00_supabase_stubs.sql
--- Mínimo indispensable para aplicar supabase/migrations/*.sql contra un
--- PostgreSQL "pelado" (CI, o un psql local) sin levantar el stack completo.
--- NO usar en producción: en una instalación real todo esto lo provee Supabase.
+-- Mínimo indispensable para aplicar supabase/migrations/*.sql fuera del stack
+-- completo de Supabase.
 --
--- Uso:
---   psql "$DB" -v ON_ERROR_STOP=1 -f supabase/test/00_supabase_stubs.sql
---   for f in supabase/migrations/0*.sql; do psql "$DB" -v ON_ERROR_STOP=1 -1 -f "$f"; done
+-- Tiene que funcionar en DOS entornos muy distintos:
+--
+--   1. Un PostgreSQL "pelado" (psql local, contenedor postgres a secas), donde
+--      no existe nada de Supabase y hay que fabricarlo todo.
+--   2. La imagen supabase/postgres, donde `auth`, `storage`, `cron` y los roles
+--      YA existen, pertenecen a otros dueños y el usuario `postgres` NO tiene
+--      permiso de creación sobre ellos.
+--
+-- Por eso todo va condicionado a que el objeto falte, y las concesiones se
+-- envuelven para tolerar `insufficient_privilege`: en el entorno 2 no hacen
+-- falta, porque el stack real ya las otorgó.
+--
+-- NO usar en producción.
 
-create schema if not exists auth;
-create schema if not exists storage;
+-- ---------------------------------------------------------------------
+-- Schemas
+-- ---------------------------------------------------------------------
+do $$
+begin
+  create schema if not exists auth;
+exception when insufficient_privilege then null;
+end $$;
+
+do $$
+begin
+  create schema if not exists storage;
+exception when insufficient_privilege then null;
+end $$;
+
 create schema if not exists extensions;
-create schema if not exists cron;
 
+do $$
+begin
+  create schema if not exists cron;
+exception when insufficient_privilege then null;
+end $$;
+
+-- pgcrypto: las migraciones lo invocan como `extensions.gen_random_bytes`,
+-- porque en Supabase vive en el schema `extensions` (ver la nota de la
+-- migración 012). Si la instalación local lo dejó en `public`, se tiende un
+-- puente en vez de fallar: dónde acabó instalado es accidental.
 create extension if not exists pgcrypto with schema extensions;
 create extension if not exists pgcrypto;
 
 do $$
 begin
-  create role anon;                exception when duplicate_object then null;
+  if to_regprocedure('extensions.gen_random_bytes(integer)') is null
+     and to_regprocedure('public.gen_random_bytes(integer)') is not null then
+    execute $f$
+      create function extensions.gen_random_bytes(integer) returns bytea
+      language sql volatile as $b$ select public.gen_random_bytes($1) $b$
+    $f$;
+  end if;
 end $$;
+
+-- ---------------------------------------------------------------------
+-- Roles de PostgREST
+-- ---------------------------------------------------------------------
+do $$ begin create role anon;         exception when duplicate_object then null; end $$;
+do $$ begin create role authenticated; exception when duplicate_object then null; end $$;
+do $$ begin create role service_role;  exception when duplicate_object then null; end $$;
+
+-- ---------------------------------------------------------------------
+-- auth
+-- ---------------------------------------------------------------------
+-- Solo si no existe ya la tabla real de GoTrue.
 do $$
 begin
-  create role authenticated;       exception when duplicate_object then null;
+  if to_regclass('auth.users') is null then
+    create table auth.users (
+      id                 uuid primary key default gen_random_uuid(),
+      email              text,
+      raw_user_meta_data jsonb,
+      encrypted_password text,
+      created_at         timestamptz default now()
+    );
+  end if;
+exception when insufficient_privilege then null;
 end $$;
+
+-- auth.uid() lee el claim que PostgREST inyecta por petición. La versión real
+-- de Supabase lee exactamente el mismo GUC, así que si ya existe se respeta.
+-- En pruebas se simula con:  set local request.jwt.claim.sub = '<uuid>';
 do $$
 begin
-  create role service_role;        exception when duplicate_object then null;
+  if to_regprocedure('auth.uid()') is null then
+    execute $f$
+      create function auth.uid() returns uuid language sql stable as
+      $b$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $b$
+    $f$;
+  end if;
+exception when insufficient_privilege then null;
 end $$;
 
--- ---------- auth ----------
-create table if not exists auth.users (
-  id                 uuid primary key default gen_random_uuid(),
-  email              text,
-  raw_user_meta_data jsonb,
-  encrypted_password text,
-  created_at         timestamptz default now()
-);
+do $$
+begin
+  if to_regprocedure('auth.role()') is null then
+    execute $f$
+      create function auth.role() returns text language sql stable as
+      $b$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon') $b$
+    $f$;
+  end if;
+exception when insufficient_privilege then null;
+end $$;
 
--- auth.uid() lee el claim que PostgREST inyecta por petición. En pruebas se
--- simula con:  set local request.jwt.claim.sub = '<uuid>';
-create or replace function auth.uid() returns uuid
-  language sql stable as $$
-  select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid
-$$;
+do $$
+begin
+  if to_regprocedure('auth.jwt()') is null then
+    execute $f$
+      create function auth.jwt() returns jsonb language sql stable as
+      $b$ select '{}'::jsonb $b$
+    $f$;
+  end if;
+exception when insufficient_privilege then null;
+end $$;
 
-create or replace function auth.role() returns text
-  language sql stable as $$
-  select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon')
-$$;
+-- ---------------------------------------------------------------------
+-- storage
+-- ---------------------------------------------------------------------
+do $$
+begin
+  if to_regclass('storage.buckets') is null then
+    create table storage.buckets (
+      id                 text primary key,
+      name               text,
+      public             boolean,
+      file_size_limit    bigint,
+      allowed_mime_types text[],
+      created_at         timestamptz default now()
+    );
+  end if;
 
-create or replace function auth.jwt() returns jsonb
-  language sql stable as $$ select '{}'::jsonb $$;
+  if to_regclass('storage.objects') is null then
+    create table storage.objects (
+      id         uuid primary key default gen_random_uuid(),
+      bucket_id  text,
+      name       text,
+      owner      uuid,
+      created_at timestamptz default now(),
+      metadata   jsonb
+    );
+    alter table storage.objects enable row level security;
+  end if;
 
--- ---------- storage ----------
-create table if not exists storage.buckets (
-  id                 text primary key,
-  name               text,
-  public             boolean,
-  file_size_limit    bigint,
-  allowed_mime_types text[],
-  created_at         timestamptz default now()
-);
+  if to_regprocedure('storage.foldername(text)') is null then
+    execute $f$
+      create function storage.foldername(name text) returns text[]
+      language sql immutable as $b$ select string_to_array(name, '/') $b$
+    $f$;
+  end if;
 
-create table if not exists storage.objects (
-  id         uuid primary key default gen_random_uuid(),
-  bucket_id  text,
-  name       text,
-  owner      uuid,
-  created_at timestamptz default now(),
-  metadata   jsonb
-);
-alter table storage.objects enable row level security;
+  if to_regprocedure('storage.filename(text)') is null then
+    execute $f$
+      create function storage.filename(name text) returns text
+      language sql immutable as $b$ select split_part(name, '/', -1) $b$
+    $f$;
+  end if;
+exception when insufficient_privilege then null;
+end $$;
 
-create or replace function storage.foldername(name text) returns text[]
-  language sql immutable as $$ select string_to_array(name, '/') $$;
+-- ---------------------------------------------------------------------
+-- pg_cron / pg_net
+-- ---------------------------------------------------------------------
+-- En la imagen de Supabase las extensiones reales existen; fuera de ella se
+-- fabrican firmas compatibles para que las migraciones no revienten.
+do $$
+begin
+  if to_regprocedure('cron.schedule(text,text,text)') is null then
+    execute $f$
+      create function cron.schedule(text, text, text) returns bigint
+      language sql as $b$ select 1::bigint $b$
+    $f$;
+  end if;
 
-create or replace function storage.filename(name text) returns text
-  language sql immutable as $$ select split_part(name, '/', -1) $$;
+  if to_regprocedure('cron.unschedule(text)') is null then
+    execute $f$
+      create function cron.unschedule(text) returns boolean
+      language sql as $b$ select true $b$
+    $f$;
+  end if;
+exception when insufficient_privilege then null;
+end $$;
 
--- ---------- pg_cron / pg_net (no disponibles fuera de la imagen de Supabase) ----------
-create or replace function cron.schedule(text, text, text) returns bigint
-  language sql as $$ select 1::bigint $$;
-create or replace function cron.unschedule(text) returns boolean
-  language sql as $$ select true $$;
-
--- ---------- realtime ----------
+-- ---------------------------------------------------------------------
+-- Realtime
+-- ---------------------------------------------------------------------
 do $$
 begin
   create publication supabase_realtime;
-exception when duplicate_object then null;
+exception
+  when duplicate_object then null;
+  when insufficient_privilege then null;
 end $$;
 
--- ---------- GRANTs por defecto de Supabase ----------
--- Reproduce lo que hace el bootstrap de Supabase sobre el schema public.
--- Es importante que estén: sin ellos las pruebas de RLS darían "permission
--- denied" por GRANT y no por política, y no probarían nada.
-grant usage on schema public  to anon, authenticated, service_role;
-grant usage on schema auth     to anon, authenticated, service_role;
-grant usage on schema storage  to anon, authenticated, service_role;
-grant execute on function auth.uid(), auth.role(), auth.jwt()
-  to anon, authenticated, service_role;
-alter default privileges in schema public
-  grant all on tables to anon, authenticated, service_role;
-alter default privileges in schema public
-  grant all on sequences to anon, authenticated, service_role;
-alter default privileges in schema public
-  grant execute on functions to anon, authenticated, service_role;
+-- ---------------------------------------------------------------------
+-- GRANTs por defecto de Supabase
+-- ---------------------------------------------------------------------
+-- Importa que estén: sin ellos las pruebas de RLS darían "permission denied"
+-- por GRANT y no por política, y no probarían nada. En la imagen real ya están
+-- otorgados y estas sentencias son inocuas.
+do $$
+begin
+  grant usage on schema public  to anon, authenticated, service_role;
+  grant usage on schema auth    to anon, authenticated, service_role;
+  grant usage on schema storage to anon, authenticated, service_role;
+exception when insufficient_privilege then null;
+end $$;
+
+do $$
+begin
+  grant execute on function auth.uid()  to anon, authenticated, service_role;
+  grant execute on function auth.role() to anon, authenticated, service_role;
+  grant execute on function auth.jwt()  to anon, authenticated, service_role;
+exception when insufficient_privilege then null;
+end $$;
+
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
