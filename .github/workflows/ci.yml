@@ -174,14 +174,27 @@ jobs:
       - name: Install psql client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      # Se aplica sobre la base `postgres`, no sobre una creada aparte, por dos
-      # razones: es lo que hace scripts/migrate.sh en producción, y pg_cron solo
-      # se puede instalar en la base que indica cron.database_name (por defecto
-      # `postgres`). En cualquier otra, las migraciones 051 y 052 fallan con
-      # "can only create extension in database postgres".
+      - name: Create test database
+        env:
+          PGPASSWORD: postgres
+        run: psql -h localhost -p 55432 -U postgres -c "create database amx_test;"
+
+      # Base nueva, no la `postgres` de la imagen: ahí `auth` y `storage` ya
+      # existen, pertenecen a supabase_auth_admin / supabase_storage_admin y el
+      # usuario `postgres` de esta imagen no puede alterarlas —storage.buckets
+      # llega además sin las columnas que usan las migraciones 016/019/020/025—.
+      #
+      # STUB_EXTENSIONS=1 neutraliza `create extension pg_cron/pg_net`, que solo
+      # se pueden instalar en la base que indica cron.database_name. Los stubs
+      # aportan firmas compatibles de cron.schedule/unschedule.
+      #
+      # LO QUE ESTO NO CUBRE: que pg_cron y pg_net existan de verdad y que los
+      # jobs queden agendados. Se comprueba en el despliegue, donde
+      # scripts/deploy.sh verifica el esquema resultante.
       - name: Apply migrations and verify schema
         env:
-          DB_URL: postgres://postgres:postgres@localhost:55432/postgres
+          DB_URL: postgres://postgres:postgres@localhost:55432/amx_test
+          STUB_EXTENSIONS: '1'
         run: scripts/test-migrations.sh
 
   # Check agregado: la protección de la rama main exige un status llamado

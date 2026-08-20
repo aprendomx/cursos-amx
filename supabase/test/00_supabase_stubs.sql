@@ -110,14 +110,6 @@ begin
       allowed_mime_types text[],
       created_at         timestamptz default now()
     );
-  else
-    -- La imagen de Supabase trae `storage.buckets` pero con la forma mínima:
-    -- las columnas `public`, `file_size_limit` y `allowed_mime_types` las
-    -- añaden las migraciones del servicio de Storage, que en un contenedor
-    -- pelado no han corrido. Las migraciones 016, 019, 020 y 025 sí las usan.
-    alter table storage.buckets add column if not exists public boolean;
-    alter table storage.buckets add column if not exists file_size_limit bigint;
-    alter table storage.buckets add column if not exists allowed_mime_types text[];
   end if;
 
   if to_regclass('storage.objects') is null then
@@ -146,6 +138,24 @@ begin
     $f$;
   end if;
 exception when insufficient_privilege then null;
+end $$;
+
+-- Si `storage.buckets` ya venía creada pero con la forma mínima, le faltan las
+-- columnas que usan las migraciones 016, 019, 020 y 025 (las añaden las
+-- migraciones del servicio de Storage). Se intenta completarla; si no se puede
+-- —la tabla suele pertenecer a supabase_storage_admin— se avisa en vez de
+-- callar, porque el fallo aparecería después como un error confuso de columna.
+do $$
+begin
+  if to_regclass('storage.buckets') is not null then
+    alter table storage.buckets add column if not exists public boolean;
+    alter table storage.buckets add column if not exists file_size_limit bigint;
+    alter table storage.buckets add column if not exists allowed_mime_types text[];
+  end if;
+exception when insufficient_privilege then
+  raise warning
+    'No se pudo completar storage.buckets (dueño: otro rol). Las migraciones de '
+    'buckets fallarán. Usa una base nueva en vez de la que ya tiene Storage.';
 end $$;
 
 -- ---------------------------------------------------------------------
