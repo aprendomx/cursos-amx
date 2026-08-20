@@ -96,28 +96,6 @@ begin
 exception when insufficient_privilege then null;
 end $$;
 
-do $$
-begin
-  if to_regprocedure('auth.role()') is null then
-    execute $f$
-      create function auth.role() returns text language sql stable as
-      $b$ select coalesce(nullif(current_setting('request.jwt.claim.role', true), ''), 'anon') $b$
-    $f$;
-  end if;
-exception when insufficient_privilege then null;
-end $$;
-
-do $$
-begin
-  if to_regprocedure('auth.jwt()') is null then
-    execute $f$
-      create function auth.jwt() returns jsonb language sql stable as
-      $b$ select '{}'::jsonb $b$
-    $f$;
-  end if;
-exception when insufficient_privilege then null;
-end $$;
-
 -- ---------------------------------------------------------------------
 -- storage
 -- ---------------------------------------------------------------------
@@ -202,19 +180,27 @@ end $$;
 -- Importa que estén: sin ellos las pruebas de RLS darían "permission denied"
 -- por GRANT y no por política, y no probarían nada. En la imagen real ya están
 -- otorgados y estas sentencias son inocuas.
+-- Se concede solo sobre lo que existe y solo si se puede: en la imagen real
+-- estos permisos ya están dados y el usuario que corre las migraciones no es
+-- dueño de `auth` ni de `storage`.
 do $$
+declare sch text;
 begin
-  grant usage on schema public  to anon, authenticated, service_role;
-  grant usage on schema auth    to anon, authenticated, service_role;
-  grant usage on schema storage to anon, authenticated, service_role;
-exception when insufficient_privilege then null;
+  foreach sch in array array['public', 'auth', 'storage'] loop
+    if exists (select 1 from information_schema.schemata where schema_name = sch) then
+      begin
+        execute format('grant usage on schema %I to anon, authenticated, service_role', sch);
+      exception when insufficient_privilege then null;
+      end;
+    end if;
+  end loop;
 end $$;
 
 do $$
 begin
-  grant execute on function auth.uid()  to anon, authenticated, service_role;
-  grant execute on function auth.role() to anon, authenticated, service_role;
-  grant execute on function auth.jwt()  to anon, authenticated, service_role;
+  if to_regprocedure('auth.uid()') is not null then
+    grant execute on function auth.uid() to anon, authenticated, service_role;
+  end if;
 exception when insufficient_privilege then null;
 end $$;
 
