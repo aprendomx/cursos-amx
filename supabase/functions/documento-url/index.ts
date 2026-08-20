@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
-import { checkRateLimit } from '../_shared/rateLimit.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const PUBLIC_URL = Deno.env.get('SUPABASE_PUBLIC_URL') || SUPABASE_URL
@@ -15,13 +15,17 @@ function toPublic(url: string): string {
 }
 
 serve(async (req) => {
-  const rl = checkRateLimit(req)
+  const rl = await checkRateLimit(req, {
+    scope: 'documento-url',
+    max: 60,
+    ventanaSeg: 60,
+    client: createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    ),
+  })
   if (!rl.allowed) {
-    return json({ error: 'too many requests' }, 429, {
-      'x-ratelimit-remaining': '0',
-      'x-ratelimit-reset': String(Math.ceil(rl.resetAt / 1000)),
-      'retry-after': String(rl.retryAfter ?? 60),
-    })
+    return rateLimitResponse(rl, corsHeaders)
   }
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })

@@ -1,7 +1,8 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
-import { checkRateLimit } from '../_shared/rateLimit.ts'
+import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
+import { issuePlayToken, playTokenSecret, PLAY_TOKEN_TTL_SECONDS } from '../_shared/playToken.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 // Public URL the browser can reach. SUPABASE_URL inside the functions
@@ -20,13 +21,17 @@ function toPublic(url: string): string {
 }
 
 serve(async (req) => {
-  const rl = checkRateLimit(req)
+  const rl = await checkRateLimit(req, {
+    scope: 'hls-playlist-url',
+    max: 60,
+    ventanaSeg: 60,
+    client: createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    ),
+  })
   if (!rl.allowed) {
-    return json({ error: 'too many requests' }, 429, {
-      'x-ratelimit-remaining': '0',
-      'x-ratelimit-reset': String(Math.ceil(rl.resetAt / 1000)),
-      'retry-after': String(rl.retryAfter ?? 60),
-    })
+    return rateLimitResponse(rl, corsHeaders)
   }
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
@@ -66,17 +71,33 @@ serve(async (req) => {
     // Master URL points at the hls-playlist proxy so playlist URIs can
     // be rewritten on every request with fresh signed segment URLs.
     // Must use the public URL — the browser fetches this directly.
+    //
+    // El parámetro `t` lleva un token EFÍMERO de reproducción, no el JWT de
+    // sesión. Ver _shared/playToken.ts: una URL de manifest acaba en el
+    // historial, en Referer y en los logs de todos los proxies del camino;
+    // con el JWT dentro, cada una era una credencial completa de la sesión.
+    const secret = playTokenSecret()
+    if (!secret) return json({ error: 'servidor mal configurado' }, 500)
+
+    const { data: userData } = await userClient.auth.getUser()
+    const userId = userData?.user?.id
+    if (!userId) return json({ error: 'unauthorized' }, 401)
+
+    const playToken = await issuePlayToken(video_id, userId, secret)
+
     const master_url =
       `${PUBLIC_URL}/functions/v1/hls-playlist` +
       `?video=${encodeURIComponent(video_id)}` +
       `&path=master.m3u8` +
-      `&t=${encodeURIComponent(jwt)}`
+      `&t=${encodeURIComponent(playToken)}`
 
     return json({
       master_url,
       poster_url: toPublic(poster.signedUrl),
       duracion_seg: row.duracion_seg,
-      expires_in: SIGNED_TTL,
+      // El manifest deja de servir antes que las URLs firmadas: el cliente
+      // debe volver a pedir playback cuando caduque el token.
+      expires_in: Math.min(SIGNED_TTL, PLAY_TOKEN_TTL_SECONDS),
     })
   } catch (err) {
     return json({ error: String(err) }, 500)
