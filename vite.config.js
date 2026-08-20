@@ -44,6 +44,19 @@ export default defineConfig(async ({ mode }) => {
       strategies: 'injectManifest',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Los chunks pesados de rutas concretas NO se precachean: si no, el
+        // service worker descarga en segundo plano el generador de PDF, el
+        // editor de texto enriquecido y el reproductor HLS a todo el mundo,
+        // incluido quien solo va a ver el catálogo. Se cachean bajo demanda
+        // con la estrategia 'assets' de src/sw.js la primera vez que se usan.
+        globIgnores: [
+          '**/assets/pdf-*.js',
+          '**/assets/editor-*.js',
+          '**/assets/video-*.js',
+          '**/assets/dnd-*.js',
+          '**/assets/upload-*.js',
+          '**/assets/charts-*.js',
+        ],
       },
       manifest: {
         name: `${theme.app.name} · ${theme.app.tagline}`,
@@ -83,14 +96,41 @@ export default defineConfig(async ({ mode }) => {
       chunkSizeWarningLimit: 600,
       rollupOptions: {
         output: {
+          // El reparto anterior mandaba a 'vendor' todo lo que no fuera
+          // supabase, hls.js o lodash/dayjs/marked. Ahí caían TipTap (6
+          // paquetes), chart.js, html2pdf.js, qrcode.vue, idb, tus-js-client y
+          // vue-i18n: 1.9 MB que se descargaban para ver la landing.
+          //
+          // Ahora cada dependencia pesada tiene su chunk. Como además solo la
+          // usan rutas diferidas, el navegador únicamente la pide cuando hace
+          // falta de verdad.
           manualChunks(id) {
-            if (id.includes('node_modules')) {
-              if (/vue|pinia|vue-router/.test(id)) return 'vendor'
-              if (/supabase|@supabase/.test(id)) return 'db'
-              if (/lodash|dayjs|marked/.test(id)) return 'utils'
-              if (/hls\.js/.test(id)) return 'video'
+            if (!id.includes('node_modules')) return
+
+            // Editor de texto enriquecido: reproductor de lecciones de texto
+            // y constructor de cursos.
+            if (/@tiptap|prosemirror/.test(id)) return 'editor'
+            // Gráficas: solo el tablero de administración.
+            if (/chart\.js|@kurkle/.test(id)) return 'charts'
+            // Generación de PDF y QR: solo la página de constancia.
+            if (/html2pdf|html2canvas|jspdf|qrcode/.test(id)) return 'pdf'
+            // Subida reanudable: solo los formularios de carga.
+            if (/tus-js-client/.test(id)) return 'upload'
+            // Arrastrar y soltar: solo el constructor de cursos.
+            if (/sortablejs|vue-draggable-plus/.test(id)) return 'dnd'
+            // Reproductor HLS.
+            if (/hls\.js/.test(id)) return 'video'
+            // Cliente de base de datos.
+            if (/supabase|@supabase/.test(id)) return 'db'
+            // Almacenamiento sin conexión.
+            if (/\bidb\b/.test(id)) return 'offline'
+            if (/lodash|dayjs|marked/.test(id)) return 'utils'
+
+            // El núcleo del framework: esto sí lo necesita toda pantalla.
+            if (/[\\/]node_modules[\\/](vue|pinia|vue-router|vue-i18n|@vue)[\\/]/.test(id)) {
               return 'vendor'
             }
+            return 'vendor'
           },
         },
       },
