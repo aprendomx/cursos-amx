@@ -488,6 +488,22 @@ select {
   outline-offset: 2px;
 }
 
+/* Contenido para lectores de pantalla, oculto a la vista.
+   No se usa `display: none` ni `visibility: hidden`: eso lo esconde TAMBIÉN
+   del lector, que es lo contrario de lo que se busca. La técnica es sacarlo
+   del flujo con un recorte de 1px, que es lo que reconocen. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ----- Movimiento reducido (WCAG 2.1 §2.3.3) -----
    No había ninguna regla: quien tiene configurado "reducir movimiento" en su
    sistema —por trastorno vestibular, migraña o simple preferencia— recibía

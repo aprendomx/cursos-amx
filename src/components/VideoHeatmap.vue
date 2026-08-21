@@ -31,6 +31,23 @@ const timeLabels = computed(() => {
     { label: formatTime(total), pct: 100 },
   ]
 })
+
+// El `title` de cada barra da el dato al pasar el ratón, pero no existe para
+// un lector de pantalla ni en pantalla táctil. Este resumen es la lectura de
+// conjunto: dónde se concentra el abandono, que es lo que el mapa comunica.
+const resumenAccesible = computed(() => {
+  if (!props.data?.length) return 'Sin datos de reproducción.'
+  const abandonos = props.data.map((b) => b.abandonos ?? 0)
+  const max = Math.max(...abandonos)
+  const pico = props.data[abandonos.indexOf(max)]
+  const vistas = props.data.reduce((a, b) => a + (b.vistas_unicas ?? 0), 0)
+  return (
+    `Mapa de reproducción del video: ${vistas} vistas en ${props.data.length} intervalos. ` +
+    (max > 0
+      ? `Mayor abandono en el minuto ${formatTime(pico.intervalo_inicio)}, con ${max}.`
+      : 'Sin abandonos registrados.')
+  )
+})
 </script>
 
 <template>
@@ -39,7 +56,7 @@ const timeLabels = computed(() => {
       <p class="eyebrow">Intensidad de visualización</p>
     </div>
     <div :style="{ padding: 'calc(var(--unit) * 2.5)' }">
-      <div v-if="data.length" class="heatmap-track">
+      <div v-if="data.length" class="heatmap-track" role="img" :aria-label="resumenAccesible">
         <div
           v-for="bucket in data"
           :key="bucket.intervalo_inicio"

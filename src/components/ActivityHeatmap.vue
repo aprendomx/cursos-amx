@@ -39,6 +39,10 @@ function cellColor(value, key) {
       <p class="eyebrow">Mapa de actividad</p>
     </div>
     <table v-if="engagement.length" class="admin-table admin-table-full">
+      <caption class="solo-lectores">
+        Mapa de actividad por fecha. La intensidad del color indica el volumen; cada celda incluye
+        su valor.
+      </caption>
       <thead>
         <tr>
           <th class="mono">Fecha</th>
@@ -53,11 +57,16 @@ function cellColor(value, key) {
             {{ row.fecha }}
           </td>
           <td v-for="col in columns" :key="col.key">
+            <!-- El valor va en el DOM, no solo en el `title`: la celda era un
+                 div de color vacío, así que un lector de pantalla recorría la
+                 tabla encontrando celdas sin contenido. -->
+            <span class="solo-lectores">{{ col.label }}: {{ row[col.key] ?? 0 }}</span>
             <div
+              aria-hidden="true"
               :style="{
                 width: '100%',
                 height: '28px',
-                borderRadius: '2px',
+                borderRadius: 'var(--radius-sm)',
                 background: cellColor(row[col.key], col.key),
                 opacity: cellOpacity(row[col.key], col.key),
                 transition: 'opacity 200ms var(--ease)',
