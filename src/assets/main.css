@@ -545,6 +545,12 @@ h4 {
 .field input,
 .field select,
 .field textarea {
+  /* width + min-width: sin ellos, la anchura INTRÍNSECA del input (atributo
+     size × métrica de la fuente serif, que en Linux es más ancha que en
+     macOS) manda sobre la columna y desbordaba el registro a 375px — solo en
+     CI, que es donde se vio. El campo se adapta a su sitio, nunca lo dicta. */
+  width: 100%;
+  min-width: 0;
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
