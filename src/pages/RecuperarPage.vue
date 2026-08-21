@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import IconSet from '@/components/IconSet.vue'
 import { solicitarRestablecimiento } from '@/services/recuperacion.js'
+import { theme } from '@/lib/theme.js'
 
 const router = useRouter()
 const correo = ref('')
@@ -23,13 +24,26 @@ async function enviar() {
 </script>
 
 <template>
-  <div class="auth">
-    <section class="auth-panel">
-      <div class="auth-box">
-        <h1 class="auth-title">Recuperar contraseña</h1>
-        <p class="auth-subtitle">
-          Escribe tu correo institucional y te enviamos un enlace para elegir una contraseña nueva.
+  <div class="auth-shell">
+    <aside class="auth-aside" aria-hidden="true">
+      <div class="auth-aside-inner">
+        <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
+        <h2 class="auth-aside-quote">Recupera tu acceso <em>en dos pasos</em>.</h2>
+        <p class="auth-aside-meta">
+          {{ theme.org.name }}
         </p>
+      </div>
+    </aside>
+
+    <section class="auth-form-wrap fade-in" aria-labelledby="rec-titulo">
+      <div class="auth-form">
+        <header class="auth-header">
+          <p class="eyebrow">Recuperar contraseña</p>
+          <h1 id="rec-titulo" class="display">¿Olvidaste tu contraseña?</h1>
+          <p class="auth-subtitle">
+            Escribe tu correo institucional y te enviamos un enlace para elegir una nueva.
+          </p>
+        </header>
 
         <div class="auth-fields">
           <div class="field">
@@ -73,22 +87,3 @@ async function enviar() {
     </section>
   </div>
 </template>
-
-<style scoped>
-.auth-aviso {
-  margin-top: calc(var(--unit) * 2);
-  padding: 14px 18px;
-  background: var(--success-soft);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  font-size: var(--text-sm);
-  line-height: var(--leading-normal);
-}
-
-/* La instalación sin correo no es un éxito con otro texto: es otro estado. */
-.auth-aviso-problema {
-  background: var(--danger-soft);
-  border-color: var(--danger-line);
-  color: var(--danger);
-}
-</style>
