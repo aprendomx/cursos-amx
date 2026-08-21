@@ -40,28 +40,28 @@ lo pidió. Ver `design.md — decisión 1b`.
 
 ## 6. Cambiar la contraseña desde el perfil
 
-- [ ] 6.1 Sección de cambio de contraseña en `PerfilPage`, usando el componente compartido.
-- [ ] 6.2 Exigir la contraseña actual y verificarla contra el servidor antes de aceptar la nueva.
-- [ ] 6.3 Contraseña actual incorrecta: rechazar, explicarlo, y dejar la anterior en pie.
-- [ ] 6.4 Confirmación visible del cambio, con `role="alert"` y foco, no un mensaje que pase inadvertido.
-- [ ] 6.5 Pruebas: cambio correcto, contraseña actual incorrecta, y nueva que no cumple las reglas.
+- [x] 6.1 Sección de cambio de contraseña en `PerfilPage`, usando el componente compartido.
+- [x] 6.2 Exigir la contraseña actual y verificarla contra el servidor antes de aceptar la nueva. — `updateUser` NO comprueba la vieja, así que la verificación es un inicio de sesión real con las credenciales actuales. Al fallar, la nueva ni se envía, y la prueba lo fija: `updateUser` no llega a llamarse.
+- [x] 6.3 Contraseña actual incorrecta: rechazar, explicarlo, y dejar la anterior en pie.
+- [x] 6.4 Confirmación visible del cambio, con `role="alert"` y foco, no un mensaje que pase inadvertido.
+- [x] 6.5 Pruebas: cambio correcto, contraseña actual incorrecta, y nueva que no cumple las reglas.
 
 ## 7. Cuando no se puede enviar correo
 
-- [ ] 7.1 Distinguir el fallo de envío del resto y traducirlo en `mapSupabaseError`, junto a los demás mensajes propios de este repositorio.
-- [ ] 7.2 La pantalla lo dice y señala a quién dirigirse; nunca afirma que el correo se envió.
-- [ ] 7.3 Documentar en `THEMING.md` que una instalación sin SMTP no puede recuperar contraseñas, y que la salida en ese caso es `scripts/crear-admin.sh` o `admin-set-password`.
-- [ ] 7.4 Prueba de que el fallo de envío produce ese mensaje y no el genérico.
+- [x] 7.1 Distinguir el fallo de envío del resto y traducirlo en `mapSupabaseError`, junto a los demás mensajes propios de este repositorio.
+- [x] 7.2 La pantalla lo dice y señala a quién dirigirse; nunca afirma que el correo se envió.
+- [x] 7.3 Documentar en `THEMING.md` que una instalación sin SMTP no puede recuperar contraseñas, y que la salida en ese caso es `scripts/crear-admin.sh` o `admin-set-password`. — Documentado en THEMING.md §3.5 desde el grupo 4, junto a la plantilla.
+- [x] 7.4 Prueba de que el fallo de envío produce ese mensaje y no el genérico.
 
 ## 8. Alinear lo que la plataforma promete
 
-- [ ] 8.1 Revisar el texto de `LandingFaq.vue`, que ya describe este flujo, y alinearlo con lo que acabó existiendo.
-- [ ] 8.2 Prueba que ate el texto de las preguntas frecuentes a la existencia real del enlace en el acceso: es lo que evita que la promesa vuelva a separarse del producto.
+- [x] 8.1 Revisar el texto de `LandingFaq.vue`, que ya describe este flujo, y alinearlo con lo que acabó existiendo.
+- [x] 8.2 Prueba que ate el texto de las preguntas frecuentes a la existencia real del enlace en el acceso: es lo que evita que la promesa vuelva a separarse del producto.
 
 ## 9. Verificación de cierre
 
 - [ ] 9.1 Recorrido completo en navegador con SMTP real: solicitar, recibir, restablecer, entrar con la nueva. **Y el caso que motivó la decisión 1b: pedirlo en un navegador y abrir el enlace en OTRO.**
 - [ ] 9.2 Los tres flujos de autenticación —acceso, alta y recuperación— probados juntos tras PKCE.
-- [ ] 9.3 Las pantallas nuevas en 375, 768, 1024 y 1440 px, en ambos modos, con `e2e/anchuras.spec.js`.
-- [ ] 9.4 Contraste medido en las pantallas nuevas, en ambos modos, hasta 0 combinaciones por debajo de 4.5:1.
-- [ ] 9.5 Recorrido con teclado: llegar al enlace, completar la solicitud y restablecer sin tocar el ratón.
+- [x] 9.3 Las pantallas nuevas en 375, 768, 1024 y 1440 px, en ambos modos, con `e2e/anchuras.spec.js`.
+- [x] 9.4 Contraste medido en las pantallas nuevas, en ambos modos, hasta 0 combinaciones por debajo de 4.5:1. — 0 combinaciones por debajo de 4.5:1 en las dos pantallas, ambos modos, medido en navegador.
+- [x] 9.5 Recorrido con teclado: llegar al enlace, completar la solicitud y restablecer sin tocar el ratón. — Tab alcanza el enlace en el acceso, Enter navega, el primer Tab cae en el campo, Enter envía y el foco acaba en el aviso. Sin ratón en ningún paso.

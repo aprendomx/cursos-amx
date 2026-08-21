@@ -2,23 +2,38 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const resetPasswordForEmail = vi.fn()
 const verifyOtp = vi.fn()
+const signInWithPassword = vi.fn()
+const updateUser = vi.fn()
 vi.mock('@/lib/supabase.js', () => ({
   supabase: {
     auth: {
       resetPasswordForEmail: (...a) => resetPasswordForEmail(...a),
       verifyOtp: (...a) => verifyOtp(...a),
+      signInWithPassword: (...a) => signInWithPassword(...a),
+      updateUser: (...a) => updateUser(...a),
     },
   },
 }))
 
-let solicitarRestablecimiento, MENSAJE_ENVIADO, canjearEnlace, clasificarFalloDeEnlace
+let solicitarRestablecimiento,
+  MENSAJE_ENVIADO,
+  canjearEnlace,
+  clasificarFalloDeEnlace,
+  cambiarContrasena
 
 beforeEach(async () => {
   vi.resetModules()
   resetPasswordForEmail.mockReset()
   verifyOtp.mockReset()
-  ;({ solicitarRestablecimiento, MENSAJE_ENVIADO, canjearEnlace, clasificarFalloDeEnlace } =
-    await import('@/services/recuperacion.js'))
+  signInWithPassword.mockReset()
+  updateUser.mockReset()
+  ;({
+    solicitarRestablecimiento,
+    MENSAJE_ENVIADO,
+    canjearEnlace,
+    clasificarFalloDeEnlace,
+    cambiarContrasena,
+  } = await import('@/services/recuperacion.js'))
 })
 
 // El requisito de seguridad de este flujo: la respuesta tiene que ser la misma
@@ -132,5 +147,46 @@ describe('canjearEnlace', () => {
     const r = await canjearEnlace('abc123')
     expect(r.ok).toBe(false)
     expect(r.motivo).toBe('usado')
+  })
+})
+
+describe('cambiarContrasena', () => {
+  // `updateUser` NO comprueba la contraseña vieja. Sin la verificación previa,
+  // una sesión ajena momentáneamente desatendida basta para apropiarse de la
+  // cuenta: se cambia la contraseña y el dueño queda fuera.
+  it('verifica la actual CONTRA EL SERVIDOR antes de tocar nada', async () => {
+    signInWithPassword.mockResolvedValueOnce({ error: { message: 'Invalid login credentials' } })
+    const r = await cambiarContrasena('a@b.mx', 'equivocada', 'nuevaValida123')
+    expect(r.ok).toBe(false)
+    expect(r.campo).toBe('actual')
+    // Lo importante: la nueva NO llegó a guardarse.
+    expect(updateUser).not.toHaveBeenCalled()
+  })
+
+  it('con la actual correcta, guarda la nueva', async () => {
+    signInWithPassword.mockResolvedValueOnce({ error: null })
+    updateUser.mockResolvedValueOnce({ error: null })
+    const r = await cambiarContrasena('a@b.mx', 'laDeAhora123', 'laNueva12345')
+    expect(r.ok).toBe(true)
+    expect(signInWithPassword).toHaveBeenCalledWith({ email: 'a@b.mx', password: 'laDeAhora123' })
+    expect(updateUser).toHaveBeenCalledWith({ password: 'laNueva12345' })
+  })
+
+  it('dice QUÉ campo falló, para no obligar a adivinar entre las dos cajas', async () => {
+    signInWithPassword.mockResolvedValueOnce({ error: { message: 'Invalid login credentials' } })
+    const r1 = await cambiarContrasena('a@b.mx', 'mala', 'nuevaValida123')
+    expect(r1.campo).toBe('actual')
+    expect(r1.mensaje).toMatch(/actual/i)
+
+    signInWithPassword.mockResolvedValueOnce({ error: null })
+    updateUser.mockResolvedValueOnce({ error: { message: 'Password should be different' } })
+    const r2 = await cambiarContrasena('a@b.mx', 'buena', 'rechazada123')
+    expect(r2.campo).toBe('nueva')
+  })
+
+  it('al fallar la actual lo dice también de la nueva: no se guardó', async () => {
+    signInWithPassword.mockResolvedValueOnce({ error: { message: 'Invalid login credentials' } })
+    const r = await cambiarContrasena('a@b.mx', 'mala', 'nuevaValida123')
+    expect(r.mensaje).toMatch(/no se ha guardado/i)
   })
 })

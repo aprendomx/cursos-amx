@@ -7,6 +7,7 @@ import { tiempoPorUsuario, formatearDuracion } from '@/services/tiempo'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { useGamificacion } from '@/composables/useGamificacion.js'
 import IconSet from '@/components/IconSet.vue'
+import PerfilCambiarContrasena from '@/components/PerfilCambiarContrasena.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import PlaceholderImage from '@/components/PlaceholderImage.vue'
 import AppLogo from '@/components/AppLogo.vue'
@@ -530,6 +531,19 @@ function goToHome() {
         </span>
       </div>
     </footer>
+    <section class="container perfil-section">
+      <div class="perfil-section-header">
+        <span class="mono" :style="{ color: 'var(--ink-4)' }">04</span>
+        <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
+          Cambiar contrase&ntilde;a
+        </h2>
+      </div>
+      <PerfilCambiarContrasena
+        v-if="user?.correo"
+        :correo="user.correo"
+        :style="{ marginTop: 'calc(var(--unit) * 3)' }"
+      />
+    </section>
   </div>
 </template>
 

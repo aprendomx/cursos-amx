@@ -6,6 +6,7 @@
 // formulario en un detector de correos registrados, que es justo lo que no debe
 // ser. Por eso aquí NO se comprueba si el correo existe antes de pedir el envío.
 import { supabase } from '@/lib/supabase.js'
+import { mapSupabaseError } from '@/lib/errors'
 
 /** Lo que se responde siempre, haya cuenta o no. */
 export const MENSAJE_ENVIADO =
@@ -17,8 +18,10 @@ export const MENSAJE_ENVIADO =
  * la persona esperando un correo que nunca va a llegar.
  */
 function esFalloDeEnvio(error) {
-  const msg = String(error?.message || '')
-  return /smtp|mail|email.*(send|deliver)|error sending/i.test(msg)
+  // La detección vive en mapSupabaseError, junto a los demás casos propios de
+  // este repositorio: dos copias de la misma expresión regular acabarían
+  // reconociendo cosas distintas.
+  return mapSupabaseError(error).code === 'MAIL_UNAVAILABLE'
 }
 
 /**
@@ -99,4 +102,41 @@ export function clasificarFalloDeEnlace(error) {
     mensaje:
       'Este enlace no es válido. Puede que esté incompleto por cómo lo abrió tu cliente de correo; pide uno nuevo.',
   }
+}
+
+/**
+ * Cambia la contraseña de quien tiene la sesión abierta.
+ *
+ * Exige la contraseña actual y la VERIFICA CONTRA EL SERVIDOR antes de aceptar
+ * la nueva: `updateUser` no la comprueba, así que sin este paso una sesión
+ * ajena momentáneamente desatendida bastaría para apropiarse de la cuenta. La
+ * verificación es un inicio de sesión real con las credenciales actuales — no
+ * hay atajo del lado del cliente que valga como comprobación.
+ *
+ * @param {string} correo el de la sesión abierta
+ * @param {string} actual contraseña vigente
+ * @param {string} nueva contraseña propuesta
+ * @returns {Promise<{ok: boolean, campo?: 'actual'|'nueva', mensaje?: string}>}
+ */
+export async function cambiarContrasena(correo, actual, nueva) {
+  const { error: errorActual } = await supabase.auth.signInWithPassword({
+    email: String(correo || ''),
+    password: String(actual || ''),
+  })
+  if (errorActual) {
+    return {
+      ok: false,
+      campo: 'actual',
+      // El mensaje señala el campo equivocado, no un genérico: quien se
+      // equivocó de contraseña actual no tiene que adivinar cuál de las dos
+      // cajas falló.
+      mensaje: 'La contraseña actual no es correcta. La nueva no se ha guardado.',
+    }
+  }
+
+  const { error: errorNueva } = await supabase.auth.updateUser({ password: nueva })
+  if (errorNueva) {
+    return { ok: false, campo: 'nueva', mensaje: mapSupabaseError(errorNueva).message }
+  }
+  return { ok: true }
 }
