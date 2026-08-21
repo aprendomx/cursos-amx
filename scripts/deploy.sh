@@ -174,6 +174,28 @@ clasificar_sql() {
   fi
   echo "ok|$salida"
 }
+# Clasifica el estado de la plantilla del correo de recuperación.
+#
+# Se separa como función pura por el mismo motivo que las otras dos: la regla
+# es lo que hay que fijar, y sin poder ejecutarla en seco no se puede probar.
+#
+# Los tres desenlaces son distintos y llevan a reparaciones distintas:
+#   - no montada  -> falta el volumen en docker-compose.yml
+#   - sin token_hash -> alguien la sustituyó por la de GoTrue
+#   - correcta
+clasificar_plantilla_recovery() {
+  local estado="$1" contenido="$2"
+  if [[ "$estado" -ne 0 || -z "${contenido//[[:space:]]/}" ]]; then
+    echo "problema|no está montada en el contenedor: el correo saldrá con el enlace por defecto y la recuperación fallará entre dispositivos"
+    return
+  fi
+  if [[ "$contenido" != *token_hash* ]]; then
+    echo "problema|la plantilla montada NO usa token_hash: el enlace solo servirá en el navegador que lo pidió"
+    return
+  fi
+  echo "ok|plantilla montada y con token_hash"
+}
+
 
 # Consume un veredicto y decide qué imprimir y si suma a $problemas. Es el
 # ÚNICO sitio donde se incrementa el contador: mientras cada comprobación
@@ -393,6 +415,22 @@ else
   else
     registrar "migraciones" "ok|$en_disco registradas / $en_disco en disco"
   fi
+
+  # --- 3.5 Plantilla del correo de recuperación ---
+  # Es el fallo más traicionero de este despliegue: si el fichero no está
+  # montado, GoTrue NO se queja — vuelve a su plantilla por defecto y sigue
+  # enviando correos. Pero ese correo lleva un enlace que, con el flujo PKCE,
+  # solo funciona en el mismo navegador que pidió el cambio. La recuperación
+  # falla entonces SOLO entre dispositivos: quien lo pruebe en su propio
+  # navegador lo verá funcionar, y nadie atribuiría el fallo a esto.
+  #
+  # Se comprueba dentro del contenedor, no en el árbol de fuentes: lo que
+  # importa es lo que el proceso puede leer.
+  if plantilla="$(compose exec -T auth sh -c \
+      'cat /etc/gotrue/templates/recovery.html 2>/dev/null' 2>/dev/null)"
+  then estado_sql=0; else estado_sql=$?; fi
+  registrar "correo de recuperación" \
+    "$(clasificar_plantilla_recovery "$estado_sql" "$plantilla")"
 
   # --- 4. RLS en todas las tablas de public ---
   # Se pregunta por el NÚMERO de tablas desprotegidas y no por su lista: así

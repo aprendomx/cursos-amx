@@ -190,6 +190,8 @@ services:
       db:
         # Disable this if you are using an external Postgres database
         condition: service_healthy
+    volumes:
+      - ./volumes/auth/templates:/etc/gotrue/templates:Z
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
@@ -232,6 +234,27 @@ services:
       GOTRUE_MAILER_URLPATHS_INVITE: ${MAILER_URLPATHS_INVITE}
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
       GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
+      # Plantilla propia del correo de recuperación. La razón de que exista:
+      # el enlace por defecto de GoTrue lleva ConfirmationURL, que con el flujo
+      # PKCE solo funciona en el MISMO navegador que pidió el cambio —el
+      # verificador vive en su localStorage—. Quien pide el restablecimiento en
+      # el ordenador y abre el correo en el móvil se quedaría fuera.
+      #
+      # Esta plantilla envía {{ .TokenHash }}, que se canjea con verifyOtp y no
+      # necesita verificador: sirve en cualquier dispositivo.
+      #
+      # Si el fichero no está montado, GoTrue vuelve en silencio a su plantilla
+      # por defecto y la recuperación falla SOLO entre dispositivos. Por eso
+      # scripts/deploy.sh lo comprueba.
+      GOTRUE_MAILER_TEMPLATES_RECOVERY: ${MAILER_TEMPLATE_RECOVERY:-file:///etc/gotrue/templates/recovery.html}
+      GOTRUE_MAILER_SUBJECTS_RECOVERY: ${MAILER_SUBJECT_RECOVERY:-Restablecer tu contraseña}
+      # Límite de envío de correo, por hora y por dirección IP. El formulario de
+      # recuperación es público y no pide sesión: sin este límite, cualquiera
+      # puede usarlo para inundar buzones ajenos o para sondear la instalación.
+      #
+      # Tiene que ser del SERVIDOR. Un límite en el navegador es decorativo:
+      # quien quiera abusar no usa el navegador.
+      GOTRUE_RATE_LIMIT_EMAIL_SENT: ${RATE_LIMIT_EMAIL_SENT:-10}
       GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}

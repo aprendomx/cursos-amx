@@ -19,7 +19,7 @@ const items = [
   },
   {
     q: '¿Qué hago si olvidé mi contraseña?',
-    a: 'En la pantalla de inicio de sesión usa el enlace "Olvidé mi contraseña". Te enviaremos un correo con un vínculo seguro para restablecerla.',
+    a: 'En la pantalla de inicio de sesión usa el enlace "¿Olvidaste tu contraseña?". Te enviaremos un correo con un vínculo que sirve una sola vez para elegir una nueva.',
   },
   {
     q: '¿Cómo puedo descargar mi constancia?',

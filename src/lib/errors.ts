@@ -108,6 +108,18 @@ export function mapSupabaseError(error: any): AppError {
   if (code === '42501' && /row-level security|violates/i.test(msg)) {
     return new ModuloApagadoError(undefined, error)
   }
+  // El fallo de ENVÍO de correo va antes del caso genérico de red: «error
+  // sending recovery email» casaría con /network/ y llegaría como un problema
+  // de conexión, cuando el problema es que la instalación no tiene SMTP. Ese
+  // caso hay que decirlo: callar deja a la persona esperando un correo que no
+  // existe, sin forma de saber que el problema no es suyo.
+  if (/smtp|error sending.*email|mail(er)? (error|failed)/i.test(msg)) {
+    return new AppError(
+      'Esta instalación no puede enviar correo ahora mismo. Avisa a quien ' +
+        'administre la plataforma.',
+      { code: 'MAIL_UNAVAILABLE', status: 502, details: error }
+    )
+  }
   if (/network|fetch|timeout/i.test(msg)) return new NetworkError(msg, error)
   if (/unauthorized|jwt|auth/i.test(msg))
     return new PermissionError('Sesión expirada. Vuelve a iniciar sesión.', error)

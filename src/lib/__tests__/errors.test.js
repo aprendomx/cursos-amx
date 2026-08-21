@@ -77,3 +77,21 @@ describe('mapSupabaseError', () => {
     expect(e.code).toBe('SUPABASE_ERROR')
   })
 })
+
+describe('fallo de envío de correo', () => {
+  it('se distingue del error genérico de red, aunque el texto contenga "error"', async () => {
+    const { mapSupabaseError } = await import('@/lib/errors')
+    const e = mapSupabaseError({ message: 'Error sending recovery email' })
+    // Sin la regla propia, esto caería en NetworkError («error de conexión») y
+    // la persona buscaría el problema en su wifi en vez de avisar a quien
+    // administra.
+    expect(e.code).toBe('MAIL_UNAVAILABLE')
+    expect(e.message).toMatch(/no puede enviar correo/i)
+    expect(e.message).toMatch(/administre/i)
+  })
+
+  it('reconoce también el fallo nombrado por SMTP', async () => {
+    const { mapSupabaseError } = await import('@/lib/errors')
+    expect(mapSupabaseError({ message: 'smtp connection refused' }).code).toBe('MAIL_UNAVAILABLE')
+  })
+})

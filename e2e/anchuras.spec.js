@@ -17,14 +17,24 @@ const ANCHOS = [375, 768, 1024, 1440]
 // Solo rutas cuyo contenido NO viene de la base: sin backend las demás salen
 // vacías y medirlas no dice nada. /#/aviso-privacidad daba 30 nodos y 62
 // caracteres — justo el falso positivo del intento anterior.
-const RUTAS = ['/#/', '/#/login', '/#/registro']
+const RUTAS = ['/#/', '/#/login', '/#/registro', '/#/recuperar', '/#/restablecer']
 
-async function exigirQueMontó(page) {
+async function exigirQueMontó(page, minimos = { nodos: 40, letras: 150 }) {
   await expect(page.locator('#app > *')).toHaveCount(1)
   const nodos = await page.locator('body *').count()
   const letras = (await page.locator('body').innerText()).trim().length
-  expect(nodos, 'la página no montó: no hay nada que medir').toBeGreaterThan(40)
-  expect(letras, 'la página montó vacía').toBeGreaterThan(150)
+  expect(nodos, 'la página no montó: no hay nada que medir').toBeGreaterThan(minimos.nodos)
+  expect(letras, 'la página montó vacía').toBeGreaterThan(minimos.letras)
+}
+
+// Las pantallas de autenticación son legítimamente pequeñas: un campo, un
+// botón y un par de enlaces (/#/recuperar monta con 37 nodos). El umbral
+// general está calibrado para páginas densas; a estas se les exige menos SIN
+// bajar el listón de las demás. Y /#/restablecer sin token muestra solo el
+// aviso de enlace ausente, que es su estado legítimo más pequeño.
+const MINIMOS_POR_RUTA = {
+  '/#/recuperar': { nodos: 25, letras: 120 },
+  '/#/restablecer': { nodos: 20, letras: 60 },
 }
 
 async function desbordamientos(page, ancho) {
@@ -56,7 +66,7 @@ for (const ancho of ANCHOS) {
         await page.goto(ruta)
         await page.evaluate((m) => document.documentElement.setAttribute('data-theme', m), modo)
         await page.waitForTimeout(300)
-        await exigirQueMontó(page)
+        await exigirQueMontó(page, MINIMOS_POR_RUTA[ruta])
 
         const r = await desbordamientos(page, ancho)
         expect(r.culpables, `${ruta} a ${ancho}px (${modo})`).toEqual([])

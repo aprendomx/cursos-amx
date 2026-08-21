@@ -91,6 +91,12 @@ function submit() {
         </button>
 
         <p class="auth-alt">
+          <a href="#" @click.prevent="router.push({ name: 'recuperar' })"
+            >¿Olvidaste tu contraseña?</a
+          >
+        </p>
+
+        <p class="auth-alt">
           ¿No tienes cuenta?
           <a href="#" @click.prevent="router.push({ name: 'registro' })">Crear cuenta</a>
         </p>

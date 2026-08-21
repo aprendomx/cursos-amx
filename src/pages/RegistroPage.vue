@@ -6,6 +6,8 @@ import { supabase } from '@/lib/supabase.js'
 import IconSet from '@/components/IconSet.vue'
 import { theme } from '@/lib/theme.js'
 import { resolverEnlace } from '@/lib/enlacesInstitucionales.js'
+import { contrasenaValida } from '@/lib/contrasena.js'
+import CampoContrasena from '@/components/CampoContrasena.vue'
 
 // El enlace de la casilla apuntaba a '#'. Se recababa el consentimiento contra
 // un documento que no existía; ahora lleva al aviso que se está aceptando,
@@ -67,7 +69,7 @@ const steps = [
 const canAdvance = computed(() => {
   switch (step.value) {
     case 0:
-      return !!(nombres.value.trim() && apellido_p.value.trim()) && password.value.length >= 8
+      return !!(nombres.value.trim() && apellido_p.value.trim()) && contrasenaValida(password.value)
     case 1:
       return correo.value.includes('@') && telefono.value.length >= 10
     case 2:
@@ -205,15 +207,7 @@ const summaryRows = computed(() => [
               <label for="r-ap2">Segundo apellido</label>
               <input id="r-ap2" v-model="apellido_s" type="text" placeholder="Opcional" />
             </div>
-            <div class="field">
-              <label for="r-password">Contraseña</label>
-              <input
-                id="r-password"
-                v-model="password"
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-              />
-            </div>
+            <CampoContrasena id="r-password" v-model="password" label="Contraseña" />
           </div>
 
           <!-- Step 1: Contacto -->

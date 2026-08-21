@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Restablecer contraseña</title>
+  </head>
+  <!--
+    Plantilla del correo de recuperación de contraseña.
+
+    El enlace lleva {{ .TokenHash }} y NO el ConfirmationURL por defecto. El
+    motivo: con el flujo PKCE, el enlace por defecto solo funciona en el mismo
+    navegador que pidió el restablecimiento, porque el verificador vive en su
+    localStorage. Quien pide el cambio en el ordenador y abre el correo en el
+    móvil se quedaría fuera — y eso es lo que hace la mayoría. El token_hash se
+    canjea con verifyOtp y no necesita verificador, así que sirve en cualquier
+    dispositivo. Ver openspec/changes/recuperacion-contrasena/design.md,
+    decisión 1b.
+
+    Cada instalación puede editar este fichero para poner su identidad. GoTrue
+    lo lee del disco, así que NO recibe el tema de la aplicación: lo que se
+    quiera cambiar (nombre, colores, firma) se cambia aquí.
+
+    Se escribe con tablas y estilos en línea a propósito: los clientes de correo
+    ignoran hojas de estilo y buena parte de CSS moderno.
+  -->
+  <body style="margin: 0; padding: 0; background: #f3f3f3">
+    <table
+      role="presentation"
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="background: #f3f3f3; padding: 24px 12px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="100%"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              max-width: 560px;
+              background: #ffffff;
+              border: 1px solid #e0e0e0;
+              font-family:
+                -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+              color: #161a1d;
+            "
+          >
+            <tr>
+              <td style="padding: 28px 28px 8px">
+                <h1 style="margin: 0; font-size: 20px; line-height: 1.3; color: #161a1d">
+                  Restablecer tu contraseña
+                </h1>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 28px; font-size: 16px; line-height: 1.6; color: #3d3d3d">
+                <p style="margin: 0 0 16px">
+                  Recibimos una solicitud para cambiar la contraseña de
+                  <strong>{{ .Email }}</strong>.
+                </p>
+                <p style="margin: 0 0 24px">
+                  Pulsa el botón para elegir una contraseña nueva. El enlace sirve
+                  <strong>una sola vez</strong> y caduca en una hora.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 28px 24px">
+                <a
+                  href="{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=recovery"
+                  style="
+                    display: inline-block;
+                    padding: 14px 24px;
+                    background: #1e40af;
+                    color: #ffffff;
+                    font-size: 16px;
+                    font-weight: 600;
+                    text-decoration: none;
+                  "
+                  >Elegir contraseña nueva</a
+                >
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 0 28px 24px; font-size: 14px; line-height: 1.6; color: #5f5f5f">
+                <p style="margin: 0 0 8px">
+                  Si el botón no funciona, copia esta dirección en tu navegador:
+                </p>
+                <p style="margin: 0; word-break: break-all">
+                  <a
+                    href="{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=recovery"
+                    style="color: #1e40af"
+                    >{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=recovery</a
+                  >
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td
+                style="
+                  padding: 20px 28px;
+                  border-top: 1px solid #e0e0e0;
+                  font-size: 14px;
+                  line-height: 1.6;
+                  color: #5f5f5f;
+                "
+              >
+                <p style="margin: 0">
+                  Si no pediste este cambio, puedes ignorar este mensaje: tu contraseña actual sigue
+                  siendo válida.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
