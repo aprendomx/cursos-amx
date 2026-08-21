@@ -264,9 +264,9 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
         <div class="stacked-notes">
           <div class="notes-header">
             <span class="eyebrow">Notas de leccion</span>
-            <h3 class="display-italic">
+            <h1 class="display-italic">
               {{ leccion.titulo }}
-            </h3>
+            </h1>
           </div>
           <div class="notes-body">
             <p>
@@ -339,9 +339,9 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
         <div class="focus-below">
           <div class="focus-title-block">
             <span class="eyebrow">Modulo 02 &middot; Leccion {{ leccion.orden }}</span>
-            <h2 class="display-italic focus-lesson-title">
+            <h1 class="display-italic focus-lesson-title">
               {{ leccion.titulo }}
-            </h2>
+            </h1>
           </div>
           <div class="focus-actions">
             <button class="btn btn-ghost btn-sm" title="Notas (proximamente)" @click="() => {}">

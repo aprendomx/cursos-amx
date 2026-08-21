@@ -41,7 +41,7 @@ onMounted(cargar)
 
 <template>
   <div>
-    <h2 class="h3">Configuración de IA</h2>
+    <h1 class="h3">Configuración de IA</h1>
     <p class="body-2" :style="{ color: 'var(--ink-4)', marginBottom: 'calc(var(--unit) * 3)' }">
       Administra el proveedor de IA, modelo y límites de uso.
     </p>

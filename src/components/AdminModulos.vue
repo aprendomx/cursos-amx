@@ -52,7 +52,7 @@ onMounted(cargar)
 <template>
   <section class="admin-modulos">
     <header>
-      <h2>Módulos</h2>
+      <h1>Módulos</h1>
       <p class="admin-modulos-intro">
         Enciende o apaga módulos sin reconstruir ni volver a desplegar. Los marcados como
         <strong>cierra datos</strong> además bloquean el acceso a sus tablas: apagarlos no solo

@@ -131,7 +131,7 @@ onMounted(cargar)
 <template>
   <section class="adm-dis">
     <header>
-      <h2>Diseños de constancia</h2>
+      <h1>Diseños de constancia</h1>
       <p class="adm-dis-intro">
         Un diseño define <strong>cómo se ve</strong> la constancia: fondo, pleca, logotipo y
         colores. Los textos no van aquí — se configuran por curso, en el paso «Constancia» del

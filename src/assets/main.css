@@ -223,6 +223,34 @@ select {
   color: inherit;
 }
 
+/* Encabezados: tamaños desde la escala, no desde los valores por defecto del
+   navegador.
+   Los defaults (2em / 1.5em / 1.17em…) coinciden por casualidad con los dos
+   primeros pasos de la escala y se desvían a partir del tercero. Peor: atan el
+   tamaño al NIVEL semántico, así que subir un h2 a h1 —lo correcto cuando ese
+   texto es el título de la pantalla— cambiaba su tamaño sin quererlo. Con la
+   escala explícita, el nivel dice qué ES el texto y la clase dice cómo se ve. */
+h1 {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+h2 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+h3 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-bold);
+}
+h4 {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-medium);
+}
+
 /* Typography utilities */
 /* Display: Fraunces variable, gana en opsz alto + weight medio para que se sienta editorial sin caer en "Times". */
 .display {
@@ -486,6 +514,37 @@ select {
 .field textarea:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* Enlace de salto al contenido (WCAG 2.1 §2.4.1, «Evitar bloques»).
+   No se oculta con `display: none`: eso lo sacaría del orden de tabulación y
+   dejaría de existir para quien lo necesita. Se aparta fuera de la pantalla y
+   vuelve al recibir el foco. */
+.salto-contenido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateY(-120%);
+  background: var(--paper);
+  color: var(--primary-fg);
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2.5);
+  border-radius: 0 0 var(--radius-md) 0;
+  box-shadow: var(--elev-2);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition: transform 160ms var(--ease);
+}
+.salto-contenido:focus,
+.salto-contenido:focus-visible {
+  transform: translateY(0);
+}
+
+/* El destino del salto lleva tabindex="-1" para poder recibir el foco sin
+   entrar en el orden de tabulación. Sin anillo: no es un control, y el
+   contorno alrededor de toda la página sería desconcertante. */
+#contenido-principal:focus {
+  outline: none;
 }
 
 /* Contenido para lectores de pantalla, oculto a la vista.

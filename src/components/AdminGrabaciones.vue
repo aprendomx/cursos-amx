@@ -60,7 +60,7 @@ onMounted(cargar)
 
 <template>
   <div class="admin-grabaciones">
-    <h2>Grabaciones y Transcripciones</h2>
+    <h1>Grabaciones y Transcripciones</h1>
 
     <div class="stats">
       <div class="stat">
