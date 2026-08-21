@@ -102,10 +102,13 @@ jobs:
   test-e2e:
     runs-on: ubuntu-latest
     # Los specs que necesitan un backend Supabase vivo se saltan solos cuando
-    # no hay credenciales, así que lo que queda aquí debe pasar siempre. Se
-    # mantiene continue-on-error mientras se confirma que el job es estable;
-    # quitarlo es lo que le devuelve el poder de delatar una regresión.
-    continue-on-error: true
+    # no hay credenciales, así que lo que queda aquí debe pasar siempre.
+    #
+    # Ya no lleva continue-on-error. Lo llevaba porque fallaba de continuo, y
+    # eso lo había convertido en ruido: estuvo varios PR seguidos en rojo
+    # señalando que la aplicación tardaba 7.3 s en montar con la API caída, y
+    # se leyó como un problema de credenciales hasta que alguien lo miró. Un
+    # aviso que siempre suena no avisa de nada.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -248,6 +251,7 @@ jobs:
       - type-check
       - test-unit
       - test-edge-functions
+      - test-e2e
       - test-migrations
       - test-kong-config
       - test-crear-admin
