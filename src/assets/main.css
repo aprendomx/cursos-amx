@@ -51,6 +51,13 @@
   --success: var(--brand-secondary);
   --warn: var(--brand-accent);
   --danger: var(--brand-danger);
+  /* Fondos tenues de estado. Se mezclan con el papel en vez de fijar un hex:
+     así siguen al color que declare la institución y al modo oscuro, sin
+     declarar cada variante a mano. El primer valor es el respaldo para
+     navegadores sin color-mix. */
+  --danger-soft: #fdecea;
+  --danger-soft: color-mix(in srgb, var(--danger) 10%, var(--paper));
+  --danger-line: color-mix(in srgb, var(--danger) 35%, var(--paper));
 
   /* Density */
   --space: 1;

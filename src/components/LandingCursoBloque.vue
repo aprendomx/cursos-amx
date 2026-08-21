@@ -35,21 +35,15 @@ function isUrl(v) {
 <template>
   <article class="curso-bloque">
     <!-- Header vertical: imagen full-width + meta -->
-    <div
-      class="curso-cover"
-      @click="emit('ver-curso', curso)"
-    >
+    <div class="curso-cover" @click="emit('ver-curso', curso)">
       <img
         v-if="isUrl(curso.imagen)"
         :src="curso.imagen"
         :alt="curso.titulo"
         class="curso-cover-img"
         loading="lazy"
-      >
-      <PlaceholderImage
-        v-else
-        :label="curso.imagen || curso.titulo"
       />
+      <PlaceholderImage v-else :label="curso.imagen || curso.titulo" />
     </div>
 
     <div class="curso-body">
@@ -58,16 +52,10 @@ function isUrl(v) {
           {{ String(index + 1).padStart(2, '0') }} &middot; {{ curso.nivel }}
         </span>
         <span :class="statusChip().cls">
-          <span
-            v-if="curso.progreso === 1"
-            :style="{ display: 'inline-flex' }"
-          >
+          <span v-if="curso.progreso === 1" :style="{ display: 'inline-flex' }">
             <IconSet name="check" />
           </span>
-          <span
-            v-else
-            class="chip-dot"
-          />
+          <span v-else class="chip-dot" />
           {{ statusChip().label }}
         </span>
       </div>
@@ -94,20 +82,14 @@ function isUrl(v) {
         </span>
       </div>
 
-      <button
-        class="btn btn-primary curso-btn"
-        @click="emit('ver-curso', curso)"
-      >
+      <button class="btn btn-primary curso-btn" @click="emit('ver-curso', curso)">
         {{ btnLabel() }}
         <IconSet name="arrow" />
       </button>
     </div>
 
     <!-- Grid de módulos -->
-    <div
-      v-if="curso.modulos.length > 0"
-      class="modulos"
-    >
+    <div v-if="curso.modulos.length > 0" class="modulos">
       <div class="modulos-label">
         <span class="eyebrow">M&oacute;dulos</span>
       </div>
@@ -125,11 +107,8 @@ function isUrl(v) {
               :alt="m.titulo"
               class="modulo-cover-img"
               loading="lazy"
-            >
-            <PlaceholderImage
-              v-else
-              :label="m.imagen_portada || m.titulo"
             />
+            <PlaceholderImage v-else :label="m.imagen_portada || m.titulo" />
           </div>
           <div class="modulo-body">
             <span class="mono modulo-meta">
@@ -203,7 +182,7 @@ function isUrl(v) {
 }
 .curso-meta {
   color: var(--ink-4);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .curso-title {
   font-size: clamp(28px, 3.6vw, 44px);
@@ -211,7 +190,7 @@ function isUrl(v) {
   color: var(--ink);
 }
 .curso-desc {
-  font-size: 15px;
+  font-size: var(--text-base);
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 64ch;
@@ -220,7 +199,7 @@ function isUrl(v) {
   display: flex;
   gap: calc(var(--unit) * 3);
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--text-sm);
   flex-wrap: wrap;
 }
 .curso-meta-item {
@@ -269,12 +248,12 @@ function isUrl(v) {
 }
 .modulo-meta {
   color: var(--ink-4);
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0.08em;
 }
 .modulo-title {
   font-family: var(--display);
-  font-size: 16px;
+  font-size: var(--text-base);
   line-height: 1.3;
   color: var(--ink);
   font-weight: 500;

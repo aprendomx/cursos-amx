@@ -189,7 +189,7 @@ function fmt(n) {
   background: transparent;
   padding: 14px 18px;
   font-family: var(--ui);
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--ink);
 }
 .hero-search input::placeholder {
@@ -205,7 +205,7 @@ function fmt(n) {
   padding: 0 calc(var(--unit) * 3);
   font-family: var(--ui);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-base);
   cursor: pointer;
   transition: background 160ms var(--ease);
   flex-shrink: 0;
@@ -239,7 +239,7 @@ function fmt(n) {
 }
 .hero-eyebrow {
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--paper);
   margin-bottom: calc(var(--unit) * 3);
@@ -300,11 +300,11 @@ function fmt(n) {
   background: var(--brand-accent-soft);
   color: var(--brand-ink);
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 16px 36px;
   font-family: var(--ui);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   transition:
     background 160ms var(--ease),
@@ -345,7 +345,7 @@ function fmt(n) {
 }
 .site-stats-band .site-stat span {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gris-70);
@@ -414,15 +414,15 @@ function fmt(n) {
   .hero-pill {
     width: 100%;
     padding: 14px 24px;
-    font-size: 15px;
+    font-size: var(--text-base);
   }
   .hero-search input {
     padding: 12px 14px;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .hero-search-btn {
     padding: 0 calc(var(--unit) * 2);
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .site-stats-band-inner {
     padding: calc(var(--unit) * 4) calc(var(--unit) * 3);

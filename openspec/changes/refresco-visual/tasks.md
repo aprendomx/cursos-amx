@@ -44,12 +44,12 @@
 
 ## 6. Tanda A — superficie pública sin sesión
 
-- [ ] 6.1 `LandingPage` y sus secciones: sustituir valores a mano por tokens; jerarquía por tamaño y espacio, una sola acción principal.
-- [ ] 6.2 `LandingHero`, `LandingFooter` y las secciones opcionales de `theme/sections/`.
-- [ ] 6.3 `RegistroPage`: formulario por pasos, indicador de progreso, errores junto al campo, foco al primer campo inválido tras enviar.
-- [ ] 6.4 `LoginPage`.
-- [ ] 6.5 `VerificarPage` y `DocumentoPage`.
-- [ ] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado.
+- [ ] 6.1 `LandingPage` y sus secciones: sustituir valores a mano por tokens; jerarquía por tamaño y espacio, una sola acción principal. — **Migración a tokens hecha; la revisión de jerarquía y de acción principal única, NO.** Esa parte es perceptual y necesita mirar la pantalla.
+- [x] 6.2 `LandingHero`, `LandingFooter` y las secciones opcionales de `theme/sections/`. — Migrados a tokens. `LandingFaq` tenía un crema `#f8f1de` fijo, ahora derivado del acento del tema con `color-mix`, así que sigue a la institución y al modo oscuro.
+- [ ] 6.3 `RegistroPage`: formulario por pasos, indicador de progreso, errores junto al campo, foco al primer campo inválido tras enviar. — **Parcial.** Hecho: migración a tokens, el error deja de usar hexadecimales fijos (`#fef2f2`/`#fca5a5`, que en modo oscuro daban una caja casi blanca) y gana `role="alert"`, que le faltaba y `LoginPage` sí tenía. Pendiente: mover el error junto al campo —hoy va al pie del formulario— y llevar el foco al primer campo inválido.
+- [x] 6.4 `LoginPage`. — Migrada. Ya tenía `role="alert"` en su error.
+- [x] 6.5 `VerificarPage` y `DocumentoPage`. — Migradas.
+- [ ] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado. — **No hecha.** La herramienta de redimensionar la ventana reportó éxito pero el viewport siguió en 1487 px, así que la comprobación por anchuras no llegó a ejecutarse. Sí se verificó el modo oscuro: los tokens tenues resuelven mezclados con el papel oscuro.
 
 ## 7. Tanda B — superficie del alumno
 

@@ -276,13 +276,15 @@ const summaryRows = computed(() => [
 
         <div
           v-if="error"
+          role="alert"
+          aria-live="assertive"
           :style="{
             marginTop: '16px',
             padding: '14px 18px',
-            background: '#fef2f2',
-            border: '1px solid #fca5a5',
+            background: 'var(--danger-soft)',
+            border: '1px solid var(--danger-line)',
             color: 'var(--danger)',
-            fontSize: '13px',
+            fontSize: 'var(--text-sm)',
             lineHeight: '1.5',
           }"
         >
@@ -352,7 +354,7 @@ const summaryRows = computed(() => [
 }
 
 .registro-privacy {
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--ink-4);
   max-width: 360px;
@@ -382,7 +384,7 @@ const summaryRows = computed(() => [
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
   flex-shrink: 0;
   transition: all 220ms var(--ease);
@@ -406,7 +408,7 @@ const summaryRows = computed(() => [
 }
 
 .registro-step-label {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
 }
 
@@ -459,7 +461,7 @@ const summaryRows = computed(() => [
 
 .registro-summary-label {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-3);
@@ -467,7 +469,7 @@ const summaryRows = computed(() => [
 
 .registro-summary-value {
   font-family: var(--display);
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink);
 }
 
@@ -480,7 +482,7 @@ const summaryRows = computed(() => [
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
   line-height: 1.5;
   cursor: pointer;
@@ -490,7 +492,7 @@ const summaryRows = computed(() => [
   margin-top: 3px;
   width: 18px;
   height: 18px;
-  accent-color: var(--primary);
+  accent-color: var(--primary-fg);
   flex-shrink: 0;
 }
 
@@ -506,7 +508,7 @@ const summaryRows = computed(() => [
 
 .registro-nav-counter {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   color: var(--ink-3);
 }
