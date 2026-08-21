@@ -398,6 +398,35 @@ Las secciones se renderizan en el orden del array.
 
 ---
 
+## 3.5 El correo de recuperación de contraseña
+
+Es el único texto de esta plataforma que **no** sigue al tema. Lo envía GoTrue
+leyendo un fichero del disco, así que no tiene acceso a `theme.config.local.js`
+ni a los tokens de CSS.
+
+Vive en `docker/volumes/auth/templates/recovery.html` y se monta en el
+contenedor de autenticación. Para poner la identidad de tu institución —nombre,
+colores, firma— se edita ese fichero.
+
+Dos cosas que **no** conviene cambiar ahí:
+
+- **El enlace con `{{ .TokenHash }}`.** La plantilla por defecto de GoTrue usa
+  `{{ .ConfirmationURL }}`, y con el flujo PKCE de esta aplicación ese enlace
+  solo funciona en el mismo navegador que pidió el restablecimiento: el
+  verificador vive en su `localStorage`. Quien pida el cambio en el ordenador y
+  abra el correo en el móvil se queda fuera. El `token_hash` no necesita
+  verificador y sirve en cualquier dispositivo.
+- **Las tablas y los estilos en línea.** No son descuido: los clientes de correo
+  ignoran las hojas de estilo y buena parte del CSS moderno.
+
+Si el fichero no está montado, GoTrue vuelve **en silencio** a su plantilla por
+defecto y la recuperación falla solo entre dispositivos —un fallo parcial que
+nadie atribuiría a esto—. Por eso `scripts/deploy.sh` comprueba que está.
+
+Una instalación **sin SMTP** no puede recuperar contraseñas por esta vía. La
+salida en ese caso es `scripts/crear-admin.sh` o la función
+`admin-set-password`, que un administrador puede usar para asignar una nueva.
+
 ## 4. Reemplazar assets en `public/theme/`
 
 Los archivos en `public/theme/` son los assets de identidad gráfica servidos

@@ -25,10 +25,10 @@
 Añadido tras descubrir, al implementar, que PKCE ata el enlace al navegador que
 lo pidió. Ver `design.md — decisión 1b`.
 
-- [ ] 4.1 Plantilla de correo de recuperación con `{{ .TokenHash }}`, apuntando a la aplicación. Respeta el tema de la instalación: es el primer correo que esta plataforma envía con contenido propio.
-- [ ] 4.2 Montarla en el contenedor de GoTrue: el servicio `auth` no declara hoy ningún volumen, así que hay que añadírselo, más las variables de plantilla y de asunto.
-- [ ] 4.3 Declarar esas variables en `docker/.env.example` con un valor por defecto que funcione, y documentarlas.
-- [ ] 4.4 Que `scripts/deploy.sh` compruebe que la plantilla está montada. Si se pierde en una reinstalación, el correo vuelve al enlace por defecto y la recuperación falla SOLO entre dispositivos: un fallo parcial que nadie atribuiría a esto.
+- [x] 4.1 Plantilla de correo de recuperación con `{{ .TokenHash }}`, apuntando a la aplicación. Respeta el tema de la instalación: es el primer correo que esta plataforma envía con contenido propio.
+- [x] 4.2 Montarla en el contenedor de GoTrue: el servicio `auth` no declara hoy ningún volumen, así que hay que añadírselo, más las variables de plantilla y de asunto.
+- [x] 4.3 Declarar esas variables en `docker/.env.example` con un valor por defecto que funcione, y documentarlas.
+- [x] 4.4 Que `scripts/deploy.sh` compruebe que la plantilla está montada. Si se pierde en una reinstalación, el correo vuelve al enlace por defecto y la recuperación falla SOLO entre dispositivos: un fallo parcial que nadie atribuiría a esto. — La regla se extrajo a `clasificar_plantilla_recovery`, función pura, siguiendo el criterio que ya rige ese banco de pruebas: lo que no se puede ejecutar en seco no se puede probar. Distingue la plantilla **ausente** de la **sustituida**, que no se arreglan igual.
 
 ## 5. Elegir la contraseña nueva
 

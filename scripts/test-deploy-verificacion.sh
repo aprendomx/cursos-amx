@@ -54,6 +54,38 @@ else
   falla "los mensajes no distinguen los casos"
 fi
 
+# --- clasificar_plantilla_recovery ------------------------------------------
+# Este es el fallo que MÁS se parece a un éxito: si la plantilla no está
+# montada, GoTrue no se queja, vuelve a la suya y sigue enviando correos. El
+# enlace por defecto funciona en el navegador que pidió el cambio —así que
+# quien lo pruebe lo verá bien— y falla en cualquier otro dispositivo.
+echo "  -- clasificar_plantilla_recovery --"
+CON_TOKEN='<a href="{{ .SiteURL }}/?token_hash={{ .TokenHash }}&type=recovery">x</a>'
+SIN_TOKEN='<a href="{{ .ConfirmationURL }}">x</a>'
+comprobar "no se pudo leer"          "$(clasificar_plantilla_recovery 1 '')"           problema
+comprobar "montada pero vacía"       "$(clasificar_plantilla_recovery 0 '')"           problema
+comprobar "solo espacios"            "$(clasificar_plantilla_recovery 0 '   ')"        problema
+comprobar "la de GoTrue por defecto" "$(clasificar_plantilla_recovery 0 "$SIN_TOKEN")" problema
+comprobar "la nuestra"               "$(clasificar_plantilla_recovery 0 "$CON_TOKEN")" ok
+
+# Los dos problemas no se arreglan igual: uno es un volumen que falta, el otro
+# una plantilla sustituida.
+if [[ "$(clasificar_plantilla_recovery 1 '')" == *"no está montada"* ]] \
+  && [[ "$(clasificar_plantilla_recovery 0 "$SIN_TOKEN")" == *"NO usa token_hash"* ]]; then
+  ok "distingue la plantilla ausente de la sustituida"
+else
+  falla "los dos problemas dan el mismo mensaje"
+fi
+
+# La plantilla REAL del repositorio tiene que pasar su propia comprobación.
+PLANTILLA="$ROOT/docker/volumes/auth/templates/recovery.html"
+if [[ -f "$PLANTILLA" ]] \
+  && [[ "$(clasificar_plantilla_recovery 0 "$(cat "$PLANTILLA")")" == ok* ]]; then
+  ok "la plantilla del repositorio pasa la comprobación"
+else
+  falla "la plantilla del repositorio NO pasaría la verificación del despliegue"
+fi
+
 # --- clasificar_sql ---------------------------------------------------------
 echo "  -- clasificar_sql --"
 comprobar "psql falló"        "$(clasificar_sql 1 '')"     no_ejecutable
