@@ -247,6 +247,8 @@ function handleSend() {
 .chat-input-bar input {
   flex: 1;
   background: rgba(255, 255, 255, 0.06);
+  /* Superficie oscura: anillo claro (ver --focus-ring en main.css). */
+  --focus-ring: var(--paper);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   padding: 10px 16px;

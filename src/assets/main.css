@@ -54,8 +54,59 @@
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
+  /* ----- Escala tipográfica -----
+     Antes había 359 declaraciones de font-size con 54 valores distintos, 63 de
+     ellas por debajo de 12px. Esa dispersión es la causa de que la interfaz se
+     sintiera despareja sin que se pudiera señalar un culpable.
+
+     La escala se deriva de los tamaños que ya predominaban (13/14/16/18) y
+     sube el piso a 12px: por debajo, el texto deja de ser legible para buena
+     parte de quien lo lee. Un componente NO declara font-size a mano cuando
+     hay un token para su propósito. */
+  --text-xs: 12px; /* metadatos, etiquetas, pies */
+  --text-sm: 14px; /* secundario, tablas densas */
+  --text-base: 16px; /* cuerpo */
+  --text-lg: 18px; /* destacado, campos de formulario */
+  --text-xl: 20px; /* subtítulo */
+  --text-2xl: 24px; /* título de sección */
+  --text-3xl: 32px; /* título de página */
+  --text-4xl: 44px; /* hero */
+
+  /* Interlineado por densidad de texto: los títulos se aprietan, el cuerpo
+     respira. 1.6 en cuerpo cumple el 1.5 mínimo con margen. */
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.6;
+
+  /* Pesos: la jerarquía se sostiene con tamaño y peso, no con color. */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* ----- Radios -----
+     174 declaraciones con 21 valores distintos (4, 8, 6, 3, 2px…). Se reducen
+     a cuatro pasos con un uso asignado. */
+  --radius-sm: 4px; /* etiquetas, chips, campos */
+  --radius-md: 8px; /* botones, tarjetas */
+  --radius-lg: 16px; /* paneles, diálogos */
+  --radius-full: 999px; /* píldoras y avatares */
+
+  /* ----- Elevación -----
+     26 sombras con 19 valores distintos: casi cada una era única. Cuatro
+     niveles, uno por rol, para que la profundidad signifique algo. */
+  --elev-0: none;
+  --elev-1: 0 1px 3px rgb(0 0 0 / 8%); /* tarjeta en reposo */
+  --elev-2: 0 4px 14px rgb(0 0 0 / 10%); /* panel elevado, menú */
+  --elev-3: 0 12px 32px rgb(0 0 0 / 16%); /* diálogo sobre velo */
+
+  /* Anillo de foco. Por defecto el color de marca, que theme.js ya ajusta por
+     contraste para el modo oscuro global. Las superficies que traen su PROPIO
+     fondo oscuro —el hero, el panel del reproductor— lo invierten localmente:
+     ahí `--primary` sería azul de marca sobre azul de marca oscuro. */
+  --focus-ring: var(--primary);
+
   /* Shadows */
-  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-pop: var(--elev-2);
 }
 
 [data-density='compact'] {
@@ -109,8 +160,10 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--ui);
-  font-size: 15px;
-  line-height: 1.5;
+  /* 15px quedaba por debajo del piso de 16: además de leerse peor, iOS hace
+     zoom automático al enfocar un campo cuyo texto mide menos. */
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -192,9 +245,12 @@ select {
   align-items: center;
   gap: 10px;
   padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2.5);
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  /* WCAG 2.5.5: el área accionable no baja de 44px aunque la caja visible sea
+     menor. Se aplica aquí para que lo hereden todos los botones. */
+  min-height: 44px;
   letter-spacing: -0.005em;
   transition: all 180ms var(--ease);
   white-space: nowrap;
@@ -234,7 +290,7 @@ select {
 }
 .btn-sm {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 /* Chips */
@@ -357,9 +413,29 @@ select {
   font-style: italic;
 }
 
-/* ----- Foco visible (WCAG 2.1 §2.4.7, nivel AA) ----- */
+/* ----- Foco visible (WCAG 2.1 §2.4.7, nivel AA) -----
+   La regla lleva `!important` a propósito, y conviene explicar por qué antes de
+   que alguien lo retire por higiene: nueve componentes declaraban
+   `outline: none` con selectores como `input:focus` o `.algo input`, cuya
+   especificidad (0,1,1) gana a un `:focus-visible` global (0,1,0). El anillo de
+   foco desaparecía y quien navega con teclado se quedaba sin saber dónde está.
+   Ya había pasado con `.field input`, se arregló solo ahí, y volvió a pasar en
+   otros nueve sitios.
+
+   Subir la especificidad no basta: el siguiente componente que escriba
+   `outline: none` volvería a ganar. `!important` cierra la puerta, y un
+   componente que necesite un indicador distinto puede declararlo con
+   `!important` propio — que es lo que exige el spec: sustituirlo, no
+   suprimirlo.
+
+   Grosor 3px según la dirección de estilo accesible: 2px se pierde sobre
+   fondos con textura o color.
+
+   El color sale de `--focus-ring` y no de `--primary` directamente, para que
+   una superficie con fondo oscuro propio pueda invertirlo sin tocar esta
+   regla. */
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 3px solid var(--focus-ring) !important;
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -775,9 +851,12 @@ select {
     padding: calc(var(--unit) * 1.25) calc(var(--unit) * 2);
     font-size: 13px;
   }
+  /* En móvil se reduce el relleno, NO el área accionable: `min-height` viene
+     de `.btn` y se mantiene. Antes el texto bajaba a 12px justo en el
+     dispositivo donde peor se lee. */
   .btn-sm {
     padding: calc(var(--unit) * 0.75) calc(var(--unit) * 1.5);
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .tweaks-panel {
     bottom: 12px;

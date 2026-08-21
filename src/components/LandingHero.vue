@@ -37,32 +37,15 @@ function fmt(n) {
 </script>
 
 <template>
-  <section
-    class="site-hero"
-    aria-labelledby="hero-titulo"
-  >
-    <div
-      class="site-hero-inner"
-      :style="heroStyle"
-    >
+  <section class="site-hero" aria-labelledby="hero-titulo">
+    <div class="site-hero-inner" :style="heroStyle">
       <!-- Velo oscuro para legibilidad sobre la foto -->
-      <div
-        v-if="theme.hero.backgroundImage"
-        class="hero-overlay"
-        aria-hidden="true"
-      />
+      <div v-if="theme.hero.backgroundImage" class="hero-overlay" aria-hidden="true" />
 
       <div class="hero-grid">
         <!-- FILA 1 — search (top-right) -->
-        <form
-          class="hero-search"
-          role="search"
-          @submit.prevent="submitSearch"
-        >
-          <label
-            for="hero-search-input"
-            class="sr-only"
-          >Buscar cursos</label>
+        <form class="hero-search" role="search" @submit.prevent="submitSearch">
+          <label for="hero-search-input" class="sr-only">Buscar cursos</label>
           <input
             id="hero-search-input"
             v-model="query"
@@ -70,13 +53,8 @@ function fmt(n) {
             placeholder="Buscar cursos…"
             autocomplete="off"
             spellcheck="false"
-          >
-          <button
-            type="submit"
-            class="hero-search-btn"
-          >
-            Buscar
-          </button>
+          />
+          <button type="submit" class="hero-search-btn">Buscar</button>
         </form>
 
         <!-- FILA 2 — logo plataforma (top, alineado a la derecha) -->
@@ -86,7 +64,7 @@ function fmt(n) {
             :alt="theme.app.name"
             class="hero-brand-logo"
             fetchpriority="high"
-          >
+          />
         </div>
 
         <!-- FILA 3 — columna izquierda: título principal -->
@@ -94,27 +72,21 @@ function fmt(n) {
           <p class="hero-eyebrow">
             {{ theme.hero.eyebrow }}
           </p>
-          <h1
-            id="hero-titulo"
-            class="hero-title"
-          >
+          <h1 id="hero-titulo" class="hero-title">
             {{ theme.hero.title }}
           </h1>
         </div>
 
         <!-- FILA 3 — columna derecha: logos + descripción + CTA -->
         <div class="hero-right">
-          <div
-            v-if="theme.hero.partnerLogos.length"
-            class="hero-partners"
-          >
+          <div v-if="theme.hero.partnerLogos.length" class="hero-partners">
             <img
               v-for="logo in theme.hero.partnerLogos"
               :key="logo.src"
               :src="logo.src"
               :alt="logo.alt"
               class="hero-partner-logo"
-            >
+            />
           </div>
 
           <p class="hero-desc">
@@ -122,11 +94,7 @@ function fmt(n) {
           </p>
 
           <div class="hero-actions">
-            <button
-              class="hero-pill"
-              type="button"
-              @click="emit('catalogo')"
-            >
+            <button class="hero-pill" type="button" @click="emit('catalogo')">
               {{ theme.hero.cta }}
             </button>
           </div>
@@ -135,37 +103,21 @@ function fmt(n) {
     </div>
 
     <!-- Stats por debajo del hero, en banda institucional clara -->
-    <aside
-      v-if="showStats"
-      class="site-stats-band"
-      aria-label="Indicadores de la plataforma"
-    >
+    <aside v-if="showStats" class="site-stats-band" aria-label="Indicadores de la plataforma">
       <div class="site-stats-band-inner">
-        <div
-          v-if="stats.servidoresInscritos > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.servidoresInscritos > 0" class="site-stat">
           <strong>{{ fmt(stats.servidoresInscritos) }}</strong>
           <span>Servidores inscritos</span>
         </div>
-        <div
-          v-if="stats.cursosDisponibles > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.cursosDisponibles > 0" class="site-stat">
           <strong>{{ fmt(stats.cursosDisponibles) }}</strong>
           <span>Cursos disponibles</span>
         </div>
-        <div
-          v-if="stats.constanciasEmitidas > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.constanciasEmitidas > 0" class="site-stat">
           <strong>{{ fmt(stats.constanciasEmitidas) }}</strong>
           <span>Constancias emitidas</span>
         </div>
-        <div
-          v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0"
-          class="site-stat"
-        >
+        <div v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0" class="site-stat">
           <strong>{{ porcentajeAprobacion }}%</strong>
           <span>Tasa de finalización</span>
         </div>
@@ -177,6 +129,9 @@ function fmt(n) {
 <style scoped>
 .site-hero {
   background: var(--brand-primary-dark);
+  /* Fondo oscuro propio: el anillo de foco por defecto sería azul de marca
+     sobre azul de marca oscuro. Se invierte aquí y lo heredan sus campos. */
+  --focus-ring: var(--paper);
 }
 
 .site-hero-inner {
