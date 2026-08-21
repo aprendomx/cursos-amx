@@ -214,7 +214,7 @@ jobs:
   test-kong-config:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Render kong.yml and parse it
         run: scripts/test-kong-config.sh
 
@@ -226,7 +226,7 @@ jobs:
   test-crear-admin:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Run crear-admin.sh checks
         run: scripts/test-crear-admin.sh
 
@@ -237,7 +237,7 @@ jobs:
   test-deploy-verificacion:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check deploy verification logic
         run: scripts/test-deploy-verificacion.sh
 
