@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase.js'
 import LandingHero from '@/components/LandingHero.vue'
+import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 import LandingCursoBloque from '@/components/LandingCursoBloque.vue'
 import { theme } from '@/lib/theme.js'
 import { CUSTOM_SECTIONS } from '../../theme/sections/index.js'
@@ -143,6 +144,10 @@ const customSections = theme.landing.sections
   .map((name) => ({ name, component: CUSTOM_SECTIONS[name] }))
 
 function goToCurso(curso, anchor = null) {
+  registrarEventoPortada('portada_curso_click', {
+    seccion: 'cursos',
+    posicion: displayCursos.value.findIndex((c) => c.id === curso.id),
+  })
   router.push({ name: 'curso', params: { id: curso.id }, query: anchor ? { anchor } : undefined })
 }
 
@@ -155,6 +160,7 @@ function goToRegistro() {
 }
 
 function goToCatalogo() {
+  registrarEventoPortada('portada_hero_cta', { seccion: 'hero' })
   router.push({ name: 'home' })
 }
 

@@ -1011,5 +1011,60 @@ begin
   end if;
 end $$;
 
+
+\echo ''
+\echo '── 13. Embudo de portada: anónimo escribe por la puerta estrecha, solo admin lee ──'
+
+-- El canal de ingesta de la portada (076). Tres invariantes: la única vía de
+-- escritura es la RPC, la lista blanca descarta sin ruido, y los datos no son
+-- legibles para quien los genera.
+
+do $$
+declare v_antes bigint; v_despues bigint;
+begin
+  select count(*) into v_antes from public.portada_eventos;
+
+  set local role anon;
+  perform public.registrar_evento_portada('portada_hero_cta', 'hero', null, gen_random_uuid());
+  perform public.registrar_evento_portada('portada_curso_click', 'cursos', 3, null);
+  -- Un evento inventado NO debe lanzar: silencio deliberado, para no darle a
+  -- un abusador la confirmación de que la lista existe.
+  perform public.registrar_evento_portada('evento_inventado', null, null, null);
+  reset role;
+
+  select count(*) into v_despues from public.portada_eventos;
+  if v_despues = v_antes + 2 then
+    perform pg_temp.ok('la RPC inserta lo válido y descarta lo inventado sin error');
+  else
+    perform pg_temp.fail(format('se esperaban %s eventos y hay %s', v_antes + 2, v_despues));
+  end if;
+end $$;
+
+do $$
+declare v bigint;
+begin
+  set local role anon;
+  select count(*) into v from public.portada_eventos;
+  reset role;
+  if v = 0 then
+    perform pg_temp.ok('anónimo no lee los eventos que genera');
+  else
+    perform pg_temp.fail('anónimo puede leer portada_eventos');
+  end if;
+end $$;
+
+do $$
+begin
+  set local role anon;
+  begin
+    insert into public.portada_eventos (evento) values ('portada_hero_cta');
+    reset role;
+    perform pg_temp.fail('anónimo insertó DIRECTO, saltándose la RPC y su límite');
+  exception when insufficient_privilege or others then
+    reset role;
+    perform pg_temp.ok('la inserción directa está cerrada: la RPC es la única puerta');
+  end;
+end $$;
+
 \echo ''
 \echo '✅ Todas las pruebas de RLS pasaron'
