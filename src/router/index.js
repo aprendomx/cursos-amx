@@ -11,6 +11,7 @@ import LandingPage from '@/pages/LandingPage.vue'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const RegistroPage = () => import('@/pages/RegistroPage.vue')
+import RecuperarPage from '@/pages/RecuperarPage.vue'
 const CursoDetalle = () => import('@/pages/CursoDetalle.vue')
 const PlayerPage = () => import('@/pages/PlayerPage.vue')
 const PerfilPage = () => import('@/pages/PerfilPage.vue')
@@ -22,6 +23,8 @@ const routes = [
   { path: '/', name: 'home', component: LandingPage },
   { path: '/login', name: 'login', component: LoginPage },
   { path: '/registro', name: 'registro', component: RegistroPage },
+  // Pública a propósito: quien no puede entrar es justo quien la necesita.
+  { path: '/recuperar', name: 'recuperar', component: RecuperarPage },
   {
     path: '/curso/:id',
     name: 'curso',

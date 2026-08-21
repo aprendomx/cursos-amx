@@ -232,6 +232,13 @@ services:
       GOTRUE_MAILER_URLPATHS_INVITE: ${MAILER_URLPATHS_INVITE}
       GOTRUE_MAILER_URLPATHS_CONFIRMATION: ${MAILER_URLPATHS_CONFIRMATION}
       GOTRUE_MAILER_URLPATHS_RECOVERY: ${MAILER_URLPATHS_RECOVERY}
+      # Límite de envío de correo, por hora y por dirección IP. El formulario de
+      # recuperación es público y no pide sesión: sin este límite, cualquiera
+      # puede usarlo para inundar buzones ajenos o para sondear la instalación.
+      #
+      # Tiene que ser del SERVIDOR. Un límite en el navegador es decorativo:
+      # quien quiera abusar no usa el navegador.
+      GOTRUE_RATE_LIMIT_EMAIL_SENT: ${RATE_LIMIT_EMAIL_SENT:-10}
       GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: ${MAILER_URLPATHS_EMAIL_CHANGE}
 
       GOTRUE_EXTERNAL_PHONE_ENABLED: ${ENABLE_PHONE_SIGNUP}
