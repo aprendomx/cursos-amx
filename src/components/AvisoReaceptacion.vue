@@ -1,6 +1,13 @@
 <script setup>
-import { ref, watch } from 'vue'
-import DocumentoContenido from '@/components/DocumentoContenido.vue'
+import { ref, watch, defineAsyncComponent } from 'vue'
+
+// Carga diferida, y no por elegancia: App.vue monta este componente siempre,
+// así que un import estático encadenaba App → DocumentoContenido →
+// LessonRichTextEditor → Tiptap, y metía 112 kB de editor en la descarga
+// inicial de cualquiera que abriera la portada. Lo detectó
+// scripts/check-bundle.js. El diálogo solo se muestra a quien tiene el
+// consentimiento pendiente, así que el editor solo se descarga entonces.
+const DocumentoContenido = defineAsyncComponent(() => import('@/components/DocumentoContenido.vue'))
 import {
   SLUGS,
   getVigente,
