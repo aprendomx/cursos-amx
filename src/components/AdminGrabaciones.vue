@@ -137,7 +137,7 @@ onMounted(cargar)
   max-width: 1100px;
 }
 .admin-grabaciones h2 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: calc(var(--unit) * 2);
@@ -152,12 +152,12 @@ onMounted(cargar)
   flex-direction: column;
 }
 .stat-num {
-  font-size: 24px;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--ink);
 }
 .stat-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -165,7 +165,7 @@ onMounted(cargar)
 .tabla {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .tabla th,
 .tabla td {
@@ -174,47 +174,47 @@ onMounted(cargar)
   border-bottom: 1px solid var(--line);
 }
 .tabla th {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--ink-3);
 }
 .badge {
-  font-size: 10px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   padding: 2px 8px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 .estado-lista {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .estado-procesando,
 .estado-pendiente {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--warn-soft);
+  color: var(--warn);
 }
 .estado-completada {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .estado-error {
-  background: #fce8e6;
-  color: #c5221f;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 .btn-sm {
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   cursor: pointer;
 }
 .vacio {
   color: var(--ink-4);
-  font-size: 14px;
+  font-size: var(--text-sm);
   margin-top: calc(var(--unit) * 2);
 }
 </style>

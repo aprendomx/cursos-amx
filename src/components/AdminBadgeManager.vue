@@ -130,7 +130,10 @@ onMounted(cargar)
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Gamificaci\u00f3n</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Badges
         </h1>
       </div>

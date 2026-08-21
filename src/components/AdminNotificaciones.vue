@@ -113,12 +113,10 @@ onMounted(() => {
   <div class="admin-content fade-in">
     <div class="admin-content-header">
       <div>
-        <p class="eyebrow">
-          Comunicaci&oacute;n
-        </p>
+        <p class="eyebrow">Comunicaci&oacute;n</p>
         <h1
           class="display"
-          :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
         >
           Notificaciones
         </h1>
@@ -126,21 +124,13 @@ onMounted(() => {
     </div>
 
     <!-- Toast -->
-    <div
-      v-if="toast.show"
-      class="toast-notification"
-    >
+    <div v-if="toast.show" class="toast-notification">
       {{ toast.message }}
     </div>
 
     <!-- Plantillas -->
     <div>
-      <p
-        class="eyebrow"
-        :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-      >
-        Plantillas
-      </p>
+      <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">Plantillas</p>
       <p
         v-if="plantillasError"
         class="mono"
@@ -178,60 +168,27 @@ onMounted(() => {
           gap: 'calc(var(--unit) * 3)',
         }"
       >
-        <div
-          v-for="p in plantillas"
-          :key="p.tipo"
-          class="card"
-        >
+        <div v-for="p in plantillas" :key="p.tipo" class="card">
           <div class="field">
             <label :for="'titulo-' + p.tipo">T&iacute;tulo template</label>
-            <input
-              :id="'titulo-' + p.tipo"
-              v-model="p.titulo"
-              type="text"
-            >
+            <input :id="'titulo-' + p.tipo" v-model="p.titulo" type="text" />
           </div>
           <div class="field">
             <label :for="'cuerpo-' + p.tipo">Cuerpo template</label>
-            <textarea
-              :id="'cuerpo-' + p.tipo"
-              v-model="p.cuerpo"
-              rows="4"
-            />
+            <textarea :id="'cuerpo-' + p.tipo" v-model="p.cuerpo" rows="4" />
           </div>
           <div class="field">
             <label :for="'canal-' + p.tipo">Canal default</label>
-            <select
-              :id="'canal-' + p.tipo"
-              v-model="p.canal_default"
-            >
-              <option value="all">
-                Todos
-              </option>
-              <option value="push">
-                Push
-              </option>
-              <option value="email">
-                Email
-              </option>
-              <option value="app">
-                Solo app
-              </option>
+            <select :id="'canal-' + p.tipo" v-model="p.canal_default">
+              <option value="all">Todos</option>
+              <option value="push">Push</option>
+              <option value="email">Email</option>
+              <option value="app">Solo app</option>
             </select>
           </div>
-          <div
-            class="field"
-            :style="{ display: 'flex', alignItems: 'center', gap: '8px' }"
-          >
-            <input
-              :id="'activa-' + p.tipo"
-              v-model="p.activa"
-              type="checkbox"
-            >
-            <label
-              :for="'activa-' + p.tipo"
-              :style="{ marginBottom: '0' }"
-            >Activa</label>
+          <div class="field" :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
+            <input :id="'activa-' + p.tipo" v-model="p.activa" type="checkbox" />
+            <label :for="'activa-' + p.tipo" :style="{ marginBottom: '0' }">Activa</label>
           </div>
           <div
             :style="{
@@ -255,10 +212,7 @@ onMounted(() => {
 
     <!-- Configuraci&oacute;n de email -->
     <div>
-      <p
-        class="eyebrow"
-        :style="{ marginBottom: 'calc(var(--unit) * 2)' }"
-      >
+      <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">
         Configuraci&oacute;n de email
       </p>
       <p
@@ -279,26 +233,13 @@ onMounted(() => {
       >
         Cargando configuraci&oacute;n&hellip;
       </div>
-      <form
-        v-else
-        class="card"
-        @submit.prevent="onGuardarEmailConfig"
-      >
+      <form v-else class="card" @submit.prevent="onGuardarEmailConfig">
         <div class="field">
           <label for="email-proveedor">Proveedor</label>
-          <select
-            id="email-proveedor"
-            v-model="emailConfig.proveedor"
-          >
-            <option value="resend">
-              Resend
-            </option>
-            <option value="smtp">
-              SMTP
-            </option>
-            <option value="sendgrid">
-              SendGrid
-            </option>
+          <select id="email-proveedor" v-model="emailConfig.proveedor">
+            <option value="resend">Resend</option>
+            <option value="smtp">SMTP</option>
+            <option value="sendgrid">SendGrid</option>
           </select>
         </div>
         <div class="field">
@@ -308,7 +249,7 @@ onMounted(() => {
             v-model="emailConfig.api_key"
             type="password"
             placeholder="sk_..."
-          >
+          />
         </div>
         <div class="field">
           <label for="email-remitente">Email remitente</label>
@@ -317,7 +258,7 @@ onMounted(() => {
             v-model="emailConfig.email_remitente"
             type="email"
             placeholder="noreply@ejemplo.gob.mx"
-          >
+          />
         </div>
         <div class="field">
           <label for="email-nombre">Nombre remitente</label>
@@ -326,21 +267,11 @@ onMounted(() => {
             v-model="emailConfig.nombre_remitente"
             type="text"
             placeholder="Ej. Plataforma de Capacitaci&oacute;n"
-          >
+          />
         </div>
-        <div
-          class="field"
-          :style="{ display: 'flex', alignItems: 'center', gap: '8px' }"
-        >
-          <input
-            id="email-activo"
-            v-model="emailConfig.activo"
-            type="checkbox"
-          >
-          <label
-            for="email-activo"
-            :style="{ marginBottom: '0' }"
-          >
+        <div class="field" :style="{ display: 'flex', alignItems: 'center', gap: '8px' }">
+          <input id="email-activo" v-model="emailConfig.activo" type="checkbox" />
+          <label for="email-activo" :style="{ marginBottom: '0' }">
             Activar env&iacute;o de email
           </label>
         </div>
@@ -351,11 +282,7 @@ onMounted(() => {
             marginTop: 'calc(var(--unit) * 2)',
           }"
         >
-          <button
-            type="submit"
-            class="btn btn-primary btn-sm"
-            :disabled="emailSaving"
-          >
+          <button type="submit" class="btn btn-primary btn-sm" :disabled="emailSaving">
             {{ emailSaving ? 'Guardando\u2026' : 'Guardar configuraci&oacute;n' }}
           </button>
         </div>
@@ -372,8 +299,8 @@ onMounted(() => {
   background: var(--ink);
   color: var(--paper);
   padding: calc(var(--unit) * 1.5) calc(var(--unit) * 3);
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   font-weight: 500;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;

@@ -73,7 +73,7 @@ function cellColor(value, key) {
       :style="{
         padding: 'calc(var(--unit) * 2.5)',
         color: 'var(--ink-3)',
-        fontSize: '13px',
+        fontSize: 'var(--text-sm)',
       }"
     >
       Sin datos de engagement.

@@ -62,12 +62,12 @@
 
 ## 8. Tanda C — panel de administración e instructor
 
-- [ ] 8.1 Navegación del panel y `AdminPage`.
-- [ ] 8.2 Las pantallas de listado y tabla —usuarios, cursos, entregas, reportes—, priorizando densidad legible sobre densidad máxima.
-- [ ] 8.3 Los formularios y paneles de creación —cursos, sesiones, tareas, rúbricas, constancias.
-- [ ] 8.4 Los tableros con gráficas: leyendas visibles, alternativa textual y series distinguibles sin depender del color.
-- [ ] 8.5 `InstructorPage` y sus paneles.
-- [ ] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos.
+- [x] 8.1 Navegación del panel y `AdminPage`. — Migrados a tokens.
+- [x] 8.2 Las pantallas de listado y tabla —usuarios, cursos, entregas, reportes—, priorizando densidad legible sobre densidad máxima. — Migradas; los 9 tamaños por debajo de 12px suben al piso, que es justo la densidad excesiva que había que corregir.
+- [x] 8.3 Los formularios y paneles de creación —cursos, sesiones, tareas, rúbricas, constancias. — Migrados. Aparecieron dos copias literales de colores del tema (`#b45309` y `#0f766e`, el acento y el secundario): una institución que cambiara los suyos no habría visto el cambio ahí.
+- [ ] 8.4 Los tableros con gráficas: leyendas visibles, alternativa textual y series distinguibles sin depender del color. — **Parcial.** Hecho en `FunnelChart`: su degradado iba de un azul a un verde en RGB fijo, ignorando los colores de la institución; ahora interpola entre el primario y el secundario del tema. Y gana un resumen para lectores de pantalla, porque sus filas ya daban los números pero no la lectura de conjunto. Pendiente: `ActivityHeatmap`, `VideoHeatmap` e `InscripcionesTimeline` —esta última no expone ningún dato como texto—, y revisar si alguna serie depende solo del color.
+- [x] 8.5 `InstructorPage` y sus paneles. — Migrados.
+- [ ] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos. — **No hecha**, por lo mismo que la 6.6 y la 7.6.
 
 ## 9. Contrato del tema
 

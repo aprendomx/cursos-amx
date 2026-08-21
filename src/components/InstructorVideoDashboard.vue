@@ -117,7 +117,10 @@ const columns = [
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Videos</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Analytics de video
         </h1>
       </div>
@@ -277,7 +280,7 @@ const columns = [
           :style="{
             padding: 'calc(var(--unit) * 2.5)',
             color: 'var(--ink-3)',
-            fontSize: '13px',
+            fontSize: 'var(--text-sm)',
           }"
         >
           Sin datos de lecciones con video.
@@ -298,7 +301,7 @@ const columns = [
           <button class="btn btn-ghost btn-sm" :disabled="page === 1" @click="page--">
             ← Anterior
           </button>
-          <span class="mono" :style="{ fontSize: '13px', color: 'var(--ink-3)' }">
+          <span class="mono" :style="{ fontSize: 'var(--text-sm)', color: 'var(--ink-3)' }">
             Página {{ page }} de {{ totalPages }}
           </span>
           <button class="btn btn-ghost btn-sm" :disabled="page === totalPages" @click="page++">
@@ -317,9 +320,9 @@ const columns = [
   transition: color 150ms var(--ease);
 }
 .sortable-header:hover {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .sort-active {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 </style>

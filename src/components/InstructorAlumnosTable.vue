@@ -89,7 +89,7 @@ function fmtFecha(iso) {
               <span
                 v-if="row.correo"
                 class="mono"
-                :style="{ color: 'var(--ink-4)', fontSize: '12px' }"
+                :style="{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)' }"
               >
                 {{ row.correo }}
               </span>
@@ -136,7 +136,7 @@ function fmtFecha(iso) {
       :style="{
         padding: 'calc(var(--unit) * 2.5)',
         color: 'var(--ink-3)',
-        fontSize: '13px',
+        fontSize: 'var(--text-sm)',
       }"
     >
       Sin alumnos registrados.
@@ -151,9 +151,9 @@ function fmtFecha(iso) {
   transition: color 150ms var(--ease);
 }
 .sortable-header:hover {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .sort-active {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 </style>

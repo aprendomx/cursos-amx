@@ -65,7 +65,10 @@ function handleDeleted(curso) {
     <aside v-show="!sidebarHidden" id="admin-sidebar" class="admin-sidebar">
       <div class="admin-sidebar-header">
         <p class="eyebrow" :style="{ color: 'var(--brand-accent)' }">Panel admin</p>
-        <h2 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
+        <h2
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Operaci&oacute;n
         </h2>
       </div>

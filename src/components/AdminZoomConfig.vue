@@ -91,18 +91,18 @@ onMounted(cargar)
   max-width: 600px;
 }
 .admin-zoom-config h3 {
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: calc(var(--unit));
 }
 .hint {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
   margin-bottom: calc(var(--unit) * 2);
 }
 .hint a {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .field-row {
   display: flex;
@@ -111,7 +111,7 @@ onMounted(cargar)
   margin-bottom: calc(var(--unit) * 1.5);
 }
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--ink-2);
   text-transform: uppercase;
@@ -120,22 +120,22 @@ onMounted(cargar)
 input {
   padding: calc(var(--unit)) calc(var(--unit) * 1.5);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
 }
 .btn-primary {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
   color: #fff;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }
@@ -145,7 +145,7 @@ input:focus {
 }
 .mensaje {
   margin-top: calc(var(--unit));
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
 }
 </style>

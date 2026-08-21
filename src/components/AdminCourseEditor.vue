@@ -105,7 +105,10 @@ async function goToStep(i) {
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Editor de curso</p>
-        <h1 class="display" :style="{ fontSize: '28px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           {{ editingCurso.titulo || 'Nuevo curso' }}
         </h1>
       </div>
@@ -145,7 +148,11 @@ async function goToStep(i) {
           <input
             v-model="editingCurso.slug"
             type="text"
-            :style="{ color: 'var(--ink-3)', fontFamily: 'var(--mono)', fontSize: '14px' }"
+            :style="{
+              color: 'var(--ink-3)',
+              fontFamily: 'var(--mono)',
+              fontSize: 'var(--text-sm)',
+            }"
             readonly
           />
         </div>
@@ -328,11 +335,11 @@ async function goToStep(i) {
               </div>
               <h3
                 class="display"
-                :style="{ fontSize: '22px', lineHeight: '1.1', color: 'var(--ink)' }"
+                :style="{ fontSize: 'var(--text-xl)', lineHeight: '1.1', color: 'var(--ink)' }"
               >
                 {{ editingCurso.titulo || 'Sin título' }}
               </h3>
-              <p :style="{ fontSize: '13px', lineHeight: '1.5', color: 'var(--ink-3)' }">
+              <p :style="{ fontSize: 'var(--text-sm)', lineHeight: '1.5', color: 'var(--ink-3)' }">
                 {{ editingCurso.descripcion || 'Sin descripción' }}
               </p>
             </div>
@@ -372,7 +379,7 @@ async function goToStep(i) {
               </span>
               <span
                 :style="{
-                  fontSize: '14px',
+                  fontSize: 'var(--text-sm)',
                   color: check.pass ? 'var(--ink-2)' : 'var(--danger)',
                 }"
               >
