@@ -193,7 +193,7 @@ onMounted(cargarCursos)
       class="card"
       :style="{ maxWidth: '640px', marginBottom: 'calc(var(--unit) * 3)' }"
     >
-      <h3>{{ editing ? 'Editar cohorte' : 'Nuevo cohorte' }}</h3>
+      <h2>{{ editing ? 'Editar cohorte' : 'Nuevo cohorte' }}</h2>
       <div class="field">
         <label>Nombre</label>
         <input v-model="form.nombre" type="text" />
@@ -279,7 +279,7 @@ onMounted(cargarCursos)
       </div>
 
       <div v-if="selectedCohorte" class="card">
-        <h4>{{ selectedCohorte.nombre }} — Miembros</h4>
+        <h3>{{ selectedCohorte.nombre }} — Miembros</h3>
         <div class="field" :style="{ display: 'flex', gap: 'calc(var(--unit) * 1)' }">
           <input
             v-model="usuarioSearch"

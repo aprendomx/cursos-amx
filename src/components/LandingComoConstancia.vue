@@ -104,7 +104,7 @@ const pasos = [
   font-size: clamp(28px, 3.6vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-primary);
 }
 
 /* Card principal */
@@ -113,7 +113,7 @@ const pasos = [
 }
 .cc-card {
   background: var(--brand-secondary-dark);
-  color: var(--paper);
+  color: var(--sobre-secondary-dark);
   border-radius: var(--radius-full);
   overflow: hidden;
   display: grid;
@@ -139,7 +139,7 @@ const pasos = [
   font-size: clamp(34px, 4vw, 52px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-primary);
 }
 
 .cc-intro,
@@ -159,7 +159,7 @@ const pasos = [
 }
 .cc-paso {
   background: var(--paper);
-  color: var(--brand-ink);
+  color: var(--ink);
   border-radius: var(--radius-lg);
   padding: calc(var(--unit) * 2);
   display: flex;
@@ -173,7 +173,7 @@ const pasos = [
   height: 40px;
   border-radius: 50%;
   background: var(--brand-accent);
-  color: var(--paper);
+  color: var(--sobre-accent);
   display: grid;
   place-items: center;
   font-family: var(--display);
@@ -193,14 +193,14 @@ const pasos = [
   font-family: var(--ui);
   font-weight: 700;
   font-size: 14.5px;
-  color: var(--brand-ink);
+  color: var(--ink);
   line-height: 1.2;
 }
 .cc-paso-body span {
   font-family: var(--ui);
   font-size: 12.5px;
   line-height: 1.4;
-  color: var(--gris-70);
+  color: var(--ink-2);
 }
 
 /* Botón pill verde-oscuro */
@@ -210,7 +210,7 @@ const pasos = [
 }
 .cc-pill {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--paper);
+  color: var(--sobre-primary);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-full);
   padding: 16px 38px;
@@ -225,7 +225,7 @@ const pasos = [
 }
 .cc-pill:hover {
   background: var(--paper);
-  color: var(--brand-secondary-dark);
+  color: var(--success);
   border-color: var(--paper);
   transform: translateY(-1px);
 }

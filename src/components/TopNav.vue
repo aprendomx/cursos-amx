@@ -56,10 +56,7 @@ watch(
 </script>
 
 <template>
-  <header
-    class="nav"
-    :class="{ 'is-open': drawerOpen }"
-  >
+  <header class="nav" :class="{ 'is-open': drawerOpen }">
     <div class="nav-inner">
       <a
         class="nav-brand"
@@ -67,25 +64,15 @@ watch(
         :aria-label="`Inicio ${theme.app.name}`"
         @click.prevent="go({ name: 'home' })"
       >
-        <img
-          class="nav-brand-logo"
-          :src="theme.logos.nav"
-          :alt="theme.app.name"
-        >
-        <span
-          class="nav-brand-divider"
-          aria-hidden="true"
-        />
+        <img class="nav-brand-logo" :src="theme.logos.nav" :alt="theme.app.name" />
+        <span class="nav-brand-divider" aria-hidden="true" />
         <span class="nav-brand-text">
           <strong>{{ theme.nav.title }}</strong>
           <span>{{ theme.nav.subtitle }}</span>
         </span>
       </a>
 
-      <nav
-        class="nav-links"
-        aria-label="Principal"
-      >
+      <nav class="nav-links" aria-label="Principal">
         <a
           v-for="link in navLinks"
           v-show="linkVisible(link)"
@@ -93,14 +80,15 @@ watch(
           :class="{ active: isActive(link.name) }"
           href="#"
           @click.prevent="go(link)"
-        >{{ link.label }}</a>
+          >{{ link.label }}</a
+        >
       </nav>
 
       <div class="nav-actions">
         <template v-if="session">
           <NotificationBell
             v-if="featureEnabled('notificaciones')"
-            :on-open-panel="() => showPanel = true"
+            :on-open-panel="() => (showPanel = true)"
           />
           <NotificationPanel
             v-if="featureEnabled('notificaciones')"
@@ -116,13 +104,7 @@ watch(
           >
             {{ user.iniciales || '?' }}
           </div>
-          <button
-            class="nav-logout-link"
-            type="button"
-            @click="emit('logout')"
-          >
-            Salir
-          </button>
+          <button class="nav-logout-link" type="button" @click="emit('logout')">Salir</button>
         </template>
         <template v-else>
           <button
@@ -169,7 +151,8 @@ watch(
         :class="{ active: isActive(link.name) }"
         href="#"
         @click.prevent="go(link)"
-      >{{ link.label }}</a>
+        >{{ link.label }}</a
+      >
 
       <div class="nav-drawer-actions">
         <template v-if="session">
@@ -247,7 +230,7 @@ watch(
   padding: 6px 8px;
 }
 .nav-logout-link:hover {
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 
 .nav-avatar {

@@ -150,9 +150,9 @@ onMounted(cargar)
 
     <!-- Formulario inline -->
     <div v-if="showForm" class="card" :style="{ marginBottom: 'calc(var(--unit) * 3)' }">
-      <h3 :style="{ marginBottom: 'calc(var(--unit) * 2)', color: 'var(--ink)' }">
+      <h2 :style="{ marginBottom: 'calc(var(--unit) * 2)', color: 'var(--ink)' }">
         {{ editingId ? 'Editar badge' : 'Nuevo badge' }}
-      </h3>
+      </h2>
       <div class="field">
         <label>Nombre</label>
         <input v-model="form.nombre" type="text" placeholder="Nombre del badge" />

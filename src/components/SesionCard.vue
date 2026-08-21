@@ -137,7 +137,7 @@ const plataformaClass = { jitsi: 'badge-jitsi', zoom: 'badge-zoom' }
   padding: 2px 8px;
   border-radius: 3px;
   background: var(--primary-100);
-  color: var(--primary);
+  color: var(--sobre-primary-100);
   display: inline-flex;
   align-items: center;
   gap: 6px;

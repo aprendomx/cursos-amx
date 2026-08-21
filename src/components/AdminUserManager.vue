@@ -273,7 +273,7 @@ const showImport = ref(false)
       @click.self="cerrarReset"
     >
       <div class="pw-modal card">
-        <h3 :style="{ marginBottom: '4px', color: 'var(--ink)' }">Restablecer contrase&ntilde;a</h3>
+        <h2 :style="{ marginBottom: '4px', color: 'var(--ink)' }">Restablecer contrase&ntilde;a</h2>
         <p
           class="mono"
           :style="{

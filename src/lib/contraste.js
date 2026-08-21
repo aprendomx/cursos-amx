@@ -87,3 +87,40 @@ export function ajustarParaContraste(color, fondo, objetivo = 4.5) {
   }
   return mejor
 }
+
+/**
+ * Elige, entre una tinta clara y una oscura, la que más contraste da sobre
+ * `fondo`.
+ *
+ * Es para las superficies cuyo color NO sigue al tema: la barra de navegación,
+ * el hero o la pleca se pintan con el color institucional, que es el mismo en
+ * claro y en oscuro porque es la marca. El texto de encima tiene que seguir al
+ * fondo que pisa, no al modo de la página.
+ *
+ * No se da por hecho el blanco: una identidad clara —un amarillo, un cian—
+ * necesita tinta oscura encima.
+ *
+ * @param {string} fondo color de la superficie, en hex
+ * @param {string} claro candidato claro
+ * @param {string} oscuro candidato oscuro
+ * @returns {string} el de los dos que más contraste da
+ */
+export function tintaLegible(fondo, claro = '#ffffff', oscuro = '#161a1d') {
+  return contraste(fondo, claro) >= contraste(fondo, oscuro) ? claro : oscuro
+}
+
+/**
+ * Mezcla dos colores en proporción `parte` del primero. Equivale a
+ * color-mix(in srgb, a <parte>%, b), pero en JS: hace falta para derivar la
+ * tinta de una superficie teñida antes de que el navegador la calcule.
+ *
+ * @param {string} a color en hex
+ * @param {string} b color en hex
+ * @param {number} parte proporción de `a`, de 0 a 1
+ * @returns {string} hex de la mezcla
+ */
+export function mezclar(a, b, parte) {
+  const ra = hexARgb(a)
+  const rb = hexARgb(b)
+  return rgbAHex([0, 1, 2].map((i) => Math.round(ra[i] * parte + rb[i] * (1 - parte))))
+}

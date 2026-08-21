@@ -4,7 +4,7 @@
 - [x] 1.2 Declarar la escala de radios de esquina.
 - [x] 1.3 Declarar la escala de elevación, con un número corto de niveles y un uso asignado a cada uno (tarjeta, panel, diálogo).
 - [x] 1.4 Revisar la escala de espaciado existente y completar los pasos que falten, sin renombrar los que ya se usan.
-- [x] 1.5 Aplicar las escalas a los elementos base —encabezados, párrafo, botones, campos, tarjetas— de modo que la mayoría de componentes hereden sin tocarlos.
+- [x] 1.5 Aplicar las escalas a los elementos base —encabezados, párrafo, botones, campos, tarjetas— de modo que la mayoría de componentes hereden sin tocarlos. — **Completada en el grupo 4:** los encabezados se habían quedado con los valores por defecto del navegador, que atan el tamaño al NIVEL semántico. Eso hacía que subir un `h2` a `h1` —lo correcto cuando ese texto es el título de la pantalla— cambiara su tamaño sin quererlo. Ahora el nivel dice qué ES el texto y la escala dice cómo se ve.
 - [ ] 1.6 Capturar cómo se ve la portada, el curso y el reproductor antes de este grupo, para poder comparar después. — **No hecha, y ya no se puede: la base ya cambió.** Se verificó en navegador el resultado (anillo de foco blanco sobre el hero oscuro, tokens resueltos en ambos modos), pero sin comparación contra el estado previo. Para las tandas siguientes conviene capturar antes de empezar cada una.
 
 ## 2. Foco visible, protegido desde la base
@@ -26,11 +26,11 @@
 
 ## 4. Estructura de página
 
-- [ ] 4.1 Añadir el encabezado de primer nivel que falta en `AdminPage`, `LandingPage` y `PlayerPage`.
-- [ ] 4.2 Revisar el resto de páginas y corregir los saltos de nivel de encabezado.
-- [ ] 4.3 Añadir el enlace de salto al contenido como primer elemento enfocable, visible al recibir el foco.
-- [ ] 4.4 Marcar la región de contenido principal en cada página para que el enlace tenga destino.
-- [ ] 4.5 Añadir una prueba que verifique que cada página declara exactamente un `h1`.
+- [x] 4.1 Añadir el encabezado de primer nivel que falta en `AdminPage`, `LandingPage` y `PlayerPage`. — **Corrección al diagnóstico previo:** solo `PlayerPage` carecía de `h1` de verdad; `LandingPage` lo recibe de `LandingHero` y `AdminPage` de cada sección. La comprobación anterior solo miró `src/pages/` y no siguió los componentes hijos. Lo que sí faltaba: **8 de las 21 secciones del panel**. Corregidas todas, más `PlayerPage`.
+- [x] 4.2 Revisar el resto de páginas y corregir los saltos de nivel de encabezado. — Cuatro componentes saltaban de `h1` a `h3` (`AdminBadgeManager`, `AdminCohortManager`, `AdminCourseEditor`, `AdminUserManager`). Corregidos en cascada para no crear un salto nuevo donde había `h3` y `h4`. Cero saltos en todo el repo.
+- [x] 4.3 Añadir el enlace de salto al contenido como primer elemento enfocable, visible al recibir el foco. — Primer elemento del árbol, oculto apartándolo y no con `display: none`, que lo sacaría del orden de tabulación. Con enrutado por hash, el `href` de ancla cambiaría la ruta, así que el foco se mueve a mano.
+- [x] 4.4 Marcar la región de contenido principal en cada página para que el enlace tenga destino. — `<main id="contenido-principal" tabindex="-1">` envuelve el `router-view`.
+- [x] 4.5 Añadir una prueba que verifique que cada página declara exactamente un `h1`. — 7 aserciones: sin saltos de nivel, cada sección del panel con su `h1`, y el enlace de salto existente, primero en el árbol, con destino enfocable y oculto sin `display: none`.
 
 ## 5. Objetivos táctiles y estados
 

@@ -305,7 +305,7 @@ const summaryRows = computed(() => [
 /* ---- LEFT PANEL ---- */
 .registro-left {
   position: relative;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   display: flex;
   flex-direction: column;
   background: var(--brand-primary-dark);
@@ -350,7 +350,7 @@ const summaryRows = computed(() => [
 
 .registro-headline {
   font-size: clamp(36px, 4vw, 52px);
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 
 .registro-privacy {

@@ -45,7 +45,7 @@ onMounted(cargar)
 
 <template>
   <div class="admin-zoom-config">
-    <h3>Configuración Zoom</h3>
+    <h1>Configuración Zoom</h1>
     <p class="hint">
       Credenciales de Server-to-Server OAuth de Zoom.
       <a

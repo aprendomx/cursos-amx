@@ -503,7 +503,7 @@ const mockPendingEntregas = ref([
 }
 .chip-oro {
   background: var(--brand-accent-soft, #e6d194);
-  color: var(--oro);
+  color: var(--sobre-accent-soft);
 }
 .inst-tabla {
   width: 100%;

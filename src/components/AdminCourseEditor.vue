@@ -333,12 +333,12 @@ async function goToStep(i) {
                   Nuevo
                 </span>
               </div>
-              <h3
+              <h2
                 class="display"
                 :style="{ fontSize: 'var(--text-xl)', lineHeight: '1.1', color: 'var(--ink)' }"
               >
                 {{ editingCurso.titulo || 'Sin título' }}
-              </h3>
+              </h2>
               <p :style="{ fontSize: 'var(--text-sm)', lineHeight: '1.5', color: 'var(--ink-3)' }">
                 {{ editingCurso.descripcion || 'Sin descripción' }}
               </p>

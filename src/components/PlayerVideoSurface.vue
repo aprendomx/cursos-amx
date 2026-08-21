@@ -464,7 +464,7 @@ function onEnded() {
   height: 64px;
   border-radius: 50%;
   background: var(--brand-accent);
-  color: var(--ink);
+  color: var(--sobre-accent);
   display: grid;
   place-items: center;
 }

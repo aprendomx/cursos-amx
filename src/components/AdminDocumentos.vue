@@ -128,7 +128,7 @@ onMounted(cargar)
 <template>
   <section class="admin-documentos">
     <header class="ad-header">
-      <h2>Documentos</h2>
+      <h1>Documentos</h1>
       <p :style="{ color: 'var(--ink-2)' }">
         Aviso de privacidad, términos de uso y contacto. Publicar crea una versión nueva y conserva
         las anteriores.

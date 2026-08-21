@@ -46,17 +46,48 @@ distintos, 174 de `border-radius` con 21 y 26 sombras con 19 valores —casi cad
 sombra era única—. Eso es lo que hacía que la interfaz se sintiera despareja sin
 que se pudiera señalar un culpable concreto.
 
-| Escala         | Tokens                                          | Para qué                                                                                                                          |
-| -------------- | ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Texto          | `--text-xs` … `--text-4xl`                      | 12, 14, 16, 18, 20, 24, 32, 44 px. **12 px es el piso**: por debajo el texto deja de ser legible para buena parte de quien lo lee |
-| Interlineado   | `--leading-tight/snug/normal`                   | 1.2 en títulos, 1.6 en cuerpo                                                                                                     |
-| Peso           | `--weight-regular/medium/bold`                  | La jerarquía se sostiene con tamaño y peso, no con color                                                                          |
-| Radios         | `--radius-sm/md/lg/full`                        | Campos y chips · botones y tarjetas · paneles y diálogos · píldoras                                                               |
-| Elevación      | `--elev-0` … `--elev-3`                         | Reposo · tarjeta · panel o menú · diálogo sobre velo                                                                              |
-| Estado         | `--danger`, `--success`, `--warn` y sus `-soft` | Los tres se distinguen entre sí **y del color de marca**                                                                          |
-| Primer plano   | `--primary-fg`                                  | El color de marca cuando es TEXTO: ajustado para cumplir 4.5:1. El de fondo conserva el valor de la institución                   |
-| Foco           | `--focus-ring`                                  | Una superficie con fondo oscuro propio puede invertirlo localmente                                                                |
-| Reconocimiento | `--oro`                                         | Insignias y logros. No sigue al tema: es un color con significado propio                                                          |
+| Escala         | Tokens                                                                     | Para qué                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Texto          | `--text-xs` … `--text-4xl`                                                 | 12, 14, 16, 18, 20, 24, 32, 44 px. **12 px es el piso**: por debajo el texto deja de ser legible para buena parte de quien lo lee |
+| Interlineado   | `--leading-tight/snug/normal`                                              | 1.2 en títulos, 1.6 en cuerpo                                                                                                     |
+| Peso           | `--weight-regular/medium/bold`                                             | La jerarquía se sostiene con tamaño y peso, no con color                                                                          |
+| Radios         | `--radius-sm/md/lg/full`                                                   | Campos y chips · botones y tarjetas · paneles y diálogos · píldoras                                                               |
+| Elevación      | `--elev-0` … `--elev-3`                                                    | Reposo · tarjeta · panel o menú · diálogo sobre velo                                                                              |
+| Estado         | `--danger`, `--success`, `--warn` y sus `-soft`                            | Los tres se distinguen entre sí **y del color de marca**                                                                          |
+| Primer plano   | `--primary-fg`                                                             | El color de marca cuando es TEXTO: ajustado para cumplir 4.5:1. El de fondo conserva el valor de la institución                   |
+| Foco           | `--focus-ring`                                                             | Una superficie con fondo oscuro propio puede invertirlo localmente                                                                |
+| Reconocimiento | `--oro`                                                                    | Insignias y logros. Se aclara en oscuro; sobre el amarillo suave del acento usa `--sobre-accent-soft`                             |
+| Sobre marca    | `--sobre-primary`, `--sobre-secondary`, `--sobre-accent`, `--sobre-*-soft` | La tinta de una superficie pintada con el color institucional. **No siguen al modo**, siguen al fondo que pisan                   |
+
+### La regla del par
+
+Un color puede seguir al tema o no seguirlo. Los dos son legítimos. Lo que
+**nunca** es correcto es mezclarlos en el mismo par fondo/texto:
+
+- Fondo que sigue + tinta clavada → al pasar a oscuro el fondo se va a negro y
+  la tinta se queda negra.
+- Fondo clavado —porque es el color de la marca— + tinta que sigue → lo mismo
+  al revés.
+
+Así estaban el hero (1.82:1), las preguntas frecuentes (1.08:1) y los chips
+(3.44:1): cada uno por una de las dos mitades del mismo error. La barra de
+navegación se pinta con el azul institucional, que vale igual en claro y en
+oscuro porque **es la marca**; el texto de encima llevaba `--paper`, que sí se
+invierte.
+
+Para esas superficies existen los tokens `--sobre-*`. `applyTheme()` los deriva
+del color de cada instalación con `tintaLegible()`, así que una identidad clara
+—un amarillo, un cian— recibe tinta oscura en vez de blanca.
+
+Un detalle que no es evidente: **`--primary` y `--primary-700` no sirven como
+tinta sobre un fondo teñido.** En modo oscuro las dos están derivadas para dar
+4.5:1 _justos_ contra el papel, así que cualquier tinte —aunque sea del 8%— se
+come el margen entero. Por eso el tinte suave tiene su propia tinta,
+`--sobre-primary-100`, derivada contra el tinte real.
+
+`src/lib/__tests__/temaPares.test.js` comprueba la regla sobre todo el CSS del
+proyecto, y deduce qué token sigue al tema leyendo si se redefine en
+`[data-theme='dark']` — no hay lista que mantener a mano.
 
 Tres cosas que **no** se tokenizan, y conviene saber por qué antes de
 «arreglarlas»:

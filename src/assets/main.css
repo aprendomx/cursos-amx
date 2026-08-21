@@ -29,6 +29,37 @@
   --primary-700: var(--brand-primary-dark);
   --primary-100: var(--brand-primary-soft);
 
+  /* Tinta sobre superficies de MARCA.
+     --------------------------------------------------------------------
+     La nav, el hero, la pleca y el aparte del login se pintan con el color
+     institucional, que NO se invierte en modo oscuro: es la marca. El texto
+     de encima usaba --paper, que sí se invierte, así que en oscuro quedaba
+     tinta casi negra sobre azul oscuro (1.82:1).
+
+     Estos tokens no se redefinen en [data-theme='dark'] a propósito: su
+     trabajo es justamente no seguir al modo. applyTheme() los recalcula
+     según el color de cada instalación —una marca clara recibe tinta
+     oscura—; estos valores son el punto de partida. Ver src/lib/theme.js. */
+  --sobre-primary: #ffffff;
+  --sobre-primary-dark: #ffffff;
+  --sobre-secondary: #ffffff;
+  --sobre-secondary-dark: #ffffff;
+  --sobre-accent: #ffffff;
+  /* Tinta sobre el tinte SUAVE del primario (chips, celdas del calendario,
+     insignia de sesión en vivo). No sirve --primary: en oscuro está derivado
+     para dar 4.5:1 exactos contra el papel, así que sobre un fondo teñido
+     —aunque sea un tinte del 8%— ya no llega. --primary-700 es más claro en
+     oscuro y más oscuro en claro, y cumple en los dos (8.49 / 9.17). */
+  --sobre-primary-100: var(--primary-700);
+  /* Tinta sobre el amarillo suave del acento, que tampoco se invierte.
+     Llevaba --oro, que sí sigue al tema: en oscuro el dorado se aclara a
+     #c9a227 y quedaba claro sobre claro en los distintivos de instructor y
+     en los estados de entrega. Con este valor da 4.54:1 en ambos modos. */
+  --sobre-accent-soft: #7d6339;
+  /* Atajo para lo que hereda la superficie de un ancestro (hero, nav, chat):
+     no hay fondo propio en la regla contra el que decidir. */
+  --sobre-marca: var(--sobre-primary-dark);
+
   /* Neutrals — paper blanco institucional + grays oficiales */
   --paper: #ffffff;
   --paper-2: #fafafa;
@@ -180,6 +211,16 @@
   --success: var(--brand-secondary-on-dark, #5eccc0);
   --warn: var(--brand-accent-on-dark, #f0a95c);
   --danger: var(--brand-danger-on-dark, #f2b8b5);
+  /* El tinte suave del primario es un azul CLARO fijo que no se invierte.
+     Con --primary encima —que en oscuro ya es la variante aclarada— quedaba
+     claro sobre claro: 3.44:1 en los chips, y lo mismo en el calendario de
+     sesiones y en la insignia de sesión en vivo. Se rehace como tinte
+     OSCURO del mismo color, para que el par siga funcionando. */
+  --primary-100: var(--primary-100-on-dark, color-mix(in srgb, var(--primary) 22%, var(--paper)));
+  /* Ni --primary ni --primary-700 sirven aquí: las dos están derivadas para
+     dar 4.5:1 justos contra el PAPEL, y este fondo está teñido. La variante
+     que sí cumple sobre el tinte la calcula applyTheme(). */
+  --sobre-primary-100: var(--sobre-primary-100-on-dark, #93b4ff);
   /* En oscuro --primary ya es la variante ajustada, así que el primer plano
      coincide con él. */
   --primary-fg: var(--primary);
@@ -221,6 +262,34 @@ select {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
+}
+
+/* Encabezados: tamaños desde la escala, no desde los valores por defecto del
+   navegador.
+   Los defaults (2em / 1.5em / 1.17em…) coinciden por casualidad con los dos
+   primeros pasos de la escala y se desvían a partir del tercero. Peor: atan el
+   tamaño al NIVEL semántico, así que subir un h2 a h1 —lo correcto cuando ese
+   texto es el título de la pantalla— cambiaba su tamaño sin quererlo. Con la
+   escala explícita, el nivel dice qué ES el texto y la clase dice cómo se ve. */
+h1 {
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+h2 {
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+h3 {
+  font-size: var(--text-xl);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-bold);
+}
+h4 {
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-medium);
 }
 
 /* Typography utilities */
@@ -352,7 +421,7 @@ select {
 }
 .chip-primary {
   background: var(--primary-100);
-  color: var(--primary);
+  color: var(--sobre-primary-100);
 }
 .chip-verde {
   background: var(--brand-secondary-soft);
@@ -360,7 +429,7 @@ select {
 }
 .chip-accent {
   background: var(--brand-accent-soft);
-  color: #8a6e3f;
+  color: var(--sobre-accent-soft);
 }
 
 /* Cards */
@@ -488,6 +557,37 @@ select {
   outline-offset: 2px;
 }
 
+/* Enlace de salto al contenido (WCAG 2.1 §2.4.1, «Evitar bloques»).
+   No se oculta con `display: none`: eso lo sacaría del orden de tabulación y
+   dejaría de existir para quien lo necesita. Se aparta fuera de la pantalla y
+   vuelve al recibir el foco. */
+.salto-contenido {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transform: translateY(-120%);
+  background: var(--paper);
+  color: var(--primary-fg);
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2.5);
+  border-radius: 0 0 var(--radius-md) 0;
+  box-shadow: var(--elev-2);
+  font-weight: var(--weight-medium);
+  text-decoration: none;
+  transition: transform 160ms var(--ease);
+}
+.salto-contenido:focus,
+.salto-contenido:focus-visible {
+  transform: translateY(0);
+}
+
+/* El destino del salto lleva tabindex="-1" para poder recibir el foco sin
+   entrar en el orden de tabulación. Sin anillo: no es un control, y el
+   contorno alrededor de toda la página sería desconcertante. */
+#contenido-principal:focus {
+  outline: none;
+}
+
 /* Contenido para lectores de pantalla, oculto a la vista.
    No se usa `display: none` ni `visibility: hidden`: eso lo esconde TAMBIÉN
    del lector, que es lo contrario de lo que se busca. La técnica es sacarlo
@@ -590,7 +690,7 @@ select {
   top: 0;
   z-index: 50;
   background: var(--brand-primary-dark);
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   border-bottom: 4px solid var(--brand-primary);
 }
 .nav::after {
@@ -633,7 +733,7 @@ select {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 .nav-brand-text strong {
   font-family: var(--display);
@@ -707,10 +807,10 @@ select {
   text-decoration: none;
 }
 .nav-links a:hover {
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 .nav-links a.active {
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 .nav-links a.active::after {
   content: '';
@@ -725,7 +825,7 @@ select {
 /* Botones dentro del header oscuro */
 .nav .btn-ghost {
   background: transparent;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 .nav .btn-ghost:hover {
@@ -733,7 +833,10 @@ select {
   border-color: rgba(255, 255, 255, 0.55);
 }
 .nav .btn-primary {
-  background: var(--paper);
+  /* La píldora clara sobre la barra de marca: su relleno es la TINTA de la
+     barra, no el papel de la página. Con --paper se invertía a casi negro en
+     modo oscuro y quedaba azul oscuro sobre negro (1.82:1). */
+  background: var(--sobre-primary-dark);
   color: var(--brand-primary-dark);
 }
 .nav .btn-primary:hover {
@@ -746,7 +849,7 @@ select {
   width: 40px !important;
   height: 40px !important;
   border-radius: 0 !important;
-  background: var(--paper) !important;
+  background: var(--sobre-primary-dark) !important;
   color: var(--brand-primary-dark) !important;
   font-family: var(--ui) !important;
   font-weight: 700 !important;
@@ -942,7 +1045,7 @@ select {
     font-weight: 500;
     font-size: 28px;
     line-height: 1.1;
-    color: var(--paper);
+    color: var(--sobre-primary-dark);
     padding: 12px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
     cursor: pointer;
@@ -979,7 +1082,7 @@ select {
 .site-pleca {
   margin-top: calc(var(--unit) * 8);
   background: var(--brand-primary-dark);
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   position: relative;
 }
 .site-pleca::before {
@@ -1041,7 +1144,7 @@ select {
   transition: color 160ms var(--ease);
 }
 .site-pleca-col li a:hover {
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   text-decoration: underline;
   text-decoration-color: var(--brand-accent);
   text-underline-offset: 4px;
@@ -1121,7 +1224,7 @@ select {
   font-size: clamp(48px, 7vw, 96px);
   line-height: 0.98;
   letter-spacing: -0.025em;
-  color: var(--brand-ink);
+  color: var(--sobre-primary-dark);
   margin-bottom: calc(var(--unit) * 3);
 }
 .site-hero h1 em {
@@ -1134,7 +1237,7 @@ select {
 .site-hero p.lede {
   font-size: 18px;
   line-height: 1.6;
-  color: var(--gris-70);
+  color: var(--ink-2);
   max-width: 52ch;
   margin-bottom: calc(var(--unit) * 4);
 }
@@ -1158,7 +1261,7 @@ select {
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gris-70);
+  color: var(--ink-2);
 }
 
 @media (max-width: 880px) {
@@ -1203,7 +1306,7 @@ select {
   justify-content: center;
   cursor: pointer;
   background: transparent;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 .nav-toggle span {
   display: block;

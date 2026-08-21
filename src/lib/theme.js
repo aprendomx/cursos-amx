@@ -4,7 +4,7 @@
 // '@theme' lo resuelve vite.config.js: theme/theme.config.local.js si existe,
 // theme/theme.config.example.js si no. Ver THEMING.md.
 import themeConfig from '@theme'
-import { ajustarParaContraste } from './contraste.js'
+import { ajustarParaContraste, tintaLegible, mezclar } from './contraste.js'
 
 // Versión del ESQUEMA del tema (no del producto). Se incrementa solo cuando
 // cambia el contrato: una clave nueva obligatoria, una renombrada o una
@@ -105,6 +105,13 @@ const PAPEL_OSCURO = '#0f1115'
 // tanto necesitan contraste suficiente contra el fondo.
 const COLORES_PRIMER_PLANO = ['primary', 'primaryDark', 'secondary', 'accent', 'danger']
 
+// Colores que se usan como SUPERFICIE de marca: se pintan de fondo y no se
+// invierten con el tema. Lo que va encima necesita tinta propia.
+// Proporción del color de marca en la superficie suave de modo oscuro.
+const TINTE_SUAVE = 0.22
+
+const SUPERFICIES_DE_MARCA = ['primary', 'primaryDark', 'secondary', 'secondaryDark', 'accent']
+
 export function applyTheme(root = document.documentElement) {
   for (const [key, cssVar] of Object.entries(COLOR_VARS)) {
     if (theme.colors[key]) root.style.setProperty(cssVar, theme.colors[key])
@@ -142,6 +149,46 @@ export function applyTheme(root = document.documentElement) {
     const explicito = theme.colors[`${key}OnLight`]
     const valor = explicito || ajustarParaContraste(base, PAPEL_CLARO, 4.5)
     root.style.setProperty(`${COLOR_VARS[key]}-on-light`, valor)
+  }
+
+  // Superficie SUAVE del primario en modo oscuro, y su tinta.
+  //
+  // --primary-100 es un azul claro fijo pensado para papel blanco; en oscuro
+  // deja fondo claro con texto claro encima. Se rehace como un tinte oscuro
+  // del propio color de marca.
+  //
+  // La tinta no puede ser --primary ni --primary-700: las dos están derivadas
+  // para dar 4.5:1 JUSTOS contra el papel, así que sobre un fondo teñido
+  // —aunque el tinte sea del 8%— ya no llegan. Se deriva una tercera contra el
+  // tinte real. Este era el defecto de los chips (3.5:1), del calendario de
+  // sesiones y de la insignia de sesión en vivo.
+  const primarioOscuro =
+    theme.colors.primaryOnDark ||
+    (theme.colors.primary ? ajustarParaContraste(theme.colors.primary, PAPEL_OSCURO, 4.5) : null)
+  if (primarioOscuro) {
+    const tinte = mezclar(primarioOscuro, PAPEL_OSCURO, TINTE_SUAVE)
+    root.style.setProperty('--primary-100-on-dark', tinte)
+    root.style.setProperty(
+      '--sobre-primary-100-on-dark',
+      ajustarParaContraste(primarioOscuro, tinte, 4.5)
+    )
+  }
+
+  // Tinta sobre las superficies que llevan color de marca PERMANENTE.
+  //
+  // La barra de navegación, el hero y la pleca se pintan con el azul
+  // institucional, que vale lo mismo en claro y en oscuro porque es la marca.
+  // El texto de encima usaba --paper, que SÍ se invierte: en modo oscuro
+  // quedaba tinta casi negra sobre azul oscuro, 1.82:1. Ilegible.
+  //
+  // Estas superficies necesitan una tinta que siga al fondo que pisan y no al
+  // modo de la página. El tema puede fijarla con `colors.<nombre>Sobre`.
+  for (const key of SUPERFICIES_DE_MARCA) {
+    const fondo = theme.colors[key]
+    if (!fondo) continue
+    const explicito = theme.colors[`${key}Sobre`]
+    const valor = explicito || tintaLegible(fondo, PAPEL_CLARO, theme.colors.ink || '#161a1d')
+    root.style.setProperty(COLOR_VARS[key].replace('--brand-', '--sobre-'), valor)
   }
 
   if (theme.fonts?.display) root.style.setProperty('--display', theme.fonts.display)

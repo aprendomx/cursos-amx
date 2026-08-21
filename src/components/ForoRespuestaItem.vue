@@ -198,13 +198,13 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: var(--brand-accent, #a57f2c);
-  color: var(--paper, #fff);
+  color: var(--sobre-accent);
   padding: 1px 6px;
   border-radius: var(--radius-sm);
 }
 .chip-oro {
   background: var(--brand-accent-soft, #e6d194);
-  color: var(--oro);
+  color: var(--sobre-accent-soft);
 }
 .foro-acciones {
   display: flex;
