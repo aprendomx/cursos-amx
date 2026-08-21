@@ -75,12 +75,19 @@
      no hay fondo propio en la regla contra el que decidir. */
   --sobre-marca: var(--sobre-primary-dark);
 
-  /* Neutrals — paper blanco institucional + grays oficiales */
+  /* Neutrals — paper blanco institucional + grays oficiales.
+
+     --lienzo es el suelo de la página y --paper la superficie que se apoya en
+     él. Antes eran lo mismo (todo blanco) y la interfaz se leía plana: sin un
+     fondo atenuado detrás, una tarjeta blanca no puede flotar. El lienzo tira
+     ligeramente a frío para emparentar con el azul institucional; los bordes
+     lo acompañan. */
+  --lienzo: #f5f7fa;
   --paper: #ffffff;
   --paper-2: #fafafa;
-  --paper-3: #f3f3f3;
-  --line: #e6e6e6;
-  --line-soft: #efefef;
+  --paper-3: #f1f3f6;
+  --line: #e3e7ed;
+  --line-soft: #edf0f4;
   /* Escala de tinta. Los cuatro niveles se usan como COLOR DE TEXTO —68 usos
      de --ink-3 y 48 de --ink-4—, así que los cuatro tienen que cumplir 4.5:1
      sobre su papel, no solo los dos primeros.
@@ -91,7 +98,9 @@
   --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
   --ink-3: #5f5f5f;
-  --ink-4: #767676;
+  /* #767676 daba 4.20:1 sobre el lienzo nuevo; este da 4.68, y 5.02 sobre
+     blanco. */
+  --ink-4: #6f6f6f;
 
   /* Semantic (derivados de la paleta institucional) */
   --success: var(--brand-secondary);
@@ -166,9 +175,16 @@
      26 sombras con 19 valores distintos: casi cada una era única. Cuatro
      niveles, uno por rol, para que la profundidad signifique algo. */
   --elev-0: none;
-  --elev-1: 0 1px 3px rgb(0 0 0 / 8%); /* tarjeta en reposo */
-  --elev-2: 0 4px 14px rgb(0 0 0 / 10%); /* panel elevado, menú */
-  --elev-3: 0 12px 32px rgb(0 0 0 / 16%); /* diálogo sobre velo */
+  /* Dos capas por nivel: una pegada (define el borde de la luz) y una difusa
+     (define la distancia). Una sola sombra siempre se ve o dura o inexistente;
+     la pareja es lo que hace flotar sin ensuciar. El tinte es el azul-gris de
+     la tinta (16 24 40), no negro puro: sombra neutra sobre lienzo frío se ve
+     sucia. */
+  --elev-1: 0 1px 2px rgb(16 24 40 / 5%), 0 1px 3px rgb(16 24 40 / 9%); /* tarjeta en reposo */
+  --elev-2:
+    0 2px 4px -2px rgb(16 24 40 / 6%), 0 6px 14px -3px rgb(16 24 40 / 11%); /* panel elevado, menú, tarjeta en hover */
+  --elev-3:
+    0 8px 12px -4px rgb(16 24 40 / 9%), 0 20px 36px -8px rgb(16 24 40 / 16%); /* diálogo sobre velo */
 
   /* Color de marca en PRIMER PLANO: texto, iconos, bordes y anillo de foco.
      Distinto del color de fondo, que conserva el valor tal cual lo declara la
@@ -203,6 +219,12 @@
 
 /* Dark mode — inverted neutrals */
 [data-theme='dark'] {
+  /* En oscuro la jerarquía se invierte: el lienzo va POR DEBAJO del papel
+     (más oscuro), porque la elevación oscura se comunica aclarando la
+     superficie, no con la sombra. --paper no se toca: theme.js deriva los
+     colores de primer plano contra él (PAPEL_OSCURO) y moverlo descalibraría
+     todo el contraste calculado. */
+  --lienzo: #0b0d10;
   --paper: #0f1115;
   --paper-2: #1a1c21;
   --paper-3: #22242a;
@@ -215,6 +237,11 @@
   --ink-3: #949494;
   --ink-4: #8a8a8a;
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
+  /* La sombra casi no se ve sobre fondo oscuro; sube de opacidad para marcar
+     al menos el recorte del borde. */
+  --elev-1: 0 1px 2px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 30%);
+  --elev-2: 0 2px 4px -2px rgb(0 0 0 / 40%), 0 6px 14px -3px rgb(0 0 0 / 35%);
+  --elev-3: 0 8px 12px -4px rgb(0 0 0 / 45%), 0 20px 36px -8px rgb(0 0 0 / 40%);
 
   /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
      no llegan al 4.5:1 de WCAG AA (el azul del tema de ejemplo daba 2.17:1, y
@@ -252,7 +279,7 @@
 }
 html,
 body {
-  background: var(--paper);
+  background: var(--lienzo);
   color: var(--ink);
   font-family: var(--ui);
   /* 15px quedaba por debajo del piso de 16: además de leerse peor, iOS hace
@@ -452,9 +479,12 @@ h4 {
 /* Cards */
 .card {
   background: var(--paper);
-  border: 1px solid var(--line);
-  border-radius: 2px;
+  border: 1px solid var(--line-soft);
+  /* 2px leía como «sin redondear a medias». El filo editorial se queda en
+     títulos y plecas; la superficie interactiva usa la escala. */
+  border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--elev-1);
   transition: all 220ms var(--ease);
 }
 .card:hover {
@@ -515,20 +545,25 @@ h4 {
 .field input,
 .field select,
 .field textarea {
-  padding: 14px 0;
-  border: none;
-  border-bottom: 1px solid var(--line);
-  background: transparent;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  /* Contenido y no solo subrayado: sobre el lienzo, la caja blanca dice
+     «aquí se escribe» sin que haya que adivinarlo. La voz serif se queda. */
+  background: var(--paper);
   font-size: 18px;
   font-family: var(--display);
   color: var(--ink);
   outline: none;
-  transition: border-color 180ms var(--ease);
+  transition:
+    border-color 180ms var(--ease),
+    box-shadow 180ms var(--ease);
 }
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-bottom-color: var(--primary);
+  border-color: var(--primary-fg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-fg) 18%, transparent);
 }
 .field input::placeholder {
   color: var(--ink-4);
@@ -709,6 +744,7 @@ h4 {
   background: var(--brand-primary-dark);
   color: var(--sobre-primary-dark);
   border-bottom: 4px solid var(--brand-primary);
+  box-shadow: var(--elev-2);
 }
 .nav::after {
   /* línea de acento V1.24 — divisor APF */
