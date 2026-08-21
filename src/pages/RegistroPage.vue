@@ -486,12 +486,22 @@ const summaryRows = computed(() => [
   color: var(--ink-2);
   line-height: 1.5;
   cursor: pointer;
+  /* El objetivo táctil es la ETIQUETA entera, no el cuadrito: pinchar el texto
+     también alterna la casilla. Medía 464 x 21 px — el ancho sobraba, pero la
+     altura quedaba por debajo de los 24 px de WCAG 2.5.8, y muy lejos de los
+     44 recomendados. El relleno vertical es lo que la levanta; min-height
+     cubre el caso de que el texto quepa en menos.
+     Es la casilla del consentimiento del aviso de privacidad, en el paso 4 del
+     alta: fallarla es fallar el camino crítico de registro. */
+  min-height: 44px;
+  padding: 11px 0;
 }
 
 .registro-accept input[type='checkbox'] {
-  margin-top: 3px;
-  width: 18px;
-  height: 18px;
+  /* 18 px era pequeño para apuntar. 24 es el mínimo de WCAG 2.5.8, y aquí es
+     además la señal visual de que hay algo que marcar. */
+  width: 24px;
+  height: 24px;
   accent-color: var(--primary-fg);
   flex-shrink: 0;
 }

@@ -138,12 +138,17 @@ function setCanal(key) {
   cursor: pointer;
   font-size: 13px;
   color: var(--ink);
+  /* La etiqueta entera alterna la casilla, así que es ella el objetivo táctil.
+     Con el texto a 13 px medía unos 20 px de alto: por debajo de los 24 px de
+     WCAG 2.5.8. */
+  min-height: 44px;
 }
 .nprefs-checkbox {
-  width: 16px;
-  height: 16px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
   accent-color: var(--primary);
+  flex-shrink: 0;
 }
 .nprefs-label-text {
   user-select: none;
