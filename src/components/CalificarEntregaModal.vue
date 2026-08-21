@@ -384,7 +384,7 @@ function cerrar() {
   border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
@@ -404,7 +404,7 @@ function cerrar() {
   border-radius: var(--radius-sm);
   border: none;
   background: var(--danger);
-  color: #fff;
+  color: var(--sobre-danger);
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;

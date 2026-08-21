@@ -349,10 +349,10 @@ function removeHueco(p, hi) {
   cursor: pointer;
 }
 .qe-icon:disabled {
-  opacity: 0.4;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
 }
 .qe-icon-danger:hover {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 </style>

@@ -269,7 +269,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   margin-top: 4px;
 }
 .sesiones-error {
-  color: var(--primary-fg);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .sesiones-vacio {

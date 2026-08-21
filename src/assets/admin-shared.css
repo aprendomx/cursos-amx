@@ -83,7 +83,7 @@
 }
 
 .admin-nav-btn.primary {
-  color: var(--primary);
+  color: var(--primary-fg);
   font-weight: 600;
 }
 
@@ -242,7 +242,7 @@
 }
 
 .btn:disabled {
-  opacity: 0.4;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
   pointer-events: auto;
 }

@@ -398,7 +398,7 @@ const mockPendingEntregas = ref([
   min-width: 260px;
 }
 .inst-error {
-  color: var(--primary-fg);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .inst-empty {

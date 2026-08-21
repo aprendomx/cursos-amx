@@ -47,8 +47,34 @@ function sigueAlTema(token, vistos = new Set()) {
 }
 
 // Tokens de un valor que se usan tanto de fondo como de texto.
+//
+// Los RESPALDOS no cuentan: en `var(--brand-secondary, var(--success))` el
+// respaldo solo entra si el primero no existe, y existe. Contarlos daba falsos
+// positivos —`.qe-correct.on` parecía mezclar un fondo fijo con tinta que sigue
+// al tema cuando su fondo es fijo y punto.
 function tokensDe(valor) {
-  return [...valor.matchAll(/var\((--[\w-]+)/g)].map((m) => m[1])
+  // Se recorren los paréntesis a mano: una expresión regular no distingue el
+  // respaldo cuando está anidado, como en `var(--brand-secondary,
+  // var(--success))`, y ahí el respaldo no se usa nunca porque el primero
+  // existe. Contarlo daba un falso positivo.
+  const tokens = []
+  for (let i = 0; i < valor.length; i++) {
+    if (!valor.startsWith('var(', i)) continue
+    let j = i + 4
+    while (j < valor.length && /\s/.test(valor[j])) j++
+    let nombre = ''
+    while (j < valor.length && /[\w-]/.test(valor[j])) nombre += valor[j++]
+    if (nombre.startsWith('--')) tokens.push(nombre)
+    // Saltar hasta cerrar ESTE var(), respaldo incluido.
+    let nivel = 1
+    while (j < valor.length && nivel > 0) {
+      if (valor[j] === '(') nivel++
+      else if (valor[j] === ')') nivel--
+      j++
+    }
+    i = j - 1
+  }
+  return tokens
 }
 
 // La constancia es un documento IMPRESO: se genera con html2pdf sobre papel
@@ -96,6 +122,32 @@ describe('pares de fondo y tinta', () => {
       }
     }
     expect(mezclas, 'un par mezclado se vuelve ilegible al cambiar de modo').toEqual([])
+  })
+
+  // Hueco que tenía esta prueba: solo comparaba token contra token, así que un
+  // color escrito a mano se le escapaba. `.btn-danger` llevaba `color: #fff`
+  // sobre `background: var(--danger)` — y --danger pasa de rojo oscuro a rosa
+  // claro en modo oscuro, dejando blanco sobre rosa claro.
+  it('ningún fondo que sigue al tema lleva una tinta escrita a mano', () => {
+    const mezclas = []
+    for (const { ruta, texto } of archivosDeEstilo()) {
+      for (const regla of texto.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+        const cuerpo = regla[2]
+        const fondo = cuerpo.match(/(?:^|[\s;])(?:background|background-color)\s*:\s*([^;]+);/)
+        const tinta = cuerpo.match(/(?:^|[\s;])color\s*:\s*([^;]+);/)
+        if (!fondo || !tinta) continue
+        const tf = tokensDe(fondo[1])
+        if (!tf.length || !tf.some((t) => sigueAlTema(t))) continue
+        // La tinta es literal si no menciona ninguna variable.
+        if (/var\(/.test(tinta[1])) continue
+        if (/^\s*(inherit|currentcolor|transparent)\s*$/i.test(tinta[1])) continue
+        const sel = regla[1].trim().split('\n').pop().trim()
+        mezclas.push(
+          `${ruta} ${sel}: fondo ${tf.join(',')} sigue al tema, tinta ${tinta[1].trim()} fija`
+        )
+      }
+    }
+    expect(mezclas, 'la tinta se queda quieta mientras el fondo se invierte').toEqual([])
   })
 
   it('los tokens --sobre-* de marca NO se redefinen en oscuro', () => {

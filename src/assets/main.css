@@ -56,6 +56,21 @@
      #c9a227 y quedaba claro sobre claro en los distintivos de instructor y
      en los estados de entrega. Con este valor da 4.54:1 en ambos modos. */
   --sobre-accent-soft: #7d6339;
+
+  /* Deshabilitado. Había tres opacidades distintas —0.4, 0.5 y 0.6— en siete
+     reglas: el mismo estado se veía diferente según el componente que lo
+     pintara. 0.4 es el valor más usado del repositorio y cae dentro del
+     0.38–0.5 que recomienda Material.
+     El texto deshabilitado queda por debajo de 4.5:1 a propósito: WCAG 1.4.3
+     excluye los componentes inactivos, y atenuar ES la señal. */
+  --disabled-opacity: 0.4;
+
+  /* Tinta sobre una superficie de ERROR. A diferencia de --sobre-*, esta SÍ
+     sigue al tema: --danger no es un color de marca fijo, cambia de rojo
+     oscuro a rosa claro entre modos, así que la tinta tiene que cambiar con
+     él. Estaba escrito #fff a mano, que en oscuro dejaba blanco sobre rosa
+     claro. Ver la regla del par en THEMING.md. */
+  --sobre-danger: #ffffff;
   /* Atajo para lo que hereda la superficie de un ancestro (hero, nav, chat):
      no hay fondo propio en la regla contra el que decidir. */
   --sobre-marca: var(--sobre-primary-dark);
@@ -224,6 +239,8 @@
   /* En oscuro --primary ya es la variante ajustada, así que el primer plano
      coincide con él. */
   --primary-fg: var(--primary);
+  /* En oscuro --danger se aclara, así que encima va tinta oscura. */
+  --sobre-danger: var(--brand-ink);
   /* El dorado se aclara en oscuro: #8a6e3f daba 3.94:1 sobre este papel. */
   --oro: #c9a227;
 }

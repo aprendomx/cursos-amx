@@ -252,7 +252,7 @@ select:focus {
 }
 .btn-add:hover {
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
 }
 .criterio-card {
   display: flex;

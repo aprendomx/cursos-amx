@@ -133,7 +133,7 @@ watch(() => props.grabacion.sesion_id, cargarTranscripcion, { immediate: true })
 .segmento-actual .tiempo {
   font-size: 11px;
   font-weight: 600;
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .segmento-actual .texto {
   font-size: 13px;

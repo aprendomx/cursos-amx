@@ -214,7 +214,7 @@ function handleVerTodas() {
   padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2);
   font-size: 13px;
   font-weight: 500;
-  color: var(--primary);
+  color: var(--primary-fg);
   background: transparent;
   border: none;
   border-top: 1px solid var(--line);

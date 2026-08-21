@@ -76,7 +76,7 @@ watch(query, (q) => {
   font-size: var(--text-sm);
 }
 .error {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .resultados {
   list-style: none;

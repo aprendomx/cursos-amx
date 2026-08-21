@@ -233,7 +233,7 @@ watch(() => props.cursoId, cargar, { immediate: true })
   font-size: 13px;
 }
 .calendario-error {
-  color: var(--primary);
+  color: var(--danger);
 }
 .calendario-lista {
   margin-top: calc(var(--unit) * 3);

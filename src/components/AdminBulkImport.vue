@@ -171,7 +171,7 @@ function onClear() {
   align-items: center;
 }
 .admin-table .is-error td {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .actions {
   display: flex;
@@ -188,7 +188,7 @@ function onClear() {
 }
 .alert-error {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .alert-ok {
   background: rgba(34, 197, 94, 0.08);

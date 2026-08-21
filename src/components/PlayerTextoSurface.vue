@@ -70,7 +70,7 @@ const html = computed(() => {
 .texto-completar {
   margin-top: calc(var(--unit) * 3);
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   border: none;
   border-radius: var(--radius-md);
   padding: 10px 20px;

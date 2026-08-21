@@ -224,7 +224,7 @@ function submit() {
   margin-top: calc(var(--unit) * 2);
 }
 .auth-submit:disabled {
-  opacity: 0.4;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
 }
 

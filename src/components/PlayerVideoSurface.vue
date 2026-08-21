@@ -561,7 +561,7 @@ function onEnded() {
 }
 
 .doc-mark-btn[disabled] {
-  opacity: 0.5;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
 }
 </style>

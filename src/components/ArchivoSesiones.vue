@@ -67,7 +67,7 @@ const fmtDuracion = (seg) => {
   margin-bottom: calc(var(--unit) * 2);
 }
 .error {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .vacio {
   color: var(--ink-4);

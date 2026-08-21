@@ -16,6 +16,7 @@ function enfocarContenido(e) {
   document.getElementById('contenido-principal')?.focus()
 }
 import { supabase } from '@/lib/supabase.js'
+import { mapSupabaseError } from '@/lib/errors'
 import { storageKey } from '@/lib/theme.js'
 import { featureEnabled } from '@/lib/featureFlags'
 import { registerSW } from 'virtual:pwa-register'
@@ -72,7 +73,13 @@ async function onRegistroComplete(form) {
         },
       })
       if (authError) {
-        registroError.value = authError.message
+        // El mensaje crudo de la librería llega en inglés y en su jerga
+        // («Failed to fetch», «User already registered»). mapSupabaseError
+        // traduce los casos que este repositorio produce —incluido el de una
+        // instalación sin aviso de privacidad publicado, que es el que se
+        // encuentra quien intenta registrarse antes de que un administrador lo
+        // publique.
+        registroError.value = mapSupabaseError(authError).message
         registroLoading.value = false
         return
       }
