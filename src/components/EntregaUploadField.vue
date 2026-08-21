@@ -155,7 +155,7 @@ const fmtBytes = (b) =>
 }
 .entrega-estado[data-estado='revisada'] {
   background: var(--brand-accent-soft, #e6d194);
-  color: var(--oro);
+  color: var(--sobre-accent-soft);
 }
 .entrega-error {
   color: var(--primary-fg);

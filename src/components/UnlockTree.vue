@@ -34,10 +34,7 @@ const modulosConEstado = computed(() => {
 </script>
 
 <template>
-  <div
-    class="unlock-tree"
-    data-test="unlock-tree"
-  >
+  <div class="unlock-tree" data-test="unlock-tree">
     <div
       v-for="(mod, index) in modulosConEstado"
       :key="mod.id"
@@ -45,41 +42,19 @@ const modulosConEstado = computed(() => {
       :class="mod.estado"
     >
       <div class="unlock-connector">
-        <div
-          v-if="index > 0"
-          class="unlock-line"
-          :class="{ active: mod.estado !== 'locked' }"
-        />
+        <div v-if="index > 0" class="unlock-line" :class="{ active: mod.estado !== 'locked' }" />
       </div>
       <div class="unlock-card">
         <div class="unlock-status">
-          <span
-            v-if="mod.estado === 'completed'"
-            class="unlock-icon unlock-check"
-          >✓</span>
-          <span
-            v-else-if="mod.estado === 'locked'"
-            class="unlock-icon unlock-lock"
-          >🔒</span>
-          <span
-            v-else
-            class="unlock-icon unlock-progress"
-          >{{ Math.round(mod.progreso) }}%</span>
+          <span v-if="mod.estado === 'completed'" class="unlock-icon unlock-check">✓</span>
+          <span v-else-if="mod.estado === 'locked'" class="unlock-icon unlock-lock">🔒</span>
+          <span v-else class="unlock-icon unlock-progress">{{ Math.round(mod.progreso) }}%</span>
         </div>
         <div class="unlock-info">
           <span class="unlock-title">{{ mod.titulo || `Módulo ${index + 1}` }}</span>
-          <span
-            v-if="mod.estado === 'in-progress'"
-            class="unlock-sub"
-          >En progreso</span>
-          <span
-            v-else-if="mod.estado === 'locked'"
-            class="unlock-sub"
-          >Bloqueado</span>
-          <span
-            v-else
-            class="unlock-sub unlock-done"
-          >Completado</span>
+          <span v-if="mod.estado === 'in-progress'" class="unlock-sub">En progreso</span>
+          <span v-else-if="mod.estado === 'locked'" class="unlock-sub">Bloqueado</span>
+          <span v-else class="unlock-sub unlock-done">Completado</span>
         </div>
       </div>
     </div>
@@ -148,7 +123,7 @@ const modulosConEstado = computed(() => {
 }
 .unlock-node.completed .unlock-status {
   background: var(--brand-secondary);
-  color: var(--paper);
+  color: var(--sobre-secondary);
 }
 .unlock-node.locked .unlock-status {
   background: var(--paper-3);

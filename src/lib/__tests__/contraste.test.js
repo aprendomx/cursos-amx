@@ -1,7 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { hexARgb, luminancia, contraste, cumpleAA, ajustarParaContraste } from '../contraste.js'
+import {
+  hexARgb,
+  luminancia,
+  contraste,
+  cumpleAA,
+  ajustarParaContraste,
+  tintaLegible,
+  mezclar,
+} from '../contraste.js'
 
 const PAPEL_OSCURO = '#0f1115'
 const PAPEL_CLARO = '#ffffff'
@@ -129,5 +137,49 @@ describe('escala de tinta', () => {
         `${nombre} (${hex}) sobre papel oscuro`
       ).toBeGreaterThanOrEqual(4.5)
     }
+  })
+})
+
+describe('tintaLegible', () => {
+  it('elige blanco sobre una marca oscura', () => {
+    expect(tintaLegible('#1e3a8a')).toBe('#ffffff')
+  })
+
+  // El motivo de que exista: dar por hecho el blanco rompe las identidades
+  // claras, y hay instituciones cuyo color es un amarillo o un cian.
+  it('elige tinta oscura sobre una marca clara', () => {
+    expect(tintaLegible('#fde68a')).toBe('#161a1d')
+    expect(tintaLegible('#7dd3fc')).toBe('#161a1d')
+  })
+
+  it('respeta los candidatos que se le pasen', () => {
+    expect(tintaLegible('#1e3a8a', '#fffbea', '#101010')).toBe('#fffbea')
+  })
+
+  it('lo que elige cumple AA en ambos extremos de la marca', () => {
+    for (const marca of ['#1e40af', '#0f766e', '#b45309', '#fde68a', '#ffffff', '#000000']) {
+      expect(cumpleAA(tintaLegible(marca), marca), `falla sobre ${marca}`).toBe(true)
+    }
+  })
+})
+
+describe('mezclar', () => {
+  it('en los extremos devuelve cada color', () => {
+    expect(mezclar('#ff0000', '#0000ff', 1)).toBe('#ff0000')
+    expect(mezclar('#ff0000', '#0000ff', 0)).toBe('#0000ff')
+  })
+
+  it('coincide con lo que calcula color-mix a mitad', () => {
+    expect(mezclar('#000000', '#ffffff', 0.5)).toBe('#808080')
+  })
+
+  // El caso real: la tinta del tinte suave se deriva contra la mezcla, no
+  // contra el papel, porque contra el papel da 4.5:1 justos y no sobra nada.
+  it('la tinta derivada contra el tinte cumple, y la derivada contra el papel no', () => {
+    const papel = '#0f1115'
+    const primario = ajustarParaContraste('#1e40af', papel, 4.5)
+    const tinte = mezclar(primario, papel, 0.22)
+    expect(cumpleAA(primario, tinte)).toBe(false)
+    expect(cumpleAA(ajustarParaContraste(primario, tinte, 4.5), tinte)).toBe(true)
   })
 })

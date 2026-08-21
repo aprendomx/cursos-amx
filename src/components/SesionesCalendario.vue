@@ -213,7 +213,7 @@ watch(() => props.cursoId, cargar, { immediate: true })
   overflow: hidden;
   text-overflow: ellipsis;
   background: var(--primary-100);
-  color: var(--primary);
+  color: var(--sobre-primary-100);
 }
 .calendario-evento.tipo-tarea_deadline {
   background: #fff3e0;

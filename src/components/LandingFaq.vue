@@ -119,7 +119,7 @@ function toggle(i) {
   font-size: clamp(28px, 3.6vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-accent);
 }
 
 /* Body crema claro (variante de arena) */
@@ -181,7 +181,7 @@ function toggle(i) {
   font-weight: 700;
   font-size: clamp(16px, 1.6vw, 22px);
   line-height: 1.3;
-  color: var(--brand-ink);
+  color: var(--ink);
 }
 
 .faq-q-icon {
@@ -215,7 +215,7 @@ function toggle(i) {
   font-family: var(--ui);
   font-size: var(--text-base);
   line-height: 1.6;
-  color: var(--gris-70);
+  color: var(--ink-2);
   max-width: 72ch;
   padding-top: 4px;
 }
@@ -243,12 +243,12 @@ function toggle(i) {
   font-family: var(--ui);
   font-size: 15.5px;
   line-height: 1.5;
-  color: var(--brand-ink);
+  color: var(--ink);
   max-width: 64ch;
 }
 .faq-foot-cta {
   background: var(--brand-secondary);
-  color: var(--paper);
+  color: var(--sobre-secondary);
   border: none;
   border-radius: var(--radius-full);
   padding: 16px 36px;

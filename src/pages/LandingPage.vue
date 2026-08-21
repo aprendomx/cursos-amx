@@ -330,7 +330,7 @@ function onEnviarMensajeFaq() {
   font-size: var(--text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gris-70);
+  color: var(--ink-2);
   cursor: pointer;
   padding: 6px 0;
   text-decoration: underline;

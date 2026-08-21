@@ -177,7 +177,7 @@ function onCerrar() {
   border-bottom-right-radius: 4px;
 }
 .ai-chat-msg.assistant .ai-chat-bubble {
-  background: var(--surface-2);
+  background: var(--paper-2);
   color: var(--ink-2);
   border-bottom-left-radius: 4px;
 }

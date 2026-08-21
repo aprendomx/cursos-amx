@@ -109,7 +109,7 @@ function submit() {
 
 .auth-aside {
   background: var(--brand-primary);
-  color: var(--paper);
+  color: var(--sobre-primary);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -196,7 +196,7 @@ function submit() {
   margin-bottom: 14px;
 }
 .auth-subtitle {
-  color: var(--gris-70);
+  color: var(--ink-2);
   font-size: var(--text-base);
   max-width: 36ch;
 }
@@ -231,7 +231,7 @@ function submit() {
 .auth-alt {
   margin-top: calc(var(--unit) * 3);
   font-size: var(--text-sm);
-  color: var(--gris-70);
+  color: var(--ink-2);
   text-align: center;
 }
 .auth-alt a {
@@ -248,7 +248,7 @@ function submit() {
   cursor: pointer;
 }
 .auth-alt a:hover {
-  color: var(--brand-primary-dark);
+  color: var(--primary-700);
 }
 
 @media (max-width: 880px) {
