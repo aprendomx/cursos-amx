@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { DEPENDENCIAS } from '@/data.js'
 import { supabase } from '@/lib/supabase.js'
 import IconSet from '@/components/IconSet.vue'
+import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 import { theme } from '@/lib/theme.js'
 import { resolverEnlace } from '@/lib/enlacesInstitucionales.js'
 import { contrasenaValida } from '@/lib/contrasena.js'
@@ -49,6 +50,7 @@ const password = ref('')
 const dependenciasLista = ref([...DEPENDENCIAS])
 
 onMounted(async () => {
+  registrarEventoPortada('registro_iniciado', { seccion: 'registro' })
   try {
     const { data } = await supabase
       .from('dependencias')

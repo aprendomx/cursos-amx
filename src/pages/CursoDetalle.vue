@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { sbSelect } from '@/lib/sbRest'
@@ -185,6 +186,7 @@ onBeforeUnmount(() => {
 })
 
 onMounted(async () => {
+  registrarEventoPortada('curso_detalle_visto', { seccion: 'detalle' })
   await loadCurso(props.cursoId)
   scrollToAnchor()
 })

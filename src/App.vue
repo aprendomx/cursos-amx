@@ -20,6 +20,7 @@ import { mapSupabaseError } from '@/lib/errors'
 import { storageKey } from '@/lib/theme.js'
 import { featureEnabled } from '@/lib/featureFlags'
 import { registerSW } from 'virtual:pwa-register'
+import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -94,6 +95,10 @@ async function onRegistroComplete(form) {
       if (authData.session) {
         await auth.fetchPerfil(userId)
       }
+
+      // El único punto donde el alta REALMENTE prosperó: signUp aceptado y
+      // perfil en marcha. Cierra el embudo que abre `registro_iniciado`.
+      registrarEventoPortada('registro_completado', { seccion: 'registro' })
 
       auth.hasRegistered = true
       try {
