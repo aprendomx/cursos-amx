@@ -195,7 +195,7 @@ watch(() => props.cursoId, cargar, { immediate: true })
   display: inline-block;
   width: min(12rem, 40vw);
   height: 0.5rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--border, #e5e5e5);
   overflow: hidden;
   vertical-align: middle;
@@ -204,7 +204,7 @@ watch(() => props.cursoId, cargar, { immediate: true })
 .mod-barra-fill {
   display: block;
   height: 100%;
-  background: var(--brand-secondary, #0f766e);
+  background: var(--brand-secondary, var(--brand-secondary));
 }
 
 .mod-pct {
@@ -230,7 +230,7 @@ watch(() => props.cursoId, cargar, { immediate: true })
 }
 
 .mod-error {
-  color: #b00020;
+  color: var(--danger);
 }
 
 .mod-vacio {

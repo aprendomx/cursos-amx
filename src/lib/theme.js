@@ -4,14 +4,14 @@
 // '@theme' lo resuelve vite.config.js: theme/theme.config.local.js si existe,
 // theme/theme.config.example.js si no. Ver THEMING.md.
 import themeConfig from '@theme'
-import { ajustarParaContraste } from './contraste.js'
+import { ajustarParaContraste, tintaLegible, mezclar } from './contraste.js'
 
 // Versión del ESQUEMA del tema (no del producto). Se incrementa solo cuando
 // cambia el contrato: una clave nueva obligatoria, una renombrada o una
 // retirada. Un tema declarado para una versión mayor distinta se rechaza en
 // arranque con un mensaje accionable, en vez de romperse a mitad de runtime.
 // Ver "Contrato de estabilidad" en THEMING.md.
-export const THEME_SCHEMA_VERSION = 1
+export const THEME_SCHEMA_VERSION = 2
 
 const REQUIRED = [
   'app.name',
@@ -34,13 +34,27 @@ const REQUIRED = [
 export function validateTheme(config) {
   // schemaVersion es opcional: un tema sin declararla se asume de la versión
   // vigente, para no romper las instalaciones que existían antes del contrato.
+  //
+  // El efecto secundario es que una instalación que nunca la declaró recibe un
+  // cambio de apariencia sin que nadie se lo anuncie. No se convierte en error
+  // —eso rompería el arranque de todas ellas de golpe— pero sí se avisa.
   const declarada = config?.schemaVersion
+  if (declarada === undefined && typeof console !== 'undefined') {
+    console.info(
+      `[theme] Tu tema no declara schemaVersion; se asume ${THEME_SCHEMA_VERSION}. ` +
+        `Declárala para que un cambio futuro del sistema visual te avise en vez ` +
+        `de sorprenderte. Ver THEMING.md.`
+    )
+  }
   if (declarada !== undefined && declarada !== THEME_SCHEMA_VERSION) {
     throw new Error(
       `[theme] Tu theme.config.local.js declara schemaVersion ${declarada}, ` +
-        `pero esta versión de la aplicación usa ${THEME_SCHEMA_VERSION}. ` +
-        `Consulta la sección "Contrato de estabilidad" de THEMING.md para ver ` +
-        `qué cambió y cómo migrar tu tema.`
+        `pero esta versión de la aplicación usa ${THEME_SCHEMA_VERSION}.\n\n` +
+        `La versión 2 trae un refresco visual: escala tipográfica, densidad y ` +
+        `elevación cambian, así que tu instalación se verá distinta. Además ` +
+        `el color de error deja de derivarse de la marca y puede declararse ` +
+        `en colors.danger.\n\n` +
+        `Consulta "Migrar de la versión 1 a la 2" en THEMING.md.`
     )
   }
 
@@ -69,7 +83,19 @@ const COLOR_VARS = {
   accent: '--brand-accent',
   accentSoft: '--brand-accent-soft',
   ink: '--brand-ink',
+  // El color de error NO se deriva de la marca. Estaba definido como
+  // `--danger: var(--brand-primary)`, así que un mensaje de error se pintaba
+  // igual que un botón primario — en 32 sitios de uso. Un estado que se ve
+  // como la acción principal no comunica el estado.
+  //
+  // Se declara aparte, con un valor por defecto propio, y el tema puede
+  // redefinirlo: hay identidades institucionales donde el guinda ES la marca y
+  // el rojo de error tiene que elegirse con cuidado.
+  danger: '--brand-danger',
 }
+
+// Papel del modo claro, para derivar las variantes de primer plano.
+const PAPEL_CLARO = '#ffffff'
 
 // Papel del modo oscuro. Debe coincidir con --paper de [data-theme='dark']
 // en src/assets/main.css.
@@ -77,7 +103,14 @@ const PAPEL_OSCURO = '#0f1115'
 
 // Colores que se usan como PRIMER PLANO (texto, iconos, anillo de foco) y por
 // tanto necesitan contraste suficiente contra el fondo.
-const COLORES_PRIMER_PLANO = ['primary', 'primaryDark', 'secondary', 'accent']
+const COLORES_PRIMER_PLANO = ['primary', 'primaryDark', 'secondary', 'accent', 'danger']
+
+// Colores que se usan como SUPERFICIE de marca: se pintan de fondo y no se
+// invierten con el tema. Lo que va encima necesita tinta propia.
+// Proporción del color de marca en la superficie suave de modo oscuro.
+const TINTE_SUAVE = 0.22
+
+const SUPERFICIES_DE_MARCA = ['primary', 'primaryDark', 'secondary', 'secondaryDark', 'accent']
 
 export function applyTheme(root = document.documentElement) {
   for (const [key, cssVar] of Object.entries(COLOR_VARS)) {
@@ -100,6 +133,64 @@ export function applyTheme(root = document.documentElement) {
     const valor = explicito || ajustarParaContraste(base, PAPEL_OSCURO, 4.5)
     root.style.setProperty(`${COLOR_VARS[key]}-on-dark`, valor)
   }
+  // Variantes para modo CLARO.
+  //
+  // El bloque de arriba solo cubría el modo oscuro, dando por bueno el claro
+  // porque los colores institucionales suelen elegirse sobre papel blanco.
+  // "Suelen" no es "siempre", y nada lo comprobaba.
+  //
+  // Se deriva una variante de PRIMER PLANO y no se toca el color de marca: se
+  // usa como texto en 60 sitios y como fondo en 16, y los umbrales no son el
+  // mismo. Oscurecer el color base para arreglar el texto habría oscurecido
+  // también todos los botones, sin motivo de accesibilidad.
+  for (const key of COLORES_PRIMER_PLANO) {
+    const base = theme.colors[key]
+    if (!base) continue
+    const explicito = theme.colors[`${key}OnLight`]
+    const valor = explicito || ajustarParaContraste(base, PAPEL_CLARO, 4.5)
+    root.style.setProperty(`${COLOR_VARS[key]}-on-light`, valor)
+  }
+
+  // Superficie SUAVE del primario en modo oscuro, y su tinta.
+  //
+  // --primary-100 es un azul claro fijo pensado para papel blanco; en oscuro
+  // deja fondo claro con texto claro encima. Se rehace como un tinte oscuro
+  // del propio color de marca.
+  //
+  // La tinta no puede ser --primary ni --primary-700: las dos están derivadas
+  // para dar 4.5:1 JUSTOS contra el papel, así que sobre un fondo teñido
+  // —aunque el tinte sea del 8%— ya no llegan. Se deriva una tercera contra el
+  // tinte real. Este era el defecto de los chips (3.5:1), del calendario de
+  // sesiones y de la insignia de sesión en vivo.
+  const primarioOscuro =
+    theme.colors.primaryOnDark ||
+    (theme.colors.primary ? ajustarParaContraste(theme.colors.primary, PAPEL_OSCURO, 4.5) : null)
+  if (primarioOscuro) {
+    const tinte = mezclar(primarioOscuro, PAPEL_OSCURO, TINTE_SUAVE)
+    root.style.setProperty('--primary-100-on-dark', tinte)
+    root.style.setProperty(
+      '--sobre-primary-100-on-dark',
+      ajustarParaContraste(primarioOscuro, tinte, 4.5)
+    )
+  }
+
+  // Tinta sobre las superficies que llevan color de marca PERMANENTE.
+  //
+  // La barra de navegación, el hero y la pleca se pintan con el azul
+  // institucional, que vale lo mismo en claro y en oscuro porque es la marca.
+  // El texto de encima usaba --paper, que SÍ se invierte: en modo oscuro
+  // quedaba tinta casi negra sobre azul oscuro, 1.82:1. Ilegible.
+  //
+  // Estas superficies necesitan una tinta que siga al fondo que pisan y no al
+  // modo de la página. El tema puede fijarla con `colors.<nombre>Sobre`.
+  for (const key of SUPERFICIES_DE_MARCA) {
+    const fondo = theme.colors[key]
+    if (!fondo) continue
+    const explicito = theme.colors[`${key}Sobre`]
+    const valor = explicito || tintaLegible(fondo, PAPEL_CLARO, theme.colors.ink || '#161a1d')
+    root.style.setProperty(COLOR_VARS[key].replace('--brand-', '--sobre-'), valor)
+  }
+
   if (theme.fonts?.display) root.style.setProperty('--display', theme.fonts.display)
   if (theme.fonts?.ui) root.style.setProperty('--ui', theme.fonts.ui)
   if (theme.fonts?.mono) root.style.setProperty('--mono', theme.fonts.mono)

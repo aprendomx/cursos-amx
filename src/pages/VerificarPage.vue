@@ -158,7 +158,7 @@ function goHome() {
           {{ data.nombre_persona }}
         </h1>
 
-        <p :style="{ color: 'var(--ink-2)', fontSize: '15px' }">
+        <p :style="{ color: 'var(--ink-2)', fontSize: 'var(--text-base)' }">
           {{ revocada ? 'aparecía como acreditando el curso de' : 'acreditó el curso de' }}
         </p>
 
@@ -169,19 +169,19 @@ function goHome() {
         <div class="verificar-meta">
           <div>
             <p class="eyebrow">Emitida</p>
-            <p :style="{ fontSize: '14px', fontWeight: '500' }">
+            <p :style="{ fontSize: 'var(--text-sm)', fontWeight: '500' }">
               {{ fechaFormateada }}
             </p>
           </div>
           <div>
             <p class="eyebrow">Folio</p>
-            <p class="mono" :style="{ fontSize: '14px' }">
+            <p class="mono" :style="{ fontSize: 'var(--text-sm)' }">
               {{ data.folio }}
             </p>
           </div>
           <div>
             <p class="eyebrow">Hash de verificaci&oacute;n</p>
-            <p class="mono" :style="{ fontSize: '14px' }">
+            <p class="mono" :style="{ fontSize: 'var(--text-sm)' }">
               {{ hashTruncado }}
             </p>
           </div>
@@ -253,7 +253,7 @@ function goHome() {
 
 .verificar-curso {
   font-size: clamp(24px, 3vw, 36px);
-  color: var(--primary);
+  color: var(--primary-fg);
   margin: calc(var(--unit) * 1) 0 calc(var(--unit) * 4) 0;
   line-height: 1.1;
 }
@@ -281,18 +281,18 @@ function goHome() {
 }
 
 .verificar-chip-revocada {
-  background: #fdecea;
-  color: #b00020;
+  background: var(--danger-soft);
+  color: var(--danger);
   border: 1px solid currentColor;
 }
 
 .verificar-revocada-aviso {
-  border: 1px solid #b00020;
+  border: 1px solid var(--danger);
   border-left-width: 4px;
   border-radius: 0.35rem;
   padding: 0.75rem 1rem;
   margin: 1rem 0;
-  color: #b00020;
+  color: var(--danger);
   text-align: left;
 }
 

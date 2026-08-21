@@ -20,19 +20,11 @@ const pasos = [
 </script>
 
 <template>
-  <section
-    class="cc-section"
-    aria-labelledby="cc-titulo"
-  >
+  <section class="cc-section" aria-labelledby="cc-titulo">
     <!-- Banda superior del color primario con título -->
     <header class="cc-band">
       <div class="cc-band-inner">
-        <h2
-          id="cc-titulo"
-          class="cc-band-title"
-        >
-          Como obtener tu constancia
-        </h2>
+        <h2 id="cc-titulo" class="cc-band-title">Como obtener tu constancia</h2>
       </div>
     </header>
 
@@ -41,20 +33,14 @@ const pasos = [
       <article class="cc-card">
         <!-- Lado izquierdo: pasos + descripción -->
         <div class="cc-left">
-          <h3 class="cc-headline">
-            Obtén tu constancia
-          </h3>
+          <h3 class="cc-headline">Obtén tu constancia</h3>
           <p class="cc-intro">
             Para recibir tu constancia de participación en el curso, debes cumplir los siguientes
             pasos:
           </p>
 
           <div class="cc-pasos">
-            <div
-              v-for="p in pasos"
-              :key="p.n"
-              class="cc-paso"
-            >
+            <div v-for="p in pasos" :key="p.n" class="cc-paso">
               <span class="cc-paso-num">{{ p.n }}</span>
               <div class="cc-paso-body">
                 <strong>{{ p.titulo }}</strong>
@@ -68,11 +54,7 @@ const pasos = [
           </p>
 
           <div class="cc-actions">
-            <button
-              type="button"
-              class="cc-pill"
-              @click="emit('descargar-constancia')"
-            >
+            <button type="button" class="cc-pill" @click="emit('descargar-constancia')">
               Descargar Constancia
             </button>
           </div>
@@ -87,7 +69,7 @@ const pasos = [
             loading="lazy"
             width="1200"
             height="1610"
-          >
+          />
         </div>
       </article>
     </div>
@@ -122,7 +104,7 @@ const pasos = [
   font-size: clamp(28px, 3.6vw, 48px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-primary);
 }
 
 /* Card principal */
@@ -131,8 +113,8 @@ const pasos = [
 }
 .cc-card {
   background: var(--brand-secondary-dark);
-  color: var(--paper);
-  border-radius: 28px;
+  color: var(--sobre-secondary-dark);
+  border-radius: var(--radius-full);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -157,7 +139,7 @@ const pasos = [
   font-size: clamp(34px, 4vw, 52px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-primary);
 }
 
 .cc-intro,
@@ -177,8 +159,8 @@ const pasos = [
 }
 .cc-paso {
   background: var(--paper);
-  color: var(--brand-ink);
-  border-radius: 14px;
+  color: var(--ink);
+  border-radius: var(--radius-lg);
   padding: calc(var(--unit) * 2);
   display: flex;
   align-items: flex-start;
@@ -191,7 +173,7 @@ const pasos = [
   height: 40px;
   border-radius: 50%;
   background: var(--brand-accent);
-  color: var(--paper);
+  color: var(--sobre-accent);
   display: grid;
   place-items: center;
   font-family: var(--display);
@@ -199,7 +181,7 @@ const pasos = [
   font-variation-settings:
     'opsz' 144,
     'wght' 600;
-  font-size: 22px;
+  font-size: var(--text-xl);
 }
 .cc-paso-body {
   display: flex;
@@ -211,14 +193,14 @@ const pasos = [
   font-family: var(--ui);
   font-weight: 700;
   font-size: 14.5px;
-  color: var(--brand-ink);
+  color: var(--ink);
   line-height: 1.2;
 }
 .cc-paso-body span {
   font-family: var(--ui);
   font-size: 12.5px;
   line-height: 1.4;
-  color: var(--gris-70);
+  color: var(--ink-2);
 }
 
 /* Botón pill verde-oscuro */
@@ -228,13 +210,13 @@ const pasos = [
 }
 .cc-pill {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--paper);
+  color: var(--sobre-primary);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 16px 38px;
   font-family: var(--ui);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   transition:
     background 160ms var(--ease),
@@ -243,7 +225,7 @@ const pasos = [
 }
 .cc-pill:hover {
   background: var(--paper);
-  color: var(--brand-secondary-dark);
+  color: var(--success);
   border-color: var(--paper);
   transform: translateY(-1px);
 }
@@ -262,7 +244,7 @@ const pasos = [
   max-width: 460px;
   height: auto;
   display: block;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.1) inset,
@@ -273,7 +255,7 @@ const pasos = [
 @media (max-width: 980px) {
   .cc-card {
     grid-template-columns: 1fr;
-    border-radius: 20px;
+    border-radius: var(--radius-lg);
   }
   .cc-right {
     order: 2;
@@ -299,7 +281,7 @@ const pasos = [
   .cc-pill {
     width: 100%;
     padding: 14px 24px;
-    font-size: 15px;
+    font-size: var(--text-base);
   }
   .cc-headline {
     font-size: clamp(28px, 9vw, 36px);

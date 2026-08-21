@@ -126,7 +126,7 @@ function handleSend() {
 }
 
 .chat-title {
-  font-size: 24px;
+  font-size: var(--text-2xl);
   color: var(--paper);
 }
 
@@ -152,7 +152,7 @@ function handleSend() {
 }
 .chat-messages::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .chat-msg {
@@ -172,13 +172,13 @@ function handleSend() {
 }
 
 .chat-badge-instructor {
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--brand-ink, #161a1d);
   background: var(--brand-accent);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 
 .chat-avatar-instructor {
@@ -194,7 +194,7 @@ function handleSend() {
   color: var(--brand-accent);
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   flex-shrink: 0;
   font-family: var(--ui);
@@ -213,23 +213,23 @@ function handleSend() {
 }
 
 .chat-name {
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--paper);
 }
 
 .chat-dep {
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--brand-accent);
 }
 
 .chat-time {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 
 .chat-text {
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
 }
@@ -247,10 +247,12 @@ function handleSend() {
 .chat-input-bar input {
   flex: 1;
   background: rgba(255, 255, 255, 0.06);
+  /* Superficie oscura: anillo claro (ver --focus-ring en main.css). */
+  --focus-ring: var(--paper);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--paper);
   outline: none;
   transition: border-color 180ms var(--ease);
@@ -269,7 +271,7 @@ function handleSend() {
   height: 36px;
   border-radius: 50%;
   background: var(--brand-accent);
-  color: var(--ink);
+  color: var(--sobre-accent);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -283,7 +285,7 @@ function handleSend() {
 
 .chat-estado {
   font-size: 0.72em;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 0 0.45em;
   border: 1px solid currentColor;
 }
@@ -293,6 +295,6 @@ function handleSend() {
 }
 
 .chat-estado-fallido {
-  color: #b00020;
+  color: var(--danger);
 }
 </style>

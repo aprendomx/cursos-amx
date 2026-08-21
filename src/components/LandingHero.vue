@@ -37,32 +37,15 @@ function fmt(n) {
 </script>
 
 <template>
-  <section
-    class="site-hero"
-    aria-labelledby="hero-titulo"
-  >
-    <div
-      class="site-hero-inner"
-      :style="heroStyle"
-    >
+  <section class="site-hero" aria-labelledby="hero-titulo">
+    <div class="site-hero-inner" :style="heroStyle">
       <!-- Velo oscuro para legibilidad sobre la foto -->
-      <div
-        v-if="theme.hero.backgroundImage"
-        class="hero-overlay"
-        aria-hidden="true"
-      />
+      <div v-if="theme.hero.backgroundImage" class="hero-overlay" aria-hidden="true" />
 
       <div class="hero-grid">
         <!-- FILA 1 — search (top-right) -->
-        <form
-          class="hero-search"
-          role="search"
-          @submit.prevent="submitSearch"
-        >
-          <label
-            for="hero-search-input"
-            class="sr-only"
-          >Buscar cursos</label>
+        <form class="hero-search" role="search" @submit.prevent="submitSearch">
+          <label for="hero-search-input" class="sr-only">Buscar cursos</label>
           <input
             id="hero-search-input"
             v-model="query"
@@ -70,13 +53,8 @@ function fmt(n) {
             placeholder="Buscar cursos…"
             autocomplete="off"
             spellcheck="false"
-          >
-          <button
-            type="submit"
-            class="hero-search-btn"
-          >
-            Buscar
-          </button>
+          />
+          <button type="submit" class="hero-search-btn">Buscar</button>
         </form>
 
         <!-- FILA 2 — logo plataforma (top, alineado a la derecha) -->
@@ -86,7 +64,7 @@ function fmt(n) {
             :alt="theme.app.name"
             class="hero-brand-logo"
             fetchpriority="high"
-          >
+          />
         </div>
 
         <!-- FILA 3 — columna izquierda: título principal -->
@@ -94,27 +72,21 @@ function fmt(n) {
           <p class="hero-eyebrow">
             {{ theme.hero.eyebrow }}
           </p>
-          <h1
-            id="hero-titulo"
-            class="hero-title"
-          >
+          <h1 id="hero-titulo" class="hero-title">
             {{ theme.hero.title }}
           </h1>
         </div>
 
         <!-- FILA 3 — columna derecha: logos + descripción + CTA -->
         <div class="hero-right">
-          <div
-            v-if="theme.hero.partnerLogos.length"
-            class="hero-partners"
-          >
+          <div v-if="theme.hero.partnerLogos.length" class="hero-partners">
             <img
               v-for="logo in theme.hero.partnerLogos"
               :key="logo.src"
               :src="logo.src"
               :alt="logo.alt"
               class="hero-partner-logo"
-            >
+            />
           </div>
 
           <p class="hero-desc">
@@ -122,11 +94,7 @@ function fmt(n) {
           </p>
 
           <div class="hero-actions">
-            <button
-              class="hero-pill"
-              type="button"
-              @click="emit('catalogo')"
-            >
+            <button class="hero-pill" type="button" @click="emit('catalogo')">
               {{ theme.hero.cta }}
             </button>
           </div>
@@ -135,37 +103,21 @@ function fmt(n) {
     </div>
 
     <!-- Stats por debajo del hero, en banda institucional clara -->
-    <aside
-      v-if="showStats"
-      class="site-stats-band"
-      aria-label="Indicadores de la plataforma"
-    >
+    <aside v-if="showStats" class="site-stats-band" aria-label="Indicadores de la plataforma">
       <div class="site-stats-band-inner">
-        <div
-          v-if="stats.servidoresInscritos > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.servidoresInscritos > 0" class="site-stat">
           <strong>{{ fmt(stats.servidoresInscritos) }}</strong>
           <span>Servidores inscritos</span>
         </div>
-        <div
-          v-if="stats.cursosDisponibles > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.cursosDisponibles > 0" class="site-stat">
           <strong>{{ fmt(stats.cursosDisponibles) }}</strong>
           <span>Cursos disponibles</span>
         </div>
-        <div
-          v-if="stats.constanciasEmitidas > 0"
-          class="site-stat"
-        >
+        <div v-if="stats.constanciasEmitidas > 0" class="site-stat">
           <strong>{{ fmt(stats.constanciasEmitidas) }}</strong>
           <span>Constancias emitidas</span>
         </div>
-        <div
-          v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0"
-          class="site-stat"
-        >
+        <div v-if="porcentajeAprobacion !== null && porcentajeAprobacion > 0" class="site-stat">
           <strong>{{ porcentajeAprobacion }}%</strong>
           <span>Tasa de finalización</span>
         </div>
@@ -177,6 +129,9 @@ function fmt(n) {
 <style scoped>
 .site-hero {
   background: var(--brand-primary-dark);
+  /* Fondo oscuro propio: el anillo de foco por defecto sería azul de marca
+     sobre azul de marca oscuro. Se invierte aquí y lo heredan sus campos. */
+  --focus-ring: var(--paper);
 }
 
 .site-hero-inner {
@@ -211,7 +166,7 @@ function fmt(n) {
   grid-template-rows: auto auto 1fr;
   column-gap: calc(var(--unit) * 6);
   row-gap: calc(var(--unit) * 5);
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 
 /* === Search top-right === */
@@ -234,11 +189,11 @@ function fmt(n) {
   background: transparent;
   padding: 14px 18px;
   font-family: var(--ui);
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--ink);
 }
 .hero-search input::placeholder {
-  color: var(--gris-50);
+  color: var(--ink-3);
 }
 .hero-search input::-webkit-search-cancel-button {
   display: none;
@@ -250,14 +205,14 @@ function fmt(n) {
   padding: 0 calc(var(--unit) * 3);
   font-family: var(--ui);
   font-weight: 600;
-  font-size: 15px;
+  font-size: var(--text-base);
   cursor: pointer;
   transition: background 160ms var(--ease);
   flex-shrink: 0;
 }
 .hero-search-btn:hover {
   background: var(--brand-accent);
-  color: var(--paper);
+  color: var(--sobre-accent);
 }
 
 /* === Logo plataforma (fila 2, derecha) === */
@@ -284,9 +239,9 @@ function fmt(n) {
 }
 .hero-eyebrow {
   font-family: var(--ui);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   margin-bottom: calc(var(--unit) * 3);
   letter-spacing: 0.02em;
   max-width: 50ch;
@@ -300,7 +255,7 @@ function fmt(n) {
   font-size: clamp(40px, 5.4vw, 78px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
 }
 
 /* === Columna derecha: logos + descripción + CTA === */
@@ -330,7 +285,7 @@ function fmt(n) {
   font-family: var(--ui);
   font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.55;
-  color: var(--paper);
+  color: var(--sobre-primary-dark);
   max-width: 52ch;
 }
 
@@ -345,11 +300,11 @@ function fmt(n) {
   background: var(--brand-accent-soft);
   color: var(--brand-ink);
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 16px 36px;
   font-family: var(--ui);
   font-weight: 600;
-  font-size: 16px;
+  font-size: var(--text-base);
   cursor: pointer;
   transition:
     background 160ms var(--ease),
@@ -358,7 +313,7 @@ function fmt(n) {
 }
 .hero-pill:hover {
   background: var(--brand-accent);
-  color: var(--paper);
+  color: var(--sobre-accent);
   transform: translateY(-1px);
 }
 
@@ -385,15 +340,15 @@ function fmt(n) {
     'wght' 500;
   font-size: clamp(36px, 4vw, 56px);
   line-height: 1;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   margin-bottom: 6px;
 }
 .site-stats-band .site-stat span {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--gris-70);
+  color: var(--ink-2);
 }
 
 .sr-only {
@@ -459,15 +414,15 @@ function fmt(n) {
   .hero-pill {
     width: 100%;
     padding: 14px 24px;
-    font-size: 15px;
+    font-size: var(--text-base);
   }
   .hero-search input {
     padding: 12px 14px;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .hero-search-btn {
     padding: 0 calc(var(--unit) * 2);
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .site-stats-band-inner {
     padding: calc(var(--unit) * 4) calc(var(--unit) * 3);

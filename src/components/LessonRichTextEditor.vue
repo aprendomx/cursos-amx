@@ -79,11 +79,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="rich-editor">
-    <div
-      v-if="editor"
-      class="rich-toolbar"
-      role="toolbar"
-    >
+    <div v-if="editor" class="rich-toolbar" role="toolbar">
       <button
         data-test="tb-bold"
         :aria-label="t('builder.tbBold')"
@@ -141,17 +137,9 @@ onBeforeUnmount(() => {
       >
         🔗
       </button>
-      <button
-        :aria-label="t('builder.tbImage')"
-        @click="addImage"
-      >
-        🖼
-      </button>
+      <button :aria-label="t('builder.tbImage')" @click="addImage">🖼</button>
     </div>
-    <EditorContent
-      :editor="editor"
-      class="rich-content"
-    />
+    <EditorContent :editor="editor" class="rich-content" />
   </div>
 </template>
 
@@ -182,7 +170,7 @@ onBeforeUnmount(() => {
 }
 .rich-toolbar button.on {
   border-color: var(--primary);
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .rich-content :deep(.ProseMirror) {
   min-height: 180px;

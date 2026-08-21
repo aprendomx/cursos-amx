@@ -60,23 +60,23 @@ watch(query, (q) => {
   width: 100%;
   padding: calc(var(--unit)) calc(var(--unit) * 1.5);
   border: 1px solid var(--line);
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
   background: var(--paper);
   color: var(--ink);
 }
 .buscador-input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
 }
 .loading,
 .error,
 .sin-resultados {
   margin-top: calc(var(--unit));
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .error {
-  color: var(--primary);
+  color: var(--danger);
 }
 .resultados {
   list-style: none;
@@ -89,7 +89,7 @@ watch(query, (q) => {
 .resultado {
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   background: var(--paper);
   transition: box-shadow 0.2s;
@@ -98,12 +98,12 @@ watch(query, (q) => {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 .resultado strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 .snippet {
   margin: 6px 0 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
   line-height: 1.4;
 }

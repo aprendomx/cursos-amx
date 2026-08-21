@@ -6,6 +6,53 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Refresco visual y accesibilidad** — la apariencia pasa a definirse con
+  tokens (tipografía, radios, elevación, estado) en lugar de valores escritos a
+  mano en cada componente: había 359 declaraciones de `font-size` con 54
+  valores distintos, 63 de ellas por debajo de 12 px. El piso tipográfico sube
+  a 12 px y el texto base de 15 a 16.
+
+  Corregidos, con evidencia: el anillo de foco desaparecía en nueve componentes
+  —el mismo defecto que el repo ya había arreglado solo para `.field input`—;
+  `--danger` era un alias del color de marca, así que los errores se pintaban
+  igual que los botones principales en 32 sitios; los cuatro niveles de tinta se
+  usan como color de texto pero `--ink-4` daba 1.61:1 sobre papel blanco; y el
+  contraste solo se validaba en modo oscuro.
+
+  Las gráficas pasaban `var(--primary)` a un `<canvas>`, que **ignora las
+  variables CSS en silencio**: llevaban desde siempre dibujándose con los
+  colores por defecto de la librería. Y ninguna tenía alternativa textual: el
+  mapa de actividad era una tabla con las celdas vacías para un lector de
+  pantalla.
+
+  **BREAKING — `THEME_SCHEMA_VERSION` sube a 2.** Una instalación con su
+  `theme.config.local.js` declarado para la versión 1 se detiene al arrancar con
+  un mensaje que explica qué cambió. Guía de migración en `THEMING.md`.
+
+- **Aviso de privacidad genérico, listo para editar** — el seed de la migración
+  073 traía la plantilla de `docs/AVISO_PRIVACIDAD.md` con quince marcadores
+  `{{ }}` intercalados, algunos con instrucciones dentro del propio texto:
+  publicarla exigía redactar, no editar. Se sustituye por un aviso completo y
+  coherente, escrito sobre lo que la plataforma hace de verdad —qué datos pide,
+  qué genera, qué expone la verificación de constancias, qué guarda en el
+  navegador— con solo **cuatro** datos entre corchetes y un plazo de
+  conservación con valor concreto en vez de un hueco. Migración
+  `074_aviso_generico.sql`.
+
+  Sigue sin publicarse: un aviso lo revisa el área jurídica de cada
+  institución. La migración **solo toca el borrador intacto**; si alguien ya
+  empezó a redactar el suyo, o ya lo publicó, no se ve afectado.
+
+- **Términos de uso y contacto genéricos** — mismo tratamiento para los otros
+  dos documentos, en `075_terminos_contacto_genericos.sql`. Los términos
+  cubren la cuenta y su responsabilidad, el uso aceptable, la propiedad de los
+  materiales, la revocación y el **alcance real de las constancias** —que no
+  van firmadas con firma electrónica avanzada—. La página de contacto separa
+  los tres motivos por los que alguien escribe (soporte, datos personales y
+  contenido de los cursos) y aclara que verificar una constancia no requiere
+  escribir a nadie: basta el folio, sin sesión. Las mismas dos salvaguardas:
+  solo se toca el borrador intacto, nunca lo publicado.
+
 - **Aviso de privacidad, términos de uso y contacto, con CRUD** — los tres
   documentos se redactan y publican desde Administración → Documentos y se
   sirven en `/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del

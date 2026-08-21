@@ -59,12 +59,7 @@ function onTerminar() {
 </script>
 
 <template>
-  <div
-    class="aula-overlay"
-    role="dialog"
-    aria-modal="true"
-    :aria-label="sesion.titulo"
-  >
+  <div class="aula-overlay" role="dialog" aria-modal="true" :aria-label="sesion.titulo">
     <div class="aula-modal">
       <header class="aula-header">
         <div class="aula-title">
@@ -79,45 +74,20 @@ function onTerminar() {
           >
             {{ chatVisible ? 'Ocultar chat' : 'Mostrar chat' }}
           </button>
-          <button
-            v-if="esInstructor"
-            class="btn btn-primary btn-sm"
-            @click="onTerminar"
-          >
+          <button v-if="esInstructor" class="btn btn-primary btn-sm" @click="onTerminar">
             Terminar sesión
           </button>
-          <button
-            class="btn btn-ghost btn-sm aula-cerrar"
-            @click="emit('close')"
-          >
-            Salir
-          </button>
+          <button class="btn btn-ghost btn-sm aula-cerrar" @click="emit('close')">Salir</button>
         </div>
       </header>
 
       <div class="aula-body">
         <div class="aula-video">
-          <p
-            v-if="cargando"
-            class="aula-estado mono"
-          >
-            Conectando al aula…
-          </p>
-          <p
-            v-else-if="error"
-            class="aula-estado aula-error mono"
-          >
-            ⚠ {{ error }}
-          </p>
-          <div
-            ref="jitsiContainer"
-            class="aula-jitsi"
-          />
+          <p v-if="cargando" class="aula-estado mono">Conectando al aula…</p>
+          <p v-else-if="error" class="aula-estado aula-error mono">⚠ {{ error }}</p>
+          <div ref="jitsiContainer" class="aula-jitsi" />
         </div>
-        <aside
-          v-if="chatActivo && session && chatVisible"
-          class="aula-chat"
-        >
+        <aside v-if="chatActivo && session && chatVisible" class="aula-chat">
           <ChatPanel
             :curso-id="sesion.curso_id"
             :sesion-id="sesion.id"
@@ -146,7 +116,7 @@ function onTerminar() {
   width: min(1200px, 100%);
   height: min(86vh, 100%);
   background: var(--brand-ink, #161a1d);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -167,14 +137,14 @@ function onTerminar() {
   min-width: 0;
 }
 .aula-title h2 {
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--paper, #fff);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .aula-live {
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 0.12em;
   color: #ff6b6b;
   display: inline-flex;
@@ -243,9 +213,9 @@ function onTerminar() {
   display: grid;
   place-items: center;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .aula-error {
-  color: #ff9f9f;
+  color: var(--danger);
 }
 </style>

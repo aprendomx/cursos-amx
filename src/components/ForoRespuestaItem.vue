@@ -58,18 +58,9 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   >
     <div class="foro-resp-meta">
       <strong>{{ nombre(respuesta.perfiles) }}</strong>
-      <span
-        v-if="esDeInstructor(respuesta)"
-        class="foro-badge-instructor mono"
-      >Instructor</span>
-      <span
-        v-if="respuesta.destacado"
-        class="chip chip-oro"
-      >Destacada</span>
-      <span
-        v-if="respuesta.oculto"
-        class="chip"
-      >Oculta</span>
+      <span v-if="esDeInstructor(respuesta)" class="foro-badge-instructor mono">Instructor</span>
+      <span v-if="respuesta.destacado" class="chip chip-oro">Destacada</span>
+      <span v-if="respuesta.oculto" class="chip">Oculta</span>
       <span class="mono foro-fecha">{{ fmtFecha(respuesta.creado_en) }}</span>
     </div>
 
@@ -79,43 +70,18 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       </p>
     </template>
     <template v-else>
-      <textarea
-        v-model="draftEdicion"
-        rows="3"
-        class="foro-textarea"
-      />
+      <textarea v-model="draftEdicion" rows="3" class="foro-textarea" />
       <div class="foro-acciones">
-        <button
-          class="btn btn-primary btn-sm"
-          @click="guardarEdicion"
-        >
-          Guardar
-        </button>
-        <button
-          class="btn btn-ghost btn-sm"
-          @click="editando = false"
-        >
-          Cancelar
-        </button>
+        <button class="btn btn-primary btn-sm" @click="guardarEdicion">Guardar</button>
+        <button class="btn btn-ghost btn-sm" @click="editando = false">Cancelar</button>
       </div>
     </template>
 
-    <div
-      v-if="!editando"
-      class="foro-acciones"
-    >
-      <button
-        v-if="nivel === 0"
-        class="btn btn-ghost btn-sm"
-        @click="respondiendo = !respondiendo"
-      >
+    <div v-if="!editando" class="foro-acciones">
+      <button v-if="nivel === 0" class="btn btn-ghost btn-sm" @click="respondiendo = !respondiendo">
         Responder
       </button>
-      <button
-        v-if="puedeEditar(respuesta)"
-        class="btn btn-ghost btn-sm"
-        @click="empezarEdicion"
-      >
+      <button v-if="puedeEditar(respuesta)" class="btn btn-ghost btn-sm" @click="empezarEdicion">
         Editar
       </button>
 
@@ -157,10 +123,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
       </template>
     </div>
 
-    <div
-      v-if="respondiendo"
-      class="foro-form-respuesta"
-    >
+    <div v-if="respondiendo" class="foro-form-respuesta">
       <textarea
         v-model="draftRespuesta"
         rows="2"
@@ -168,26 +131,13 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
         placeholder="Escribe tu respuesta…"
       />
       <div class="foro-acciones">
-        <button
-          class="btn btn-primary btn-sm"
-          @click="enviarRespuesta"
-        >
-          Publicar
-        </button>
-        <button
-          class="btn btn-ghost btn-sm"
-          @click="respondiendo = false"
-        >
-          Cancelar
-        </button>
+        <button class="btn btn-primary btn-sm" @click="enviarRespuesta">Publicar</button>
+        <button class="btn btn-ghost btn-sm" @click="respondiendo = false">Cancelar</button>
       </div>
     </div>
 
     <!-- Hijas (nivel 2, máximo) -->
-    <div
-      v-if="respuesta.hijas?.length"
-      class="foro-hijas"
-    >
+    <div v-if="respuesta.hijas?.length" class="foro-hijas">
       <ForoRespuestaItem
         v-for="h in respuesta.hijas"
         :key="h.id"
@@ -227,7 +177,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
 }
 .foro-resp-meta strong {
@@ -235,26 +185,26 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 }
 .foro-resp-cuerpo {
   margin: 6px 0 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
   white-space: pre-wrap;
 }
 .foro-fecha {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 .foro-badge-instructor {
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: var(--brand-accent, #a57f2c);
-  color: var(--paper, #fff);
+  color: var(--sobre-accent);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 .chip-oro {
   background: var(--brand-accent-soft, #e6d194);
-  color: #8a6e3f;
+  color: var(--sobre-accent-soft);
 }
 .foro-acciones {
   display: flex;
@@ -263,15 +213,15 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   margin-top: 4px;
 }
 .foro-eliminar {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .foro-textarea {
   width: 100%;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--text-sm);
   padding: 8px 10px;
   border: 1px solid var(--paper-3, #ddd);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   resize: vertical;
 }
 .foro-form-respuesta {

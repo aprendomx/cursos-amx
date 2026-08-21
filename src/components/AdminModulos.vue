@@ -52,7 +52,7 @@ onMounted(cargar)
 <template>
   <section class="admin-modulos">
     <header>
-      <h2>Módulos</h2>
+      <h1>Módulos</h1>
       <p class="admin-modulos-intro">
         Enciende o apaga módulos sin reconstruir ni volver a desplegar. Los marcados como
         <strong>cierra datos</strong> además bloquean el acceso a sus tablas: apagarlos no solo
@@ -155,16 +155,16 @@ onMounted(cargar)
 .admin-modulos-tag {
   font-size: 0.75em;
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 0 0.5em;
-  color: var(--brand-accent, #b45309);
+  color: var(--brand-accent, var(--brand-accent));
 }
 
 .admin-modulos-error {
-  color: #b00020;
+  color: var(--danger);
 }
 
 .admin-modulos-aviso {
-  color: var(--brand-secondary, #0f766e);
+  color: var(--brand-secondary, var(--brand-secondary));
 }
 </style>

@@ -82,7 +82,7 @@ onMounted(cargar)
 <template>
   <section class="adm-func">
     <header>
-      <h2>Funcionarios que firman</h2>
+      <h1>Funcionarios que firman</h1>
       <p class="adm-func-intro">
         Nombre y cargo se imprimen en la constancia. Al emitirse, cada constancia
         <strong>guarda su propia copia</strong>: si después alguien cambia de cargo o se da de baja,
@@ -245,9 +245,9 @@ onMounted(cargar)
   gap: 0.35rem;
 }
 .adm-func-error {
-  color: #b00020;
+  color: var(--danger);
 }
 .adm-func-aviso {
-  color: var(--brand-secondary, #0f766e);
+  color: var(--brand-secondary, var(--brand-secondary));
 }
 </style>

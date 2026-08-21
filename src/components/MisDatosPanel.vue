@@ -141,12 +141,12 @@ async function eliminar() {
 }
 
 .mis-datos-peligro {
-  color: #b00020;
+  color: var(--danger);
   border-color: currentColor;
 }
 
 .mis-datos-baja {
-  border: 1px solid #b00020;
+  border: 1px solid var(--danger);
   border-radius: 0.5rem;
   padding: 1rem;
   margin-top: 1rem;
@@ -165,7 +165,7 @@ async function eliminar() {
 }
 
 .mis-datos-error {
-  color: #b00020;
+  color: var(--danger);
 }
 
 .mis-datos-aviso {

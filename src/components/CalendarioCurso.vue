@@ -49,13 +49,13 @@ const mostrarCrear = ref(false)
   margin-bottom: calc(var(--unit) * 2);
 }
 .calendario-header h3 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--ink);
   margin: 0;
 }
 .btn-sm {
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 </style>

@@ -337,9 +337,9 @@ watch(() => props.cursoId, cargar, { immediate: true })
   margin-top: 1.25rem;
 }
 .cc-error {
-  color: #b00020;
+  color: var(--danger);
 }
 .cc-aviso {
-  color: var(--brand-secondary, #0f766e);
+  color: var(--brand-secondary, var(--brand-secondary));
 }
 </style>

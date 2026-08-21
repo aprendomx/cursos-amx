@@ -16,15 +16,8 @@ function defaultBadgeIcon() {
 </script>
 
 <template>
-  <div
-    class="badge-card"
-    :class="{ locked: !desbloqueado }"
-    data-test="badge-display"
-  >
-    <div
-      class="badge-icon"
-      v-html="iconSvg"
-    />
+  <div class="badge-card" :class="{ locked: !desbloqueado }" data-test="badge-display">
+    <div class="badge-icon" v-html="iconSvg" />
     <div class="badge-info">
       <h4 class="badge-name">
         {{ badge.nombre }}
@@ -44,7 +37,7 @@ function defaultBadgeIcon() {
   gap: calc(var(--unit) * 2);
   padding: calc(var(--unit) * 2);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--brand-secondary-soft);
   transition: all 220ms var(--ease);
 }
@@ -73,19 +66,19 @@ function defaultBadgeIcon() {
 }
 .badge-name {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--ink);
 }
 .badge-description {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
   line-height: 1.4;
 }
 .badge-points {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--brand-secondary);

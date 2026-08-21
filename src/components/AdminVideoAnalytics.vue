@@ -44,7 +44,10 @@ function fmtMinutos(segundos) {
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Analytics</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Video analytics
         </h1>
       </div>
@@ -203,7 +206,7 @@ function fmtMinutos(segundos) {
             :style="{
               padding: 'calc(var(--unit) * 2.5)',
               color: 'var(--ink-3)',
-              fontSize: '13px',
+              fontSize: 'var(--text-sm)',
             }"
           >
             Sin datos de cursos.
@@ -255,7 +258,7 @@ function fmtMinutos(segundos) {
             :style="{
               padding: 'calc(var(--unit) * 2.5)',
               color: 'var(--ink-3)',
-              fontSize: '13px',
+              fontSize: 'var(--text-sm)',
             }"
           >
             Sin datos de lecciones.
@@ -268,7 +271,7 @@ function fmtMinutos(segundos) {
 
 <style scoped>
 .segmented .btn {
-  font-size: 13px;
+  font-size: var(--text-sm);
   padding: 4px 12px;
 }
 </style>

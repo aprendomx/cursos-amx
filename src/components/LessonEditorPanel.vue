@@ -454,13 +454,13 @@ function guardar() {
 }
 .unsaved {
   color: var(--warn);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .panel-close {
   border: none;
   background: transparent;
   color: var(--ink-3);
-  font-size: 18px;
+  font-size: var(--text-lg);
   cursor: pointer;
 }
 .panel-body {
@@ -476,19 +476,19 @@ function guardar() {
   flex-direction: column;
   gap: 6px;
   color: var(--ink-2);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .field input[type='text'],
 .field input[type='url'] {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 8px 10px;
   background: var(--paper);
   color: var(--ink);
 }
 fieldset.field {
   border: 1px solid var(--line-soft);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 1);
 }
 .radio {
@@ -501,7 +501,7 @@ fieldset.field {
   width: 100%;
   aspect-ratio: 16 / 9;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-top: 8px;
 }
 .panel-footer {
@@ -513,9 +513,9 @@ fieldset.field {
 }
 .btn-primary {
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 8px 18px;
   cursor: pointer;
 }
@@ -523,7 +523,7 @@ fieldset.field {
   background: transparent;
   color: var(--ink-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 8px 18px;
   cursor: pointer;
 }
@@ -538,17 +538,17 @@ fieldset.field {
 }
 
 .subtitulos-falta {
-  color: #b45309;
+  color: var(--brand-accent);
   font-size: 0.85em;
 }
 
 .subtitulos-ok {
-  color: #0f766e;
+  color: var(--brand-secondary);
   font-size: 0.85em;
 }
 
 .subtitulos-error {
-  color: #b00020;
+  color: var(--danger);
   font-size: 0.9em;
   max-width: 60ch;
 }

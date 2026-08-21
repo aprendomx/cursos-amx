@@ -397,7 +397,7 @@ async function onRemove() {
   font-size: 0.85em;
 }
 .vuf-btn-danger {
-  color: #a00;
+  color: var(--danger);
 }
 .vuf-upload {
   display: inline-block;

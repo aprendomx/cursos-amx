@@ -130,16 +130,8 @@ watch(
 </script>
 
 <template>
-  <div
-    ref="containerEl"
-    class="doc-viewer"
-  >
-    <div
-      v-if="error"
-      class="doc-error"
-    >
-      No se pudo cargar: {{ error }}
-    </div>
+  <div ref="containerEl" class="doc-viewer">
+    <div v-if="error" class="doc-error">No se pudo cargar: {{ error }}</div>
 
     <!-- PDF cargado como blob: URL.createObjectURL del Blob bajado por
          fetch. Resuelve dos cosas a la vez:
@@ -161,24 +153,14 @@ watch(
       :src="signedUrl"
       alt="documento de lección"
       class="doc-img"
-    >
+    />
 
-    <div
-      v-if="signedUrl && docTipo === 'pdf'"
-      class="doc-fallback"
-    >
+    <div v-if="signedUrl && docTipo === 'pdf'" class="doc-fallback">
       Si el documento no se muestra,
-      <a
-        :href="signedUrl"
-        target="_blank"
-        rel="noopener"
-      >ábrelo en otra pestaña</a>.
+      <a :href="signedUrl" target="_blank" rel="noopener">ábrelo en otra pestaña</a>.
     </div>
 
-    <div
-      ref="sentinelEl"
-      class="doc-sentinel"
-    />
+    <div ref="sentinelEl" class="doc-sentinel" />
   </div>
 </template>
 
@@ -206,7 +188,7 @@ watch(
 }
 .doc-error {
   padding: 24px;
-  color: #ff8080;
+  color: var(--danger);
   text-align: center;
   font-family: monospace;
 }

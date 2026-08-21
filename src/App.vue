@@ -7,7 +7,16 @@ import TopNav from '@/components/TopNav.vue'
 import TweaksPanel from '@/components/TweaksPanel.vue'
 import OfflineBanner from '@/components/OfflineBanner.vue'
 import AvisoReaceptacion from '@/components/AvisoReaceptacion.vue'
+
+// Con enrutado por hash, un `href="#contenido-principal"` cambiaría la RUTA en
+// vez de saltar al ancla. Se mueve el foco a mano, que además es lo que hace
+// falta: sin foco, el lector de pantalla seguiría leyendo desde la navegación.
+function enfocarContenido(e) {
+  e.preventDefault()
+  document.getElementById('contenido-principal')?.focus()
+}
 import { supabase } from '@/lib/supabase.js'
+import { mapSupabaseError } from '@/lib/errors'
 import { storageKey } from '@/lib/theme.js'
 import { featureEnabled } from '@/lib/featureFlags'
 import { registerSW } from 'virtual:pwa-register'
@@ -64,7 +73,13 @@ async function onRegistroComplete(form) {
         },
       })
       if (authError) {
-        registroError.value = authError.message
+        // El mensaje crudo de la librería llega en inglés y en su jerga
+        // («Failed to fetch», «User already registered»). mapSupabaseError
+        // traduce los casos que este repositorio produce —incluido el de una
+        // instalación sin aviso de privacidad publicado, que es el que se
+        // encuentra quien intenta registrarse antes de que un administrador lo
+        // publique.
+        registroError.value = mapSupabaseError(authError).message
         registroLoading.value = false
         return
       }
@@ -142,6 +157,13 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
 
 <template>
   <div class="app">
+    <!-- Primer elemento enfocable de toda la aplicación. Sin él, quien navega
+         con teclado tabula por la navegación entera en CADA página antes de
+         llegar al contenido. Se ve solo al recibir el foco. -->
+    <a class="salto-contenido" href="#contenido-principal" @click="enfocarContenido">
+      Saltar al contenido
+    </a>
+
     <TopNav
       v-if="showNav(route.name)"
       :user="auth.user"
@@ -153,18 +175,20 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
 
     <template v-else>
       <OfflineBanner />
-      <router-view
-        :session="auth.session"
-        :tweaks="ui.tweaks"
-        :has-registered="auth.hasRegistered"
-        :loading="loginLoading"
-        :error="loginError"
-        :registro-loading="registroLoading"
-        :registro-error="registroError"
-        @login="onLogin"
-        @complete="onRegistroComplete"
-        @update:tweaks="ui.updateTweaks"
-      />
+      <main id="contenido-principal" tabindex="-1">
+        <router-view
+          :session="auth.session"
+          :tweaks="ui.tweaks"
+          :has-registered="auth.hasRegistered"
+          :loading="loginLoading"
+          :error="loginError"
+          :registro-loading="registroLoading"
+          :registro-error="registroError"
+          @login="onLogin"
+          @complete="onRegistroComplete"
+          @update:tweaks="ui.updateTweaks"
+        />
+      </main>
     </template>
 
     <!-- El aviso cambió y exige volver a aceptarlo. No bloquea el acceso. -->

@@ -137,7 +137,10 @@ const showImport = ref(false)
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Gesti&oacute;n</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Usuarios
         </h1>
       </div>
@@ -240,7 +243,7 @@ const showImport = ref(false)
         marginTop: 'calc(var(--unit) * 2)',
       }"
     >
-      <span class="mono" :style="{ color: 'var(--ink-4)', fontSize: '13px' }">
+      <span class="mono" :style="{ color: 'var(--ink-4)', fontSize: 'var(--text-sm)' }">
         {{ usuariosDesde }}&ndash;{{ usuariosHasta }} de {{ usuariosTotal }}
       </span>
       <div :style="{ display: 'flex', gap: '8px' }">
@@ -270,12 +273,12 @@ const showImport = ref(false)
       @click.self="cerrarReset"
     >
       <div class="pw-modal card">
-        <h3 :style="{ marginBottom: '4px', color: 'var(--ink)' }">Restablecer contrase&ntilde;a</h3>
+        <h2 :style="{ marginBottom: '4px', color: 'var(--ink)' }">Restablecer contrase&ntilde;a</h2>
         <p
           class="mono"
           :style="{
             color: 'var(--ink-3)',
-            fontSize: '13px',
+            fontSize: 'var(--text-sm)',
             marginBottom: 'calc(var(--unit) * 2)',
           }"
         >
@@ -303,7 +306,7 @@ const showImport = ref(false)
           v-if="pwMsg"
           class="mono"
           :style="{
-            fontSize: '13px',
+            fontSize: 'var(--text-sm)',
             marginBottom: 'calc(var(--unit) * 2)',
             color: pwMsg.type === 'ok' ? '#2e9e6b' : 'var(--primary)',
           }"

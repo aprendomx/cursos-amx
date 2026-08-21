@@ -35,7 +35,108 @@ edites: cuando aparezcan claves nuevas, cópialas de ahí a tu archivo local.
 
 ---
 
+## 0.05 Sistema de tokens
+
+Los valores que determinan la apariencia viven en `src/assets/main.css`, no en
+cada componente. **Un componente no escribe a mano un tamaño, un radio o una
+sombra cuando existe un token para ese propósito.**
+
+Antes de que existieran había 359 declaraciones de `font-size` con 54 valores
+distintos, 174 de `border-radius` con 21 y 26 sombras con 19 valores —casi cada
+sombra era única—. Eso es lo que hacía que la interfaz se sintiera despareja sin
+que se pudiera señalar un culpable concreto.
+
+| Escala         | Tokens                                                                     | Para qué                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Texto          | `--text-xs` … `--text-4xl`                                                 | 12, 14, 16, 18, 20, 24, 32, 44 px. **12 px es el piso**: por debajo el texto deja de ser legible para buena parte de quien lo lee |
+| Interlineado   | `--leading-tight/snug/normal`                                              | 1.2 en títulos, 1.6 en cuerpo                                                                                                     |
+| Peso           | `--weight-regular/medium/bold`                                             | La jerarquía se sostiene con tamaño y peso, no con color                                                                          |
+| Radios         | `--radius-sm/md/lg/full`                                                   | Campos y chips · botones y tarjetas · paneles y diálogos · píldoras                                                               |
+| Elevación      | `--elev-0` … `--elev-3`                                                    | Reposo · tarjeta · panel o menú · diálogo sobre velo                                                                              |
+| Estado         | `--danger`, `--success`, `--warn` y sus `-soft`                            | Los tres se distinguen entre sí **y del color de marca**                                                                          |
+| Primer plano   | `--primary-fg`                                                             | El color de marca cuando es TEXTO: ajustado para cumplir 4.5:1. El de fondo conserva el valor de la institución                   |
+| Foco           | `--focus-ring`                                                             | Una superficie con fondo oscuro propio puede invertirlo localmente                                                                |
+| Reconocimiento | `--oro`                                                                    | Insignias y logros. Se aclara en oscuro; sobre el amarillo suave del acento usa `--sobre-accent-soft`                             |
+| Sobre marca    | `--sobre-primary`, `--sobre-secondary`, `--sobre-accent`, `--sobre-*-soft` | La tinta de una superficie pintada con el color institucional. **No siguen al modo**, siguen al fondo que pisan                   |
+
+### La regla del par
+
+Un color puede seguir al tema o no seguirlo. Los dos son legítimos. Lo que
+**nunca** es correcto es mezclarlos en el mismo par fondo/texto:
+
+- Fondo que sigue + tinta clavada → al pasar a oscuro el fondo se va a negro y
+  la tinta se queda negra.
+- Fondo clavado —porque es el color de la marca— + tinta que sigue → lo mismo
+  al revés.
+
+Así estaban el hero (1.82:1), las preguntas frecuentes (1.08:1) y los chips
+(3.44:1): cada uno por una de las dos mitades del mismo error. La barra de
+navegación se pinta con el azul institucional, que vale igual en claro y en
+oscuro porque **es la marca**; el texto de encima llevaba `--paper`, que sí se
+invierte.
+
+Para esas superficies existen los tokens `--sobre-*`. `applyTheme()` los deriva
+del color de cada instalación con `tintaLegible()`, así que una identidad clara
+—un amarillo, un cian— recibe tinta oscura en vez de blanca.
+
+Un detalle que no es evidente: **`--primary` y `--primary-700` no sirven como
+tinta sobre un fondo teñido.** En modo oscuro las dos están derivadas para dar
+4.5:1 _justos_ contra el papel, así que cualquier tinte —aunque sea del 8%— se
+come el margen entero. Por eso el tinte suave tiene su propia tinta,
+`--sobre-primary-100`, derivada contra el tinte real.
+
+`src/lib/__tests__/temaPares.test.js` comprueba la regla sobre todo el CSS del
+proyecto, y deduce qué token sigue al tema leyendo si se redefine en
+`[data-theme='dark']` — no hay lista que mantener a mano.
+
+Tres cosas que **no** se tokenizan, y conviene saber por qué antes de
+«arreglarlas»:
+
+- **El letterbox del reproductor** (`#000` de fondo, `#fff` de texto) y **la
+  hoja de la vista previa de constancia** (`#fff`). No son tokens de tema sino
+  condiciones de visionado o de impresión: deben ser los mismos en modo claro y
+  oscuro. Con `--paper` se invertirían.
+- **La constancia** (`ConstanciaPage`). `html2pdf` dibuja el PDF desde el DOM,
+  así que sus tamaños son la tipografía del documento oficial: cambiarlos
+  desplaza la constancia impresa que la gente ya tiene.
+- **Los colores que van a un `<canvas>`.** El contexto 2D **ignora `var()` en
+  silencio**: asignarlo es un no-op que conserva el valor anterior. Usa
+  `resolverColor()` de `src/lib/colorCanvas.js` antes de dibujar.
+
 ## 0.1 Contrato de estabilidad
+
+### Migrar de la versión 1 a la 2
+
+La versión 2 del esquema trae un **refresco visual**. Si tu tema declara
+`schemaVersion: 1`, la aplicación **se detiene al arrancar** con un mensaje que
+explica esto; es deliberado, para que el cambio no te sorprenda en producción.
+
+Qué cambia en tu instalación, aunque no toques nada:
+
+|                                    | Antes                        | Ahora                      |
+| ---------------------------------- | ---------------------------- | -------------------------- |
+| Texto base                         | 15 px                        | 16 px                      |
+| Texto más pequeño                  | hasta 9 px                   | mínimo 12 px               |
+| Tamaños, radios y sombras          | valor por componente         | escalas de tokens          |
+| Color de error                     | el color de marca            | color propio, `#b3261e`    |
+| Texto tenue (`--ink-3`, `--ink-4`) | 3.95:1 y 1.61:1 sobre blanco | los cuatro niveles ≥ 4.5:1 |
+
+Para migrar:
+
+1. Cambia `schemaVersion: 1` por `schemaVersion: 2` en tu
+   `theme.config.local.js`.
+2. Si tus enlaces institucionales del pie traen `href: '#'`, considera pasar a
+   la clave `doc` (ver «Enlaces institucionales» más abajo).
+3. **Opcional:** declara `colors.danger` si el rojo por defecto desentona con tu
+   identidad. Antes no existía la clave porque el error usaba tu color de
+   marca — lo que hacía que un mensaje de error se viera igual que un botón
+   principal.
+4. Revisa tus pantallas: el texto es algo mayor y respira más, así que un
+   bloque que cabía justo puede necesitar otro salto de línea.
+
+**Si tu tema no declara `schemaVersion`**, la aplicación asume la vigente y solo
+deja un aviso en consola. Declararla es lo que hace que el próximo cambio te
+avise en vez de sorprenderte.
 
 Esto es lo que puedes usar sabiendo que no se romperá sin aviso, y lo que es
 interno y puede cambiar en cualquier versión.
@@ -170,6 +271,21 @@ Las familias se aplican como variables CSS (`--display`, `--ui`, `--mono`) en
 | `footer.about`           | Párrafo "acerca de" en el pie de página        | LandingFooter | —         |
 | `footer.columns`         | Array de columnas `{ title, links[] }` del pie | LandingFooter | —         |
 | `footer.copyrightHolder` | Nombre en la leyenda de copyright              | LandingFooter | —         |
+
+#### Color de error (`colors.danger`, opcional, desde la versión 2)
+
+Antes el error se pintaba con tu color de marca, de modo que un mensaje de error
+se veía igual que un botón principal. Ahora tiene color propio (`#b3261e`) y
+puedes sustituirlo:
+
+```js
+colors: {
+  danger: '#9b2247'
+}
+```
+
+Cuida dos cosas al elegirlo: que se distinga de `primary` y que alcance 4.5:1
+sobre papel blanco. La variante para modo oscuro se deriva sola.
 
 #### Enlaces institucionales
 

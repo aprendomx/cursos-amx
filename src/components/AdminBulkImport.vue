@@ -83,30 +83,18 @@ function onClear() {
         accept=".csv"
         style="display: none"
         @change="onFileChange"
-      >
+      />
       <p>Arrastra un archivo CSV aquí o haz clic para seleccionar</p>
     </div>
 
     <div v-else>
       <div class="preview-header">
         <span>{{ validRows.length }} válidas · {{ invalidRows.length }} con errores</span>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm"
-          @click="onClear"
-        >
-          Limpiar
-        </button>
+        <button type="button" class="btn btn-ghost btn-sm" @click="onClear">Limpiar</button>
       </div>
 
-      <div
-        v-if="errors.length"
-        class="alert alert-warn"
-      >
-        <p
-          v-for="(err, i) in errors"
-          :key="i"
-        >
+      <div v-if="errors.length" class="alert alert-warn">
+        <p v-for="(err, i) in errors" :key="i">
           {{ err }}
         </p>
       </div>
@@ -121,30 +109,18 @@ function onClear() {
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="r in rows.slice(0, 10)"
-            :key="r.line"
-            :class="{ 'is-error': !r.valid }"
-          >
+          <tr v-for="r in rows.slice(0, 10)" :key="r.line" :class="{ 'is-error': !r.valid }">
             <td>{{ r.line }}</td>
             <td>{{ r.data.nombre }}</td>
             <td>{{ r.data.email }}</td>
             <td>
               <span v-if="r.valid">OK</span>
-              <span
-                v-else
-                :title="r.errors.join(', ')"
-              >Error: {{ r.errors.join(', ') }}</span>
+              <span v-else :title="r.errors.join(', ')">Error: {{ r.errors.join(', ') }}</span>
             </td>
           </tr>
         </tbody>
       </table>
-      <p
-        v-if="rows.length > 10"
-        class="eyebrow"
-      >
-        … y {{ rows.length - 10 }} filas más
-      </p>
+      <p v-if="rows.length > 10" class="eyebrow">… y {{ rows.length - 10 }} filas más</p>
 
       <div class="actions">
         <button
@@ -157,17 +133,11 @@ function onClear() {
         </button>
       </div>
 
-      <div
-        v-if="error"
-        class="alert alert-error"
-      >
+      <div v-if="error" class="alert alert-error">
         {{ error }}
       </div>
 
-      <div
-        v-if="result?.results"
-        class="alert alert-ok"
-      >
+      <div v-if="result?.results" class="alert alert-ok">
         <p>
           {{ result.results.filter((r) => r.status === 'ok').length }} éxitos ·
           {{ result.results.filter((r) => r.status === 'error').length }} errores
@@ -185,7 +155,7 @@ function onClear() {
 }
 .dropzone {
   border: 2px dashed var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 4);
   text-align: center;
   cursor: pointer;
@@ -193,7 +163,7 @@ function onClear() {
   transition: border-color 0.15s;
 }
 .dropzone:hover {
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
 }
 .preview-header {
   display: flex;
@@ -201,7 +171,7 @@ function onClear() {
   align-items: center;
 }
 .admin-table .is-error td {
-  color: var(--brand-primary);
+  color: var(--danger);
 }
 .actions {
   display: flex;
@@ -209,19 +179,19 @@ function onClear() {
 }
 .alert {
   padding: calc(var(--unit) * 1.5);
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
 }
 .alert-warn {
   background: rgba(234, 179, 8, 0.08);
-  color: #a16207;
+  color: var(--warn);
 }
 .alert-error {
   background: rgba(239, 68, 68, 0.08);
-  color: var(--brand-primary);
+  color: var(--danger);
 }
 .alert-ok {
   background: rgba(34, 197, 94, 0.08);
-  color: var(--brand-secondary, #2e7d32);
+  color: var(--brand-secondary, var(--success));
 }
 </style>

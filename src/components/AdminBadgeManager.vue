@@ -130,7 +130,10 @@ onMounted(cargar)
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Gamificaci\u00f3n</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Badges
         </h1>
       </div>
@@ -147,9 +150,9 @@ onMounted(cargar)
 
     <!-- Formulario inline -->
     <div v-if="showForm" class="card" :style="{ marginBottom: 'calc(var(--unit) * 3)' }">
-      <h3 :style="{ marginBottom: 'calc(var(--unit) * 2)', color: 'var(--ink)' }">
+      <h2 :style="{ marginBottom: 'calc(var(--unit) * 2)', color: 'var(--ink)' }">
         {{ editingId ? 'Editar badge' : 'Nuevo badge' }}
-      </h3>
+      </h2>
       <div class="field">
         <label>Nombre</label>
         <input v-model="form.nombre" type="text" placeholder="Nombre del badge" />

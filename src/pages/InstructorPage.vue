@@ -390,7 +390,7 @@ const mockPendingEntregas = ref([
   margin-bottom: calc(var(--unit) * 3);
 }
 .inst-header h1 {
-  font-size: 32px;
+  font-size: var(--text-3xl);
   color: var(--ink);
   margin-top: 4px;
 }
@@ -398,7 +398,7 @@ const mockPendingEntregas = ref([
   min-width: 260px;
 }
 .inst-error {
-  color: var(--primary);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .inst-empty {
@@ -423,11 +423,11 @@ const mockPendingEntregas = ref([
   gap: 6px;
 }
 .inst-metrica-label {
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
 }
 .inst-metrica-valor {
-  font-size: 40px;
+  font-size: var(--text-4xl);
   line-height: 1;
   color: var(--ink);
 }
@@ -446,13 +446,13 @@ const mockPendingEntregas = ref([
   padding: calc(var(--unit) * 2.5);
 }
 .inst-panel-titulo {
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--ink);
   margin-bottom: calc(var(--unit) * 2);
 }
 .inst-vacio {
   color: var(--ink-4);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .inst-comentarios {
   list-style: none;
@@ -478,7 +478,7 @@ const mockPendingEntregas = ref([
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
 }
 .inst-comentario-meta strong {
@@ -486,7 +486,7 @@ const mockPendingEntregas = ref([
 }
 .inst-comentario-texto {
   margin: 6px 0 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
 }
 .inst-acciones {
@@ -495,24 +495,24 @@ const mockPendingEntregas = ref([
   flex-wrap: wrap;
 }
 .inst-eliminar {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .inst-fecha {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 .chip-oro {
   background: var(--brand-accent-soft, #e6d194);
-  color: #8a6e3f;
+  color: var(--sobre-accent-soft);
 }
 .inst-tabla {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .inst-tabla th {
   text-align: left;
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
   padding: 6px 8px;
   border-bottom: 1px solid var(--paper-3, #eee);
@@ -532,7 +532,7 @@ const mockPendingEntregas = ref([
   margin-bottom: 0;
 }
 .inst-filtro {
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 4px 8px;
 }
 .inst-entregas {
@@ -552,7 +552,7 @@ const mockPendingEntregas = ref([
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
 }
 .inst-entrega-meta strong {
@@ -572,13 +572,13 @@ const mockPendingEntregas = ref([
   gap: 10px;
   flex-wrap: wrap;
   margin: 6px 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .inst-entrega-archivo a {
   color: var(--ink);
 }
 .inst-entrega-comentario {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
   background: var(--paper-2, #f8f5ee);
   padding: 6px 10px;
@@ -592,7 +592,7 @@ const mockPendingEntregas = ref([
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
 }
 

@@ -61,17 +61,17 @@ const fmtDuracion = (seg) => {
   padding: calc(var(--unit) * 4) calc(var(--unit) * 3);
 }
 .archivo-sesiones h3 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: calc(var(--unit) * 2);
 }
 .error {
-  color: var(--primary);
+  color: var(--danger);
 }
 .vacio {
   color: var(--ink-4);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .grid {
   display: grid;
@@ -80,7 +80,7 @@ const fmtDuracion = (seg) => {
 }
 .tarjeta {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
   transition: box-shadow 0.2s;
@@ -97,8 +97,8 @@ const fmtDuracion = (seg) => {
   justify-content: center;
 }
 .play-icon {
-  font-size: 32px;
-  color: var(--primary);
+  font-size: var(--text-3xl);
+  color: var(--primary-fg);
 }
 .tarjeta-info {
   padding: calc(var(--unit) * 1.5);
@@ -107,31 +107,31 @@ const fmtDuracion = (seg) => {
   gap: 4px;
 }
 .tarjeta-info strong {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 .meta {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 .estado {
-  font-size: 10px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   padding: 2px 6px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   align-self: flex-start;
 }
 .estado-lista {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .estado-procesando {
-  background: #fff3e0;
-  color: #e65100;
+  background: var(--warn-soft);
+  color: var(--warn);
 }
 .estado-error {
-  background: #fce8e6;
-  color: #c5221f;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 </style>

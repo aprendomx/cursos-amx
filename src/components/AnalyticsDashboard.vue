@@ -36,7 +36,10 @@ onMounted(loadCursos)
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Análisis</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Analytics
         </h1>
       </div>

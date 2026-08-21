@@ -131,7 +131,7 @@ onMounted(cargar)
 <template>
   <section class="adm-dis">
     <header>
-      <h2>Diseños de constancia</h2>
+      <h1>Diseños de constancia</h1>
       <p class="adm-dis-intro">
         Un diseño define <strong>cómo se ve</strong> la constancia: fondo, pleca, logotipo y
         colores. Los textos no van aquí — se configuran por curso, en el paso «Constancia» del
@@ -430,18 +430,18 @@ onMounted(cargar)
   align-self: flex-start;
   font-size: 0.72em;
   border: 1px solid currentColor;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   padding: 0 0.5em;
-  color: var(--warn, #b45309);
+  color: var(--warn, var(--brand-accent));
 }
 .adm-dis-fila-acciones {
   display: flex;
   gap: 0.35rem;
 }
 .adm-dis-error {
-  color: #b00020;
+  color: var(--danger);
 }
 .adm-dis-aviso {
-  color: var(--brand-secondary, #0f766e);
+  color: var(--brand-secondary, var(--brand-secondary));
 }
 </style>

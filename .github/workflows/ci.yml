@@ -101,9 +101,14 @@ jobs:
 
   test-e2e:
     runs-on: ubuntu-latest
-    # Los specs de flujo crítico requieren un backend Supabase vivo y
-    # credenciales (E2E_ADMIN_EMAIL/PASSWORD); no bloquea el CI por ahora.
-    continue-on-error: true
+    # Los specs que necesitan un backend Supabase vivo se saltan solos cuando
+    # no hay credenciales, así que lo que queda aquí debe pasar siempre.
+    #
+    # Ya no lleva continue-on-error. Lo llevaba porque fallaba de continuo, y
+    # eso lo había convertido en ruido: estuvo varios PR seguidos en rojo
+    # señalando que la aplicación tardaba 7.3 s en montar con la API caída, y
+    # se leyó como un problema de credenciales hasta que alguien lo miró. Un
+    # aviso que siempre suena no avisa de nada.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -136,9 +141,14 @@ jobs:
         run: npm run build
         env:
           # Sin URL/key el bundle llama createClient(undefined) y lanza al
-          # cargar, dejando la app sin montar. El fallback dummy permite que
-          # la UI renderice y pasen los specs de navegación; los flujos
-          # contra backend real requieren configurar los secrets.
+          # cargar, dejando la app sin montar. El fallback dummy deja que la UI
+          # renderice; los flujos contra backend real requieren los secrets, y
+          # sin ellos esos specs se SALTAN (ver e2e/critical-flow.spec.js).
+          #
+          # Antes este comentario decía que con el dummy «la UI renderiza».
+          # Renderizaba, sí: 7.3 s tarde, porque el arranque esperaba a los
+          # feature flags contra una API inalcanzable. El expect de Playwright
+          # se rendía a los 5 s. No era un problema de credenciales.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'http://127.0.0.1:54321' }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'dummy-anon-key-ci' }}
 
@@ -241,6 +251,7 @@ jobs:
       - type-check
       - test-unit
       - test-edge-functions
+      - test-e2e
       - test-migrations
       - test-kong-config
       - test-crear-admin

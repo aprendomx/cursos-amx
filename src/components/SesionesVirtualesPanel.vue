@@ -264,17 +264,17 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   margin-bottom: calc(var(--unit) * 2.5);
 }
 .sesiones-titulo {
-  font-size: 28px;
+  font-size: var(--text-3xl);
   color: var(--ink);
   margin-top: 4px;
 }
 .sesiones-error {
-  color: var(--primary);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .sesiones-vacio {
   color: var(--ink-4);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .sesiones-form {
   padding: calc(var(--unit) * 2);
@@ -321,14 +321,14 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 }
 .sesion-meta strong {
   color: var(--ink);
-  font-size: 16px;
+  font-size: var(--text-base);
 }
 .sesion-estado {
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 2px 8px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--paper-2, #f3efe7);
   color: var(--ink-3);
   display: inline-flex;
@@ -360,7 +360,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   }
 }
 .sesion-detalle {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
   display: block;
   margin-top: 4px;
@@ -372,6 +372,6 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   align-items: center;
 }
 .sesiones-eliminar {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 </style>

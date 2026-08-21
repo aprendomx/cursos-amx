@@ -239,7 +239,7 @@ function cerrar() {
 }
 .modal-content {
   background: var(--paper);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   width: 90%;
   max-width: 700px;
   max-height: 90vh;
@@ -256,13 +256,13 @@ function cerrar() {
 }
 .modal-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
 }
 .btn-close {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: var(--text-xl);
   cursor: pointer;
   color: var(--ink-2);
 }
@@ -278,7 +278,7 @@ function cerrar() {
   gap: calc(var(--unit) * 0.5);
 }
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--ink-2);
   text-transform: uppercase;
@@ -288,12 +288,12 @@ function cerrar() {
   margin: 0;
   padding: calc(var(--unit));
   background: var(--paper-2);
-  border-radius: 4px;
-  font-size: 13px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
 }
 .rubrica-section {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 2);
 }
 .criterio-item {
@@ -313,18 +313,18 @@ function cerrar() {
 }
 .criterio-header h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .peso-badge {
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper-2);
   color: var(--ink-2);
 }
 .criterio-desc {
   margin: calc(var(--unit) * 0.5) 0;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
 }
 .niveles-group {
@@ -336,7 +336,7 @@ function cerrar() {
   display: flex;
   align-items: center;
   gap: calc(var(--unit));
-  font-size: 13px;
+  font-size: var(--text-sm);
   cursor: pointer;
 }
 .puntaje-libre {
@@ -353,7 +353,7 @@ function cerrar() {
   align-items: center;
   padding-top: calc(var(--unit) * 2);
   border-top: 1px solid var(--line);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
 }
 .puntaje-final-row {
@@ -362,16 +362,16 @@ function cerrar() {
   gap: calc(var(--unit));
   padding: calc(var(--unit) * 1.5);
   background: var(--paper-2);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 .puntaje-final-label {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 .puntaje-final-valor {
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .modal-actions {
   display: flex;
@@ -381,31 +381,31 @@ function cerrar() {
 }
 .btn-primary {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
-  color: #fff;
-  font-size: 13px;
+  color: var(--paper);
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }
 .btn-secondary {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }
 .btn-danger {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
-  background: #dc2626;
-  color: #fff;
-  font-size: 13px;
+  background: var(--danger);
+  color: var(--sobre-danger);
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }

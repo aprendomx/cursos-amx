@@ -119,7 +119,7 @@ function cancelar() {
   gap: calc(var(--unit) * 0.5);
 }
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--ink-2);
   text-transform: uppercase;
@@ -130,17 +130,17 @@ textarea,
 select {
   padding: calc(var(--unit)) calc(var(--unit) * 1.5);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 input:focus,
 textarea:focus,
 select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
 }
 .actions {
   display: flex;
@@ -149,25 +149,25 @@ select:focus {
 }
 .btn-primary {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
-  color: #fff;
-  font-size: 13px;
+  color: var(--paper);
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }
 .btn-primary:disabled {
-  opacity: 0.5;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
 }
 .btn-secondary {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--line);
   background: transparent;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
 }

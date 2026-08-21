@@ -128,7 +128,7 @@ onMounted(cargar)
 <template>
   <section class="admin-documentos">
     <header class="ad-header">
-      <h2>Documentos</h2>
+      <h1>Documentos</h1>
       <p :style="{ color: 'var(--ink-2)' }">
         Aviso de privacidad, términos de uso y contacto. Publicar crea una versión nueva y conserva
         las anteriores.
@@ -250,7 +250,7 @@ onMounted(cargar)
 .ad-tab {
   background: none;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 1) calc(var(--unit) * 2);
   cursor: pointer;
   color: var(--ink-2);
@@ -260,7 +260,7 @@ onMounted(cargar)
   text-align: left;
 }
 .ad-tab.active {
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
   color: var(--ink);
 }
 .ad-tab small {
@@ -268,12 +268,12 @@ onMounted(cargar)
   font-size: 0.75rem;
 }
 .ad-mensaje {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 1.5);
   border-left: 3px solid var(--line);
 }
 .ad-mensaje.ok {
-  border-left-color: var(--primary);
+  border-left-color: var(--primary-fg);
   color: var(--ink-2);
 }
 .ad-mensaje.error {
@@ -286,7 +286,7 @@ onMounted(cargar)
   flex-wrap: wrap;
   color: var(--ink-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 1.5);
 }
 .ad-acciones {
@@ -303,7 +303,7 @@ onMounted(cargar)
 }
 .ad-bloque {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 1.5);
 }
 .ad-previa {
@@ -320,7 +320,7 @@ onMounted(cargar)
   background: none;
   border: none;
   padding: calc(var(--unit) * 0.5) 0;
-  color: var(--primary);
+  color: var(--primary-fg);
   cursor: pointer;
   text-align: left;
 }

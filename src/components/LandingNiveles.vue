@@ -33,29 +33,18 @@ const niveles = [
 <template>
   <section class="container niveles">
     <div class="niveles-head">
-      <p class="eyebrow">
-        NIVELES DE FORMACI&Oacute;N
-      </p>
-      <h2 class="display niveles-title">
-        Encuentra el camino a tu medida.
-      </h2>
+      <p class="eyebrow">NIVELES DE FORMACI&Oacute;N</p>
+      <h2 class="display niveles-title">Encuentra el camino a tu medida.</h2>
     </div>
 
     <div class="niveles-grid">
-      <article
-        v-for="n in niveles"
-        :key="n.key"
-        class="card niveles-card"
-      >
+      <article v-for="n in niveles" :key="n.key" class="card niveles-card">
         <span :class="n.chipCls">
           <span class="chip-dot" />
           {{ n.key }}
         </span>
         <!-- eslint-disable-next-line vue/no-v-html -- safe: static content controlled internally -->
-        <p
-          class="niveles-desc"
-          v-html="n.descripcion"
-        />
+        <p class="niveles-desc" v-html="n.descripcion" />
         <span class="mono niveles-count">
           {{ cursosPorNivel[n.key] || 0 }} curso{{ (cursosPorNivel[n.key] || 0) === 1 ? '' : 's' }}
         </span>
@@ -90,7 +79,7 @@ const niveles = [
   gap: calc(var(--unit) * 2);
 }
 .niveles-desc {
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.55;
   color: var(--ink-2);
   flex: 1;
@@ -98,7 +87,7 @@ const niveles = [
 }
 .niveles-count {
   color: var(--ink-3);
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }

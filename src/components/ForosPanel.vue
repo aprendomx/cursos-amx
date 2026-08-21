@@ -454,22 +454,22 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   margin-bottom: calc(var(--unit) * 2.5);
 }
 .foros-titulo {
-  font-size: 28px;
+  font-size: var(--text-3xl);
   color: var(--ink);
   margin-top: 4px;
 }
 .foros-sub {
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--ink);
   flex: 1;
 }
 .foros-error {
-  color: var(--primary);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .foros-vacio {
   color: var(--ink-4);
-  font-size: 14px;
+  font-size: var(--text-sm);
   padding: calc(var(--unit) * 2) 0;
 }
 .foros-lista {
@@ -498,11 +498,11 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   opacity: 0.6;
 }
 .foro-card-info h3 {
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--ink);
 }
 .foro-card-info p {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
   margin-top: 2px;
 }
@@ -521,11 +521,11 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   flex-wrap: wrap;
 }
 .foro-hilo-meta h3 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   color: var(--ink);
 }
 .foro-hilo-autor {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
   margin-top: 4px;
   display: flex;
@@ -535,7 +535,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 }
 .foro-hilo-cuerpo {
   margin-top: calc(var(--unit) * 1.5);
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--ink-2);
   white-space: pre-wrap;
 }
@@ -559,7 +559,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   flex-wrap: wrap;
 }
 .foros-eliminar {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .foros-breadcrumb {
   display: flex;
@@ -571,23 +571,23 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 .foros-textarea {
   width: 100%;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--text-sm);
   padding: 8px 10px;
   border: 1px solid var(--paper-3, #ddd);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   resize: vertical;
 }
 .foro-badge-instructor {
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: var(--brand-accent, #a57f2c);
-  color: var(--paper, #fff);
+  color: var(--sobre-accent);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 .chip-oro {
   background: var(--brand-accent-soft, #e6d194);
-  color: #8a6e3f;
+  color: var(--sobre-accent-soft);
 }
 </style>

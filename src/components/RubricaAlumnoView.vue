@@ -97,13 +97,13 @@ function getComentarioParaCriterio(criterioId) {
 }
 .nivel-chip {
   padding: 0.25rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--paper-3);
   font-size: 0.875rem;
 }
 .nivel-selected {
   background: var(--primary);
-  color: white;
+  color: var(--paper);
 }
 .puntaje-row {
   font-size: 1.125rem;
