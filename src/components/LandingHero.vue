@@ -340,7 +340,7 @@ function fmt(n) {
     'wght' 500;
   font-size: clamp(36px, 4vw, 56px);
   line-height: 1;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   margin-bottom: 6px;
 }
 .site-stats-band .site-stat span {

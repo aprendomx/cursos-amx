@@ -303,7 +303,7 @@ function reintentar() {
   font-size: var(--text-sm);
 }
 .eval-error {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .eval-meta {
   color: var(--ink-4);
@@ -341,7 +341,7 @@ function reintentar() {
   color: var(--brand-secondary, var(--success));
 }
 .eval-result-head.is-fail .eval-verdict {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .eval-score {
   font-size: var(--text-4xl);
@@ -366,7 +366,7 @@ function reintentar() {
   color: var(--brand-secondary, var(--success));
 }
 .eval-detalle li.is-fail {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 
 .eval-result-diferido {

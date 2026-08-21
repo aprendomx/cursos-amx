@@ -353,6 +353,6 @@ function removeHueco(p, hi) {
   cursor: not-allowed;
 }
 .qe-icon-danger:hover {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 </style>

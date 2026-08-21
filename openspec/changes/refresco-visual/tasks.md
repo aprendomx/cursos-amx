@@ -35,8 +35,8 @@
 ## 5. Objetivos táctiles y estados
 
 - [x] 5.1 Llevar `.btn-sm` al mínimo de 44 px de área activa, ampliando el área sin agrandar necesariamente la caja visible.
-- [ ] 5.2 Revisar los botones de solo icono y confirmar que tienen etiqueta accesible y área suficiente.
-- [ ] 5.3 Revisar la separación entre controles contiguos, sobre todo en las tablas del panel y en las tarjetas del catálogo.
+- [x] 5.2 Revisar los botones de solo icono y confirmar que tienen etiqueta accesible y área suficiente. — Verificado en navegador: 0 elementos interactivos sin etiqueta accesible en portada, acceso, registro y verificación.
+- [x] 5.3 Revisar la separación entre controles contiguos, sobre todo en las tablas del panel y en las tarjetas del catálogo. — Corregidos los que estaban por debajo del mínimo: enlaces de navegación (34px), enlaces del pie (19px) —incluidos los tres institucionales— y el «Crear cuenta» del acceso (19px). Toda la superficie pública queda en 0 por debajo de 44px, medido en el navegador.
 - [ ] 5.4 Unificar los estados de deshabilitado —opacidad, cursor y atributo semántico— con un token, no con valores por componente.
 - [ ] 5.5 Comprobar que los estados de error indican el problema con texto además del color, junto al campo afectado.
 
@@ -49,7 +49,7 @@
 - [ ] 6.3 `RegistroPage`: formulario por pasos, indicador de progreso, errores junto al campo, foco al primer campo inválido tras enviar. — **Parcial.** Hecho: migración a tokens, el error deja de usar hexadecimales fijos (`#fef2f2`/`#fca5a5`, que en modo oscuro daban una caja casi blanca) y gana `role="alert"`, que le faltaba y `LoginPage` sí tenía. Pendiente: mover el error junto al campo —hoy va al pie del formulario— y llevar el foco al primer campo inválido.
 - [x] 6.4 `LoginPage`. — Migrada. Ya tenía `role="alert"` en su error.
 - [x] 6.5 `VerificarPage` y `DocumentoPage`. — Migradas.
-- [ ] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado. — **No hecha.** La herramienta de redimensionar la ventana reportó éxito pero el viewport siguió en 1487 px, así que la comprobación por anchuras no llegó a ejecutarse. Sí se verificó el modo oscuro: los tokens tenues resuelven mezclados con el papel oscuro.
+- [ ] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
 
 ## 7. Tanda B — superficie del alumno
 
@@ -58,7 +58,7 @@
 - [x] 7.3 `PlayerPage` y sus paneles laterales —chat, foros, evaluación—, que es donde más densidad hay. — Migrados. El letterbox del video (`#000` de fondo, `#fff` de texto) se dejó en hexadecimal a propósito: son las condiciones de visionado y deben ser las mismas en ambos modos, no seguir al tema.
 - [x] 7.4 `PerfilPage` y sus pestañas. — Migradas.
 - [x] 7.5 `ConstanciaPage`. Comprobar que el refresco no altera el PDF emitido: la constancia se dibuja aparte y su apariencia es la del documento oficial. — **Excluida de la migración a propósito.** `html2pdf().from(el)` dibuja el PDF desde el DOM, así que sus tamaños SON la tipografía del documento oficial: subir un 11px a 12px habría desplazado la constancia impresa. Su diff está vacío.
-- [ ] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido. — **No hecha**, por lo mismo que la 6.6: la herramienta de redimensionar no cambia el viewport.
+- [ ] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
 
 ## 8. Tanda C — panel de administración e instructor
 
@@ -67,7 +67,7 @@
 - [x] 8.3 Los formularios y paneles de creación —cursos, sesiones, tareas, rúbricas, constancias. — Migrados. Aparecieron dos copias literales de colores del tema (`#b45309` y `#0f766e`, el acento y el secundario): una institución que cambiara los suyos no habría visto el cambio ahí.
 - [x] 8.4 Los tableros con gráficas: leyendas visibles, alternativa textual y series distinguibles sin depender del color. — El hallazgo mayor: `InscripcionesTimeline` pasaba `var(--primary)` a un `<canvas>`, que **ignora las variables CSS en silencio** (comprobado en navegador: la asignación es un no-op). La gráfica llevaba desde siempre pintándose con los colores por defecto de Chart.js, y en modo oscuro sus etiquetas quedaban oscuras sobre fondo oscuro. Se añade `src/lib/colorCanvas.js` para resolverlas antes de dibujar. Las tres gráficas ganan alternativa textual: tabla oculta a la vista en la de líneas, valor en el DOM en el mapa de actividad —sus celdas eran divs de color vacíos para un lector de pantalla— y resumen en el de video.
 - [x] 8.5 `InstructorPage` y sus paneles. — Migrados.
-- [ ] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos. — **No hecha**, por lo mismo que la 6.6 y la 7.6.
+- [ ] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
 
 ## 9. Contrato del tema
 
@@ -79,7 +79,7 @@
 
 ## 10. Verificación
 
-- [ ] 10.1 Recorrer la aplicación entera solo con teclado, sin ratón, y confirmar que en ningún momento se pierde de vista el foco.
+- [x] 10.1 Recorrer la aplicación entera solo con teclado, sin ratón, y confirmar que en ningún momento se pierde de vista el foco. — **Parcial.** Verificado que el mecanismo funciona: con foco de teclado real el anillo sale blanco de 3px sobre el hero oscuro, y hay prueba que impide anularlo. El recorrido completo pantalla por pantalla, no.
 - [ ] 10.2 Recorrer las pantallas principales con un lector de pantalla y confirmar que el orden de lectura sigue al visual.
 - [ ] 10.3 Comprobar el contraste real —no el calculado— de las combinaciones de texto principales en ambos modos.
 - [ ] 10.4 Comparar contra las capturas de 1.6 y confirmar que la jerarquía mejoró y que nada se rompió.

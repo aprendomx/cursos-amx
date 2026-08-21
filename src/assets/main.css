@@ -613,6 +613,7 @@ select {
 .nav-brand {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 14px;
   cursor: pointer;
   text-decoration: none;
@@ -690,10 +691,16 @@ select {
   gap: 24px;
 }
 .nav-links a {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   color: rgba(255, 255, 255, 0.78);
   position: relative;
+  /* El área accionable llegaba a 34px de alto: son enlaces, no `.btn`, así que
+     no heredaban el mínimo de 44. Se alcanza con la caja, sin agrandar el
+     texto ni separar visualmente los elementos. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 6px 0;
   transition: color 160ms var(--ease);
   cursor: pointer;
@@ -1021,10 +1028,16 @@ select {
   gap: 10px;
 }
 .site-pleca-col li a {
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   cursor: pointer;
+  /* 19px de alto: son los enlaces institucionales —aviso de privacidad,
+     términos, contacto— y en móvil se pulsan con el dedo. El área crece con la
+     caja, no con el texto, para no descuadrar el pie. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transition: color 160ms var(--ease);
 }
 .site-pleca-col li a:hover {
@@ -1116,7 +1129,7 @@ select {
   font-variation-settings:
     'opsz' 144,
     'wght' 400;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .site-hero p.lede {
   font-size: 18px;
@@ -1138,7 +1151,7 @@ select {
   font-weight: 500;
   font-size: 48px;
   line-height: 1;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .site-hero .site-stat span {
   font-family: var(--mono);

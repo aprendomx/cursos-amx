@@ -188,7 +188,7 @@ function submit() {
   margin-bottom: calc(var(--unit) * 5);
 }
 .auth-header .eyebrow {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   margin-bottom: 14px;
 }
 .auth-header h1 {
@@ -214,7 +214,7 @@ function submit() {
   background: var(--danger-soft);
   border-left: 3px solid var(--danger);
   color: var(--danger);
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   line-height: 1.45;
 }
 
@@ -230,13 +230,18 @@ function submit() {
 
 .auth-alt {
   margin-top: calc(var(--unit) * 3);
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   color: var(--gris-70);
   text-align: center;
 }
 .auth-alt a {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   font-weight: 600;
+  /* 19px de alto. El área crece con la caja para no descuadrar el texto
+     centrado que la envuelve. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: underline;
   text-decoration-color: var(--brand-accent);
   text-underline-offset: 3px;

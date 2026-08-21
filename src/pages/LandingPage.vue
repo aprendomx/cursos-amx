@@ -318,7 +318,7 @@ function onEnviarMensajeFaq() {
   font-size: var(--text-xs);
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   padding: 6px 10px;
   background: var(--paper-3);
   border-left: 2px solid var(--brand-accent);
@@ -338,7 +338,7 @@ function onEnviarMensajeFaq() {
   text-underline-offset: 4px;
 }
 .cursos-search-clear:hover {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   text-decoration-color: var(--brand-accent);
 }
 </style>
