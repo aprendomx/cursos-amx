@@ -303,7 +303,7 @@ function reintentar() {
   font-size: var(--text-sm);
 }
 .eval-error {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .eval-meta {
   color: var(--ink-4);

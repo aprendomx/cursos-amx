@@ -106,14 +106,25 @@ function removeFile(index) {
 
 <template>
   <div class="entrega-uploader">
+    <!-- Es un div con @click, así que sin role ni tabindex no existe para
+         quien navega con teclado: subir un archivo era imposible sin ratón. Y
+         sin aria-disabled, «Subiendo…» solo se comunicaba por opacidad, que un
+         lector de pantalla no ve. -->
     <div
       class="drop-zone"
       :class="{ dragging: isDragging, disabled: uploading }"
       data-test="drop-zone"
+      role="button"
+      :tabindex="uploading ? -1 : 0"
+      :aria-disabled="uploading"
+      :aria-busy="uploading"
+      aria-label="Seleccionar archivos para subir"
       @dragover.prevent="onDragOver"
       @dragleave.prevent="onDragLeave"
       @drop.prevent="onDrop"
       @click="!uploading && $refs.fileInput.click()"
+      @keydown.enter.prevent="!uploading && $refs.fileInput.click()"
+      @keydown.space.prevent="!uploading && $refs.fileInput.click()"
     >
       <input
         ref="fileInput"
@@ -174,7 +185,7 @@ function removeFile(index) {
   background: var(--paper-2);
 }
 .drop-zone.disabled {
-  opacity: 0.6;
+  opacity: var(--disabled-opacity);
   cursor: not-allowed;
 }
 .file-input {
@@ -193,7 +204,7 @@ function removeFile(index) {
 }
 .error-msg {
   font-size: 13px;
-  color: #dc2626;
+  color: var(--danger);
   margin: 0;
 }
 .file-list {

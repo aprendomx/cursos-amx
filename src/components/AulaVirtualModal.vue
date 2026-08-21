@@ -216,6 +216,6 @@ function onTerminar() {
   font-size: var(--text-sm);
 }
 .aula-error {
-  color: #ff9f9f;
+  color: var(--danger);
 }
 </style>

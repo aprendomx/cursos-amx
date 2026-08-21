@@ -202,7 +202,7 @@ async function handleMarcarTodas() {
   border: 1px solid var(--line);
   border-radius: 4px;
   background: transparent;
-  color: var(--primary);
+  color: var(--primary-fg);
   cursor: pointer;
   white-space: nowrap;
   transition: background 160ms var(--ease);

@@ -464,7 +464,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   flex: 1;
 }
 .foros-error {
-  color: var(--primary-fg);
+  color: var(--danger);
   margin-bottom: calc(var(--unit) * 2);
 }
 .foros-vacio {

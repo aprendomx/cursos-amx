@@ -179,7 +179,7 @@ select:focus {
   border-radius: var(--radius-sm);
   border: none;
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;

@@ -117,7 +117,7 @@ function setCanal(key) {
 .nprefs-canal-btn.active {
   background: var(--primary);
   border-color: var(--primary);
-  color: #fff;
+  color: var(--paper);
 }
 .nprefs-list {
   list-style: none;

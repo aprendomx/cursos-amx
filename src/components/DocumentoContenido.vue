@@ -73,7 +73,7 @@ const render = computed(() => {
   margin: calc(var(--unit) * 0.5) 0;
 }
 .documento-cuerpo :deep(a) {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .documento-cuerpo :deep(blockquote) {
   border-left: 3px solid var(--line);

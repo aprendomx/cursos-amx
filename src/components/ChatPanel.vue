@@ -215,7 +215,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   background: var(--primary, #9b2247);
 }
 .chatp-error {
-  color: var(--primary, #9b2247);
+  color: var(--danger);
   font-size: var(--text-xs);
   padding: 8px 14px;
 }

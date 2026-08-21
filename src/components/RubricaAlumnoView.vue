@@ -103,7 +103,7 @@ function getComentarioParaCriterio(criterioId) {
 }
 .nivel-selected {
   background: var(--primary);
-  color: white;
+  color: var(--paper);
 }
 .puntaje-row {
   font-size: 1.125rem;

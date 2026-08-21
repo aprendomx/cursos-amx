@@ -36,10 +36,7 @@ function onEnd(evt) {
 </script>
 
 <template>
-  <section
-    class="timeline"
-    :aria-label="moduleTitle"
-  >
+  <section class="timeline" :aria-label="moduleTitle">
     <header class="timeline-header">
       <h3>{{ moduleTitle }}</h3>
       <p class="timeline-stats">
@@ -50,16 +47,10 @@ function onEnd(evt) {
         </template>
       </p>
     </header>
-    <p
-      v-if="!lessons.length"
-      class="timeline-empty"
-    >
+    <p v-if="!lessons.length" class="timeline-empty">
       {{ t('builder.emptyTimeline') }}
     </p>
-    <div
-      class="timeline-scroll"
-      role="list"
-    >
+    <div class="timeline-scroll" role="list">
       <VueDraggable
         v-model="local"
         class="timeline-track"
@@ -144,7 +135,7 @@ function onEnd(evt) {
 }
 .add-lesson:hover {
   border-color: var(--primary);
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 @media (max-width: 768px) {
   .timeline-scroll,

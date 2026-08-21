@@ -113,7 +113,7 @@ function onCerrar() {
   border-radius: 50%;
   border: none;
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   font-size: var(--text-xl);
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -173,7 +173,7 @@ function onCerrar() {
 }
 .ai-chat-msg.user .ai-chat-bubble {
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   border-bottom-right-radius: 4px;
 }
 .ai-chat-msg.assistant .ai-chat-bubble {
@@ -182,8 +182,10 @@ function onCerrar() {
   border-bottom-left-radius: 4px;
 }
 .ai-chat-error {
-  background: var(--error-bg) !important;
-  color: var(--error) !important;
+  /* --error-bg no estaba definido en ninguna parte: var() sin respaldo deja
+     el fondo transparente. --danger-soft es el tinte que sí existe. */
+  background: var(--danger-soft) !important;
+  color: var(--danger) !important;
 }
 .ai-chat-typing {
   display: flex;
