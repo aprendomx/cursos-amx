@@ -3,7 +3,7 @@
 - [x] 1.1 Migración: tabla `portada_eventos` (sin lectura anónima) y RPC `registrar_evento_portada` con lista blanca de eventos y límite por IP, el mismo patrón que `verificar_constancia` (068). — Sustituye a «aceptarlos en la función analytics»: esa función es de lecturas autenticadas y los eventos de portada son de visitantes anónimos.
 - [x] 1.2 Composable de emisión (`portada_hero_cta`, `portada_curso_click` con posición, `curso_detalle_visto`, `registro_iniciado`, `registro_completado`) llamando a la RPC, sin datos personales, y que NUNCA rompa la página si falla.
 - [x] 1.3 Vista `v_embudo_portada` (solo admin) que responda «¿dónde se cae la gente?»: hero → curso → detalle → registro, por semana. Con prueba en el banco de migraciones.
-- [ ] 1.4 Desplegar SOLO esto y anotar la fecha: aquí empieza la línea base de dos semanas.
+- [x] 1.4 Desplegar SOLO esto y anotar la fecha: aquí empieza la línea base de dos semanas. — **Desplegado el 2026-08-21 (20:22 UTC), día 0 de la línea base.** Verificado en vivo: la RPC responde 204 a un anónimo real y el evento queda en la tabla. La portada nueva no puede desplegarse antes del 2026-09-04.
 
 ## 2. Resultados de aprendizaje como dato del curso
 
