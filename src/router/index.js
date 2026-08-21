@@ -11,7 +11,8 @@ import LandingPage from '@/pages/LandingPage.vue'
 
 const LoginPage = () => import('@/pages/LoginPage.vue')
 const RegistroPage = () => import('@/pages/RegistroPage.vue')
-import RecuperarPage from '@/pages/RecuperarPage.vue'
+const RecuperarPage = () => import('@/pages/RecuperarPage.vue')
+const RestablecerPage = () => import('@/pages/RestablecerPage.vue')
 const CursoDetalle = () => import('@/pages/CursoDetalle.vue')
 const PlayerPage = () => import('@/pages/PlayerPage.vue')
 const PerfilPage = () => import('@/pages/PerfilPage.vue')
@@ -25,6 +26,7 @@ const routes = [
   { path: '/registro', name: 'registro', component: RegistroPage },
   // Pública a propósito: quien no puede entrar es justo quien la necesita.
   { path: '/recuperar', name: 'recuperar', component: RecuperarPage },
+  { path: '/restablecer', name: 'restablecer', component: RestablecerPage },
   {
     path: '/curso/:id',
     name: 'curso',
@@ -95,6 +97,22 @@ const router = createRouter({
     if (to.hash) return { el: to.hash, behavior: 'smooth' }
     return { top: 0 }
   },
+})
+// El enlace del correo de recuperación llega como `/?token_hash=…&type=recovery`,
+// sin fragmento: el testigo va en la cadena de consulta justamente para no
+// pelearse con el enrutador, que vive en el fragmento. Sin este desvío, la
+// aplicación arrancaría en la portada con el testigo colgando de la URL.
+//
+// Va aquí y no en main.js: `createWebHashHistory()` captura la ubicación al
+// importarse, y como los imports se elevan, cualquier ajuste hecho en main.js
+// corre DESPUÉS y el enrutador lo pisa al normalizar. Comprobado.
+router.beforeEach((to) => {
+  if (to.name === 'restablecer') return true
+  const consulta = new URLSearchParams(window.location.search)
+  if (consulta.get('type') === 'recovery' && consulta.get('token_hash')) {
+    return { name: 'restablecer' }
+  }
+  return true
 })
 
 setupGuards(router)

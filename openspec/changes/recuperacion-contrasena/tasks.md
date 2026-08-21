@@ -32,11 +32,11 @@ lo pidió. Ver `design.md — decisión 1b`.
 
 ## 5. Elegir la contraseña nueva
 
-- [ ] 5.1 Pantalla de restablecimiento que canjea el `token_hash` con `verifyOtp`, no el `?code=`: es lo que la hace servir en cualquier dispositivo.
-- [ ] 5.2 Limpiar la cadena de consulta en cuanto se canjea, para que el testigo no quede en el historial ni en lo que alguien copie de la barra.
-- [ ] 5.3 Vínculo ya usado y vínculo caducado: rechazar, explicar cuál de los dos es, y ofrecer solicitar otro. Son dos mensajes distintos porque son dos situaciones distintas.
-- [ ] 5.4 Al terminar con éxito, dejar a la persona con sesión iniciada y decirle que la contraseña cambió.
-- [ ] 5.5 Pruebas: canje correcto, vínculo usado, vínculo caducado y contraseña que no cumple las reglas.
+- [x] 5.1 Pantalla de restablecimiento que canjea el `token_hash` con `verifyOtp`, no el `?code=`: es lo que la hace servir en cualquier dispositivo. — El desvío desde `/?token_hash=…` tuvo que ir en un guardia del enrutador, no en `main.js`: `createWebHashHistory()` captura la ubicación al importarse, y como los imports se elevan, lo de main.js corría después y el enrutador lo pisaba al normalizar. Comprobado en navegador.
+- [x] 5.2 Limpiar la cadena de consulta en cuanto se canjea, para que el testigo no quede en el historial ni en lo que alguien copie de la barra.
+- [x] 5.3 Vínculo ya usado y vínculo caducado: rechazar, explicar cuál de los dos es, y ofrecer solicitar otro. Son dos mensajes distintos porque son dos situaciones distintas.
+- [x] 5.4 Al terminar con éxito, dejar a la persona con sesión iniciada y decirle que la contraseña cambió.
+- [x] 5.5 Pruebas: canje correcto, vínculo usado, vínculo caducado y contraseña que no cumple las reglas.
 
 ## 6. Cambiar la contraseña desde el perfil
 
