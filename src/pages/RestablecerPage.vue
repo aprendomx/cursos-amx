@@ -1,4 +1,5 @@
 <script setup>
+import '@/assets/auth.css'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import IconSet from '@/components/IconSet.vue'
