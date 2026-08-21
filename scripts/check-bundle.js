@@ -26,7 +26,15 @@ const PRESUPUESTOS = {
   inicial: 180,
   // Chunks individuales que no deben crecer sin que nos enteremos.
   vendor: 95,
-  video: 175,
+  // hls.js, y nada más: el chunk ES la librería. Subió de 175 a 185 kB cuando
+  // dependabot la llevó de 1.6.16 a 1.7.0 —un salto de versión MENOR que
+  // engordó 22 kB gzip, un 14 % de ese trozo—.
+  //
+  // Se sube el tope en vez de fijar la versión porque el chunk se carga de
+  // forma diferida, solo al entrar al reproductor: no toca el arranque de nadie
+  // que no vea un vídeo. Si vuelve a crecer así, conviene mirar si hls.js
+  // permite una compilación más pequeña antes de subirlo otra vez.
+  video: 185,
 }
 
 function gzipKb(ruta) {
