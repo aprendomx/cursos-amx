@@ -81,6 +81,28 @@ export function mapSupabaseError(error: any): AppError {
   if (/no autorizado para modificar es_admin/i.test(msg)) {
     return new PermissionError('No puedes cambiar tu propio rol.', error)
   }
+  // Documentos institucionales (migración 073). Estos van ANTES del caso
+  // genérico de 42501: sus mensajes no dicen «row-level security», así que sin
+  // una regla propia llegarían al usuario como texto crudo de Postgres.
+  if (/una versión publicada no se puede (modificar|borrar)/i.test(msg)) {
+    return new PermissionError(
+      'Las versiones publicadas no se modifican ni se borran: publica una versión nueva.',
+      error
+    )
+  }
+  if (/la versión del aviso aceptada no se fija a mano/i.test(msg)) {
+    return new PermissionError(
+      'La aceptación del aviso se registra desde la propia plataforma.',
+      error
+    )
+  }
+  if (/no tiene aviso de privacidad publicado|no hay aviso de privacidad publicado/i.test(msg)) {
+    return new ValidationError(
+      'Esta instalación aún no tiene publicado su aviso de privacidad, así que ' +
+        'no puede recabar tu consentimiento. Avisa a quien la administre.',
+      error
+    )
+  }
   // Una política RESTRICTIVA de módulo apagado se manifiesta como violación de
   // RLS sin más contexto; el mensaje genérico de permisos confundiría.
   if (code === '42501' && /row-level security|violates/i.test(msg)) {

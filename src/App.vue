@@ -6,6 +6,7 @@ import { useUiStore } from '@/stores/ui.js'
 import TopNav from '@/components/TopNav.vue'
 import TweaksPanel from '@/components/TweaksPanel.vue'
 import OfflineBanner from '@/components/OfflineBanner.vue'
+import AvisoReaceptacion from '@/components/AvisoReaceptacion.vue'
 import { supabase } from '@/lib/supabase.js'
 import { storageKey } from '@/lib/theme.js'
 import { featureEnabled } from '@/lib/featureFlags'
@@ -165,6 +166,9 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
         @update:tweaks="ui.updateTweaks"
       />
     </template>
+
+    <!-- El aviso cambió y exige volver a aceptarlo. No bloquea el acceso. -->
+    <AvisoReaceptacion :session="auth.session" />
 
     <!-- Floating tweaks FAB -->
     <button v-if="!ui.tweaksOpen" class="tweaks-fab" title="Abrir Tweaks" @click="ui.openTweaks">

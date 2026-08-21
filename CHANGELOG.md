@@ -6,6 +6,31 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Aviso de privacidad, términos de uso y contacto, con CRUD** — los tres
+  documentos se redactan y publican desde Administración → Documentos y se
+  sirven en `/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del
+  pie de la portada y el de la casilla del formulario de alta dejan de apuntar
+  a `#`. Migración `073_paginas_institucionales.sql`.
+
+  Hasta ahora, esos enlaces venían con `href: '#'` y el alta recababa
+  `perfiles.aviso_privacidad = true` **contra un documento que no existía**. No
+  era un enlace roto: era un consentimiento vacío.
+
+  Publicar **crea una versión** y conserva las anteriores; una versión publicada
+  no se puede modificar ni borrar. El consentimiento registra **contra qué
+  versión** se otorgó, así que se puede demostrar qué texto leyó cada persona.
+  Al publicar se puede marcar que la versión exige volver a aceptar; solo
+  entonces se le pide a quien ya estaba registrado, sin bloquearle el acceso.
+
+  Toda instalación llega con los tres documentos sembrados **como borrador** a
+  partir de la plantilla de `docs/AVISO_PRIVACIDAD.md`: publicar una plantilla
+  con marcadores daría apariencia de cumplimiento.
+
+  **Cambio de comportamiento:** mientras no haya un aviso publicado, el registro
+  de nuevas cuentas queda bloqueado. Es preferible a seguir acumulando
+  consentimientos contra la nada. El alta del primer administrador
+  (`scripts/crear-admin.sh`) no se ve afectada, porque no declara aceptación.
+
 - **La verificación del despliegue deja de fallar en abierto** — al terminar,
   `scripts/deploy.sh` reportaba como superada cualquier comprobación que no
   hubiera podido ejecutar. Se corrigen tres casos encontrados desplegando en

@@ -171,6 +171,32 @@ Las familias se aplican como variables CSS (`--display`, `--ui`, `--mono`) en
 | `footer.columns`         | Array de columnas `{ title, links[] }` del pie | LandingFooter | —         |
 | `footer.copyrightHolder` | Nombre en la leyenda de copyright              | LandingFooter | —         |
 
+#### Enlaces institucionales
+
+Cada entrada de `footer.columns[].links` admite una clave `doc` opcional, con
+el identificador de un documento institucional: `aviso-privacidad`,
+`terminos-uso` o `contacto`.
+
+```js
+{ label: 'Aviso de privacidad', doc: 'aviso-privacidad', href: '' }
+```
+
+Cómo se resuelve el destino:
+
+| Configuración                    | A dónde lleva                                  |
+| -------------------------------- | ---------------------------------------------- |
+| `href` con una URL               | A esa URL (manda sobre todo lo demás)          |
+| `href` vacío y `doc` declarado   | A la página interna del documento              |
+| `href` vacío y etiqueta conocida | A la página interna (configuraciones antiguas) |
+
+Los documentos internos se redactan y publican desde **Administración →
+Documentos**, y hasta que no se publica el aviso de privacidad el registro de
+nuevas cuentas queda bloqueado: recabar el consentimiento sin documento es lo
+que este mecanismo viene a impedir.
+
+Si tu institución ya los publica fuera de la plataforma, pon la URL en `href` y
+nada cambia.
+
 ### Grupo `constancia`
 
 | Clave                            | Efecto                                     | Consumidores                                                   | Requerida |
