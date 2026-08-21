@@ -2,6 +2,21 @@
 
 Guía para colaboradores de Cursos AMX.
 
+## Interfaz: usa los tokens
+
+Un componente nuevo **no escribe a mano un tamaño de texto, un radio ni una
+sombra** si existe un token para ese propósito. Están en `src/assets/main.css` y
+documentados en `THEMING.md` → «Sistema de tokens».
+
+Tres reglas que el CI comprueba o que conviene no romper:
+
+- **No suprimas el anillo de foco de forma inanulable.** `outline: none` a secas
+  está bien —oculta el anillo con el ratón y lo conserva con el teclado—, pero
+  `outline: none !important` rompe la regla base y hay una prueba que falla.
+- **Ningún texto por debajo de 12 px.** El token más pequeño es `--text-xs`.
+- **El color no puede ser el único portador de un estado.** Un error se indica
+  con texto además de color, junto al campo afectado.
+
 ## Requisitos
 
 - Node.js 20+

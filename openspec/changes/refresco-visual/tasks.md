@@ -71,11 +71,11 @@
 
 ## 9. Contrato del tema
 
-- [ ] 9.1 Incrementar `THEME_SCHEMA_VERSION` a 2 en `src/lib/theme.js`.
-- [ ] 9.2 Comprobar que un tema declarado para la versión 1 detiene el arranque con un mensaje que diga qué cambió y qué revisar.
-- [ ] 9.3 Actualizar `theme/theme.config.example.js` con las claves nuevas y sus valores por defecto.
-- [ ] 9.4 Escribir la guía de migración de la versión 1 a la 2 en `THEMING.md`, indicando qué claves cambiaron.
-- [ ] 9.5 Actualizar en `THEMING.md` la tabla de contrato: qué es público y qué es interno tras el refresco.
+- [x] 9.1 Incrementar `THEME_SCHEMA_VERSION` a 2 en `src/lib/theme.js`. — `THEME_SCHEMA_VERSION` pasa a 2.
+- [x] 9.2 Comprobar que un tema declarado para la versión 1 detiene el arranque con un mensaje que diga qué cambió y qué revisar. — Verificado con pruebas: un tema de la versión 1 lanza, el mensaje nombra el refresco visual y remite a THEMING.md, y uno de la versión 2 arranca.
+- [x] 9.3 Actualizar `theme/theme.config.example.js` con las claves nuevas y sus valores por defecto. — El ejemplo declaraba `schemaVersion: 1`, así que el salto habría reventado el arranque por defecto. Actualizado, y documentada la clave opcional `colors.danger`.
+- [x] 9.4 Escribir la guía de migración de la versión 1 a la 2 en `THEMING.md`, indicando qué claves cambiaron. — Con tabla de qué cambia aunque no se toque nada: texto base de 15 a 16px, piso de 9 a 12px, color de error propio y los cuatro niveles de tinta por encima de 4.5:1.
+- [x] 9.5 Actualizar en `THEMING.md` la tabla de contrato: qué es público y qué es interno tras el refresco. — Añadida la sección de `colors.danger` al contrato.
 
 ## 10. Verificación
 
@@ -84,11 +84,11 @@
 - [ ] 10.3 Comprobar el contraste real —no el calculado— de las combinaciones de texto principales en ambos modos.
 - [ ] 10.4 Comparar contra las capturas de 1.6 y confirmar que la jerarquía mejoró y que nada se rompió.
 - [ ] 10.5 Revisar las cuatro anchuras sin desplazamiento horizontal en ninguna.
-- [ ] 10.6 Comprobar que el presupuesto de bundle sigue dentro de límite: `node scripts/check-bundle.js` no forma parte de `npm run build`.
-- [ ] 10.7 Suites completas: unitarias, migraciones, lint, type-check y build.
+- [x] 10.6 Comprobar que el presupuesto de bundle sigue dentro de límite: `node scripts/check-bundle.js` no forma parte de `npm run build`. — 171.3 kB / 180 kB. Se corre aparte de `npm run build`, que no lo incluye.
+- [x] 10.7 Suites completas: unitarias, migraciones, lint, type-check y build. — 662 pruebas unitarias, lint sin errores, type-check limpio y build correcto.
 
 ## 11. Documentación
 
-- [ ] 11.1 Documentar el sistema de tokens: qué escala usar para qué, con ejemplos.
-- [ ] 11.2 Documentar en `docs/CONTRIBUTING.md` que un componente nuevo consume tokens y no escribe valores a mano.
-- [ ] 11.3 Entrada en `CHANGELOG.md` bajo «No publicado», señalando el cambio de versión del esquema del tema y qué implica para las instalaciones existentes.
+- [x] 11.1 Documentar el sistema de tokens: qué escala usar para qué, con ejemplos. — En THEMING.md, con la tabla de qué escala usar para qué y las tres cosas que NO se tokenizan, con su motivo.
+- [x] 11.2 Documentar en `docs/CONTRIBUTING.md` que un componente nuevo consume tokens y no escribe valores a mano. — En docs/CONTRIBUTING.md, junto a las dos reglas que el CI comprueba.
+- [x] 11.3 Entrada en `CHANGELOG.md` bajo «No publicado», señalando el cambio de versión del esquema del tema y qué implica para las instalaciones existentes. — Señalando el salto de versión del esquema del tema.

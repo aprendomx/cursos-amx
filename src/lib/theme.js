@@ -11,7 +11,7 @@ import { ajustarParaContraste } from './contraste.js'
 // retirada. Un tema declarado para una versión mayor distinta se rechaza en
 // arranque con un mensaje accionable, en vez de romperse a mitad de runtime.
 // Ver "Contrato de estabilidad" en THEMING.md.
-export const THEME_SCHEMA_VERSION = 1
+export const THEME_SCHEMA_VERSION = 2
 
 const REQUIRED = [
   'app.name',
@@ -34,13 +34,27 @@ const REQUIRED = [
 export function validateTheme(config) {
   // schemaVersion es opcional: un tema sin declararla se asume de la versión
   // vigente, para no romper las instalaciones que existían antes del contrato.
+  //
+  // El efecto secundario es que una instalación que nunca la declaró recibe un
+  // cambio de apariencia sin que nadie se lo anuncie. No se convierte en error
+  // —eso rompería el arranque de todas ellas de golpe— pero sí se avisa.
   const declarada = config?.schemaVersion
+  if (declarada === undefined && typeof console !== 'undefined') {
+    console.info(
+      `[theme] Tu tema no declara schemaVersion; se asume ${THEME_SCHEMA_VERSION}. ` +
+        `Declárala para que un cambio futuro del sistema visual te avise en vez ` +
+        `de sorprenderte. Ver THEMING.md.`
+    )
+  }
   if (declarada !== undefined && declarada !== THEME_SCHEMA_VERSION) {
     throw new Error(
       `[theme] Tu theme.config.local.js declara schemaVersion ${declarada}, ` +
-        `pero esta versión de la aplicación usa ${THEME_SCHEMA_VERSION}. ` +
-        `Consulta la sección "Contrato de estabilidad" de THEMING.md para ver ` +
-        `qué cambió y cómo migrar tu tema.`
+        `pero esta versión de la aplicación usa ${THEME_SCHEMA_VERSION}.\n\n` +
+        `La versión 2 trae un refresco visual: escala tipográfica, densidad y ` +
+        `elevación cambian, así que tu instalación se verá distinta. Además ` +
+        `el color de error deja de derivarse de la marca y puede declararse ` +
+        `en colors.danger.\n\n` +
+        `Consulta "Migrar de la versión 1 a la 2" en THEMING.md.`
     )
   }
 

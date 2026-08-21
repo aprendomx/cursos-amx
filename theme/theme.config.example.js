@@ -14,7 +14,7 @@ export default {
   // Versión del contrato de theming que usa este archivo. Si actualizas la
   // aplicación y el arranque se queja de esta clave, THEMING.md dice qué
   // cambió. Puedes omitirla: entonces se asume la versión vigente.
-  schemaVersion: 1,
+  schemaVersion: 2,
 
   app: {
     name: 'Cursos AMX',
