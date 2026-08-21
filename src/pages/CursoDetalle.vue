@@ -392,7 +392,7 @@ async function continueCurso() {
 
           <p
             :style="{
-              fontSize: '16px',
+              fontSize: 'var(--text-base)',
               lineHeight: '1.6',
               color: 'var(--ink-2)',
               maxWidth: '540px',
@@ -413,25 +413,25 @@ async function continueCurso() {
           >
             <div>
               <div class="eyebrow" :style="{ marginBottom: '4px' }">Duraci&oacute;n</div>
-              <div :style="{ fontSize: '15px', fontWeight: '500' }">
+              <div :style="{ fontSize: 'var(--text-base)', fontWeight: '500' }">
                 {{ curso.duracion }}
               </div>
             </div>
             <div>
               <div class="eyebrow" :style="{ marginBottom: '4px' }">Nivel</div>
-              <div :style="{ fontSize: '15px', fontWeight: '500' }">
+              <div :style="{ fontSize: 'var(--text-base)', fontWeight: '500' }">
                 {{ curso.nivel }}
               </div>
             </div>
             <div>
               <div class="eyebrow" :style="{ marginBottom: '4px' }">Inscritos</div>
-              <div :style="{ fontSize: '15px', fontWeight: '500' }">
+              <div :style="{ fontSize: 'var(--text-base)', fontWeight: '500' }">
                 {{ curso.inscritos.toLocaleString() }}
               </div>
             </div>
             <div>
               <div class="eyebrow" :style="{ marginBottom: '4px' }">Idioma</div>
-              <div :style="{ fontSize: '15px', fontWeight: '500' }">Espa&ntilde;ol</div>
+              <div :style="{ fontSize: 'var(--text-base)', fontWeight: '500' }">Espa&ntilde;ol</div>
             </div>
           </div>
         </div>
@@ -450,7 +450,7 @@ async function continueCurso() {
           <div :style="{ textAlign: 'center' }">
             <div
               class="display"
-              :style="{ fontSize: '56px', color: 'var(--primary)', lineHeight: '1' }"
+              :style="{ fontSize: 'var(--text-4xl)', color: 'var(--primary)', lineHeight: '1' }"
             >
               {{ Math.round(curso.progreso * 100) }}%
             </div>
@@ -466,17 +466,35 @@ async function continueCurso() {
           <div
             :style="{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--unit) * 1.5)' }"
           >
-            <div :style="{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }">
+            <div
+              :style="{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 'var(--text-sm)',
+              }"
+            >
               <span :style="{ color: 'var(--ink-3)' }">Lecciones completadas</span>
               <span :style="{ fontWeight: '500' }">{{ lessonsCompleted }}</span>
             </div>
             <hr class="hairline" />
-            <div :style="{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }">
+            <div
+              :style="{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 'var(--text-sm)',
+              }"
+            >
               <span :style="{ color: 'var(--ink-3)' }">&Uacute;ltima actividad</span>
               <span :style="{ fontWeight: '500' }">Hace 2 d&iacute;as</span>
             </div>
             <hr class="hairline" />
-            <div :style="{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }">
+            <div
+              :style="{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 'var(--text-sm)',
+              }"
+            >
               <span :style="{ color: 'var(--ink-3)' }">Constancia</span>
               <span :style="{ fontWeight: '500' }">
                 <template v-if="curso.progreso === 1">Disponible</template>
@@ -507,7 +525,7 @@ async function continueCurso() {
           <p
             v-if="inscripcionError"
             :style="{
-              fontSize: '13px',
+              fontSize: 'var(--text-sm)',
               color: 'var(--danger)',
               marginTop: 'calc(var(--unit) * -1)',
               textAlign: 'center',
@@ -537,7 +555,7 @@ async function continueCurso() {
                 display: 'grid',
                 placeItems: 'center',
                 fontFamily: 'var(--display)',
-                fontSize: '18px',
+                fontSize: 'var(--text-lg)',
                 fontStyle: 'italic',
                 flexShrink: '0',
               }"
@@ -545,7 +563,7 @@ async function continueCurso() {
               {{ curso.instructor.charAt(0) }}
             </div>
             <div>
-              <div :style="{ fontSize: '14px', fontWeight: '500' }">
+              <div :style="{ fontSize: 'var(--text-sm)', fontWeight: '500' }">
                 {{ curso.instructor }}
               </div>
               <div class="mono" :style="{ color: 'var(--ink-3)' }">
@@ -570,14 +588,14 @@ async function continueCurso() {
             <h2
               class="display"
               :style="{
-                fontSize: '36px',
+                fontSize: 'var(--text-3xl)',
                 color: 'var(--ink)',
                 marginBottom: 'calc(var(--unit) * 1)',
               }"
             >
               {{ modulos.length }} m&oacute;dulos. En orden.
             </h2>
-            <p :style="{ color: 'var(--ink-3)', fontSize: '15px' }">
+            <p :style="{ color: 'var(--ink-3)', fontSize: 'var(--text-base)' }">
               Completa cada m&oacute;dulo para desbloquear el siguiente.
             </p>
           </div>
@@ -642,7 +660,9 @@ async function continueCurso() {
                 >
                   <IconSet v-if="mod.status === 'completed'" name="check" />
                   <IconSet v-else-if="mod.status === 'locked'" name="lock" />
-                  <span v-else class="display" :style="{ fontSize: '22px' }">{{ mod.orden }}</span>
+                  <span v-else class="display" :style="{ fontSize: 'var(--text-xl)' }">{{
+                    mod.orden
+                  }}</span>
                 </div>
 
                 <!-- Vertical hairline connecting to next -->
@@ -721,13 +741,15 @@ async function continueCurso() {
                 <!-- Title -->
                 <h3
                   class="display"
-                  :style="{ fontSize: '22px', lineHeight: '1.15', color: 'var(--ink)' }"
+                  :style="{ fontSize: 'var(--text-xl)', lineHeight: '1.15', color: 'var(--ink)' }"
                 >
                   {{ mod.titulo }}
                 </h3>
 
                 <!-- Description -->
-                <p :style="{ fontSize: '14px', lineHeight: '1.5', color: 'var(--ink-3)' }">
+                <p
+                  :style="{ fontSize: 'var(--text-sm)', lineHeight: '1.5', color: 'var(--ink-3)' }"
+                >
                   {{ mod.descripcion }}
                 </p>
 
@@ -738,7 +760,7 @@ async function continueCurso() {
                     alignItems: 'center',
                     gap: 'calc(var(--unit) * 2)',
                     color: 'var(--ink-3)',
-                    fontSize: '13px',
+                    fontSize: 'var(--text-sm)',
                   }"
                 >
                   <span :style="{ display: 'inline-flex', alignItems: 'center', gap: '5px' }">
@@ -846,7 +868,11 @@ async function continueCurso() {
       >
         <h2
           class="display"
-          :style="{ fontSize: '36px', color: 'var(--ink)', marginBottom: 'calc(var(--unit) * 3)' }"
+          :style="{
+            fontSize: 'var(--text-3xl)',
+            color: 'var(--ink)',
+            marginBottom: 'calc(var(--unit) * 3)',
+          }"
         >
           Entregas
         </h2>
@@ -886,7 +912,7 @@ async function continueCurso() {
                 gap: 'calc(var(--unit) * 2)',
               }"
             >
-              <h3 class="display" :style="{ fontSize: '20px', color: 'var(--ink)' }">
+              <h3 class="display" :style="{ fontSize: 'var(--text-xl)', color: 'var(--ink)' }">
                 {{ t.titulo }}
               </h3>
               <span
@@ -897,13 +923,19 @@ async function continueCurso() {
                 {{ new Date(t.fecha_limite) < new Date() ? 'Vencida' : 'Abierta' }}
               </span>
             </div>
-            <p :style="{ fontSize: '14px', color: 'var(--ink-3)', marginTop: 'calc(var(--unit))' }">
+            <p
+              :style="{
+                fontSize: 'var(--text-sm)',
+                color: 'var(--ink-3)',
+                marginTop: 'calc(var(--unit))',
+              }"
+            >
               {{ t.instrucciones }}
             </p>
             <div
               class="mono"
               :style="{
-                fontSize: '12px',
+                fontSize: 'var(--text-xs)',
                 color: 'var(--ink-4)',
                 marginTop: 'calc(var(--unit) * 2)',
               }"
@@ -946,7 +978,7 @@ async function continueCurso() {
 }
 .chat-curso-wrap > * {
   border: 1px solid var(--paper-3, #e8e2d6);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 .modulo-highlight {

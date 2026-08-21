@@ -64,7 +64,7 @@ onMounted(cargar)
   max-width: 600px;
 }
 .mi-calendario h3 {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--ink);
   margin-bottom: calc(var(--unit) * 1.5);
@@ -83,20 +83,20 @@ onMounted(cargar)
   align-items: center;
   padding: 10px 12px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--paper);
 }
 .sesion-item strong {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink);
 }
 .curso-tag {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
   margin-left: 8px;
 }
 .sesion-fecha {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 </style>

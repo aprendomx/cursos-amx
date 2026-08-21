@@ -25,11 +25,7 @@ const html = computed(() => {
 <template>
   <div class="texto-surface">
     <!-- eslint-disable-next-line vue/no-v-html : HTML generado por whitelist Tiptap, nunca input crudo -->
-    <div
-      class="texto-body"
-      data-test="texto-body"
-      v-html="html"
-    />
+    <div class="texto-body" data-test="texto-body" v-html="html" />
     <button
       v-if="!completada"
       class="texto-completar"
@@ -44,7 +40,7 @@ const html = computed(() => {
 <style scoped>
 .texto-surface {
   background: var(--paper);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 3);
   max-width: 760px;
   margin: 0 auto;
@@ -59,11 +55,11 @@ const html = computed(() => {
   color: var(--ink);
 }
 .texto-body :deep(a) {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .texto-body :deep(img) {
   max-width: 100%;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 .texto-body :deep(blockquote) {
   border-left: 3px solid var(--line);
@@ -76,7 +72,7 @@ const html = computed(() => {
   background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 10px 20px;
   cursor: pointer;
 }

@@ -300,7 +300,7 @@ function reintentar() {
 }
 .eval-state {
   color: var(--ink-2);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .eval-error {
   color: var(--brand-primary);
@@ -315,13 +315,13 @@ function reintentar() {
   gap: calc(var(--unit) * 1);
 }
 .eval-q-text {
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--ink);
   margin: 0 0 calc(var(--unit) * 1);
 }
 .eval-hint {
   color: var(--ink-4);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .eval-opt {
   display: flex;
@@ -329,7 +329,7 @@ function reintentar() {
   gap: 8px;
   padding: 4px 0;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
 }
 .eval-result-head {
@@ -338,18 +338,18 @@ function reintentar() {
   gap: 12px;
 }
 .eval-result-head.is-ok .eval-verdict {
-  color: var(--brand-secondary, #2e7d32);
+  color: var(--brand-secondary, var(--success));
 }
 .eval-result-head.is-fail .eval-verdict {
   color: var(--brand-primary);
 }
 .eval-score {
-  font-size: 40px;
+  font-size: var(--text-4xl);
   font-weight: 600;
 }
 .eval-result-sub {
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .eval-detalle {
   list-style: none;
@@ -360,10 +360,10 @@ function reintentar() {
   gap: 4px;
 }
 .eval-detalle li {
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .eval-detalle li.is-ok {
-  color: var(--brand-secondary, #2e7d32);
+  color: var(--brand-secondary, var(--success));
 }
 .eval-detalle li.is-fail {
   color: var(--brand-primary);

@@ -55,7 +55,7 @@ const timeLabels = computed(() => {
         v-else
         :style="{
           color: 'var(--ink-3)',
-          fontSize: '13px',
+          fontSize: 'var(--text-sm)',
         }"
       >
         Sin datos de visualización.
@@ -65,7 +65,7 @@ const timeLabels = computed(() => {
           v-for="t in timeLabels"
           :key="t.pct"
           class="mono"
-          :style="{ color: 'var(--ink-3)', fontSize: '12px' }"
+          :style="{ color: 'var(--ink-3)', fontSize: 'var(--text-xs)' }"
         >
           {{ t.label }}
         </span>
@@ -84,7 +84,7 @@ const timeLabels = computed(() => {
 .heatmap-bar {
   flex: 1;
   height: 100%;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   min-width: 4px;
   transition: opacity 200ms var(--ease);
 }

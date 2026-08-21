@@ -53,12 +53,12 @@
 
 ## 7. Tanda B — superficie del alumno
 
-- [ ] 7.1 Catálogo de cursos y sus tarjetas.
-- [ ] 7.2 `CursoDetalle`.
-- [ ] 7.3 `PlayerPage` y sus paneles laterales —chat, foros, evaluación—, que es donde más densidad hay.
-- [ ] 7.4 `PerfilPage` y sus pestañas.
-- [ ] 7.5 `ConstanciaPage`. Comprobar que el refresco no altera el PDF emitido: la constancia se dibuja aparte y su apariencia es la del documento oficial.
-- [ ] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido.
+- [x] 7.1 Catálogo de cursos y sus tarjetas. — Migrados a tokens junto con `CourseComparisonTable`.
+- [x] 7.2 `CursoDetalle`. — Migrada; 22 de sus tamaños vivían en objetos de estilo en línea, invisibles para una búsqueda de CSS.
+- [x] 7.3 `PlayerPage` y sus paneles laterales —chat, foros, evaluación—, que es donde más densidad hay. — Migrados. El letterbox del video (`#000` de fondo, `#fff` de texto) se dejó en hexadecimal a propósito: son las condiciones de visionado y deben ser las mismas en ambos modos, no seguir al tema.
+- [x] 7.4 `PerfilPage` y sus pestañas. — Migradas.
+- [x] 7.5 `ConstanciaPage`. Comprobar que el refresco no altera el PDF emitido: la constancia se dibuja aparte y su apariencia es la del documento oficial. — **Excluida de la migración a propósito.** `html2pdf().from(el)` dibuja el PDF desde el DOM, así que sus tamaños SON la tipografía del documento oficial: subir un 11px a 12px habría desplazado la constancia impresa. Su diff está vacío.
+- [ ] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido. — **No hecha**, por lo mismo que la 6.6: la herramienta de redimensionar no cambia el viewport.
 
 ## 8. Tanda C — panel de administración e instructor
 

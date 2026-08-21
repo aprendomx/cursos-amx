@@ -58,6 +58,14 @@
   --danger-soft: #fdecea;
   --danger-soft: color-mix(in srgb, var(--danger) 10%, var(--paper));
   --danger-line: color-mix(in srgb, var(--danger) 35%, var(--paper));
+  --success-soft: color-mix(in srgb, var(--success) 10%, var(--paper));
+  --warn-soft: color-mix(in srgb, var(--warn) 12%, var(--paper));
+
+  /* Dorado de reconocimiento (insignias, chips de logro). No sigue al tema: es
+     un color con significado propio, como el bronce o la plata. Estaba escrito
+     a mano —el mismo #8a6e3f— en tres archivos, y en modo oscuro daba 3.94:1,
+     por debajo del mínimo. */
+  --oro: #8a6e3f;
 
   /* Density */
   --space: 1;
@@ -175,6 +183,8 @@
   /* En oscuro --primary ya es la variante ajustada, así que el primer plano
      coincide con él. */
   --primary-fg: var(--primary);
+  /* El dorado se aclara en oscuro: #8a6e3f daba 3.94:1 sobre este papel. */
+  --oro: #c9a227;
 }
 
 * {

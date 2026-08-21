@@ -114,7 +114,7 @@ function onCerrar() {
   border: none;
   background: var(--primary);
   color: #fff;
-  font-size: 20px;
+  font-size: var(--text-xl);
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -167,8 +167,8 @@ function onCerrar() {
 .ai-chat-bubble {
   max-width: 80%;
   padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 .ai-chat-msg.user .ai-chat-bubble {
@@ -227,8 +227,8 @@ function onCerrar() {
   flex: 1;
   padding: 8px 12px;
   border: 1px solid var(--ink-7);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
 }
 .ai-chat-input .btn {
   padding: 8px 14px;
