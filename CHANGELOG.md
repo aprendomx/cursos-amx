@@ -6,6 +6,20 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Aviso de privacidad genérico, listo para editar** — el seed de la migración
+  073 traía la plantilla de `docs/AVISO_PRIVACIDAD.md` con quince marcadores
+  `{{ }}` intercalados, algunos con instrucciones dentro del propio texto:
+  publicarla exigía redactar, no editar. Se sustituye por un aviso completo y
+  coherente, escrito sobre lo que la plataforma hace de verdad —qué datos pide,
+  qué genera, qué expone la verificación de constancias, qué guarda en el
+  navegador— con solo **cuatro** datos entre corchetes y un plazo de
+  conservación con valor concreto en vez de un hueco. Migración
+  `074_aviso_generico.sql`.
+
+  Sigue sin publicarse: un aviso lo revisa el área jurídica de cada
+  institución. La migración **solo toca el borrador intacto**; si alguien ya
+  empezó a redactar el suyo, o ya lo publicó, no se ve afectado.
+
 - **Aviso de privacidad, términos de uso y contacto, con CRUD** — los tres
   documentos se redactan y publican desde Administración → Documentos y se
   sirven en `/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del
