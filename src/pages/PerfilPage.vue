@@ -202,7 +202,13 @@ function goToHome() {
           Hola,
           <em class="display-italic" :style="{ color: 'var(--primary)' }">{{ user?.nombre }}.</em>
         </h1>
-        <p :style="{ fontSize: '14px', color: 'var(--ink-3)', marginTop: 'calc(var(--unit) * 1)' }">
+        <p
+          :style="{
+            fontSize: 'var(--text-sm)',
+            color: 'var(--ink-3)',
+            marginTop: 'calc(var(--unit) * 1)',
+          }"
+        >
           {{ user?.dependencia }} &middot; {{ user?.correo }}
         </p>
       </div>
@@ -226,7 +232,7 @@ function goToHome() {
       <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
         {{ fetchError }}
       </p>
-      <p :style="{ marginTop: '4px', color: 'var(--ink-3)', fontSize: '13px' }">
+      <p :style="{ marginTop: '4px', color: 'var(--ink-3)', fontSize: 'var(--text-sm)' }">
         Verifica las variables <code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_ANON_KEY</code>.
       </p>
     </div>
@@ -239,7 +245,9 @@ function goToHome() {
     >
       <div class="perfil-section-header">
         <span class="mono" :style="{ color: 'var(--ink-4)' }">00</span>
-        <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">Logros</h2>
+        <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
+          Logros
+        </h2>
       </div>
       <UserLevelBar
         :puntos="gamificacion.puntos"
@@ -271,7 +279,9 @@ function goToHome() {
     <section class="container perfil-section">
       <div class="perfil-section-header">
         <span class="mono" :style="{ color: 'var(--ink-4)' }">01</span>
-        <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">En curso</h2>
+        <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
+          En curso
+        </h2>
       </div>
 
       <div v-if="loading" class="perfil-empty">
@@ -302,7 +312,7 @@ function goToHome() {
             <!-- Title -->
             <h3
               class="display"
-              :style="{ fontSize: '24px', lineHeight: '1.1', color: 'var(--ink)' }"
+              :style="{ fontSize: 'var(--text-2xl)', lineHeight: '1.1', color: 'var(--ink)' }"
             >
               {{ curso.titulo }}
             </h3>
@@ -316,7 +326,10 @@ function goToHome() {
                 marginTop: 'calc(var(--unit) * 1)',
               }"
             >
-              <span class="display" :style="{ fontSize: '36px', color: 'var(--primary)' }">
+              <span
+                class="display"
+                :style="{ fontSize: 'var(--text-3xl)', color: 'var(--primary)' }"
+              >
                 {{ Math.round(curso.progreso * 100) }}%
               </span>
               <span class="mono" :style="{ color: 'var(--ink-4)' }">completado</span>
@@ -360,7 +373,9 @@ function goToHome() {
       <div class="container perfil-section">
         <div class="perfil-section-header">
           <span class="mono" :style="{ color: 'var(--ink-4)' }">02</span>
-          <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">Completados</h2>
+          <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
+            Completados
+          </h2>
         </div>
 
         <div v-if="loading" class="perfil-empty">
@@ -449,7 +464,7 @@ function goToHome() {
               <p class="eyebrow">Constancia &middot; Emitida</p>
               <h3
                 class="display"
-                :style="{ fontSize: '20px', lineHeight: '1.15', color: 'var(--ink)' }"
+                :style="{ fontSize: 'var(--text-xl)', lineHeight: '1.15', color: 'var(--ink)' }"
               >
                 {{ curso.titulo }}
               </h3>
@@ -472,7 +487,9 @@ function goToHome() {
     <section v-if="!loading && cursosRecomendados.length > 0" class="container perfil-section">
       <div class="perfil-section-header">
         <span class="mono" :style="{ color: 'var(--ink-4)' }">03</span>
-        <h2 class="display" :style="{ fontSize: '32px', color: 'var(--ink)' }">Recomendados</h2>
+        <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
+          Recomendados
+        </h2>
       </div>
 
       <div class="perfil-rec-grid">
@@ -488,7 +505,7 @@ function goToHome() {
             <p class="eyebrow">{{ curso.nivel }} &middot; {{ curso.duracion }}</p>
             <h3
               class="display"
-              :style="{ fontSize: '20px', lineHeight: '1.1', color: 'var(--ink)' }"
+              :style="{ fontSize: 'var(--text-xl)', lineHeight: '1.1', color: 'var(--ink)' }"
             >
               {{ curso.titulo }}
             </h3>
@@ -546,7 +563,7 @@ function goToHome() {
 }
 
 .perfil-kpi-number {
-  font-size: 42px;
+  font-size: var(--text-4xl);
   color: var(--ink);
   line-height: 1;
 }
@@ -596,7 +613,7 @@ function goToHome() {
   padding: calc(var(--unit) * 2.5);
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .perfil-cert-icon {
@@ -652,7 +669,7 @@ function goToHome() {
   padding: calc(var(--unit) * 3) calc(var(--unit) * 4);
   background: color-mix(in srgb, var(--danger) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   text-align: center;
 }
 </style>

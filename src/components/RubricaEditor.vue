@@ -198,7 +198,7 @@ function updateNivel(index, field, value) {
   gap: calc(var(--unit) * 0.5);
 }
 .field-label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--ink-2);
   text-transform: uppercase;
@@ -208,20 +208,20 @@ input,
 select {
   padding: calc(var(--unit)) calc(var(--unit) * 1.5);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-fg);
 }
 .section {
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: calc(var(--unit) * 2);
   background: var(--paper);
 }
@@ -232,18 +232,18 @@ select:focus {
   margin-bottom: calc(var(--unit) * 1.5);
 }
 .section-title {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--ink);
   margin: 0;
 }
 .btn-add {
   padding: calc(var(--unit) * 0.5) calc(var(--unit) * 1.5);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--primary);
   background: transparent;
-  color: var(--primary);
-  font-size: 12px;
+  color: var(--primary-fg);
+  font-size: var(--text-xs);
   font-weight: 500;
   cursor: pointer;
   transition:
@@ -259,7 +259,7 @@ select:focus {
   gap: calc(var(--unit));
   padding: calc(var(--unit) * 1.5);
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper-2);
   margin-bottom: calc(var(--unit));
 }
@@ -275,7 +275,7 @@ select:focus {
   gap: calc(var(--unit));
 }
 .row-inline label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-2);
   white-space: nowrap;
 }
@@ -288,11 +288,11 @@ select:focus {
 .btn-remove {
   width: 28px;
   height: 28px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   border: none;
   background: transparent;
   color: var(--ink-3);
-  font-size: 18px;
+  font-size: var(--text-lg);
   line-height: 1;
   cursor: pointer;
   display: inline-flex;
@@ -304,11 +304,11 @@ select:focus {
     background 160ms var(--ease);
 }
 .btn-remove:hover {
-  color: #dc2626;
+  color: var(--danger);
   background: rgba(220, 38, 38, 0.08);
 }
 .empty {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink-3);
   margin: 0;
 }

@@ -304,7 +304,10 @@ function exportReportCsv() {
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Análisis</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Reportes
         </h1>
       </div>
@@ -380,7 +383,7 @@ function exportReportCsv() {
           </span>
           <span
             class="mono"
-            :style="{ color: 'var(--ink-2)', fontSize: '13px', letterSpacing: '0.04em' }"
+            :style="{ color: 'var(--ink-2)', fontSize: 'var(--text-sm)', letterSpacing: '0.04em' }"
           >
             {{ r.label }}
           </span>

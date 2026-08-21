@@ -27,14 +27,9 @@ function submit() {
 <template>
   <div class="auth-shell">
     <!-- Lado izquierdo: panel institucional -->
-    <aside
-      class="auth-aside"
-      aria-hidden="true"
-    >
+    <aside class="auth-aside" aria-hidden="true">
       <div class="auth-aside-inner">
-        <p class="eyebrow auth-aside-kicker">
-          {{ theme.nav.title }} · {{ theme.app.name }}
-        </p>
+        <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
         <h2 class="auth-aside-quote">
           Formación oficial,
           <em>constancia verificable</em>, servicio público profesional.
@@ -46,24 +41,12 @@ function submit() {
     </aside>
 
     <!-- Lado derecho: formulario -->
-    <section
-      class="auth-form-wrap fade-in"
-      aria-labelledby="login-titulo"
-    >
+    <section class="auth-form-wrap fade-in" aria-labelledby="login-titulo">
       <div class="auth-form">
         <header class="auth-header">
-          <p class="eyebrow">
-            Inicio de sesión
-          </p>
-          <h1
-            id="login-titulo"
-            class="display"
-          >
-            Accede a tu plataforma
-          </h1>
-          <p class="auth-subtitle">
-            Para servidoras y servidores públicos registrados.
-          </p>
+          <p class="eyebrow">Inicio de sesión</p>
+          <h1 id="login-titulo" class="display">Accede a tu plataforma</h1>
+          <p class="auth-subtitle">Para servidoras y servidores públicos registrados.</p>
         </header>
 
         <div class="auth-fields">
@@ -77,7 +60,7 @@ function submit() {
               autocomplete="email"
               autofocus
               @keydown.enter="submit"
-            >
+            />
           </div>
 
           <div class="field">
@@ -89,15 +72,11 @@ function submit() {
               placeholder="••••••••"
               autocomplete="current-password"
               @keydown.enter="submit"
-            >
+            />
           </div>
         </div>
 
-        <div
-          v-if="error"
-          class="auth-error"
-          role="alert"
-        >
+        <div v-if="error" class="auth-error" role="alert">
           {{ error }}
         </div>
 
@@ -107,20 +86,13 @@ function submit() {
           type="button"
           @click="submit"
         >
-          <template v-if="loading">
-            Iniciando sesión…
-          </template>
-          <template v-else>
-            Entrar <IconSet name="arrow" />
-          </template>
+          <template v-if="loading"> Iniciando sesión… </template>
+          <template v-else> Entrar <IconSet name="arrow" /> </template>
         </button>
 
         <p class="auth-alt">
           ¿No tienes cuenta?
-          <a
-            href="#"
-            @click.prevent="router.push({ name: 'registro' })"
-          >Crear cuenta</a>
+          <a href="#" @click.prevent="router.push({ name: 'registro' })">Crear cuenta</a>
         </p>
       </div>
     </section>
@@ -194,7 +166,7 @@ function submit() {
   color: var(--brand-accent-soft);
 }
 .auth-aside-meta {
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.7);
   border-top: 1px solid rgba(255, 255, 255, 0.18);
@@ -216,7 +188,7 @@ function submit() {
   margin-bottom: calc(var(--unit) * 5);
 }
 .auth-header .eyebrow {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   margin-bottom: 14px;
 }
 .auth-header h1 {
@@ -225,7 +197,7 @@ function submit() {
 }
 .auth-subtitle {
   color: var(--gris-70);
-  font-size: 15px;
+  font-size: var(--text-base);
   max-width: 36ch;
 }
 
@@ -239,10 +211,10 @@ function submit() {
 .auth-error {
   margin-top: calc(var(--unit) * 1);
   padding: 12px 14px;
-  background: #fdecec;
+  background: var(--danger-soft);
   border-left: 3px solid var(--danger);
   color: var(--danger);
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   line-height: 1.45;
 }
 
@@ -258,13 +230,18 @@ function submit() {
 
 .auth-alt {
   margin-top: calc(var(--unit) * 3);
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   color: var(--gris-70);
   text-align: center;
 }
 .auth-alt a {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
   font-weight: 600;
+  /* 19px de alto. El área crece con la caja para no descuadrar el texto
+     centrado que la envuelve. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   text-decoration: underline;
   text-decoration-color: var(--brand-accent);
   text-underline-offset: 3px;

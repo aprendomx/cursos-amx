@@ -88,7 +88,7 @@ function sortIndicator(key) {
           <td>
             <div :style="{ display: 'flex', alignItems: 'center', gap: '6px' }">
               <span :style="{ fontWeight: '500' }">{{ row.curso_titulo }}</span>
-              <span v-if="badgeForRow(row)" :style="{ fontSize: '16px' }">
+              <span v-if="badgeForRow(row)" :style="{ fontSize: 'var(--text-base)' }">
                 {{ badgeForRow(row) }}
               </span>
             </div>
@@ -116,7 +116,7 @@ function sortIndicator(key) {
       :style="{
         padding: 'calc(var(--unit) * 2.5)',
         color: 'var(--ink-3)',
-        fontSize: '13px',
+        fontSize: 'var(--text-sm)',
       }"
     >
       Sin datos de comparativa.
@@ -131,9 +131,9 @@ function sortIndicator(key) {
   transition: color 150ms var(--ease);
 }
 .sortable-header:hover {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .sort-active {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 </style>

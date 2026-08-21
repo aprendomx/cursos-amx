@@ -175,7 +175,7 @@ async function duplicarLeccion(lessonIndex) {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   min-height: 420px;
 }
@@ -189,7 +189,7 @@ async function duplicarLeccion(lessonIndex) {
   padding: calc(var(--unit) * 1);
   background: color-mix(in srgb, var(--danger) 12%, transparent);
   color: var(--danger);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .validation-bar {
   display: flex;
@@ -198,7 +198,7 @@ async function duplicarLeccion(lessonIndex) {
   padding: calc(var(--unit) * 1) calc(var(--unit) * 2);
   border-top: 1px solid var(--line);
   color: var(--ink-3);
-  font-size: 13px;
+  font-size: var(--text-sm);
   background: var(--paper);
 }
 .drag-hint {

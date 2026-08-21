@@ -195,7 +195,7 @@ const emit = defineEmits(['move', 'remove', 'add-lesson', 'remove-lesson'])
                 class="editor-lesson-input"
                 :style="{ maxWidth: '70px' }"
               />
-              <span class="mono" :style="{ fontSize: '10px', color: 'var(--ink-4)' }"
+              <span class="mono" :style="{ fontSize: 'var(--text-xs)', color: 'var(--ink-4)' }"
                 >MB m&aacute;x</span
               >
             </template>

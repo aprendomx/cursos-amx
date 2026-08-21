@@ -216,7 +216,7 @@ watch(
 }
 
 .lesson-list-title {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--paper);
   margin-bottom: 4px;
@@ -224,7 +224,7 @@ watch(
 
 .lesson-list-progress {
   color: var(--ink-4);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .lesson-items {
@@ -237,7 +237,7 @@ watch(
   align-items: center;
   gap: 12px;
   padding: 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 180ms var(--ease);
   border-left: 3px solid transparent;
@@ -279,7 +279,7 @@ watch(
 
 .lesson-num {
   color: var(--ink-4);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
 .lesson-info {
@@ -291,7 +291,7 @@ watch(
 }
 
 .lesson-name {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--paper);
   white-space: nowrap;
   overflow: hidden;
@@ -299,7 +299,7 @@ watch(
 }
 
 .lesson-meta {
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--ink-4);
 }
 
@@ -340,7 +340,7 @@ watch(
 }
 .lesson-strip-items::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .lesson-strip-card {
@@ -348,7 +348,7 @@ watch(
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
@@ -375,7 +375,7 @@ watch(
 }
 .lesson-modulo-barra {
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--line, #e6e6e6);
   overflow: hidden;
 }
@@ -389,7 +389,7 @@ watch(
   background: var(--success);
 }
 .lesson-modulo-cifra {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
 }
 </style>

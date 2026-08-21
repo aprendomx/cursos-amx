@@ -49,7 +49,10 @@ async function deleteCurso(curso) {
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Cat&aacute;logo</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Cursos
         </h1>
       </div>

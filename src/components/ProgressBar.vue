@@ -22,12 +22,12 @@ defineProps({
   width: 100%;
   height: 4px;
   background: var(--paper-3);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .progress-bar-fill {
   height: 100%;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   transition: width 400ms var(--ease);
 }
 </style>

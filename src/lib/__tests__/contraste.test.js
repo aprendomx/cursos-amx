@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { hexARgb, luminancia, contraste, cumpleAA, ajustarParaContraste } from '../contraste.js'
 
 const PAPEL_OSCURO = '#0f1115'
@@ -67,5 +69,65 @@ describe('ajustarParaContraste', () => {
 
   it('devuelve el color tal cual si no es un hex válido', () => {
     expect(ajustarParaContraste('rebeccapurple', PAPEL_OSCURO)).toBe('rebeccapurple')
+  })
+})
+
+// Los estados semánticos deben distinguirse ENTRE SÍ y del color de la acción
+// principal. `--danger` era un alias de `--brand-primary`: un mensaje de error
+// se pintaba igual que un botón primario, en 32 sitios de uso.
+describe('colores semánticos', () => {
+  const css = readFileSync(resolve(__dirname, '../../assets/main.css'), 'utf8')
+
+  it('danger no es un alias del color de marca', () => {
+    expect(css).not.toMatch(/--danger:\s*var\(--brand-primary\)/)
+    expect(css).toMatch(/--danger:\s*var\(--brand-danger\)/)
+  })
+
+  it('danger tiene un valor propio con contraste suficiente sobre papel claro', () => {
+    const m = css.match(/--brand-danger:\s*(#[0-9a-f]{6})/i)
+    expect(m, 'no hay valor por defecto para --brand-danger').toBeTruthy()
+    expect(contraste(m[1], '#ffffff')).toBeGreaterThanOrEqual(4.5)
+  })
+
+  it('los tres estados son distinguibles entre sí', () => {
+    const de = (nombre) => css.match(new RegExp(`--${nombre}:\\s*var\\((--[a-z-]+)\\)`))?.[1]
+    const estados = ['success', 'warn', 'danger'].map(de)
+    expect(new Set(estados).size, `estados duplicados: ${estados}`).toBe(3)
+    expect(estados).not.toContain('--brand-primary')
+  })
+})
+
+// Los cuatro niveles de tinta se usan como color de TEXTO, no como decoración:
+// 68 usos de --ink-3 y 48 de --ink-4, todos en `color:`. Antes, --ink-3 daba
+// 3.95:1 y --ink-4 1.61:1 sobre papel blanco.
+describe('escala de tinta', () => {
+  const css = readFileSync(resolve(__dirname, '../../assets/main.css'), 'utf8')
+
+  function nivelesDe(bloque) {
+    const vals = {}
+    for (const m of bloque.matchAll(/--(ink(?:-\d)?):\s*(#[0-9a-f]{6})/gi)) vals[m[1]] = m[2]
+    return vals
+  }
+
+  it('todos los niveles cumplen AA sobre papel claro', () => {
+    const claro = nivelesDe(css.slice(0, css.indexOf("[data-theme='dark']")))
+    // --ink viene del token de marca, que el tema sustituye; se comprueban los
+    // que tienen valor literal.
+    for (const [nombre, hex] of Object.entries(claro)) {
+      expect(
+        contraste(hex, PAPEL_CLARO),
+        `${nombre} (${hex}) sobre papel claro`
+      ).toBeGreaterThanOrEqual(4.5)
+    }
+  })
+
+  it('todos los niveles cumplen AA sobre papel oscuro', () => {
+    const oscuro = nivelesDe(css.slice(css.indexOf("[data-theme='dark']")))
+    for (const [nombre, hex] of Object.entries(oscuro)) {
+      expect(
+        contraste(hex, PAPEL_OSCURO),
+        `${nombre} (${hex}) sobre papel oscuro`
+      ).toBeGreaterThanOrEqual(4.5)
+    }
   })
 })

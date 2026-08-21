@@ -329,21 +329,21 @@ function removeHueco(p, hi) {
   width: 28px;
   height: 28px;
   flex: 0 0 28px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--ink-4);
   cursor: pointer;
 }
 .qe-correct.on {
-  background: var(--brand-secondary, #2e7d32);
+  background: var(--brand-secondary, var(--success));
   color: #fff;
-  border-color: var(--brand-secondary, #2e7d32);
+  border-color: var(--brand-secondary, var(--success));
 }
 .qe-icon {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--line);
   background: var(--paper);
   cursor: pointer;
@@ -353,6 +353,6 @@ function removeHueco(p, hi) {
   cursor: not-allowed;
 }
 .qe-icon-danger:hover {
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 </style>

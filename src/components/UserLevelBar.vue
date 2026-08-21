@@ -36,15 +36,9 @@ const progreso = computed(() => {
 </script>
 
 <template>
-  <div
-    class="user-level-bar"
-    data-test="user-level-bar"
-  >
+  <div class="user-level-bar" data-test="user-level-bar">
     <div class="level-header">
-      <span
-        class="level-name"
-        :style="{ color: nivelActual.color || 'var(--ink-3)' }"
-      >
+      <span class="level-name" :style="{ color: nivelActual.color || 'var(--ink-3)' }">
         {{ nivelActual.nivel_nombre || 'Novato' }}
       </span>
       <span class="level-points">{{ nivelActual.puntos_totales || 0 }} pts</span>
@@ -58,18 +52,10 @@ const progreso = computed(() => {
         }"
       />
     </div>
-    <p
-      v-if="siguienteNivel"
-      class="level-next"
-    >
+    <p v-if="siguienteNivel" class="level-next">
       {{ puntosParaSiguiente }} pts para {{ siguienteNivel.nombre }}
     </p>
-    <p
-      v-else
-      class="level-next level-max"
-    >
-      ¡Nivel máximo alcanzado!
-    </p>
+    <p v-else class="level-next level-max">¡Nivel máximo alcanzado!</p>
   </div>
 </template>
 
@@ -81,7 +67,7 @@ const progreso = computed(() => {
   padding: calc(var(--unit) * 2);
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 .level-header {
   display: flex;
@@ -92,11 +78,11 @@ const progreso = computed(() => {
 .level-name {
   font-family: var(--display);
   font-weight: 500;
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 .level-points {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-3);
@@ -105,17 +91,17 @@ const progreso = computed(() => {
   width: 100%;
   height: 6px;
   background: var(--paper-3);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 .level-progress-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   transition: width 400ms var(--ease);
 }
 .level-next {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
 }
 .level-max {

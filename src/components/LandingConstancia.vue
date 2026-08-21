@@ -8,20 +8,11 @@ import { theme } from '@/lib/theme.js'
   <section class="container constancia">
     <div class="constancia-grid">
       <!-- Mockup decorativo -->
-      <div
-        class="constancia-mock"
-        aria-hidden="true"
-      >
+      <div class="constancia-mock" aria-hidden="true">
         <div class="constancia-paper">
-          <p class="eyebrow">
-            {{ theme.constancia.emisor }} &middot; CONSTANCIA
-          </p>
-          <p class="display constancia-paper-title">
-            Se otorga a
-          </p>
-          <p class="display-italic constancia-paper-name">
-            Nombre de la persona
-          </p>
+          <p class="eyebrow">{{ theme.constancia.emisor }} &middot; CONSTANCIA</p>
+          <p class="display constancia-paper-title">Se otorga a</p>
+          <p class="display-italic constancia-paper-name">Nombre de la persona</p>
           <p class="constancia-paper-curso">
             por concluir el curso de Capacitaci&oacute;n B&aacute;sica.
           </p>
@@ -34,15 +25,12 @@ import { theme } from '@/lib/theme.js'
 
       <!-- Texto -->
       <div class="constancia-text">
-        <p class="eyebrow">
-          TU CONSTANCIA OFICIAL
-        </p>
+        <p class="eyebrow">TU CONSTANCIA OFICIAL</p>
         <h2 class="display constancia-title">
           Una constancia con
-          <span
-            class="display-italic"
-            :style="{ color: 'var(--primary)' }"
-          >validez verificable</span>.
+          <span class="display-italic" :style="{ color: 'var(--primary)' }"
+            >validez verificable</span
+          >.
         </h2>
 
         <ul class="constancia-bullets">
@@ -52,8 +40,10 @@ import { theme } from '@/lib/theme.js'
           </li>
           <li>
             <IconSet name="check" />
-            <span><strong>Hash criptogr&aacute;fico</strong> de integridad para validar
-              autenticidad.</span>
+            <span
+              ><strong>Hash criptogr&aacute;fico</strong> de integridad para validar
+              autenticidad.</span
+            >
           </li>
           <li>
             <IconSet name="check" />
@@ -90,15 +80,15 @@ import { theme } from '@/lib/theme.js'
   gap: calc(var(--unit) * 2);
 }
 .constancia-paper-title {
-  font-size: 28px;
+  font-size: var(--text-3xl);
   color: var(--ink);
 }
 .constancia-paper-name {
   font-size: clamp(28px, 3vw, 40px);
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .constancia-paper-curso {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--ink-2);
 }
 .constancia-paper-foot {
@@ -107,7 +97,7 @@ import { theme } from '@/lib/theme.js'
   gap: calc(var(--unit) * 2);
   padding-top: calc(var(--unit) * 2);
   border-top: 1px dashed var(--line);
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--ink-3);
   flex-wrap: wrap;
 }
@@ -135,7 +125,7 @@ import { theme } from '@/lib/theme.js'
 .constancia-bullets li :deep(svg) {
   flex-shrink: 0;
   margin-top: 4px;
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 
 @media (max-width: 900px) {

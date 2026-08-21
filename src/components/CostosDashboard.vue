@@ -83,7 +83,7 @@ function formatValue(key, value) {
       <p class="h4" :style="{ marginBottom: '4px' }">
         {{ formatValue(metric.key, props.data[metric.key]) }}
       </p>
-      <p class="mono" :style="{ color: 'var(--ink-4)', fontSize: '12px' }">
+      <p class="mono" :style="{ color: 'var(--ink-4)', fontSize: 'var(--text-xs)' }">
         {{ metric.unit }}
       </p>
     </div>

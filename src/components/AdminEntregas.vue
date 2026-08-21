@@ -70,7 +70,10 @@ function fmtFecha(fechaISO) {
     <div class="admin-content-header">
       <div>
         <p class="eyebrow">Gestión</p>
-        <h1 class="display" :style="{ fontSize: '32px', color: 'var(--ink)', marginTop: '4px' }">
+        <h1
+          class="display"
+          :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)', marginTop: '4px' }"
+        >
           Entregas
         </h1>
       </div>
@@ -159,7 +162,7 @@ function fmtFecha(fechaISO) {
         :style="{
           padding: 'calc(var(--unit) * 2.5)',
           color: 'var(--ink-3)',
-          fontSize: '13px',
+          fontSize: 'var(--text-sm)',
         }"
       >
         Sin tareas registradas.

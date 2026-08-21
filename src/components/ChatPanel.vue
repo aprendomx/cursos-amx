@@ -107,51 +107,26 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 </script>
 
 <template>
-  <div
-    v-if="habilitado && session"
-    class="chatp"
-    :data-tema="tema"
-  >
+  <div v-if="habilitado && session" class="chatp" :data-tema="tema">
     <div class="chatp-header">
       <span class="eyebrow">{{ titulo }}</span>
       <span class="chatp-dot pulsing" />
     </div>
 
-    <p
-      v-if="error"
-      class="chatp-error mono"
-    >
-      ⚠ {{ error }}
-    </p>
+    <p v-if="error" class="chatp-error mono">⚠ {{ error }}</p>
 
-    <div
-      ref="listaRef"
-      class="chatp-mensajes"
-    >
-      <p
-        v-if="!mensajes.length && !loading"
-        class="chatp-vacio"
-      >
+    <div ref="listaRef" class="chatp-mensajes">
+      <p v-if="!mensajes.length && !loading" class="chatp-vacio">
         Sin mensajes todavía. ¡Escribe el primero!
       </p>
-      <div
-        v-for="m in mensajes"
-        :key="m.id"
-        class="chatp-msg"
-      >
-        <div
-          class="chatp-avatar"
-          :class="{ 'is-instructor': esDeInstructor(m) }"
-        >
+      <div v-for="m in mensajes" :key="m.id" class="chatp-msg">
+        <div class="chatp-avatar" :class="{ 'is-instructor': esDeInstructor(m) }">
           {{ nombre(m.perfiles).charAt(0) || '?' }}
         </div>
         <div class="chatp-cuerpo">
           <div class="chatp-meta">
             <strong>{{ nombre(m.perfiles) }}</strong>
-            <span
-              v-if="esDeInstructor(m)"
-              class="chatp-badge mono"
-            >Instructor</span>
+            <span v-if="esDeInstructor(m)" class="chatp-badge mono">Instructor</span>
             <span class="chatp-hora mono">{{ fmtHora(m.creado_en) }}</span>
             <button
               v-if="esInstructorCurso"
@@ -163,14 +138,8 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
             </button>
           </div>
           <p class="chatp-texto">
-            <template
-              v-for="(seg, i) in segmentos(m.contenido)"
-              :key="i"
-            >
-              <span
-                v-if="seg.tipo === 'mencion'"
-                class="chatp-mencion"
-              >{{ seg.valor }}</span>
+            <template v-for="(seg, i) in segmentos(m.contenido)" :key="i">
+              <span v-if="seg.tipo === 'mencion'" class="chatp-mencion">{{ seg.valor }}</span>
               <template v-else>
                 {{ seg.valor }}
               </template>
@@ -182,23 +151,11 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 
     <div class="chatp-input-wrap">
       <!-- Autocompletado de @menciones -->
-      <ul
-        v-if="menuAbierto"
-        class="chatp-menu"
-      >
-        <li
-          v-for="p in menuOpciones"
-          :key="p.user_id"
-        >
-          <button
-            type="button"
-            @mousedown.prevent="elegirMencion(p)"
-          >
+      <ul v-if="menuAbierto" class="chatp-menu">
+        <li v-for="p in menuOpciones" :key="p.user_id">
+          <button type="button" @mousedown.prevent="elegirMencion(p)">
             {{ p.nombre }}
-            <span
-              v-if="p.es_instructor"
-              class="chatp-badge mono"
-            >Instructor</span>
+            <span v-if="p.es_instructor" class="chatp-badge mono">Instructor</span>
           </button>
         </li>
       </ul>
@@ -213,7 +170,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
           @input="onInput"
           @keydown="onKeydown"
           @keydown.enter="onEnviar"
-        >
+        />
         <button
           class="chatp-enviar btn btn-primary btn-sm"
           :disabled="enviando || !draft.trim()"
@@ -259,7 +216,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 }
 .chatp-error {
   color: var(--primary, #9b2247);
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding: 8px 14px;
 }
 .chatp-mensajes {
@@ -273,7 +230,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 }
 .chatp-vacio {
   color: var(--chatp-ink-2);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 .chatp-msg {
   display: flex;
@@ -286,7 +243,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   background: var(--paper-2, #f0ece2);
   color: var(--brand-accent, #a57f2c);
@@ -309,20 +266,20 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   flex-wrap: wrap;
 }
 .chatp-meta strong {
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--chatp-ink);
 }
 .chatp-badge {
-  font-size: 9px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   background: var(--brand-accent, #a57f2c);
   color: var(--paper, #fff);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 .chatp-hora {
-  font-size: 10px;
+  font-size: var(--text-xs);
   color: var(--chatp-ink-2);
 }
 .chatp-borrar {
@@ -330,7 +287,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--chatp-ink-2);
   padding: 0 4px;
 }
@@ -338,7 +295,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   color: var(--primary, #9b2247);
 }
 .chatp-texto {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--chatp-ink);
   margin-top: 2px;
   word-break: break-word;
@@ -361,7 +318,7 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   list-style: none;
   background: var(--paper, #fff);
   border: 1px solid var(--paper-3, #ddd);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   z-index: 5;
   max-height: 200px;
@@ -374,10 +331,10 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
   border: none;
   padding: 7px 10px;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--ink, #222);
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -393,10 +350,10 @@ const nombre = (p) => (p ? `${p.nombres || ''} ${p.apellido_paterno || ''}`.trim
 .chatp-input-bar input {
   flex: 1;
   font: inherit;
-  font-size: 14px;
+  font-size: var(--text-sm);
   padding: 8px 12px;
   border: 1px solid var(--chatp-borde);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--chatp-ink);
   outline: none;

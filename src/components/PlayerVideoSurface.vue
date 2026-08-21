@@ -363,7 +363,7 @@ function onEnded() {
 
 .slide-footer {
   color: rgba(255, 255, 255, 0.3);
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 
 .video-badges {
@@ -380,11 +380,11 @@ function onEnded() {
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--primary);
   color: var(--paper);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -401,11 +401,11 @@ function onEnded() {
   display: inline-flex;
   align-items: center;
   padding: 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.7);
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: var(--text-xs);
   letter-spacing: 0.06em;
 }
 
@@ -427,7 +427,7 @@ function onEnded() {
   display: grid;
   place-items: center;
   color: var(--paper);
-  font-size: 24px;
+  font-size: var(--text-2xl);
   transition:
     transform 180ms var(--ease),
     background 180ms var(--ease);
@@ -475,7 +475,7 @@ function onEnded() {
 }
 
 .completion-text {
-  font-size: 22px;
+  font-size: var(--text-xl);
   color: var(--paper);
 }
 
@@ -528,13 +528,13 @@ function onEnded() {
 
 .controls-time {
   color: rgba(255, 255, 255, 0.7);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 
 .controls-status {
   margin-left: auto;
   color: rgba(255, 255, 255, 0.3);
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 
 .video-native {
@@ -554,8 +554,8 @@ function onEnded() {
 
 .doc-mark-btn {
   padding: 10px 24px;
-  border-radius: 6px;
-  font-size: 14px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   cursor: pointer;
   transition: opacity 0.2s;
 }

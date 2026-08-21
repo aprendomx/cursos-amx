@@ -15,6 +15,9 @@
   --brand-accent: #b45309;
   --brand-accent-soft: #fde68a;
   --brand-ink: #161a1d;
+  /* Error. Valor propio y no derivado de la marca: ver COLOR_VARS en
+     theme.js. 6.54:1 sobre papel blanco. El tema puede sustituirlo. */
+  --brand-danger: #b3261e;
 
   --gris: #98989a;
   --gris-70: #4d4d4d;
@@ -32,15 +35,37 @@
   --paper-3: #f3f3f3;
   --line: #e6e6e6;
   --line-soft: #efefef;
+  /* Escala de tinta. Los cuatro niveles se usan como COLOR DE TEXTO —68 usos
+     de --ink-3 y 48 de --ink-4—, así que los cuatro tienen que cumplir 4.5:1
+     sobre su papel, no solo los dos primeros.
+     Antes: --ink-3 daba 3.95:1 y --ink-4 1.61:1 sobre papel blanco. El nivel
+     más tenue era prácticamente ilegible.
+     Ahora: 17.51 / 8.45 / 6.39 / 4.54. La jerarquía se conserva, comprimida en
+     el extremo tenue porque ahí es donde el umbral no deja más margen. */
   --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
-  --ink-3: var(--gris-50);
-  --ink-4: var(--gris-20);
+  --ink-3: #5f5f5f;
+  --ink-4: #767676;
 
   /* Semantic (derivados de la paleta institucional) */
   --success: var(--brand-secondary);
   --warn: var(--brand-accent);
-  --danger: var(--brand-primary);
+  --danger: var(--brand-danger);
+  /* Fondos tenues de estado. Se mezclan con el papel en vez de fijar un hex:
+     así siguen al color que declare la institución y al modo oscuro, sin
+     declarar cada variante a mano. El primer valor es el respaldo para
+     navegadores sin color-mix. */
+  --danger-soft: #fdecea;
+  --danger-soft: color-mix(in srgb, var(--danger) 10%, var(--paper));
+  --danger-line: color-mix(in srgb, var(--danger) 35%, var(--paper));
+  --success-soft: color-mix(in srgb, var(--success) 10%, var(--paper));
+  --warn-soft: color-mix(in srgb, var(--warn) 12%, var(--paper));
+
+  /* Dorado de reconocimiento (insignias, chips de logro). No sigue al tema: es
+     un color con significado propio, como el bronce o la plata. Estaba escrito
+     a mano —el mismo #8a6e3f— en tres archivos, y en modo oscuro daba 3.94:1,
+     por debajo del mínimo. */
+  --oro: #8a6e3f;
 
   /* Density */
   --space: 1;
@@ -54,8 +79,64 @@
   /* Motion */
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
+  /* ----- Escala tipográfica -----
+     Antes había 359 declaraciones de font-size con 54 valores distintos, 63 de
+     ellas por debajo de 12px. Esa dispersión es la causa de que la interfaz se
+     sintiera despareja sin que se pudiera señalar un culpable.
+
+     La escala se deriva de los tamaños que ya predominaban (13/14/16/18) y
+     sube el piso a 12px: por debajo, el texto deja de ser legible para buena
+     parte de quien lo lee. Un componente NO declara font-size a mano cuando
+     hay un token para su propósito. */
+  --text-xs: 12px; /* metadatos, etiquetas, pies */
+  --text-sm: 14px; /* secundario, tablas densas */
+  --text-base: 16px; /* cuerpo */
+  --text-lg: 18px; /* destacado, campos de formulario */
+  --text-xl: 20px; /* subtítulo */
+  --text-2xl: 24px; /* título de sección */
+  --text-3xl: 32px; /* título de página */
+  --text-4xl: 44px; /* hero */
+
+  /* Interlineado por densidad de texto: los títulos se aprietan, el cuerpo
+     respira. 1.6 en cuerpo cumple el 1.5 mínimo con margen. */
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.6;
+
+  /* Pesos: la jerarquía se sostiene con tamaño y peso, no con color. */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 700;
+
+  /* ----- Radios -----
+     174 declaraciones con 21 valores distintos (4, 8, 6, 3, 2px…). Se reducen
+     a cuatro pasos con un uso asignado. */
+  --radius-sm: 4px; /* etiquetas, chips, campos */
+  --radius-md: 8px; /* botones, tarjetas */
+  --radius-lg: 16px; /* paneles, diálogos */
+  --radius-full: 999px; /* píldoras y avatares */
+
+  /* ----- Elevación -----
+     26 sombras con 19 valores distintos: casi cada una era única. Cuatro
+     niveles, uno por rol, para que la profundidad signifique algo. */
+  --elev-0: none;
+  --elev-1: 0 1px 3px rgb(0 0 0 / 8%); /* tarjeta en reposo */
+  --elev-2: 0 4px 14px rgb(0 0 0 / 10%); /* panel elevado, menú */
+  --elev-3: 0 12px 32px rgb(0 0 0 / 16%); /* diálogo sobre velo */
+
+  /* Color de marca en PRIMER PLANO: texto, iconos, bordes y anillo de foco.
+     Distinto del color de fondo, que conserva el valor tal cual lo declara la
+     institución. theme.js lo deriva para que cumpla 4.5:1 sobre este papel. */
+  --primary-fg: var(--brand-primary-on-light, var(--brand-primary));
+
+  /* Anillo de foco. Por defecto el color de marca, que theme.js ya ajusta por
+     contraste para el modo oscuro global. Las superficies que traen su PROPIO
+     fondo oscuro —el hero, el panel del reproductor— lo invierten localmente:
+     ahí `--primary` sería azul de marca sobre azul de marca oscuro. */
+  --focus-ring: var(--primary-fg);
+
   /* Shadows */
-  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-pop: var(--elev-2);
 }
 
 [data-density='compact'] {
@@ -83,8 +164,10 @@
   --line-soft: #1f2128;
   --ink: #f0f0f0;
   --ink-2: #b0b0b0;
-  --ink-3: #808080;
-  --ink-4: #505050;
+  /* Mismo criterio que en claro: --ink-4 daba 2.34:1 sobre el papel oscuro.
+     Ahora 16.58 / 8.71 / 6.23 / 5.47. */
+  --ink-3: #949494;
+  --ink-4: #8a8a8a;
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
 
   /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
@@ -96,7 +179,12 @@
   --primary-700: var(--brand-primary-dark-on-dark, #b9ccff);
   --success: var(--brand-secondary-on-dark, #5eccc0);
   --warn: var(--brand-accent-on-dark, #f0a95c);
-  --danger: var(--brand-primary-on-dark, #93b4ff);
+  --danger: var(--brand-danger-on-dark, #f2b8b5);
+  /* En oscuro --primary ya es la variante ajustada, así que el primer plano
+     coincide con él. */
+  --primary-fg: var(--primary);
+  /* El dorado se aclara en oscuro: #8a6e3f daba 3.94:1 sobre este papel. */
+  --oro: #c9a227;
 }
 
 * {
@@ -109,8 +197,10 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--ui);
-  font-size: 15px;
-  line-height: 1.5;
+  /* 15px quedaba por debajo del piso de 16: además de leerse peor, iOS hace
+     zoom automático al enfocar un campo cuyo texto mide menos. */
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -192,9 +282,12 @@ select {
   align-items: center;
   gap: 10px;
   padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2.5);
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  /* WCAG 2.5.5: el área accionable no baja de 44px aunque la caja visible sea
+     menor. Se aplica aquí para que lo hereden todos los botones. */
+  min-height: 44px;
   letter-spacing: -0.005em;
   transition: all 180ms var(--ease);
   white-space: nowrap;
@@ -234,7 +327,7 @@ select {
 }
 .btn-sm {
   padding: calc(var(--unit)) calc(var(--unit) * 2);
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 /* Chips */
@@ -357,9 +450,29 @@ select {
   font-style: italic;
 }
 
-/* ----- Foco visible (WCAG 2.1 §2.4.7, nivel AA) ----- */
+/* ----- Foco visible (WCAG 2.1 §2.4.7, nivel AA) -----
+   La regla lleva `!important` a propósito, y conviene explicar por qué antes de
+   que alguien lo retire por higiene: nueve componentes declaraban
+   `outline: none` con selectores como `input:focus` o `.algo input`, cuya
+   especificidad (0,1,1) gana a un `:focus-visible` global (0,1,0). El anillo de
+   foco desaparecía y quien navega con teclado se quedaba sin saber dónde está.
+   Ya había pasado con `.field input`, se arregló solo ahí, y volvió a pasar en
+   otros nueve sitios.
+
+   Subir la especificidad no basta: el siguiente componente que escriba
+   `outline: none` volvería a ganar. `!important` cierra la puerta, y un
+   componente que necesite un indicador distinto puede declararlo con
+   `!important` propio — que es lo que exige el spec: sustituirlo, no
+   suprimirlo.
+
+   Grosor 3px según la dirección de estilo accesible: 2px se pierde sobre
+   fondos con textura o color.
+
+   El color sale de `--focus-ring` y no de `--primary` directamente, para que
+   una superficie con fondo oscuro propio pueda invertirlo sin tocar esta
+   regla. */
 :focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 3px solid var(--focus-ring) !important;
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -373,6 +486,22 @@ select {
 .field textarea:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
+}
+
+/* Contenido para lectores de pantalla, oculto a la vista.
+   No se usa `display: none` ni `visibility: hidden`: eso lo esconde TAMBIÉN
+   del lector, que es lo contrario de lo que se busca. La técnica es sacarlo
+   del flujo con un recorte de 1px, que es lo que reconocen. */
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ----- Movimiento reducido (WCAG 2.1 §2.3.3) -----
@@ -484,6 +613,7 @@ select {
 .nav-brand {
   display: flex;
   align-items: center;
+  min-height: 44px;
   gap: 14px;
   cursor: pointer;
   text-decoration: none;
@@ -561,10 +691,16 @@ select {
   gap: 24px;
 }
 .nav-links a {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   color: rgba(255, 255, 255, 0.78);
   position: relative;
+  /* El área accionable llegaba a 34px de alto: son enlaces, no `.btn`, así que
+     no heredaban el mínimo de 44. Se alcanza con la caja, sin agrandar el
+     texto ni separar visualmente los elementos. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   padding: 6px 0;
   transition: color 160ms var(--ease);
   cursor: pointer;
@@ -775,9 +911,12 @@ select {
     padding: calc(var(--unit) * 1.25) calc(var(--unit) * 2);
     font-size: 13px;
   }
+  /* En móvil se reduce el relleno, NO el área accionable: `min-height` viene
+     de `.btn` y se mantiene. Antes el texto bajaba a 12px justo en el
+     dispositivo donde peor se lee. */
   .btn-sm {
     padding: calc(var(--unit) * 0.75) calc(var(--unit) * 1.5);
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .tweaks-panel {
     bottom: 12px;
@@ -889,10 +1028,16 @@ select {
   gap: 10px;
 }
 .site-pleca-col li a {
-  font-size: 13.5px;
+  font-size: var(--text-sm);
   color: rgba(255, 255, 255, 0.82);
   text-decoration: none;
   cursor: pointer;
+  /* 19px de alto: son los enlaces institucionales —aviso de privacidad,
+     términos, contacto— y en móvil se pulsan con el dedo. El área crece con la
+     caja, no con el texto, para no descuadrar el pie. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   transition: color 160ms var(--ease);
 }
 .site-pleca-col li a:hover {
@@ -984,7 +1129,7 @@ select {
   font-variation-settings:
     'opsz' 144,
     'wght' 400;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .site-hero p.lede {
   font-size: 18px;
@@ -1006,7 +1151,7 @@ select {
   font-weight: 500;
   font-size: 48px;
   line-height: 1;
-  color: var(--brand-primary);
+  color: var(--primary-fg);
 }
 .site-hero .site-stat span {
   font-family: var(--mono);

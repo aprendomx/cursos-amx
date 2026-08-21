@@ -245,9 +245,9 @@ onMounted(cargar)
   gap: 0.35rem;
 }
 .adm-func-error {
-  color: #b00020;
+  color: var(--danger);
 }
 .adm-func-aviso {
-  color: var(--brand-secondary, #0f766e);
+  color: var(--brand-secondary, var(--brand-secondary));
 }
 </style>
