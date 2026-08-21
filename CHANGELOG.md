@@ -20,6 +20,16 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
   institución. La migración **solo toca el borrador intacto**; si alguien ya
   empezó a redactar el suyo, o ya lo publicó, no se ve afectado.
 
+- **Términos de uso y contacto genéricos** — mismo tratamiento para los otros
+  dos documentos, en `075_terminos_contacto_genericos.sql`. Los términos
+  cubren la cuenta y su responsabilidad, el uso aceptable, la propiedad de los
+  materiales, la revocación y el **alcance real de las constancias** —que no
+  van firmadas con firma electrónica avanzada—. La página de contacto separa
+  los tres motivos por los que alguien escribe (soporte, datos personales y
+  contenido de los cursos) y aclara que verificar una constancia no requiere
+  escribir a nadie: basta el folio, sin sesión. Las mismas dos salvaguardas:
+  solo se toca el borrador intacto, nunca lo publicado.
+
 - **Aviso de privacidad, términos de uso y contacto, con CRUD** — los tres
   documentos se redactan y publican desde Administración → Documentos y se
   sirven en `/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del
