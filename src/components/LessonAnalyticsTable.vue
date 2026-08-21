@@ -147,10 +147,10 @@ function isWarning(row) {
   transition: color 150ms var(--ease);
 }
 .sortable-header:hover {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .sort-active {
-  color: var(--primary);
+  color: var(--primary-fg);
 }
 .row-warning td {
   background: rgba(138, 43, 31, 0.04);

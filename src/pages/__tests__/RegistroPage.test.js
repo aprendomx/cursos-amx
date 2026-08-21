@@ -146,6 +146,61 @@ describe('RegistroPage', () => {
     expect(wrapper.vm.dependenciasLista.length).toBeGreaterThan(0)
   })
 
+  // App.vue pasa `:registro-error`/`:registro-loading` por router-view. Si la
+  // página declara otros nombres, el alta fallida no muestra nada: el atributo
+  // se queda suelto en el DOM y el usuario se queda mirando un botón quieto.
+  // Estos tests pasan las props en kebab-case, igual que la plantilla real.
+  it('muestra el error del alta que llega desde App.vue', async () => {
+    const wrapper = montar({ 'registro-error': 'Ese correo ya está registrado.' })
+    await flushPromises()
+
+    const aviso = wrapper.find('.registro-error')
+    expect(aviso.exists()).toBe(true)
+    expect(aviso.text()).toContain('Ese correo ya está registrado.')
+    expect(aviso.attributes('role')).toBe('alert')
+  })
+
+  it('lleva el foco al error del alta para que no pase inadvertido', async () => {
+    const wrapper = mount(RegistroPage, {
+      attachTo: document.body,
+      global: { stubs: { IconSet: true, AppLogo: true } },
+    })
+    await flushPromises()
+
+    await wrapper.setProps({ 'registro-error': 'No se pudo crear la cuenta.' })
+    await flushPromises()
+
+    expect(document.activeElement).toBe(wrapper.find('.registro-error').element)
+    wrapper.unmount()
+  })
+
+  it('anuncia la espera y bloquea el botón mientras se crea la cuenta', async () => {
+    const wrapper = montar({ 'registro-loading': true })
+    await flushPromises()
+    await llenarHasta(wrapper, 2)
+    wrapper.vm.step = 3
+    wrapper.vm.acepta = true
+    await flushPromises()
+
+    const crear = wrapper.findAll('button').at(-1)
+    expect(crear.text()).toContain('Creando cuenta')
+    expect(crear.attributes('disabled')).toBeDefined()
+
+    // Y no vuelve a emitir el alta mientras la anterior sigue en vuelo.
+    wrapper.vm.next()
+    await flushPromises()
+    expect(wrapper.emitted('complete')).toBeFalsy()
+  })
+
+  // El error del login viaja por `:error` en el mismo router-view. La página de
+  // registro no debe confundirlo con el suyo.
+  it('ignora el error de inicio de sesión', async () => {
+    const wrapper = montar({ error: 'Credenciales incorrectas' })
+    await flushPromises()
+    expect(wrapper.find('.registro-error').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('Credenciales incorrectas')
+  })
+
   it('permite volver al paso anterior sin perder lo escrito', async () => {
     const wrapper = montar()
     await flushPromises()

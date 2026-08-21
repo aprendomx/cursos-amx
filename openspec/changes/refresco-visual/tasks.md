@@ -38,18 +38,18 @@
 - [x] 5.2 Revisar los botones de solo icono y confirmar que tienen etiqueta accesible y área suficiente. — Verificado en navegador: 0 elementos interactivos sin etiqueta accesible en portada, acceso, registro y verificación.
 - [x] 5.3 Revisar la separación entre controles contiguos, sobre todo en las tablas del panel y en las tarjetas del catálogo. — Corregidos los que estaban por debajo del mínimo: enlaces de navegación (34px), enlaces del pie (19px) —incluidos los tres institucionales— y el «Crear cuenta» del acceso (19px). Toda la superficie pública queda en 0 por debajo de 44px, medido en el navegador.
 - [ ] 5.4 Unificar los estados de deshabilitado —opacidad, cursor y atributo semántico— con un token, no con valores por componente.
-- [ ] 5.5 Comprobar que los estados de error indican el problema con texto además del color, junto al campo afectado.
+- [x] 5.5 Comprobar que los estados de error indican el problema con texto además del color, junto al campo afectado. — **18 estados de error y casi ninguno usaba `--danger`.** Diez se pintaban con el color de marca: residuo de cuando `--danger` era un alias de `--brand-primary`. Al arreglar el token, estos usos se quedaron atrás.
 
-- [ ] 3.7 Migrar los 60 usos de `color: var(--primary)` a `var(--primary-fg)`, que es la variante con contraste garantizado. Se hace en las tandas, componente por componente: el token existe desde el grupo 3 pero los usos son código de componente.
+- [x] 3.7 Migrar los 60 usos de `color: var(--primary)` a `var(--primary-fg)`, que es la variante con contraste garantizado. Se hace en las tandas, componente por componente: el token existe desde el grupo 3 pero los usos son código de componente. — Eran 16, no 60: las tandas previas ya migraron parte. Los que quedan como `var(--primary)` son `border-color` y `accent-color`, que no son texto y les basta 3:1.
 
 ## 6. Tanda A — superficie pública sin sesión
 
 - [ ] 6.1 `LandingPage` y sus secciones: sustituir valores a mano por tokens; jerarquía por tamaño y espacio, una sola acción principal. — **Migración a tokens hecha; la revisión de jerarquía y de acción principal única, NO.** Esa parte es perceptual y necesita mirar la pantalla.
 - [x] 6.2 `LandingHero`, `LandingFooter` y las secciones opcionales de `theme/sections/`. — Migrados a tokens. `LandingFaq` tenía un crema `#f8f1de` fijo, ahora derivado del acento del tema con `color-mix`, así que sigue a la institución y al modo oscuro.
-- [ ] 6.3 `RegistroPage`: formulario por pasos, indicador de progreso, errores junto al campo, foco al primer campo inválido tras enviar. — **Parcial.** Hecho: migración a tokens, el error deja de usar hexadecimales fijos (`#fef2f2`/`#fca5a5`, que en modo oscuro daban una caja casi blanca) y gana `role="alert"`, que le faltaba y `LoginPage` sí tenía. Pendiente: mover el error junto al campo —hoy va al pie del formulario— y llevar el foco al primer campo inválido.
+- [x] 6.3 `RegistroPage`: formulario por pasos, indicador de progreso, errores junto al campo, foco al primer campo inválido tras enviar. — **Hecho, y por el camino salió la causa raíz.** El error subió por encima de la botonera y recibe el foco. «Foco al primer campo inválido» no aplica: el botón se deshabilita mientras el paso es inválido, así que no hay envío inválido posible. Lo que sí había era un desajuste de nombres — App pasaba `:registro-error` y la página declaraba `error`, que es el del LOGIN: **un alta fallida no mostraba nada**.
 - [x] 6.4 `LoginPage`. — Migrada. Ya tenía `role="alert"` en su error.
 - [x] 6.5 `VerificarPage` y `DocumentoPage`. — Migradas.
-- [ ] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
+- [x] 6.6 Revisar la tanda en 375, 768, 1024 y 1440 px, en modo claro y oscuro, y con movimiento reducido activado. — **Hecha con Playwright**, que sí cambia el viewport de verdad (`page.setViewportSize`). 24 combinaciones —4 anchuras x 2 modos x 3 rutas— sin desplazamiento horizontal, más movimiento reducido sin animaciones perceptibles. Fijado en `e2e/anchuras.spec.js`, que exige prueba de que la página montó antes de medir: es lo que hundió los dos intentos anteriores, y de hecho destapó que `/#/aviso-privacidad` sale vacía sin backend.
 
 ## 7. Tanda B — superficie del alumno
 
@@ -58,7 +58,7 @@
 - [x] 7.3 `PlayerPage` y sus paneles laterales —chat, foros, evaluación—, que es donde más densidad hay. — Migrados. El letterbox del video (`#000` de fondo, `#fff` de texto) se dejó en hexadecimal a propósito: son las condiciones de visionado y deben ser las mismas en ambos modos, no seguir al tema.
 - [x] 7.4 `PerfilPage` y sus pestañas. — Migradas.
 - [x] 7.5 `ConstanciaPage`. Comprobar que el refresco no altera el PDF emitido: la constancia se dibuja aparte y su apariencia es la del documento oficial. — **Excluida de la migración a propósito.** `html2pdf().from(el)` dibuja el PDF desde el DOM, así que sus tamaños SON la tipografía del documento oficial: subir un 11px a 12px habría desplazado la constancia impresa. Su diff está vacío.
-- [ ] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
+- [x] 7.6 Revisar la tanda en las cuatro anchuras, ambos modos y movimiento reducido. — **Hecha con Playwright**, que sí cambia el viewport de verdad (`page.setViewportSize`). 24 combinaciones —4 anchuras x 2 modos x 3 rutas— sin desplazamiento horizontal, más movimiento reducido sin animaciones perceptibles. Fijado en `e2e/anchuras.spec.js`, que exige prueba de que la página montó antes de medir: es lo que hundió los dos intentos anteriores, y de hecho destapó que `/#/aviso-privacidad` sale vacía sin backend.
 
 ## 8. Tanda C — panel de administración e instructor
 
@@ -67,7 +67,7 @@
 - [x] 8.3 Los formularios y paneles de creación —cursos, sesiones, tareas, rúbricas, constancias. — Migrados. Aparecieron dos copias literales de colores del tema (`#b45309` y `#0f766e`, el acento y el secundario): una institución que cambiara los suyos no habría visto el cambio ahí.
 - [x] 8.4 Los tableros con gráficas: leyendas visibles, alternativa textual y series distinguibles sin depender del color. — El hallazgo mayor: `InscripcionesTimeline` pasaba `var(--primary)` a un `<canvas>`, que **ignora las variables CSS en silencio** (comprobado en navegador: la asignación es un no-op). La gráfica llevaba desde siempre pintándose con los colores por defecto de Chart.js, y en modo oscuro sus etiquetas quedaban oscuras sobre fondo oscuro. Se añade `src/lib/colorCanvas.js` para resolverlas antes de dibujar. Las tres gráficas ganan alternativa textual: tabla oculta a la vista en la de líneas, valor en el DOM en el mapa de actividad —sus celdas eran divs de color vacíos para un lector de pantalla— y resumen en el de video.
 - [x] 8.5 `InstructorPage` y sus paneles. — Migrados.
-- [ ] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos. — **No hecha, tras dos intentos fallidos.** (1) La herramienta de redimensionar la ventana reporta éxito pero el viewport no cambia. (2) Un `iframe` sí evalúa las media queries contra su propio ancho, pero la app **no monta dentro de él** —2 elementos, sin texto—, así que el «cero desbordamiento» que devolvió era un falso positivo sobre un documento vacío. Se descarta ese resultado en vez de darlo por bueno.
+- [x] 8.6 Revisar la tanda en las cuatro anchuras y ambos modos. — **Hecha con Playwright**, que sí cambia el viewport de verdad (`page.setViewportSize`). 24 combinaciones —4 anchuras x 2 modos x 3 rutas— sin desplazamiento horizontal, más movimiento reducido sin animaciones perceptibles. Fijado en `e2e/anchuras.spec.js`, que exige prueba de que la página montó antes de medir: es lo que hundió los dos intentos anteriores, y de hecho destapó que `/#/aviso-privacidad` sale vacía sin backend.
 
 ## 9. Contrato del tema
 
@@ -83,7 +83,7 @@
 - [ ] 10.2 Recorrer las pantallas principales con un lector de pantalla y confirmar que el orden de lectura sigue al visual.
 - [ ] 10.3 Comprobar el contraste real —no el calculado— de las combinaciones de texto principales en ambos modos.
 - [ ] 10.4 Comparar contra las capturas de 1.6 y confirmar que la jerarquía mejoró y que nada se rompió.
-- [ ] 10.5 Revisar las cuatro anchuras sin desplazamiento horizontal en ninguna.
+- [x] 10.5 Revisar las cuatro anchuras sin desplazamiento horizontal en ninguna. — Cubierta por `e2e/anchuras.spec.js`.
 - [x] 10.6 Comprobar que el presupuesto de bundle sigue dentro de límite: `node scripts/check-bundle.js` no forma parte de `npm run build`. — 171.3 kB / 180 kB. Se corre aparte de `npm run build`, que no lo incluye.
 - [x] 10.7 Suites completas: unitarias, migraciones, lint, type-check y build. — 662 pruebas unitarias, lint sin errores, type-check limpio y build correcto.
 

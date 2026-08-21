@@ -158,7 +158,7 @@ const fmtBytes = (b) =>
   color: var(--sobre-accent-soft);
 }
 .entrega-error {
-  color: var(--primary-fg);
+  color: var(--danger);
   font-size: var(--text-xs);
 }
 .entrega-actual {

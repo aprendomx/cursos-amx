@@ -513,7 +513,7 @@ fieldset.field {
 }
 .btn-primary {
   background: var(--primary);
-  color: #fff;
+  color: var(--paper);
   border: none;
   border-radius: var(--radius-md);
   padding: 8px 18px;
