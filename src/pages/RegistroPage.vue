@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { DEPENDENCIAS } from '@/data.js'
 import { supabase } from '@/lib/supabase.js'
@@ -15,10 +15,18 @@ const enlaceAvisoTema = (theme.footer?.columns || [])
   .find((l) => l.doc === 'aviso-privacidad' || /aviso de privacidad/i.test(l.label || ''))
 const hrefAviso = resolverEnlace(enlaceAvisoTema || { doc: 'aviso-privacidad' }).href
 
+// Los nombres importan y no eran los correctos. App.vue pasa por router-view
+// `:loading`/`:error` con el estado del LOGIN y `:registro-loading`/
+// `:registro-error` con el del alta. Esta página declaraba `loading` y
+// `error`, así que recibía el estado del login —siempre vacío mientras uno se
+// registra— y el del alta se quedaba fuera como atributo suelto.
+//
+// Consecuencia: un registro fallido no mostraba NADA. Ni carga, ni error. El
+// usuario pulsaba «Crear cuenta» y la página se quedaba quieta.
 const props = defineProps({
   nextPage: { type: Object, default: null },
-  loading: { type: Boolean, default: false },
-  error: { type: String, default: '' },
+  registroLoading: { type: Boolean, default: false },
+  registroError: { type: String, default: '' },
 })
 
 const emit = defineEmits(['complete'])
@@ -83,12 +91,33 @@ const formData = computed(() => ({
   acepta: acepta.value,
 }))
 
+// El error de alta —correo ya registrado, contraseña rechazada por el
+// servidor— aparecía al pie, DEBAJO de la botonera. Quien navega con teclado o
+// con lector de pantalla se quedaba en el botón sin saber que había pasado
+// algo: `role="alert"` lo anuncia, pero no lleva a ninguna parte. Ahora el
+// foco va al mensaje, que es lo accionable.
+const refError = ref(null)
+
+// `flush: 'post'` en lugar de esperar un nextTick a mano: los observadores
+// corren ANTES de que el DOM se actualice, así que la versión con `await
+// nextTick()` dejaba el foco colgando de una carrera —el elemento podía no
+// existir todavía cuando le tocaba recibirlo—. Con 'post' el observador corre
+// después del render, y el nodo está garantizado.
+watch(
+  () => props.registroError,
+  (nuevo) => {
+    if (!nuevo) return
+    refError.value?.focus()
+  },
+  { flush: 'post' }
+)
+
 function prev() {
   if (step.value > 0) step.value--
 }
 
 function next() {
-  if (!canAdvance.value || props.loading) return
+  if (!canAdvance.value || props.registroLoading) return
   if (step.value < 3) {
     step.value++
   } else {
@@ -249,6 +278,17 @@ const summaryRows = computed(() => [
         </div>
 
         <!-- Bottom navigation -->
+        <div
+          v-if="registroError"
+          ref="refError"
+          class="registro-error"
+          role="alert"
+          aria-live="assertive"
+          tabindex="-1"
+        >
+          {{ registroError }}
+        </div>
+
         <footer class="registro-nav">
           <button v-if="step > 0" class="btn btn-ghost btn-sm" @click="prev">
             <IconSet name="arrowLeft" />
@@ -262,34 +302,17 @@ const summaryRows = computed(() => [
 
           <button
             class="btn btn-primary btn-sm"
-            :style="{ opacity: canAdvance && !loading ? 1 : 0.4 }"
-            :disabled="!canAdvance || loading"
+            :style="{ opacity: canAdvance && !registroLoading ? 1 : 0.4 }"
+            :disabled="!canAdvance || registroLoading"
             @click="next"
           >
-            <template v-if="loading"> Creando cuenta... </template>
+            <template v-if="registroLoading"> Creando cuenta... </template>
             <template v-else>
               {{ step < 3 ? 'Siguiente' : 'Crear cuenta' }}
             </template>
-            <IconSet v-if="!loading" name="arrow" />
+            <IconSet v-if="!registroLoading" name="arrow" />
           </button>
         </footer>
-
-        <div
-          v-if="error"
-          role="alert"
-          aria-live="assertive"
-          :style="{
-            marginTop: '16px',
-            padding: '14px 18px',
-            background: 'var(--danger-soft)',
-            border: '1px solid var(--danger-line)',
-            color: 'var(--danger)',
-            fontSize: 'var(--text-sm)',
-            lineHeight: '1.5',
-          }"
-        >
-          {{ error }}
-        </div>
       </div>
     </main>
   </div>
@@ -504,6 +527,18 @@ const summaryRows = computed(() => [
   height: 24px;
   accent-color: var(--primary-fg);
   flex-shrink: 0;
+}
+
+/* Error de alta. Va ENCIMA de la botonera: al pie quedaba debajo de los
+   botones, lejos de lo que hay que corregir. */
+.registro-error {
+  margin-bottom: calc(var(--unit) * 2);
+  padding: 14px 18px;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-line);
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: 1.5;
 }
 
 /* Bottom navigation */
