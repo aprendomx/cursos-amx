@@ -118,6 +118,31 @@ interfaz MUST suprimir o reducir sus animaciones y desplazamientos suaves.
 - **THEN** la interfaz no ejecuta transiciones ni desplazamientos animados
 - **AND** todo el contenido sigue siendo alcanzable
 
+### Requirement: Los estados semánticos se distinguen de la acción principal
+
+Los colores que comunican estado —error, éxito, advertencia— MUST ser
+distinguibles entre sí y del color de la acción principal.
+
+El sistema MUST NOT definir un estado semántico como un alias del color de
+marca: un mensaje de error que se pinta igual que un botón primario no comunica
+error.
+
+Cada uno de esos colores MUST cumplir el contraste mínimo sobre su fondo en
+ambos modos, y SHALL poder redefinirse desde la configuración del tema para las
+instituciones cuya identidad lo requiera.
+
+#### Scenario: Mensaje de error junto a una acción principal
+
+- **WHEN** una pantalla muestra un mensaje de error y un botón de acción
+  principal
+- **THEN** se distinguen por color, además de por su forma y su texto
+
+#### Scenario: Institución que redefine el color de error
+
+- **WHEN** la configuración del tema declara su propio color de error
+- **THEN** se usa ese color
+- **AND** el sistema sigue garantizando su contraste mínimo en ambos modos
+
 ### Requirement: El color no es el único portador de significado
 
 Cuando la interfaz comunique un estado —error, éxito, advertencia, elemento

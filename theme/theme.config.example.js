@@ -50,6 +50,15 @@ export default {
     secondaryDark: '#134e4a',
     secondarySoft: '#ccfbf1',
     accent: '#b45309',
+
+    // Color de ERROR. Opcional: si no se declara, se usa #b3261e.
+    //
+    // No se deriva de la marca a propósito. Antes `--danger` era un alias de
+    // `primary`, así que los mensajes de error se pintaban igual que los
+    // botones principales. Si la identidad de tu institución hace que ese rojo
+    // desentone —un guinda institucional, por ejemplo— declara aquí el tuyo,
+    // cuidando que se distinga de `primary` y cumpla 4.5:1 sobre papel blanco.
+    // danger: '#b3261e',
     accentSoft: '#fde68a',
     ink: '#161a1d',
 

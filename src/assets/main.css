@@ -15,6 +15,9 @@
   --brand-accent: #b45309;
   --brand-accent-soft: #fde68a;
   --brand-ink: #161a1d;
+  /* Error. Valor propio y no derivado de la marca: ver COLOR_VARS en
+     theme.js. 6.54:1 sobre papel blanco. El tema puede sustituirlo. */
+  --brand-danger: #b3261e;
 
   --gris: #98989a;
   --gris-70: #4d4d4d;
@@ -32,15 +35,22 @@
   --paper-3: #f3f3f3;
   --line: #e6e6e6;
   --line-soft: #efefef;
+  /* Escala de tinta. Los cuatro niveles se usan como COLOR DE TEXTO —68 usos
+     de --ink-3 y 48 de --ink-4—, así que los cuatro tienen que cumplir 4.5:1
+     sobre su papel, no solo los dos primeros.
+     Antes: --ink-3 daba 3.95:1 y --ink-4 1.61:1 sobre papel blanco. El nivel
+     más tenue era prácticamente ilegible.
+     Ahora: 17.51 / 8.45 / 6.39 / 4.54. La jerarquía se conserva, comprimida en
+     el extremo tenue porque ahí es donde el umbral no deja más margen. */
   --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
-  --ink-3: var(--gris-50);
-  --ink-4: var(--gris-20);
+  --ink-3: #5f5f5f;
+  --ink-4: #767676;
 
   /* Semantic (derivados de la paleta institucional) */
   --success: var(--brand-secondary);
   --warn: var(--brand-accent);
-  --danger: var(--brand-primary);
+  --danger: var(--brand-danger);
 
   /* Density */
   --space: 1;
@@ -99,11 +109,16 @@
   --elev-2: 0 4px 14px rgb(0 0 0 / 10%); /* panel elevado, menú */
   --elev-3: 0 12px 32px rgb(0 0 0 / 16%); /* diálogo sobre velo */
 
+  /* Color de marca en PRIMER PLANO: texto, iconos, bordes y anillo de foco.
+     Distinto del color de fondo, que conserva el valor tal cual lo declara la
+     institución. theme.js lo deriva para que cumpla 4.5:1 sobre este papel. */
+  --primary-fg: var(--brand-primary-on-light, var(--brand-primary));
+
   /* Anillo de foco. Por defecto el color de marca, que theme.js ya ajusta por
      contraste para el modo oscuro global. Las superficies que traen su PROPIO
      fondo oscuro —el hero, el panel del reproductor— lo invierten localmente:
      ahí `--primary` sería azul de marca sobre azul de marca oscuro. */
-  --focus-ring: var(--primary);
+  --focus-ring: var(--primary-fg);
 
   /* Shadows */
   --shadow-pop: var(--elev-2);
@@ -134,8 +149,10 @@
   --line-soft: #1f2128;
   --ink: #f0f0f0;
   --ink-2: #b0b0b0;
-  --ink-3: #808080;
-  --ink-4: #505050;
+  /* Mismo criterio que en claro: --ink-4 daba 2.34:1 sobre el papel oscuro.
+     Ahora 16.58 / 8.71 / 6.23 / 5.47. */
+  --ink-3: #949494;
+  --ink-4: #8a8a8a;
   --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.5);
 
   /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
@@ -147,7 +164,10 @@
   --primary-700: var(--brand-primary-dark-on-dark, #b9ccff);
   --success: var(--brand-secondary-on-dark, #5eccc0);
   --warn: var(--brand-accent-on-dark, #f0a95c);
-  --danger: var(--brand-primary-on-dark, #93b4ff);
+  --danger: var(--brand-danger-on-dark, #f2b8b5);
+  /* En oscuro --primary ya es la variante ajustada, así que el primer plano
+     coincide con él. */
+  --primary-fg: var(--primary);
 }
 
 * {

@@ -61,7 +61,9 @@ describe('indicador de foco', () => {
     // —el hero, el panel del reproductor— necesitan invertirlo localmente, y
     // con el color incrustado en la regla base no podrían.
     expect(regla).toContain('var(--focus-ring)')
-    expect(css).toMatch(/--focus-ring:\s*var\(--primary\)/)
+    // Y el token deriva del color de marca en PRIMER PLANO, que theme.js
+    // ajusta por contraste en ambos modos — no del color de fondo tal cual.
+    expect(css).toMatch(/--focus-ring:\s*var\(--primary-fg\)/)
   })
 
   it('ningún componente suprime el foco con !important', () => {

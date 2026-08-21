@@ -69,7 +69,19 @@ const COLOR_VARS = {
   accent: '--brand-accent',
   accentSoft: '--brand-accent-soft',
   ink: '--brand-ink',
+  // El color de error NO se deriva de la marca. Estaba definido como
+  // `--danger: var(--brand-primary)`, así que un mensaje de error se pintaba
+  // igual que un botón primario — en 32 sitios de uso. Un estado que se ve
+  // como la acción principal no comunica el estado.
+  //
+  // Se declara aparte, con un valor por defecto propio, y el tema puede
+  // redefinirlo: hay identidades institucionales donde el guinda ES la marca y
+  // el rojo de error tiene que elegirse con cuidado.
+  danger: '--brand-danger',
 }
+
+// Papel del modo claro, para derivar las variantes de primer plano.
+const PAPEL_CLARO = '#ffffff'
 
 // Papel del modo oscuro. Debe coincidir con --paper de [data-theme='dark']
 // en src/assets/main.css.
@@ -77,7 +89,7 @@ const PAPEL_OSCURO = '#0f1115'
 
 // Colores que se usan como PRIMER PLANO (texto, iconos, anillo de foco) y por
 // tanto necesitan contraste suficiente contra el fondo.
-const COLORES_PRIMER_PLANO = ['primary', 'primaryDark', 'secondary', 'accent']
+const COLORES_PRIMER_PLANO = ['primary', 'primaryDark', 'secondary', 'accent', 'danger']
 
 export function applyTheme(root = document.documentElement) {
   for (const [key, cssVar] of Object.entries(COLOR_VARS)) {
@@ -100,6 +112,24 @@ export function applyTheme(root = document.documentElement) {
     const valor = explicito || ajustarParaContraste(base, PAPEL_OSCURO, 4.5)
     root.style.setProperty(`${COLOR_VARS[key]}-on-dark`, valor)
   }
+  // Variantes para modo CLARO.
+  //
+  // El bloque de arriba solo cubría el modo oscuro, dando por bueno el claro
+  // porque los colores institucionales suelen elegirse sobre papel blanco.
+  // "Suelen" no es "siempre", y nada lo comprobaba.
+  //
+  // Se deriva una variante de PRIMER PLANO y no se toca el color de marca: se
+  // usa como texto en 60 sitios y como fondo en 16, y los umbrales no son el
+  // mismo. Oscurecer el color base para arreglar el texto habría oscurecido
+  // también todos los botones, sin motivo de accesibilidad.
+  for (const key of COLORES_PRIMER_PLANO) {
+    const base = theme.colors[key]
+    if (!base) continue
+    const explicito = theme.colors[`${key}OnLight`]
+    const valor = explicito || ajustarParaContraste(base, PAPEL_CLARO, 4.5)
+    root.style.setProperty(`${COLOR_VARS[key]}-on-light`, valor)
+  }
+
   if (theme.fonts?.display) root.style.setProperty('--display', theme.fonts.display)
   if (theme.fonts?.ui) root.style.setProperty('--ui', theme.fonts.ui)
   if (theme.fonts?.mono) root.style.setProperty('--mono', theme.fonts.mono)

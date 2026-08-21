@@ -5,7 +5,7 @@
 - [x] 1.3 Declarar la escala de elevación, con un número corto de niveles y un uso asignado a cada uno (tarjeta, panel, diálogo).
 - [x] 1.4 Revisar la escala de espaciado existente y completar los pasos que falten, sin renombrar los que ya se usan.
 - [x] 1.5 Aplicar las escalas a los elementos base —encabezados, párrafo, botones, campos, tarjetas— de modo que la mayoría de componentes hereden sin tocarlos.
-- [ ] 1.6 Capturar cómo se ve la portada, el curso y el reproductor antes de este grupo, para poder comparar después. — **Pendiente: requiere navegador con la app levantada.**
+- [ ] 1.6 Capturar cómo se ve la portada, el curso y el reproductor antes de este grupo, para poder comparar después. — **No hecha, y ya no se puede: la base ya cambió.** Se verificó en navegador el resultado (anillo de foco blanco sobre el hero oscuro, tokens resueltos en ambos modos), pero sin comparación contra el estado previo. Para las tandas siguientes conviene capturar antes de empezar cada una.
 
 ## 2. Foco visible, protegido desde la base
 
@@ -17,10 +17,12 @@
 
 ## 3. Contraste en ambos modos
 
-- [ ] 3.1 Extender `theme.js` para derivar también la variante sobre papel claro con `ajustarParaContraste`, conservando la precedencia de una variante declarada explícitamente.
-- [ ] 3.2 Añadir pruebas a `contraste.test.js` para el papel claro, incluido el caso de un color de marca demasiado claro.
-- [ ] 3.3 Comprobar el contraste del texto secundario (`--ink-2`, `--ink-3`, `--ink-4`) sobre ambos papeles y corregir los niveles que no alcancen el umbral.
-- [ ] 3.4 Comprobar el contraste de los estados de error y de éxito en ambos modos.
+- [x] 3.1 Extender `theme.js` para derivar también la variante sobre papel claro con `ajustarParaContraste`, conservando la precedencia de una variante declarada explícitamente.
+- [x] 3.2 Añadir pruebas a `contraste.test.js` para el papel claro, incluido el caso de un color de marca demasiado claro.
+- [x] 3.3 Comprobar el contraste del texto secundario (`--ink-2`, `--ink-3`, `--ink-4`) sobre ambos papeles y corregir los niveles que no alcancen el umbral.
+- [x] 3.4 Comprobar el contraste de los estados de error y de éxito en ambos modos.
+- [x] 3.5 Separar `--danger` del color de marca. Hoy es `var(--brand-primary)`: los errores se pintan igual que la acción principal, en 32 sitios de uso. Añadir un valor propio por defecto, redefinible desde el tema, con su variante de contraste para modo oscuro.
+- [x] 3.6 Revisar `--success` y `--warn` con el mismo criterio: que no sean alias del primario ni indistinguibles entre sí. — Verificado: `success` es el secundario (verde azulado) y `warn` el acento (ámbar); ninguno es alias del primario y los tres estados difieren. Fijado con prueba.
 
 ## 4. Estructura de página
 
@@ -37,6 +39,8 @@
 - [ ] 5.3 Revisar la separación entre controles contiguos, sobre todo en las tablas del panel y en las tarjetas del catálogo.
 - [ ] 5.4 Unificar los estados de deshabilitado —opacidad, cursor y atributo semántico— con un token, no con valores por componente.
 - [ ] 5.5 Comprobar que los estados de error indican el problema con texto además del color, junto al campo afectado.
+
+- [ ] 3.7 Migrar los 60 usos de `color: var(--primary)` a `var(--primary-fg)`, que es la variante con contraste garantizado. Se hace en las tandas, componente por componente: el token existe desde el grupo 3 pero los usos son código de componente.
 
 ## 6. Tanda A — superficie pública sin sesión
 
