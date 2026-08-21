@@ -4,9 +4,15 @@
 > aparece entre `{{ }}`, revísala con tu área jurídica y publícala. No es
 > asesoría jurídica.
 >
-> **No hace falta que la copies a mano:** toda instalación llega con este texto
-> ya cargado como borrador en **Administración → Documentos**. Edítalo ahí y
-> pulsa publicar.
+> **No hace falta que la copies a mano.** Toda instalación llega con un aviso
+> genérico ya cargado como borrador en **Administración → Documentos**, redactado
+> sobre lo que la plataforma hace de verdad y con solo cuatro datos que
+> sustituir: nombre de la institución, domicilio, correo para derechos ARCO y
+> área responsable. Revisa además el plazo de conservación y el apartado de
+> transferencias.
+>
+> Esta plantilla se conserva como referencia de la estructura mínima que exige
+> la ley; el texto que vas a editar está en el panel.
 >
 > Mientras no esté publicado, el registro de nuevas cuentas está bloqueado, para
 > no recabar consentimiento contra un documento que no existe.

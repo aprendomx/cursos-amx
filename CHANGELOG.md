@@ -6,6 +6,30 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Agregado
 
+- **Aviso de privacidad genérico, listo para editar** — el seed de la migración
+  073 traía la plantilla de `docs/AVISO_PRIVACIDAD.md` con quince marcadores
+  `{{ }}` intercalados, algunos con instrucciones dentro del propio texto:
+  publicarla exigía redactar, no editar. Se sustituye por un aviso completo y
+  coherente, escrito sobre lo que la plataforma hace de verdad —qué datos pide,
+  qué genera, qué expone la verificación de constancias, qué guarda en el
+  navegador— con solo **cuatro** datos entre corchetes y un plazo de
+  conservación con valor concreto en vez de un hueco. Migración
+  `074_aviso_generico.sql`.
+
+  Sigue sin publicarse: un aviso lo revisa el área jurídica de cada
+  institución. La migración **solo toca el borrador intacto**; si alguien ya
+  empezó a redactar el suyo, o ya lo publicó, no se ve afectado.
+
+- **Términos de uso y contacto genéricos** — mismo tratamiento para los otros
+  dos documentos, en `075_terminos_contacto_genericos.sql`. Los términos
+  cubren la cuenta y su responsabilidad, el uso aceptable, la propiedad de los
+  materiales, la revocación y el **alcance real de las constancias** —que no
+  van firmadas con firma electrónica avanzada—. La página de contacto separa
+  los tres motivos por los que alguien escribe (soporte, datos personales y
+  contenido de los cursos) y aclara que verificar una constancia no requiere
+  escribir a nadie: basta el folio, sin sesión. Las mismas dos salvaguardas:
+  solo se toca el borrador intacto, nunca lo publicado.
+
 - **Aviso de privacidad, términos de uso y contacto, con CRUD** — los tres
   documentos se redactan y publican desde Administración → Documentos y se
   sirven en `/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del
