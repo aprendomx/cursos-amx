@@ -854,4 +854,162 @@ begin
 end $$;
 
 \echo ''
+\echo '── 12. Documentos institucionales y consentimiento versionado ──'
+
+-- El origen del cambio: los tres enlaces del pie apuntaban a '#' y el alta
+-- recababa perfiles.aviso_privacidad contra un documento inexistente.
+
+-- Las aserciones de «instalación nueva» solo valen la primera vez: esta misma
+-- sección publica versiones más abajo. Se comprueban contra el estado sembrado
+-- y se omiten si el archivo ya se corrió antes sobre esta base, para que
+-- re-ejecutarlo en local no dé un fallo engañoso.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        n bigint;
+        recien_migrada boolean := not exists (
+          select 1 from public.documento_versiones where publicado_en is not null);
+begin
+  -- La siembra deja los tres documentos EN BORRADOR. Publicar una plantilla
+  -- con marcadores {{ }} daría apariencia de cumplimiento.
+  if (select count(distinct slug) from public.documento_versiones) <> 3 then
+    perform pg_temp.fail('la migración no sembró los tres documentos');
+  else
+    perform pg_temp.ok('los tres documentos institucionales están sembrados');
+  end if;
+
+  if recien_migrada then
+    if exists (select 1 from public.v_documento_vigente) then
+      perform pg_temp.fail('una instalación nueva no debe traer nada publicado');
+    else
+      perform pg_temp.ok('ninguna versión vigente en una instalación nueva');
+    end if;
+  end if;
+
+  -- Un borrador NO es legible por nadie salvo administradores. Se cuentan los
+  -- BORRADORES visibles, no todas las filas: lo publicado sí debe verse, y
+  -- contar el total daba un verde accidental cuando aún no había nada
+  -- publicado.
+  n := pg_temp.visibles(a,
+        'select 1 from public.documento_versiones where publicado_en is null');
+  if n > 0 then
+    perform pg_temp.fail(format('un no-administrador ve %s borradores', n));
+  else
+    perform pg_temp.ok('los borradores no son legibles por quien no administra');
+  end if;
+
+  perform pg_temp.debe_fallar(
+    'un no-administrador NO puede crear una versión',
+    a, $q$insert into public.documento_versiones (slug, version, contenido)
+          values ('contacto', 90, '{"type":"doc","content":[]}'::jsonb)$q$);
+end $$;
+
+-- Publicado: legible por todos, e inmutable.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        n bigint;
+begin
+  update public.documento_versiones
+     set publicado_en = now()
+   where slug = 'aviso-privacidad' and version = 1
+     and publicado_en is null;
+
+  n := pg_temp.visibles(a, 'select 1 from public.v_documento_vigente');
+  if n < 1 then
+    perform pg_temp.fail('la versión publicada no es legible');
+  else
+    perform pg_temp.ok('la versión publicada sí es legible');
+  end if;
+
+  begin
+    update public.documento_versiones set contenido = '{"type":"doc"}'::jsonb
+     where slug = 'aviso-privacidad' and version = 1;
+    perform pg_temp.fail('se pudo MODIFICAR una versión publicada');
+  exception when insufficient_privilege then
+    perform pg_temp.ok('una versión publicada no se puede modificar');
+  end;
+
+  begin
+    delete from public.documento_versiones
+     where slug = 'aviso-privacidad' and version = 1;
+    perform pg_temp.fail('se pudo BORRAR una versión publicada');
+  exception when insufficient_privilege then
+    perform pg_temp.ok('una versión publicada no se puede borrar');
+  end;
+end $$;
+
+-- El consentimiento registra la versión, y no lo escribe el cliente.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        v_reg integer;
+begin
+  -- Se simula el estado de quien aceptó: la función es la única vía.
+  execute format('set local role authenticated');
+  execute format('set local request.jwt.claim.sub = %L', a);
+  perform public.aceptar_aviso_vigente();
+  execute 'reset role';
+
+  -- Se compara contra la vigente REAL, no contra un número fijo: lo que se
+  -- afirma es que la función escribe la vigente, sea cual sea.
+  select aviso_version_aceptada into v_reg from public.perfiles where id = a;
+  if v_reg is distinct from (select version from public.v_documento_vigente
+                              where slug = 'aviso-privacidad') then
+    perform pg_temp.fail(format('la versión aceptada quedó en %s y no coincide con la vigente', v_reg));
+  else
+    perform pg_temp.ok('aceptar registra la versión vigente');
+  end if;
+
+  -- Fabricar una aceptación es lo que hay que impedir: si el cliente pudiera
+  -- fijar el número, el registro dejaría de valer como prueba.
+  perform pg_temp.debe_fallar(
+    'un usuario NO puede fijar a mano la versión aceptada',
+    a, format('update public.perfiles set aviso_version_aceptada = 99 where id = %L', a));
+end $$;
+
+-- La regla de re-aceptación mira el INTERVALO, no solo la versión vigente.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        v_siguiente integer;
+begin
+  if public.aviso_requiere_reaceptacion(a) then
+    perform pg_temp.fail('se exige re-aceptación sin haber publicado nada nuevo');
+  else
+    perform pg_temp.ok('sin versiones nuevas no se pide volver a aceptar');
+  end if;
+
+  -- Dos versiones nuevas: la PRIMERA exige volver a aceptar y la segunda no.
+  -- Mirar solo la última perdería la obligación de la intermedia, que es
+  -- exactamente el error que esta prueba fija.
+  --
+  -- Los números se calculan en vez de fijarse, para que el archivo se pueda
+  -- volver a correr sobre la misma base sin dar un fallo engañoso.
+  select coalesce(max(version), 0) into v_siguiente
+    from public.documento_versiones where slug = 'aviso-privacidad';
+
+  insert into public.documento_versiones (slug, version, contenido, publicado_en, requiere_reaceptacion)
+  values ('aviso-privacidad', v_siguiente + 1, '{"type":"doc","content":[]}'::jsonb, now(), true),
+         ('aviso-privacidad', v_siguiente + 2, '{"type":"doc","content":[]}'::jsonb, now(), false);
+
+  if public.aviso_requiere_reaceptacion(a) then
+    perform pg_temp.ok('una versión intermedia que la exigía sigue obligando');
+  else
+    perform pg_temp.fail('se perdió la obligación de la versión intermedia');
+  end if;
+end $$;
+
+-- Retirar el consentimiento arrastra la versión: la baja ARCO (064) pone
+-- aviso_privacidad = false sin conocer esta columna.
+do $$
+declare a uuid := (select v from t_ids where k='alumno');
+        v_reg integer;
+begin
+  update public.perfiles set aviso_privacidad = false where id = a;
+  select aviso_version_aceptada into v_reg from public.perfiles where id = a;
+  if v_reg is not null then
+    perform pg_temp.fail('el perfil dice «no aceptó» y a la vez conserva una versión');
+  else
+    perform pg_temp.ok('retirar el consentimiento limpia la versión aceptada');
+  end if;
+end $$;
+
+\echo ''
 \echo '✅ Todas las pruebas de RLS pasaron'

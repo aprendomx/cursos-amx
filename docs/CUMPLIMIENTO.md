@@ -20,7 +20,7 @@ institución.
 | Teléfono móvil            | `perfiles.telefono_movil`                                  | Alta                  |     No      |
 | Dependencia / adscripción | `perfiles.dependencia_id`                                  | Alta                  |     No      |
 | Cargo                     | `perfiles.cargo`                                           | Alta                  |     No      |
-| Aceptación del aviso      | `perfiles.aviso_privacidad`                                | Alta                  |     Sí      |
+| Aceptación del aviso      | `perfiles.aviso_privacidad` + `aviso_version_aceptada`     | Alta                  |     Sí      |
 | Avance por lección        | `progreso`                                                 | Uso                   |      —      |
 | Tiempo activo por curso   | `tiempo_curso`                                             | Uso                   |      —      |
 | Intentos y calificaciones | `intentos_evaluacion`                                      | Uso                   |      —      |
@@ -38,17 +38,17 @@ expreso y por escrito.
 
 ## 2. Qué resuelve el software
 
-| Obligación                       | Cómo                                                          | Dónde                         |
-| -------------------------------- | ------------------------------------------------------------- | ----------------------------- |
-| **Acceso** y portabilidad        | RPC `exportar_mis_datos()` devuelve todo en JSON              | Perfil → «Mis datos»          |
-| **Rectificación**                | El titular edita su perfil; los campos de rol están blindados | Perfil                        |
-| **Cancelación**                  | RPC `eliminar_mis_datos('ELIMINAR MIS DATOS')`                | Perfil → «Eliminar mis datos» |
-| **Oposición**                    | Los módulos que generan telemetría se apagan por institución  | Administración → Módulos      |
-| Registro del consentimiento      | `perfiles.aviso_privacidad` en el alta                        | Migración 022                 |
-| Bitácora de bajas                | Tabla `bajas_titular`                                         | Migración 064                 |
-| Confidencialidad entre titulares | RLS: un alumno no alcanza el correo ni el teléfono de otro    | Migración 058                 |
-| Herramienta de retención         | RPC `depurar_telemetria(dias)`                                | Migración 064                 |
-| Datos en tu infraestructura      | Self-hosted completo; nada sale del servidor                  | `docker/`                     |
+| Obligación                       | Cómo                                                              | Dónde                         |
+| -------------------------------- | ----------------------------------------------------------------- | ----------------------------- |
+| **Acceso** y portabilidad        | RPC `exportar_mis_datos()` devuelve todo en JSON                  | Perfil → «Mis datos»          |
+| **Rectificación**                | El titular edita su perfil; los campos de rol están blindados     | Perfil                        |
+| **Cancelación**                  | RPC `eliminar_mis_datos('ELIMINAR MIS DATOS')`                    | Perfil → «Eliminar mis datos» |
+| **Oposición**                    | Los módulos que generan telemetría se apagan por institución      | Administración → Módulos      |
+| Registro del consentimiento      | `perfiles.aviso_privacidad` y `aviso_version_aceptada` en el alta | Migraciones 022 y 073         |
+| Bitácora de bajas                | Tabla `bajas_titular`                                             | Migración 064                 |
+| Confidencialidad entre titulares | RLS: un alumno no alcanza el correo ni el teléfono de otro        | Migración 058                 |
+| Herramienta de retención         | RPC `depurar_telemetria(dias)`                                    | Migración 064                 |
+| Datos en tu infraestructura      | Self-hosted completo; nada sale del servidor                      | `docker/`                     |
 
 ### La tensión entre cancelación y constancias emitidas
 
@@ -74,11 +74,20 @@ Decídelo **antes** de emitir la primera constancia y déjalo escrito en tu avis
 
 Nada de esto lo puede hacer el software por ti.
 
-1. **Redactar y publicar tu aviso de privacidad.** Hay una plantilla en
-   [AVISO_PRIVACIDAD.md](AVISO_PRIVACIDAD.md). Enlázala desde
-   `theme.config.local.js` → `footer.columns`, donde el ejemplo trae `href: '#'`.
-   **Mientras ese enlace apunte a `#`, estás recabando un consentimiento a un
-   documento que no existe.**
+1. **Redactar y publicar tu aviso de privacidad**, desde **Administración →
+   Documentos**. Toda instalación llega con la plantilla de
+   [AVISO_PRIVACIDAD.md](AVISO_PRIVACIDAD.md) ya cargada **como borrador**:
+   sustituye los marcadores `{{ }}`, revísala con tu área jurídica y publícala.
+
+   **Hasta que la publiques, el registro de nuevas cuentas está bloqueado.** Es
+   deliberado: antes el enlace del formulario apuntaba a `#` y se recababa
+   `perfiles.aviso_privacidad = true` contra un documento inexistente. Es
+   preferible que nadie pueda registrarse a seguir acumulando consentimientos
+   vacíos.
+
+   Si ya publicas tus documentos fuera de la plataforma, pon la URL en
+   `theme.config.local.js` → `footer.columns` y esa manda (ver THEMING.md).
+
 2. **Designar al responsable / departamento de datos personales** y publicar un
    canal real para ejercer derechos ARCO.
 3. **Fijar el plazo de conservación** y agendarlo:

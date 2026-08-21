@@ -1,20 +1,22 @@
 # Aviso de privacidad — PLANTILLA
 
 > ⚠️ **Esta es una plantilla, no un documento válido.** Sustituye todo lo que
-> aparece entre `{{ }}`, revísala con tu área jurídica y publícala en una URL
-> estable antes de abrir el registro. No es asesoría jurídica.
+> aparece entre `{{ }}`, revísala con tu área jurídica y publícala. No es
+> asesoría jurídica.
 >
-> Una vez publicada, enlázala desde `theme/theme.config.local.js`:
+> **No hace falta que la copies a mano:** toda instalación llega con este texto
+> ya cargado como borrador en **Administración → Documentos**. Edítalo ahí y
+> pulsa publicar.
 >
-> ```js
-> footer: {
->   columns: [
->     { title: 'Institucional', links: [
->       { label: 'Aviso de privacidad', href: 'https://{{DOMINIO}}/aviso-privacidad' },
->     ]},
->   ],
-> }
-> ```
+> Mientras no esté publicado, el registro de nuevas cuentas está bloqueado, para
+> no recabar consentimiento contra un documento que no existe.
+>
+> Publicar crea una versión con su fecha, y el consentimiento de cada persona
+> queda registrado contra la versión que aceptó. Las versiones publicadas no se
+> modifican ni se borran: los cambios se hacen publicando una versión nueva.
+>
+> Si prefieres publicarlo **fuera** de la plataforma, pon su URL en
+> `theme.config.local.js` → `footer.columns` y esa manda (ver THEMING.md).
 
 ---
 

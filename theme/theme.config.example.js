@@ -91,13 +91,17 @@ export default {
       {
         title: 'Institucional',
         links: [
-          // OBLIGATORIO antes de abrir el registro: publica tu aviso y pon
-          // aquí su URL. Con href '#' estás recabando el consentimiento de
-          // `perfiles.aviso_privacidad` a un documento que no existe.
-          // Plantilla: docs/AVISO_PRIVACIDAD.md · Contexto: docs/CUMPLIMIENTO.md
-          { label: 'Aviso de privacidad', href: '#' },
-          { label: 'Términos de uso', href: '#' },
-          { label: 'Contacto', href: '#' },
+          // Con `href` vacío, el enlace lleva a la página interna del
+          // documento, que se redacta y publica desde Administración →
+          // Documentos. Si tu institución ya los publica FUERA de la
+          // plataforma, pon aquí la URL y esa manda.
+          //
+          // Antes estos tres traían href '#': el formulario de alta recababa
+          // el consentimiento de `perfiles.aviso_privacidad` señalando a un
+          // documento que no existía. Ver docs/CUMPLIMIENTO.md.
+          { label: 'Aviso de privacidad', doc: 'aviso-privacidad', href: '' },
+          { label: 'Términos de uso', doc: 'terminos-uso', href: '' },
+          { label: 'Contacto', doc: 'contacto', href: '' },
         ],
       },
       {

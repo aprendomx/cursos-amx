@@ -404,6 +404,27 @@ comprobaciones van contra `/functions/v1/…`. Para anularla:
 PUBLIC_URL=https://api.tu-dominio.org scripts/deploy.sh
 ```
 
+### Documentos institucionales
+
+El aviso de privacidad, los términos de uso y la página de contacto se redactan
+y publican desde **Administración → Documentos**, y se sirven en
+`/aviso-privacidad`, `/terminos-uso` y `/contacto`. Los enlaces del pie de la
+portada llevan ahí solos.
+
+- **Publicar crea una versión** con su fecha, y **conserva las anteriores**: una
+  versión publicada no se puede modificar ni borrar. Los cambios se hacen
+  publicando una versión nueva.
+- **El consentimiento del aviso registra qué versión se aceptó.** Al publicar
+  una versión puedes marcar que exige volver a aceptarla; solo entonces se le
+  pide a quien ya estaba registrado, y no se le bloquea el acceso mientras
+  tanto.
+- **Hasta que publiques el aviso, el registro de nuevas cuentas está
+  bloqueado.** Toda instalación llega con la plantilla cargada como borrador:
+  sustituye los marcadores, revísala con tu área jurídica y publícala.
+
+¿Ya los publicas fuera de la plataforma? Pon la URL en `theme.config.local.js`
+→ `footer.columns` y esa manda (ver `THEMING.md`).
+
 ### El primer administrador
 
 Una instalación nueva no tiene a nadie que pueda entrar al panel: el rol vive en

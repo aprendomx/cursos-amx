@@ -16,6 +16,7 @@ const PlayerPage = () => import('@/pages/PlayerPage.vue')
 const PerfilPage = () => import('@/pages/PerfilPage.vue')
 const ConstanciaPage = () => import('@/pages/ConstanciaPage.vue')
 const VerificarPage = () => import('@/pages/VerificarPage.vue')
+const DocumentoPage = () => import('@/pages/DocumentoPage.vue')
 
 const routes = [
   { path: '/', name: 'home', component: LandingPage },
@@ -59,6 +60,26 @@ const routes = [
     name: 'verificar',
     component: VerificarPage,
     props: true,
+  },
+  // Documentos institucionales. Públicos y sin sesión a propósito: quien
+  // todavía no se registra necesita leer el aviso antes de aceptarlo.
+  {
+    path: '/aviso-privacidad',
+    name: 'aviso-privacidad',
+    component: DocumentoPage,
+    props: { slug: 'aviso-privacidad' },
+  },
+  {
+    path: '/terminos-uso',
+    name: 'terminos-uso',
+    component: DocumentoPage,
+    props: { slug: 'terminos-uso' },
+  },
+  {
+    path: '/contacto',
+    name: 'contacto',
+    component: DocumentoPage,
+    props: { slug: 'contacto' },
   },
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]
