@@ -140,6 +140,47 @@ describe('escala de tinta', () => {
   })
 })
 
+describe('escala de tinta sobre el lienzo', () => {
+  // El rediseño separó el suelo de la página (--lienzo) de la superficie
+  // (--paper). El texto que pisa el lienzo directamente —títulos de sección,
+  // metadatos fuera de tarjeta— tiene que cumplir contra ÉL, que es más
+  // oscuro que el blanco. --ink-4 a #767676 daba 4.20:1 ahí: por eso bajó.
+  const css = readFileSync(resolve(__dirname, '../../assets/main.css'), 'utf8')
+  // Solo la sección CLARA: --ink-2 es un alias ahí (var(--gris-70)) y una
+  // búsqueda global saltaba hasta el hex del bloque oscuro.
+  // Partir por la REGLA y no por cualquier mención: un comentario anterior
+  // también dice [data-theme='dark'] y cortaba antes de los tokens.
+  // Sin construir expresiones regulares desde cadenas: se busca la LÍNEA que
+  // declara el token y se extrae el hex. Escapar a mano solo el guion —lo que
+  // había antes— es la mitad de un escape, y esa mitad es la que señalaba
+  // CodeQL.
+  function hexDelToken(seccion, nombre) {
+    const linea = seccion.split('\n').find((l) => l.trim().startsWith(nombre + ':'))
+    const m = linea && linea.match(/#[0-9a-f]{6}/i)
+    return m && m[0]
+  }
+
+  const claro = css.split("\n[data-theme='dark'] {")[0]
+  const lienzo = claro.match(/--lienzo:\s*(#[0-9a-f]{6})/i)[1]
+  const tintas = ['--gris-70', '--ink-3', '--ink-4'].map((t) => hexDelToken(claro, t))
+
+  it('todos los niveles con valor propio cumplen AA sobre el lienzo claro', () => {
+    for (const tinta of tintas.filter(Boolean)) {
+      expect(cumpleAA(tinta, lienzo), `${tinta} sobre ${lienzo}`).toBe(true)
+    }
+  })
+
+  it('el lienzo oscuro también sostiene su escala', () => {
+    const oscuro = css.split("\n[data-theme='dark'] {")[1]
+    const lienzoOscuro = oscuro.match(/--lienzo:\s*(#[0-9a-f]{6})/i)[1]
+    for (const t of ['--ink-3', '--ink-4']) {
+      const v = hexDelToken(oscuro, t)
+      expect(v, `${t} sin valor propio en el bloque oscuro`).toBeTruthy()
+      expect(cumpleAA(v, lienzoOscuro), `${t} sobre ${lienzoOscuro}`).toBe(true)
+    }
+  })
+})
+
 describe('tintaLegible', () => {
   it('elige blanco sobre una marca oscura', () => {
     expect(tintaLegible('#1e3a8a')).toBe('#ffffff')
