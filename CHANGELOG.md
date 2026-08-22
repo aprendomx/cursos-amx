@@ -2,7 +2,7 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
-## [No publicado]
+## [0.21.0] — 2026-08-22
 
 ### Agregado
 
@@ -161,6 +161,15 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
 
 ### Cambiado
 
+- **Migraciones consolidadas** — el set `001_schema.sql .. 076_eventos_portada.sql`
+  (74 archivos) se funde en un único `supabase/migrations/001_base.sql` con el
+  mismo contenido y en el mismo orden. Una instalación nueva aplica solo ese
+  archivo; una base ya migrada lo registra sin ejecutar con
+  `scripts/migrate.sh --baseline` (ver `docs/MANUAL_ACTUALIZACION.md` §3). El
+  archivo lleva una guardia que aborta con instrucciones si detecta el ledger
+  del set antiguo, y `scripts/deploy.sh` ya no compara conteos —el ledger viejo
+  conserva sus 74 entradas— sino que verifica que nada en disco quede sin
+  registrar.
 - `src/data.js` — el curso tutorial también aparece en el modo demo sin
   Supabase.
 

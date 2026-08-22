@@ -1,5 +1,6 @@
 export const CURSOS = [
-  // Espejo del curso sembrado por supabase/migrations/056_curso_tutorial.sql,
+  // Espejo del curso sembrado por el segmento 056_curso_tutorial de
+  // supabase/migrations/001_base.sql,
   // para que el tutorial también aparezca en el modo demo sin Supabase.
   {
     id: 'c0',

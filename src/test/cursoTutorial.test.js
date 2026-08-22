@@ -1,4 +1,6 @@
-// Valida el contenido sembrado por supabase/migrations/056_curso_tutorial.sql.
+// Valida el contenido del curso tutorial, sembrado por la antigua migración
+// 056_curso_tutorial.sql y hoy un segmento de supabase/migrations/001_base.sql
+// (la consolidación conserva cada archivo original bajo su marca `-- NNN_*.sql`).
 //
 // El curso tutorial vive como JSON de Tiptap dentro de un archivo SQL, así que
 // ningún type-check ni lint lo cubre: un JSON mal cerrado o un nodo fuera de la
@@ -10,10 +12,20 @@ import { resolve } from 'node:path'
 import { generateHTML } from '@tiptap/core'
 import { EXTENSIONES_TEXTO } from '@/components/LessonRichTextEditor.vue'
 
-const SQL = readFileSync(
-  resolve(__dirname, '../../supabase/migrations/056_curso_tutorial.sql'),
-  'utf8'
-)
+const BASE = readFileSync(resolve(__dirname, '../../supabase/migrations/001_base.sql'), 'utf8')
+
+function segmento(nombre) {
+  // El sándwich completo de separadores: los comentarios internos de las
+  // migraciones originales también citan nombres de archivo a inicio de línea.
+  const marcas = [...BASE.matchAll(/^-- ═+\n-- (0\d\d_\w+\.sql)\n-- ═+$/gm)]
+  const i = marcas.findIndex((m) => m[1] === nombre)
+  if (i === -1) throw new Error(`segmento ${nombre} no encontrado en 001_base.sql`)
+  const inicio = marcas[i].index + marcas[i][0].length
+  const fin = i + 1 < marcas.length ? marcas[i + 1].index : BASE.length
+  return BASE.slice(inicio, fin)
+}
+
+const SQL = segmento('056_curso_tutorial.sql')
 // Sin los comentarios de cabecera, que sí mencionan los tipos que NO se usan.
 const SQL_EJECUTABLE = SQL.split('\n')
   .filter((linea) => !linea.trimStart().startsWith('--'))
@@ -26,7 +38,7 @@ function bloquesContenido() {
   return [...SQL.matchAll(/\$j\$([\s\S]*?)\$j\$/g)].map((m) => m[1])
 }
 
-describe('migración 056: curso tutorial', () => {
+describe('curso tutorial (segmento 056 de 001_base.sql)', () => {
   it('siembra el número esperado de módulos y lecciones', () => {
     const modulos = SQL.match(/'b0000007-[0-9a-f]{4}-4000-8000-000000000001'/g) || []
     const lecciones = SQL.match(/'c0000007-[0-9a-f]{4}-4000-8000-000000000001'/g) || []

@@ -403,17 +403,24 @@ else
   fi
 
   # --- 3. Migraciones registradas ---
-  if aplicadas="$(compose exec -T db psql -U postgres -d postgres -At \
-    -c "select count(*) from public._migraciones;" 2>/dev/null)"
+  # Comparar conteos dejó de significar algo con la consolidación: el ledger
+  # de una base anterior conserva los nombres del set antiguo además del
+  # consolidado. Lo que importa es que ningún archivo en disco quede sin
+  # registrar; entradas de más en el ledger son historia, no un problema.
+  if registradas="$(compose exec -T db psql -U postgres -d postgres -At \
+    -c "select nombre from public._migraciones;" 2>/dev/null)"
   then estado_sql=0; else estado_sql=$?; fi
-  en_disco="$(ls -1 "$ROOT"/supabase/migrations/0*.sql | wc -l | tr -d ' ')"
-  veredicto="$(clasificar_sql "$estado_sql" "$aplicadas")"
-  if [[ "${veredicto%%|*}" != "ok" ]]; then
-    registrar "migraciones" "$veredicto"
-  elif [[ "${veredicto#*|}" != "$en_disco" ]]; then
-    registrar "migraciones" "problema|${veredicto#*|} registradas / $en_disco en disco: no coinciden (scripts/migrate.sh --dry-run)"
+  sin_registrar=""
+  for f in "$ROOT"/supabase/migrations/0*.sql; do
+    grep -qxF "$(basename "$f")" <<<"$registradas" \
+      || sin_registrar="$sin_registrar $(basename "$f")"
+  done
+  if [[ "$estado_sql" != "0" ]]; then
+    registrar "migraciones" "no_ejecutable|psql terminó con código $estado_sql"
+  elif [[ -n "$sin_registrar" ]]; then
+    registrar "migraciones" "problema|sin registrar:$sin_registrar (scripts/migrate.sh --dry-run)"
   else
-    registrar "migraciones" "ok|$en_disco registradas / $en_disco en disco"
+    registrar "migraciones" "ok|todas las migraciones en disco están registradas"
   fi
 
   # --- 3.5 Plantilla del correo de recuperación ---

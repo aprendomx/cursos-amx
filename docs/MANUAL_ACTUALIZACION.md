@@ -107,6 +107,17 @@ script las aplica una por una **en su propia transacción** junto con la marca
 de registro en `public._migraciones`, así que reaplicar es seguro: las ya
 corridas se saltan.
 
+> **Consolidación (v0.21.0).** El set antiguo `001_schema.sql .. 076_eventos_portada.sql`
+> se fundió en un único `001_base.sql` con el mismo contenido y en el mismo
+> orden. Una instalación nueva no nota la diferencia. Una base que ya corrió el
+> set antiguo **no debe ejecutarlo**: tras actualizar el árbol, regístralo sin
+> ejecutar con `scripts/migrate.sh --baseline` — pero **solo** si la base llegó
+> hasta la 076. Si quedó a medias, aplica primero las pendientes desde un
+> checkout anterior a la consolidación y luego actualiza y haz baseline. El
+> propio `001_base.sql` lleva una guardia que aborta con instrucciones si
+> detecta el ledger antiguo, así que un despliegue distraído falla limpio en
+> lugar de reventar a medias.
+
 ### Ver qué falta sin tocar nada
 
 ```bash
