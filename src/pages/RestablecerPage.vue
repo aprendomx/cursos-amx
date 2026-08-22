@@ -1,4 +1,5 @@
 <script setup>
+import '@/assets/auth.css'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import IconSet from '@/components/IconSet.vue'
@@ -7,6 +8,7 @@ import { canjearEnlace } from '@/services/recuperacion.js'
 import { contrasenaValida } from '@/lib/contrasena.js'
 import { supabase } from '@/lib/supabase.js'
 import { mapSupabaseError } from '@/lib/errors'
+import { theme } from '@/lib/theme.js'
 
 const router = useRouter()
 
@@ -75,14 +77,29 @@ async function guardar() {
 </script>
 
 <template>
-  <div class="auth">
-    <section class="auth-panel">
-      <div class="auth-box">
-        <h1 class="auth-title">Elegir contraseña nueva</h1>
+  <div class="auth-shell">
+    <aside class="auth-aside" aria-hidden="true">
+      <div class="auth-aside-inner">
+        <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
+        <h2 class="auth-aside-quote">Elige tu <em>contraseña nueva</em>.</h2>
+        <p class="auth-aside-meta">
+          {{ theme.org.name }}
+        </p>
+      </div>
+    </aside>
 
-        <p v-if="estado === 'canjeando'" class="auth-subtitle">Comprobando el enlace…</p>
+    <section class="auth-form-wrap fade-in" aria-labelledby="rest-titulo">
+      <div class="auth-form">
+        <header class="auth-header">
+          <p class="eyebrow">Restablecer contraseña</p>
+          <h1 id="rest-titulo" class="display">Elegir contraseña nueva</h1>
+          <p v-if="estado === 'canjeando'" class="auth-subtitle">Comprobando el enlace…</p>
+          <p v-else-if="estado === 'listo'" class="auth-subtitle">
+            Es la contraseña con la que entrarás a partir de ahora.
+          </p>
+        </header>
 
-        <template v-else-if="estado === 'rechazado'">
+        <template v-if="estado === 'rechazado'">
           <div ref="refAviso" class="auth-aviso auth-aviso-problema" role="alert" tabindex="-1">
             {{ fallo.mensaje }}
           </div>
@@ -97,7 +114,6 @@ async function guardar() {
         </template>
 
         <template v-else-if="estado === 'listo'">
-          <p class="auth-subtitle">Elige la contraseña con la que entrarás a partir de ahora.</p>
           <div class="auth-fields">
             <CampoContrasena
               id="nueva-password"
@@ -117,7 +133,7 @@ async function guardar() {
           </button>
         </template>
 
-        <template v-else>
+        <template v-else-if="estado === 'guardado'">
           <div ref="refAviso" class="auth-aviso" role="alert" tabindex="-1">
             Tu contraseña quedó cambiada y tu sesión está iniciada.
           </div>
@@ -129,21 +145,3 @@ async function guardar() {
     </section>
   </div>
 </template>
-
-<style scoped>
-.auth-aviso {
-  margin-top: calc(var(--unit) * 2);
-  padding: 14px 18px;
-  background: var(--success-soft);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  font-size: var(--text-sm);
-  line-height: var(--leading-normal);
-}
-
-.auth-aviso-problema {
-  background: var(--danger-soft);
-  border-color: var(--danger-line);
-  color: var(--danger);
-}
-</style>
