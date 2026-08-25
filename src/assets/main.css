@@ -531,6 +531,88 @@ h4 {
   border-color: var(--ink);
 }
 
+/* ----- Superficies de la dirección «hábito con recompensa» -----
+   Regla de reparto: sombra dura SOLO donde se espera un toque. Lo informativo
+   va plano, con hairline; lo tocable lleva contorno de tinta y se «apoya» en
+   el lienzo. En oscuro --elev-dura-* es none y el contorno queda como única
+   señal (ver tokens). */
+
+/* Tarjeta TOCABLE: contorno de tinta + sombra dura. El hover no flota (eso es
+   de las difusas): se levanta un paso contra su sombra. El active la asienta. */
+.tarjeta-dura {
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--borde-ancho) solid var(--borde-tinta);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elev-dura-1);
+  transition:
+    box-shadow 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+.tarjeta-dura:hover {
+  box-shadow: var(--elev-dura-2);
+  transform: translate(-1px, -1px);
+}
+.tarjeta-dura:active {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+/* Tarjeta PLANA informativa: sin sombra y con hairline. Si no se puede tocar,
+   no se distingue de la superficie más que por apoyarse en el lienzo. */
+.tarjeta-plana {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+/* Píldora de filtro. El estado activo no cambia de color: cambia de peso de
+   contorno — mismo lenguaje que separa lo tocable de lo informativo. El área
+   accionable no baja de 44px (WCAG 2.5.5) aunque la caja visible sea menor. */
+.pildora-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: calc(var(--unit)) calc(var(--unit) * 2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition:
+    border-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.pildora-filtro:hover {
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+.pildora-filtro.activa,
+.pildora-filtro[aria-pressed='true'] {
+  border: var(--borde-ancho) solid var(--borde-tinta);
+  color: var(--ink);
+  box-shadow: var(--elev-dura-1);
+}
+
+/* Distintivo de recompensa (+XP, pistas, logro reciente). Fondo del acento
+   suave con su tinta propia: par fijo/fijo, como los --sobre-* (4.74:1 sobre
+   el amarillo de la dirección nueva, 4.54:1 sobre el del tema neutro). */
+.distintivo-recompensa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--brand-accent-soft);
+  color: var(--sobre-accent-soft);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
+}
+
 /* Placeholders for imagery — striped */
 .ph-stripe {
   background-image: repeating-linear-gradient(
