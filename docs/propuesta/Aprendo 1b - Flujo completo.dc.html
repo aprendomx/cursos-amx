@@ -1,0 +1,4733 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <meta name="design_doc_mode" content="canvas" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          body {
+            margin: 0;
+            background: #efede8;
+            -webkit-font-smoothing: antialiased;
+          }
+          a {
+            color: #1a1714;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+          }
+          a:hover {
+            color: #f04e23;
+          }
+        </style>
+      </helmet>
+
+      <section
+        style="
+          font-family: Manrope, sans-serif;
+          color: #1a1714;
+          padding: 72px 72px 130px;
+          display: flex;
+          flex-direction: column;
+          gap: 64px;
+        "
+      >
+        <header style="display: flex; flex-direction: column; gap: 14px; max-width: 780px">
+          <span
+            style="
+              font-size: 11px;
+              font-weight: 800;
+              letter-spacing: 0.2em;
+              text-transform: uppercase;
+              color: #9a8f82;
+            "
+            >Dirección 1b · hábito con recompensa</span
+          >
+          <h1
+            style="
+              margin: 0;
+              font-family: 'Bricolage Grotesque', sans-serif;
+              font-size: 54px;
+              line-height: 1.02;
+              font-weight: 800;
+              letter-spacing: -0.03em;
+            "
+          >
+            Aprendo, diez pantallas
+          </h1>
+          <p
+            style="margin: 0; font-size: 16px; line-height: 1.55; color: #6b6157; text-wrap: pretty"
+          >
+            Papel cálido, borde de 2px y sombra dura. Todo el sistema empuja una sola conducta:
+            volver mañana. Cada pantalla tiene una acción de cinco minutos, un número que sube y
+            algo que se gana.
+          </p>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 8px">
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #fffdf9;
+                border: 2px solid #1a1714;
+                border-radius: 999px;
+                padding: 7px 14px;
+                font-size: 12px;
+                font-weight: 700;
+              "
+              ><span
+                style="
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 3px;
+                  background: #f04e23;
+                  border: 1.5px solid #1a1714;
+                "
+              ></span
+              >Acento #F04E23</span
+            >
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #fffdf9;
+                border: 2px solid #1a1714;
+                border-radius: 999px;
+                padding: 7px 14px;
+                font-size: 12px;
+                font-weight: 700;
+              "
+              ><span
+                style="
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 3px;
+                  background: #ffe9b8;
+                  border: 1.5px solid #1a1714;
+                "
+              ></span
+              ><span
+                style="
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 3px;
+                  background: #cfe4ff;
+                  border: 1.5px solid #1a1714;
+                "
+              ></span
+              ><span
+                style="
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 3px;
+                  background: #d9f0c7;
+                  border: 1.5px solid #1a1714;
+                "
+              ></span
+              >Pasteles de categoría</span
+            >
+            <span
+              style="
+                background: #fffdf9;
+                border: 2px solid #1a1714;
+                border-radius: 999px;
+                padding: 7px 14px;
+                font-size: 12px;
+                font-weight: 700;
+              "
+              >Bricolage Grotesque + Manrope</span
+            >
+          </div>
+        </header>
+
+        <!-- ======================= ENTRADA ======================= -->
+        <div style="display: flex; flex-direction: column; gap: 26px">
+          <div
+            style="
+              display: flex;
+              align-items: baseline;
+              gap: 14px;
+              border-bottom: 2px solid #1a1714;
+              padding-bottom: 12px;
+            "
+          >
+            <span
+              style="
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 24px;
+                font-weight: 800;
+              "
+              >Entrada y descubrimiento</span
+            >
+            <span
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #9a8f82;
+              "
+              >01 – 04</span
+            >
+          </div>
+          <div style="display: flex; gap: 36px; flex-wrap: wrap">
+            <!-- 01 ONBOARDING -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="01 Onboarding"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span style="display: flex; gap: 6px; align-items: center"
+                    ><span
+                      style="
+                        width: 16px;
+                        height: 9px;
+                        border: 1.5px solid #1a1714;
+                        border-radius: 2px;
+                        display: block;
+                      "
+                    ></span
+                    ><span
+                      style="
+                        width: 22px;
+                        height: 10px;
+                        border: 1.5px solid #1a1714;
+                        border-radius: 3px;
+                        display: block;
+                      "
+                    ></span
+                  ></span>
+                </div>
+
+                <div style="padding: 26px 24px 0; display: flex; flex-direction: column; gap: 22px">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span
+                      style="
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 9px;
+                        background: #f04e23;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        color: #fff7ee;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 16px;
+                        font-weight: 800;
+                      "
+                      >a</span
+                    >
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 19px;
+                        font-weight: 800;
+                        letter-spacing: -0.02em;
+                      "
+                      >aprendo</span
+                    >
+                  </div>
+
+                  <h3
+                    style="
+                      margin: 0;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 40px;
+                      line-height: 1.02;
+                      font-weight: 800;
+                      letter-spacing: -0.03em;
+                    "
+                  >
+                    Diez minutos<br />al día bastan.
+                  </h3>
+
+                  <div style="position: relative; height: 150px">
+                    <span
+                      style="
+                        position: absolute;
+                        left: 24px;
+                        top: 16px;
+                        width: 210px;
+                        height: 112px;
+                        border-radius: 20px;
+                        background: #cfe4ff;
+                        border: 2px solid #1a1714;
+                        transform: rotate(-7deg);
+                      "
+                    ></span>
+                    <span
+                      style="
+                        position: absolute;
+                        left: 56px;
+                        top: 8px;
+                        width: 210px;
+                        height: 112px;
+                        border-radius: 20px;
+                        background: #d9f0c7;
+                        border: 2px solid #1a1714;
+                        transform: rotate(4deg);
+                      "
+                    ></span>
+                    <div
+                      style="
+                        position: absolute;
+                        left: 40px;
+                        top: 22px;
+                        width: 230px;
+                        height: 112px;
+                        border-radius: 20px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        box-shadow: 4px 4px 0 #1a1714;
+                        padding: 14px 16px;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                      "
+                    >
+                      <span
+                        style="
+                          font-size: 10.5px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Lección de hoy</span
+                      >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 19px;
+                          font-weight: 800;
+                          line-height: 1.1;
+                        "
+                        >Dimensionamiento de RAN</span
+                      >
+                      <span style="display: flex; align-items: center; gap: 8px"
+                        ><span
+                          style="
+                            background: #ffe9b8;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 999px;
+                            padding: 3px 9px;
+                            font-size: 10.5px;
+                            font-weight: 800;
+                          "
+                          >+15 XP</span
+                        ><span style="font-size: 11px; font-weight: 600; color: #6b6157"
+                          >12 min</span
+                        ></span
+                      >
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 10px">
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 16px;
+                        padding: 14px 16px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Correo</span
+                      >
+                      <span style="font-size: 14.5px; font-weight: 600">jadrian@correo.com</span>
+                    </div>
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 16px;
+                        padding: 14px 16px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                      "
+                    >
+                      <div style="display: flex; flex-direction: column; gap: 3px">
+                        <span
+                          style="
+                            font-size: 10px;
+                            font-weight: 800;
+                            letter-spacing: 0.16em;
+                            text-transform: uppercase;
+                            color: #9a8f82;
+                          "
+                          >Contraseña</span
+                        >
+                        <span style="font-size: 15px; font-weight: 700; letter-spacing: 0.18em"
+                          >••••••••</span
+                        >
+                      </div>
+                      <span style="font-size: 11.5px; font-weight: 800; color: #f04e23">Ver</span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px">
+                    <span
+                      style="
+                        background: #1a1714;
+                        color: #fff7ee;
+                        border-radius: 18px;
+                        padding: 17px;
+                        text-align: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 16px;
+                        font-weight: 800;
+                      "
+                      >Entrar</span
+                    >
+                    <div style="display: flex; align-items: center; gap: 12px">
+                      <span style="flex: 1; height: 2px; background: #efe2d2"></span
+                      ><span style="font-size: 11px; font-weight: 700; color: #9a8f82">o</span
+                      ><span style="flex: 1; height: 2px; background: #efe2d2"></span>
+                    </div>
+                    <span
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 15px;
+                        text-align: center;
+                        font-size: 14px;
+                        font-weight: 700;
+                      "
+                      >Continuar con cuenta corporativa</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 0 24px 34px;
+                    text-align: center;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: #6b6157;
+                  "
+                >
+                  ¿Primera vez aquí?
+                  <span style="font-weight: 800; color: #f04e23">Crea tu cuenta</span>
+                </div>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">01 · Onboarding.</strong> Promete el hábito, no
+                  el catálogo: la primera pantalla ya muestra la lección de hoy y lo que se gana.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 02 HOME -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="02 Home"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span style="display: flex; gap: 6px; align-items: center"
+                    ><span
+                      style="
+                        width: 16px;
+                        height: 9px;
+                        border: 1.5px solid #1a1714;
+                        border-radius: 2px;
+                        display: block;
+                      "
+                    ></span
+                    ><span
+                      style="
+                        width: 22px;
+                        height: 10px;
+                        border: 1.5px solid #1a1714;
+                        border-radius: 3px;
+                        display: block;
+                      "
+                    ></span
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 18px">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div style="display: flex; flex-direction: column">
+                      <span
+                        style="
+                          font-size: 11px;
+                          font-weight: 700;
+                          letter-spacing: 0.14em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Martes 25</span
+                      >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 26px;
+                          font-weight: 800;
+                          letter-spacing: -0.02em;
+                        "
+                        >Hola, Jadrián</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        background: #1a1714;
+                        color: #fff7ee;
+                        border-radius: 999px;
+                        padding: 8px 14px;
+                        font-size: 12px;
+                        font-weight: 800;
+                        letter-spacing: 0.04em;
+                      "
+                      >12 días</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 26px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 20px;
+                      display: flex;
+                      align-items: center;
+                      gap: 20px;
+                    "
+                  >
+                    <div
+                      style="
+                        flex: none;
+                        width: 108px;
+                        height: 108px;
+                        border-radius: 50%;
+                        background: conic-gradient(#f04e23 0 66%, #efe2d2 66% 100%);
+                        display: grid;
+                        place-items: center;
+                      "
+                    >
+                      <div
+                        style="
+                          width: 80px;
+                          height: 80px;
+                          border-radius: 50%;
+                          background: #fffdf9;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          justify-content: center;
+                          gap: 1px;
+                        "
+                      >
+                        <span
+                          style="
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 28px;
+                            font-weight: 800;
+                            line-height: 1;
+                          "
+                          >2</span
+                        >
+                        <span style="font-size: 10px; font-weight: 700; color: #9a8f82">de 3</span>
+                      </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px">
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 21px;
+                          font-weight: 800;
+                          line-height: 1.1;
+                        "
+                        >Meta de hoy</span
+                      >
+                      <span style="font-size: 13px; line-height: 1.45; color: #6b6157"
+                        >Una lección más y cierras la semana completa.</span
+                      >
+                      <span
+                        style="
+                          align-self: flex-start;
+                          background: #ffe9b8;
+                          border: 1.5px solid #1a1714;
+                          border-radius: 999px;
+                          padding: 4px 10px;
+                          font-size: 11px;
+                          font-weight: 800;
+                        "
+                        >+15 XP</span
+                      >
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #f04e23;
+                      border: 2px solid #1a1714;
+                      border-radius: 26px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 20px;
+                      color: #fff7ee;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 14px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 14px;
+                      "
+                    >
+                      <div style="display: flex; flex-direction: column; gap: 6px">
+                        <span
+                          style="
+                            font-size: 10.5px;
+                            font-weight: 800;
+                            letter-spacing: 0.18em;
+                            text-transform: uppercase;
+                            opacity: 0.85;
+                          "
+                          >Sigue aquí</span
+                        >
+                        <span
+                          style="
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 20px;
+                            font-weight: 800;
+                            line-height: 1.15;
+                          "
+                          >Dimensionamiento de RAN</span
+                        >
+                        <span style="font-size: 12px; opacity: 0.85">Cap. 4 · 12 min</span>
+                      </div>
+                      <span
+                        style="
+                          flex: none;
+                          width: 50px;
+                          height: 50px;
+                          border-radius: 50%;
+                          background: #fff7ee;
+                          color: #f04e23;
+                          border: 2px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 16px;
+                          padding-left: 3px;
+                        "
+                        >▶</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        height: 8px;
+                        background: rgba(26, 23, 20, 0.25);
+                        border-radius: 999px;
+                        overflow: hidden;
+                      "
+                    >
+                      <span
+                        style="display: block; width: 62%; height: 100%; background: #fff7ee"
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >Sigue con</span
+                    >
+                    <div style="display: flex; gap: 12px">
+                      <div
+                        style="
+                          flex: 1;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 20px;
+                          padding: 12px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 10px;
+                        "
+                      >
+                        <span
+                          style="
+                            height: 58px;
+                            border-radius: 14px;
+                            background: #cfe4ff;
+                            border: 1.5px solid #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 26px;
+                            font-weight: 800;
+                          "
+                          >F</span
+                        >
+                        <span style="font-size: 13px; font-weight: 700; line-height: 1.25"
+                          >Fibra óptica en campo</span
+                        >
+                        <span style="font-size: 11px; color: #9a8f82; font-weight: 600"
+                          >9 lecciones · 28%</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 20px;
+                          padding: 12px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 10px;
+                        "
+                      >
+                        <span
+                          style="
+                            height: 58px;
+                            border-radius: 14px;
+                            background: #d9f0c7;
+                            border: 1.5px solid #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 26px;
+                            font-weight: 800;
+                          "
+                          >A</span
+                        >
+                        <span style="font-size: 13px; font-weight: 700; line-height: 1.25"
+                          >Analítica para servicio</span
+                        >
+                        <span style="font-size: 11px; color: #9a8f82; font-weight: 600"
+                          >7 lecciones · 9%</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 12px">
+                    <span
+                      style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: #ffe9b8;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 15px;
+                        font-weight: 800;
+                      "
+                      >7</span
+                    >
+                    <span
+                      style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: #cfe4ff;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 15px;
+                        font-weight: 800;
+                      "
+                      >★</span
+                    >
+                    <span
+                      style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: #f3d9ff;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 15px;
+                        font-weight: 800;
+                      "
+                      >3</span
+                    >
+                    <span style="flex: 1; font-size: 12px; color: #6b6157; line-height: 1.4"
+                      >3 logros nuevos<br />esta semana</span
+                    >
+                  </div>
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Hoy</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Logros</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">02 · Hoy.</strong> La meta diaria manda sobre el
+                  catálogo; retomar el curso es la única acción naranja de la pantalla.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 03 CATÁLOGO -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="03 Catálogo"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 28px;
+                        font-weight: 800;
+                        letter-spacing: -0.02em;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        width: 38px;
+                        height: 38px;
+                        border-radius: 12px;
+                        border: 2px solid #1a1714;
+                        background: #fffdf9;
+                        display: grid;
+                        place-items: center;
+                        font-size: 14px;
+                        font-weight: 800;
+                      "
+                      >⇅</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 999px;
+                      padding: 13px 18px;
+                    "
+                  >
+                    <span style="font-size: 14px; font-weight: 800; color: #9a8f82">⌕</span>
+                    <span style="font-size: 13.5px; font-weight: 600; color: #9a8f82"
+                      >Busca una habilidad</span
+                    >
+                  </div>
+
+                  <div style="display: flex; gap: 8px">
+                    <span
+                      style="
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                      "
+                      >Todos</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                      "
+                      >Red</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                      "
+                      >Datos</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                      "
+                      >Cliente</span
+                    >
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 11px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >Nuevo esta semana</span
+                    >
+                    <div style="display: flex; gap: 12px">
+                      <div
+                        style="
+                          flex: 1;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 20px;
+                          box-shadow: 3px 3px 0 #1a1714;
+                          padding: 12px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 9px;
+                        "
+                      >
+                        <span
+                          style="
+                            height: 56px;
+                            border-radius: 14px;
+                            background: #f3d9ff;
+                            border: 1.5px solid #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 24px;
+                            font-weight: 800;
+                          "
+                          >C</span
+                        >
+                        <span style="font-size: 13px; font-weight: 700; line-height: 1.25"
+                          >Ciberseguridad operativa</span
+                        >
+                        <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                          >11 lecciones · 4 h</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 20px;
+                          box-shadow: 3px 3px 0 #1a1714;
+                          padding: 12px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 9px;
+                        "
+                      >
+                        <span
+                          style="
+                            height: 56px;
+                            border-radius: 14px;
+                            background: #ffd9cc;
+                            border: 1.5px solid #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 24px;
+                            font-weight: 800;
+                          "
+                          >L</span
+                        >
+                        <span style="font-size: 13px; font-weight: 700; line-height: 1.25"
+                          >Liderazgo de cuadrilla</span
+                        >
+                        <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                          >5 lecciones · 1.5 h</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 10px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >Los más tomados</span
+                    >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 13px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 12px;
+                      "
+                    >
+                      <span
+                        style="
+                          flex: none;
+                          width: 52px;
+                          height: 52px;
+                          border-radius: 13px;
+                          background: #cfe4ff;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 20px;
+                          font-weight: 800;
+                        "
+                        >F</span
+                      >
+                      <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                        <span style="font-size: 14px; font-weight: 700; line-height: 1.2"
+                          >Fibra óptica en campo</span
+                        >
+                        <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                          >Rubén Ortega · 248 alumnos</span
+                        >
+                      </div>
+                      <span
+                        style="
+                          flex: none;
+                          width: 32px;
+                          height: 32px;
+                          border-radius: 50%;
+                          border: 2px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 15px;
+                          font-weight: 800;
+                        "
+                        >+</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 13px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 12px;
+                      "
+                    >
+                      <span
+                        style="
+                          flex: none;
+                          width: 52px;
+                          height: 52px;
+                          border-radius: 13px;
+                          background: #d9f0c7;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 20px;
+                          font-weight: 800;
+                        "
+                        >A</span
+                      >
+                      <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                        <span style="font-size: 14px; font-weight: 700; line-height: 1.2"
+                          >Analítica para servicio</span
+                        >
+                        <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                          >Lucía Ferrer · 191 alumnos</span
+                        >
+                      </div>
+                      <span
+                        style="
+                          flex: none;
+                          width: 32px;
+                          height: 32px;
+                          border-radius: 50%;
+                          border: 2px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 15px;
+                          font-weight: 800;
+                        "
+                        >+</span
+                      >
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #ffe9b8;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      padding: 15px 17px;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      gap: 14px;
+                    "
+                  >
+                    <div style="display: flex; flex-direction: column; gap: 4px">
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #8a7a55;
+                        "
+                        >Ruta completa</span
+                      >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 17px;
+                          font-weight: 800;
+                          line-height: 1.1;
+                        "
+                        >Especialista en última milla</span
+                      >
+                      <span style="font-size: 11px; font-weight: 600; color: #6b6157"
+                        >5 cursos · 18 h</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        flex: none;
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        background: #1a1714;
+                        color: #fff7ee;
+                        display: grid;
+                        place-items: center;
+                        font-size: 14px;
+                      "
+                      >→</span
+                    >
+                  </div>
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Hoy</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Logros</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">03 · Explorar.</strong> Cada categoría tiene su
+                  pastel fijo, así que el catálogo se reconoce por color antes que por texto.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 04 DETALLE -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="04 Detalle de curso"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    height: 230px;
+                    background: #cfe4ff;
+                    border-bottom: 2px solid #1a1714;
+                    position: relative;
+                    overflow: hidden;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      right: -40px;
+                      bottom: -70px;
+                      width: 230px;
+                      height: 230px;
+                      border-radius: 50%;
+                      border: 2px solid #1a1714;
+                      background: rgba(255, 253, 249, 0.45);
+                    "
+                  ></span>
+                  <span
+                    style="
+                      position: absolute;
+                      right: 34px;
+                      bottom: 22px;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 88px;
+                      font-weight: 800;
+                      line-height: 1;
+                      color: #1a1714;
+                      opacity: 0.9;
+                    "
+                    >R</span
+                  >
+                  <div
+                    style="
+                      position: relative;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      padding: 16px 26px 0;
+                      font-size: 13px;
+                      font-weight: 700;
+                    "
+                  >
+                    <span>9:41</span
+                    ><span
+                      style="
+                        width: 22px;
+                        height: 10px;
+                        border: 1.5px solid #1a1714;
+                        border-radius: 3px;
+                        display: block;
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    style="
+                      position: relative;
+                      padding: 18px 24px 0;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 14px;
+                    "
+                  >
+                    <div style="display: flex; justify-content: space-between; align-items: center">
+                      <span
+                        style="
+                          width: 36px;
+                          height: 36px;
+                          border-radius: 50%;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 15px;
+                          font-weight: 800;
+                        "
+                        >←</span
+                      >
+                      <span
+                        style="
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 999px;
+                          padding: 6px 12px;
+                          font-size: 11px;
+                          font-weight: 800;
+                        "
+                        >En curso</span
+                      >
+                    </div>
+                    <h3
+                      style="
+                        margin: 0;
+                        max-width: 250px;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 30px;
+                        line-height: 1.05;
+                        font-weight: 800;
+                        letter-spacing: -0.02em;
+                      "
+                    >
+                      Arquitectura de redes móviles
+                    </h3>
+                  </div>
+                </div>
+
+                <div style="padding: 18px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span
+                      style="
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50%;
+                        background: #ffe9b8;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 14px;
+                        font-weight: 800;
+                      "
+                      >M</span
+                    >
+                    <span style="font-size: 12.5px; font-weight: 600; color: #6b6157"
+                      >Mariana Solís · Ingeniería de red</span
+                    >
+                  </div>
+
+                  <div style="display: flex; gap: 8px">
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 6px 12px;
+                        font-size: 11px;
+                        font-weight: 700;
+                      "
+                      >12 lecciones</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 6px 12px;
+                        font-size: 11px;
+                        font-weight: 700;
+                      "
+                      >4 h 20 m</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 6px 12px;
+                        font-size: 11px;
+                        font-weight: 700;
+                      "
+                      >Certificado</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      box-shadow: 3px 3px 0 #1a1714;
+                      padding: 16px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 11px;
+                    "
+                  >
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: baseline"
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 17px;
+                          font-weight: 800;
+                        "
+                        >Vas 62%</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 700; color: #9a8f82"
+                        >7 de 12 lecciones</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        height: 8px;
+                        background: #efe2d2;
+                        border-radius: 999px;
+                        overflow: hidden;
+                      "
+                    >
+                      <span
+                        style="display: block; width: 62%; height: 100%; background: #f04e23"
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 9px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >Contenido</span
+                    >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 16px;
+                        padding: 11px 13px;
+                        opacity: 0.55;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 26px;
+                          height: 26px;
+                          border-radius: 50%;
+                          background: #1a1714;
+                          color: #fff7ee;
+                          display: grid;
+                          place-items: center;
+                          font-size: 12px;
+                          font-weight: 800;
+                        "
+                        >✓</span
+                      >
+                      <span style="flex: 1; font-size: 13.5px; font-weight: 600"
+                        >Núcleo y plano de control</span
+                      >
+                      <span style="font-size: 11px; font-weight: 700; color: #9a8f82">14 m</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 16px;
+                        padding: 11px 13px;
+                        box-shadow: 3px 3px 0 #1a1714;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 26px;
+                          height: 26px;
+                          border-radius: 50%;
+                          background: #fff7ee;
+                          color: #f04e23;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 10px;
+                          padding-left: 2px;
+                        "
+                        >▶</span
+                      >
+                      <span style="flex: 1; font-size: 13.5px; font-weight: 800"
+                        >Dimensionamiento de RAN</span
+                      >
+                      <span style="font-size: 11px; font-weight: 700">12 m</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 16px;
+                        padding: 11px 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 26px;
+                          height: 26px;
+                          border-radius: 50%;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 11px;
+                          font-weight: 800;
+                        "
+                        >5</span
+                      >
+                      <span style="flex: 1; font-size: 13.5px; font-weight: 600"
+                        >Backhaul y transporte</span
+                      >
+                      <span style="font-size: 11px; font-weight: 700; color: #9a8f82">21 m</span>
+                    </div>
+                    <span
+                      style="
+                        text-align: center;
+                        font-size: 12px;
+                        font-weight: 800;
+                        color: #f04e23;
+                        padding-top: 2px;
+                      "
+                      >Ver las 12 lecciones</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 14px 24px 30px;
+                    background: #fff7ee;
+                    display: flex;
+                    gap: 12px;
+                    align-items: center;
+                  "
+                >
+                  <span
+                    style="
+                      flex: 1;
+                      background: #1a1714;
+                      color: #fff7ee;
+                      border-radius: 18px;
+                      padding: 17px;
+                      text-align: center;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 16px;
+                      font-weight: 800;
+                    "
+                    >Continuar lección 4</span
+                  >
+                  <span
+                    style="
+                      width: 54px;
+                      height: 54px;
+                      border-radius: 16px;
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      display: grid;
+                      place-items: center;
+                      font-size: 16px;
+                      font-weight: 800;
+                    "
+                    >↓</span
+                  >
+                </div>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">04 · Detalle.</strong> La portada usa la letra
+                  del curso como marca; solo la lección en curso se pinta de naranja.
+                </p>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= APRENDER ======================= -->
+        <div style="display: flex; flex-direction: column; gap: 26px">
+          <div
+            style="
+              display: flex;
+              align-items: baseline;
+              gap: 14px;
+              border-bottom: 2px solid #1a1714;
+              padding-bottom: 12px;
+            "
+          >
+            <span
+              style="
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 24px;
+                font-weight: 800;
+              "
+              >Aprender</span
+            >
+            <span
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #9a8f82;
+              "
+              >05 – 06</span
+            >
+          </div>
+          <div style="display: flex; gap: 36px; flex-wrap: wrap">
+            <!-- 05 REPRODUCTOR -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="05 Reproductor"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    height: 262px;
+                    background: #1a1714;
+                    color: #fff7ee;
+                    border-bottom: 2px solid #1a1714;
+                    border-radius: 0 0 28px 28px;
+                    position: relative;
+                    overflow: hidden;
+                  "
+                >
+                  <span
+                    style="
+                      position: absolute;
+                      left: -30px;
+                      top: 60px;
+                      width: 180px;
+                      height: 180px;
+                      border-radius: 50%;
+                      background: rgba(240, 78, 35, 0.35);
+                    "
+                  ></span>
+                  <div
+                    style="
+                      position: relative;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      padding: 16px 26px 0;
+                      font-size: 13px;
+                      font-weight: 700;
+                    "
+                  >
+                    <span>9:41</span
+                    ><span
+                      style="
+                        width: 22px;
+                        height: 10px;
+                        border: 1.5px solid #fff7ee;
+                        border-radius: 3px;
+                        display: block;
+                      "
+                    ></span>
+                  </div>
+                  <div
+                    style="
+                      position: relative;
+                      padding: 18px 24px 0;
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <span
+                      style="
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(255, 247, 238, 0.35);
+                        display: grid;
+                        place-items: center;
+                        font-size: 15px;
+                        font-weight: 800;
+                      "
+                      >←</span
+                    >
+                    <span
+                      style="
+                        font-size: 11px;
+                        font-weight: 800;
+                        letter-spacing: 0.16em;
+                        text-transform: uppercase;
+                        opacity: 0.7;
+                      "
+                      >Cap. 4 de 12</span
+                    >
+                    <span
+                      style="
+                        width: 36px;
+                        height: 36px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(255, 247, 238, 0.35);
+                        display: grid;
+                        place-items: center;
+                        font-size: 13px;
+                        font-weight: 800;
+                      "
+                      >⋯</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      position: relative;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      gap: 22px;
+                      padding-top: 26px;
+                    "
+                  >
+                    <span
+                      style="
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(255, 247, 238, 0.35);
+                        display: grid;
+                        place-items: center;
+                        font-size: 13px;
+                        font-weight: 800;
+                        letter-spacing: -0.01em;
+                      "
+                      >−15</span
+                    >
+                    <span
+                      style="
+                        width: 70px;
+                        height: 70px;
+                        border-radius: 50%;
+                        background: #f04e23;
+                        border: 2px solid #fff7ee;
+                        display: grid;
+                        place-items: center;
+                        font-size: 19px;
+                      "
+                      >❙❙</span
+                    >
+                    <span
+                      style="
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        border: 2px solid rgba(255, 247, 238, 0.35);
+                        display: grid;
+                        place-items: center;
+                        font-size: 13px;
+                        font-weight: 800;
+                        letter-spacing: -0.01em;
+                      "
+                      >+15</span
+                    >
+                  </div>
+                  <div
+                    style="
+                      position: relative;
+                      padding: 24px 26px 0;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 8px;
+                    "
+                  >
+                    <div
+                      style="
+                        height: 6px;
+                        background: rgba(255, 247, 238, 0.22);
+                        border-radius: 999px;
+                        position: relative;
+                      "
+                    >
+                      <span
+                        style="
+                          position: absolute;
+                          left: 0;
+                          top: 0;
+                          bottom: 0;
+                          width: 57%;
+                          background: #fff7ee;
+                          border-radius: 999px;
+                          display: block;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          position: absolute;
+                          left: 57%;
+                          top: -5px;
+                          width: 16px;
+                          height: 16px;
+                          border-radius: 50%;
+                          background: #fff7ee;
+                          border: 2px solid #1a1714;
+                          display: block;
+                        "
+                      ></span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 11px;
+                        font-weight: 700;
+                        opacity: 0.75;
+                      "
+                    >
+                      <span>18:24</span><span>32:10</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; flex-direction: column; gap: 6px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 24px;
+                        font-weight: 800;
+                        line-height: 1.1;
+                        letter-spacing: -0.02em;
+                      "
+                      >Dimensionamiento de RAN</span
+                    >
+                    <span style="font-size: 12.5px; font-weight: 600; color: #9a8f82"
+                      >Arquitectura de redes móviles · Mariana Solís</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      display: flex;
+                      gap: 6px;
+                      background: #efe2d2;
+                      border: 2px solid #1a1714;
+                      border-radius: 999px;
+                      padding: 4px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        background: #fffdf9;
+                        border-radius: 999px;
+                        padding: 8px 0;
+                        font-size: 12px;
+                        font-weight: 800;
+                      "
+                      >Notas</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        padding: 8px 0;
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #6b6157;
+                      "
+                      >Recursos</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        padding: 8px 0;
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #6b6157;
+                      "
+                      >Dudas</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      padding: 16px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 10px;
+                    "
+                  >
+                    <div style="display: flex; justify-content: space-between; align-items: center">
+                      <span
+                        style="
+                          background: #ffe9b8;
+                          border: 1.5px solid #1a1714;
+                          border-radius: 999px;
+                          padding: 3px 9px;
+                          font-size: 10.5px;
+                          font-weight: 800;
+                        "
+                        >14:02</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 800; color: #f04e23"
+                        >Editar</span
+                      >
+                    </div>
+                    <span style="font-size: 13.5px; line-height: 1.5; color: #3a342e"
+                      >La utilización de PRB por encima de 70% ya degrada la experiencia, aunque no
+                      haya llamadas caídas. Revisar antes de escalar sitio.</span
+                    >
+                  </div>
+
+                  <span
+                    style="
+                      border: 2px dashed #c9bba9;
+                      border-radius: 16px;
+                      padding: 13px;
+                      text-align: center;
+                      font-size: 12.5px;
+                      font-weight: 700;
+                      color: #9a8f82;
+                    "
+                    >+ Añadir nota en 18:24</span
+                  >
+
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      background: #cfe4ff;
+                      border: 2px solid #1a1714;
+                      border-radius: 18px;
+                      padding: 12px 14px;
+                    "
+                  >
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #4a5b72;
+                        "
+                        >Sigue después</span
+                      >
+                      <span style="font-size: 13.5px; font-weight: 700"
+                        >Backhaul y transporte · 21 m</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        flex: none;
+                        width: 34px;
+                        height: 34px;
+                        border-radius: 50%;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-size: 12px;
+                        padding-left: 2px;
+                      "
+                      >▶</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 14px 24px 30px;
+                    background: #fff7ee;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                  "
+                >
+                  <span
+                    style="
+                      flex: 1;
+                      background: #f04e23;
+                      color: #fff7ee;
+                      border: 2px solid #1a1714;
+                      border-radius: 18px;
+                      padding: 16px;
+                      text-align: center;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 15.5px;
+                      font-weight: 800;
+                      box-shadow: 3px 3px 0 #1a1714;
+                    "
+                    >Marcar completada · +15 XP</span
+                  >
+                </div>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">05 · Lección.</strong> El bloque oscuro concentra
+                  la reproducción; abajo, notas con marca de tiempo para volver sin perder el punto.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 06 QUIZ -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="06 Evaluación"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 18px">
+                  <div style="display: flex; align-items: center; gap: 14px">
+                    <span
+                      style="
+                        width: 34px;
+                        height: 34px;
+                        border-radius: 50%;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-size: 14px;
+                        font-weight: 800;
+                      "
+                      >✕</span
+                    >
+                    <div style="flex: 1; display: flex; gap: 5px">
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: #f04e23;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: #f04e23;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: #f04e23;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: #efe2d2;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: #efe2d2;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.06em"
+                      >12</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 26px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 22px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 12px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-size: 10.5px;
+                        font-weight: 800;
+                        letter-spacing: 0.18em;
+                        text-transform: uppercase;
+                        color: #9a8f82;
+                      "
+                      >Pregunta 4 de 5</span
+                    >
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 25px;
+                        font-weight: 800;
+                        line-height: 1.16;
+                        letter-spacing: -0.01em;
+                      "
+                      >¿Qué indicador revela saturación en una celda antes que la caída de
+                      llamadas?</span
+                    >
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >A</span
+                      >
+                      <span style="font-size: 14px; font-weight: 600">Latencia de backhaul</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        box-shadow: 4px 4px 0 #1a1714;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          border: 1.5px solid #1a1714;
+                          background: #fff7ee;
+                          color: #f04e23;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >B</span
+                      >
+                      <span style="font-size: 14px; font-weight: 700">Utilización de PRB</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >C</span
+                      >
+                      <span style="font-size: 14px; font-weight: 600">Altura de antena</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 14px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >D</span
+                      >
+                      <span style="font-size: 14px; font-weight: 600"
+                        >Consumo energético del sitio</span
+                      >
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      background: #ffe9b8;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 16px;
+                      padding: 12px 14px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 16px;
+                        font-weight: 800;
+                      "
+                      >?</span
+                    >
+                    <span style="font-size: 12px; line-height: 1.4; color: #6b6157"
+                      >Pista disponible por 5 XP. Falla y solo repasas la lección, no pierdes la
+                      racha.</span
+                    >
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    padding: 16px 24px 30px;
+                    background: #fff7ee;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                  "
+                >
+                  <span
+                    style="
+                      background: #1a1714;
+                      color: #fff7ee;
+                      border-radius: 18px;
+                      padding: 17px;
+                      text-align: center;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 16px;
+                      font-weight: 800;
+                    "
+                    >Comprobar</span
+                  >
+                  <span
+                    style="text-align: center; font-size: 12px; font-weight: 700; color: #9a8f82"
+                    >Saltar pregunta</span
+                  >
+                </div>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">06 · Evaluación.</strong> Fallar nunca castiga la
+                  racha: el error manda a repaso, no a cero.
+                </p>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= AVANZAR ======================= -->
+        <div style="display: flex; flex-direction: column; gap: 26px">
+          <div
+            style="
+              display: flex;
+              align-items: baseline;
+              gap: 14px;
+              border-bottom: 2px solid #1a1714;
+              padding-bottom: 12px;
+            "
+          >
+            <span
+              style="
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 24px;
+                font-weight: 800;
+              "
+              >Avanzar</span
+            >
+            <span
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #9a8f82;
+              "
+              >07 – 09</span
+            >
+          </div>
+          <div style="display: flex; gap: 36px; flex-wrap: wrap">
+            <!-- 07 MI APRENDIZAJE -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="07 Mi aprendizaje"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 28px;
+                        font-weight: 800;
+                        letter-spacing: -0.02em;
+                      "
+                      >Tu avance</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                      "
+                      >Agosto</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #f04e23;
+                      color: #fff7ee;
+                      border: 2px solid #1a1714;
+                      border-radius: 26px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 20px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 16px;
+                    "
+                  >
+                    <div style="display: flex; align-items: flex-end; gap: 14px">
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 62px;
+                          font-weight: 800;
+                          line-height: 0.85;
+                          letter-spacing: -0.04em;
+                        "
+                        >12</span
+                      >
+                      <div
+                        style="display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px"
+                      >
+                        <span style="font-size: 14px; font-weight: 800">días seguidos</span>
+                        <span style="font-size: 12px; opacity: 0.85">Tu mejor racha: 16</span>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 7px">
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: #ffe9b8;
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: rgba(26, 23, 20, 0.2);
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 34px;
+                          border-radius: 9px;
+                          background: rgba(26, 23, 20, 0.2);
+                          border: 1.5px solid #1a1714;
+                        "
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; gap: 10px">
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 23px;
+                          font-weight: 800;
+                        "
+                        >48.5</span
+                      >
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Horas</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 23px;
+                          font-weight: 800;
+                        "
+                        >3</span
+                      >
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Cursos</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 23px;
+                          font-weight: 800;
+                        "
+                        >240</span
+                      >
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.12em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >XP</span
+                      >
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 10px">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >En curso</span
+                    >
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 9px;
+                      "
+                    >
+                      <div
+                        style="
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: center;
+                          gap: 10px;
+                        "
+                      >
+                        <span style="font-size: 13.5px; font-weight: 700"
+                          >Arquitectura de redes móviles</span
+                        >
+                        <span style="font-size: 12px; font-weight: 800; color: #f04e23">62%</span>
+                      </div>
+                      <span
+                        style="
+                          height: 7px;
+                          background: #efe2d2;
+                          border-radius: 999px;
+                          display: block;
+                        "
+                        ><span
+                          style="
+                            display: block;
+                            width: 62%;
+                            height: 100%;
+                            background: #f04e23;
+                            border-radius: 999px;
+                          "
+                        ></span
+                      ></span>
+                    </div>
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 9px;
+                      "
+                    >
+                      <div
+                        style="display: flex; justify-content: space-between; align-items: center"
+                      >
+                        <span style="font-size: 13.5px; font-weight: 700"
+                          >Fibra óptica en campo</span
+                        >
+                        <span style="font-size: 12px; font-weight: 800; color: #f04e23">28%</span>
+                      </div>
+                      <span
+                        style="
+                          height: 7px;
+                          background: #efe2d2;
+                          border-radius: 999px;
+                          display: block;
+                        "
+                        ><span
+                          style="
+                            display: block;
+                            width: 28%;
+                            height: 100%;
+                            background: #f04e23;
+                            border-radius: 999px;
+                          "
+                        ></span
+                      ></span>
+                    </div>
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 9px;
+                      "
+                    >
+                      <div
+                        style="display: flex; justify-content: space-between; align-items: center"
+                      >
+                        <span style="font-size: 13.5px; font-weight: 700"
+                          >Analítica para servicio</span
+                        >
+                        <span style="font-size: 12px; font-weight: 800; color: #f04e23">9%</span>
+                      </div>
+                      <span
+                        style="
+                          height: 7px;
+                          background: #efe2d2;
+                          border-radius: 999px;
+                          display: block;
+                        "
+                        ><span
+                          style="
+                            display: block;
+                            width: 9%;
+                            height: 100%;
+                            background: #f04e23;
+                            border-radius: 999px;
+                          "
+                        ></span
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #ffe9b8;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      padding: 16px 17px;
+                      display: flex;
+                      align-items: center;
+                      gap: 15px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: none;
+                        width: 52px;
+                        height: 52px;
+                        border-radius: 50%;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 17px;
+                          font-weight: 800;
+                          line-height: 1;
+                        "
+                        >5</span
+                      >
+                      <span style="font-size: 9px; font-weight: 800; color: #9a8f82">/7</span>
+                    </span>
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 16px;
+                          font-weight: 800;
+                          line-height: 1.1;
+                        "
+                        >Meta de la semana</span
+                      >
+                      <span style="font-size: 12px; line-height: 1.45; color: #6b6157"
+                        >Dos días más y ganas la insignia de semana llena.</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Hoy</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Logros</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">07 · Avance.</strong> La racha es el titular; las
+                  horas y el XP son soporte, no protagonistas.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 08 LOGROS Y CERTIFICADOS -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="08 Logros y certificados"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <span
+                    style="
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 28px;
+                      font-weight: 800;
+                      letter-spacing: -0.02em;
+                    "
+                    >Lo que ganaste</span
+                  >
+
+                  <div
+                    style="
+                      display: flex;
+                      gap: 6px;
+                      background: #efe2d2;
+                      border: 2px solid #1a1714;
+                      border-radius: 999px;
+                      padding: 4px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        background: #fffdf9;
+                        border-radius: 999px;
+                        padding: 8px 0;
+                        font-size: 12px;
+                        font-weight: 800;
+                      "
+                      >Certificados</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        padding: 8px 0;
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: #6b6157;
+                      "
+                      >Logros</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 24px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 20px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 14px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 16px;
+                      "
+                    >
+                      <div style="display: flex; flex-direction: column; gap: 5px">
+                        <span
+                          style="
+                            font-size: 10px;
+                            font-weight: 800;
+                            letter-spacing: 0.18em;
+                            text-transform: uppercase;
+                            color: #9a8f82;
+                          "
+                          >Certificado</span
+                        >
+                        <span
+                          style="
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 22px;
+                            font-weight: 800;
+                            line-height: 1.1;
+                          "
+                          >Liderazgo de cuadrilla</span
+                        >
+                        <span style="font-size: 11.5px; font-weight: 600; color: #6b6157"
+                          >Emitido 12 ago 2026 · 1.5 h</span
+                        >
+                      </div>
+                      <span
+                        style="
+                          flex: none;
+                          width: 56px;
+                          height: 56px;
+                          border-radius: 50%;
+                          background: #ffe9b8;
+                          border: 2px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 13px;
+                          font-weight: 800;
+                          text-align: center;
+                          line-height: 1;
+                        "
+                        >100%</span
+                      >
+                    </div>
+                    <div style="display: flex; gap: 10px">
+                      <span
+                        style="
+                          flex: 1;
+                          background: #1a1714;
+                          color: #fff7ee;
+                          border-radius: 14px;
+                          padding: 12px;
+                          text-align: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >Compartir</span
+                      >
+                      <span
+                        style="
+                          flex: 1;
+                          border: 2px solid #1a1714;
+                          border-radius: 14px;
+                          padding: 12px;
+                          text-align: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >Descargar</span
+                      >
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 11px">
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: baseline"
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 17px;
+                          font-weight: 800;
+                        "
+                        >Insignias</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 700; color: #9a8f82"
+                        >6 de 14</span
+                      >
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 11px">
+                      <div
+                        style="display: flex; flex-direction: column; align-items: center; gap: 7px"
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            background: #ffe9b8;
+                            border: 2px solid #1a1714;
+                            box-shadow: 3px 3px 0 #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 19px;
+                            font-weight: 800;
+                          "
+                          >7</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Semana llena</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; flex-direction: column; align-items: center; gap: 7px"
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            background: #cfe4ff;
+                            border: 2px solid #1a1714;
+                            box-shadow: 3px 3px 0 #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 19px;
+                            font-weight: 800;
+                          "
+                          >★</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Quiz perfecto</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; flex-direction: column; align-items: center; gap: 7px"
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            background: #f3d9ff;
+                            border: 2px solid #1a1714;
+                            box-shadow: 3px 3px 0 #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 19px;
+                            font-weight: 800;
+                          "
+                          >3</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Tres cursos</span
+                        >
+                      </div>
+                      <div
+                        style="display: flex; flex-direction: column; align-items: center; gap: 7px"
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            background: #d9f0c7;
+                            border: 2px solid #1a1714;
+                            box-shadow: 3px 3px 0 #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 19px;
+                            font-weight: 800;
+                          "
+                          >↑</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Madrugador</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          gap: 7px;
+                          opacity: 0.45;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            border: 2px dashed #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-size: 17px;
+                            font-weight: 800;
+                          "
+                          >30</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Mes completo</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                          gap: 7px;
+                          opacity: 0.45;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 62px;
+                            height: 62px;
+                            border-radius: 50%;
+                            border: 2px dashed #1a1714;
+                            display: grid;
+                            place-items: center;
+                            font-size: 17px;
+                            font-weight: 800;
+                          "
+                          >◇</span
+                        >
+                        <span style="font-size: 10.5px; font-weight: 700; text-align: center"
+                          >Ruta cerrada</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #cfe4ff;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      padding: 15px 17px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 10px;
+                    "
+                  >
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: baseline"
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 16px;
+                          font-weight: 800;
+                        "
+                        >Nivel 4 · Técnico</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 800; color: #4a5b72"
+                        >240 / 400 XP</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        height: 8px;
+                        background: rgba(26, 23, 20, 0.16);
+                        border-radius: 999px;
+                        display: block;
+                      "
+                      ><span
+                        style="
+                          display: block;
+                          width: 60%;
+                          height: 100%;
+                          background: #1a1714;
+                          border-radius: 999px;
+                        "
+                      ></span
+                    ></span>
+                  </div>
+
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 13px;
+                      border: 2px dashed #c9bba9;
+                      border-radius: 18px;
+                      padding: 13px 15px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: none;
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        border: 2px dashed #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 14px;
+                        font-weight: 800;
+                        color: #9a8f82;
+                      "
+                      >30</span
+                    >
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 3px">
+                      <span style="font-size: 13px; font-weight: 800">Siguiente: mes completo</span>
+                      <span style="font-size: 11.5px; font-weight: 600; color: #9a8f82"
+                        >Te faltan 18 días seguidos</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Hoy</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Logros</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">08 · Logros.</strong> Insignias con sombra dura,
+                  las pendientes en línea punteada: se ve lo que falta sin cerrar la puerta.
+                </p>
+              </sc-if>
+            </div>
+
+            <!-- 09 RUTAS -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="09 Rutas de aprendizaje"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 28px;
+                        font-weight: 800;
+                        letter-spacing: -0.02em;
+                      "
+                      >Tu ruta</span
+                    >
+                    <span
+                      style="
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 7px 13px;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                      "
+                      >Cambiar</span
+                    >
+                  </div>
+
+                  <div
+                    style="
+                      background: #d9f0c7;
+                      border: 2px solid #1a1714;
+                      border-radius: 24px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 18px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 12px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 12px;
+                      "
+                    >
+                      <div style="display: flex; flex-direction: column; gap: 5px">
+                        <span
+                          style="
+                            font-size: 10px;
+                            font-weight: 800;
+                            letter-spacing: 0.18em;
+                            text-transform: uppercase;
+                            color: #4f6b3e;
+                          "
+                          >Ruta activa</span
+                        >
+                        <span
+                          style="
+                            font-family: 'Bricolage Grotesque', sans-serif;
+                            font-size: 22px;
+                            font-weight: 800;
+                            line-height: 1.08;
+                          "
+                          >Especialista en última milla</span
+                        >
+                      </div>
+                      <span
+                        style="
+                          flex: none;
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 15px;
+                          font-weight: 800;
+                          background: #fffdf9;
+                          border: 2px solid #1a1714;
+                          border-radius: 999px;
+                          padding: 6px 12px;
+                        "
+                        >3 / 5</span
+                      >
+                    </div>
+                    <div style="display: flex; gap: 6px">
+                      <span
+                        style="flex: 1; height: 8px; border-radius: 999px; background: #1a1714"
+                      ></span>
+                      <span
+                        style="flex: 1; height: 8px; border-radius: 999px; background: #1a1714"
+                      ></span>
+                      <span
+                        style="flex: 1; height: 8px; border-radius: 999px; background: #1a1714"
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: rgba(26, 23, 20, 0.18);
+                        "
+                      ></span>
+                      <span
+                        style="
+                          flex: 1;
+                          height: 8px;
+                          border-radius: 999px;
+                          background: rgba(26, 23, 20, 0.18);
+                        "
+                      ></span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column">
+                    <div style="display: flex; gap: 14px">
+                      <div
+                        style="
+                          flex: none;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            background: #1a1714;
+                            color: #fff7ee;
+                            display: grid;
+                            place-items: center;
+                            font-size: 14px;
+                            font-weight: 800;
+                          "
+                          >✓</span
+                        >
+                        <span
+                          style="width: 2px; flex: 1; background: #1a1714; min-height: 34px"
+                        ></span>
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          padding-bottom: 16px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 3px;
+                        "
+                      >
+                        <span style="font-size: 14.5px; font-weight: 700"
+                          >Fundamentos de red de acceso</span
+                        >
+                        <span style="font-size: 11.5px; font-weight: 600; color: #9a8f82"
+                          >Completado · 2 h 10 m</span
+                        >
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 14px">
+                      <div
+                        style="
+                          flex: none;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            background: #1a1714;
+                            color: #fff7ee;
+                            display: grid;
+                            place-items: center;
+                            font-size: 14px;
+                            font-weight: 800;
+                          "
+                          >✓</span
+                        >
+                        <span
+                          style="width: 2px; flex: 1; background: #1a1714; min-height: 34px"
+                        ></span>
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          padding-bottom: 16px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 3px;
+                        "
+                      >
+                        <span style="font-size: 14.5px; font-weight: 700"
+                          >Liderazgo de cuadrilla</span
+                        >
+                        <span style="font-size: 11.5px; font-weight: 600; color: #9a8f82"
+                          >Completado · certificado</span
+                        >
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 14px">
+                      <div
+                        style="
+                          flex: none;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            background: #f04e23;
+                            border: 2px solid #1a1714;
+                            color: #fff7ee;
+                            display: grid;
+                            place-items: center;
+                            font-size: 12px;
+                            padding-left: 2px;
+                          "
+                          >▶</span
+                        >
+                        <span
+                          style="width: 2px; flex: 1; background: #efe2d2; min-height: 34px"
+                        ></span>
+                      </div>
+                      <div style="flex: 1; padding-bottom: 16px">
+                        <div
+                          style="
+                            background: #fffdf9;
+                            border: 2px solid #1a1714;
+                            border-radius: 18px;
+                            box-shadow: 3px 3px 0 #1a1714;
+                            padding: 14px;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 9px;
+                          "
+                        >
+                          <span style="font-size: 14.5px; font-weight: 800"
+                            >Arquitectura de redes móviles</span
+                          >
+                          <span
+                            style="
+                              height: 7px;
+                              background: #efe2d2;
+                              border-radius: 999px;
+                              display: block;
+                            "
+                            ><span
+                              style="
+                                display: block;
+                                width: 62%;
+                                height: 100%;
+                                background: #f04e23;
+                                border-radius: 999px;
+                              "
+                            ></span
+                          ></span>
+                          <span style="font-size: 11.5px; font-weight: 700; color: #f04e23"
+                            >En curso · 62%</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 14px">
+                      <div
+                        style="
+                          flex: none;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            border: 2px dashed #c9bba9;
+                            display: grid;
+                            place-items: center;
+                            font-size: 13px;
+                            font-weight: 800;
+                            color: #9a8f82;
+                          "
+                          >4</span
+                        >
+                        <span
+                          style="width: 2px; flex: 1; background: #efe2d2; min-height: 30px"
+                        ></span>
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          padding-bottom: 14px;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 3px;
+                          opacity: 0.55;
+                        "
+                      >
+                        <span style="font-size: 14.5px; font-weight: 700"
+                          >Empalmes y certificación OTDR</span
+                        >
+                        <span style="font-size: 11.5px; font-weight: 600; color: #9a8f82"
+                          >Se abre al terminar el anterior</span
+                        >
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 14px">
+                      <div
+                        style="
+                          flex: none;
+                          display: flex;
+                          flex-direction: column;
+                          align-items: center;
+                        "
+                      >
+                        <span
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            border: 2px dashed #c9bba9;
+                            display: grid;
+                            place-items: center;
+                            font-size: 13px;
+                            font-weight: 800;
+                            color: #9a8f82;
+                          "
+                          >5</span
+                        >
+                      </div>
+                      <div
+                        style="
+                          flex: 1;
+                          display: flex;
+                          flex-direction: column;
+                          gap: 3px;
+                          opacity: 0.55;
+                        "
+                      >
+                        <span style="font-size: 14.5px; font-weight: 700"
+                          >Proyecto final en campo</span
+                        >
+                        <span style="font-size: 11.5px; font-weight: 600; color: #9a8f82"
+                          >Evaluado por instructor</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #fffdf9;
+                      border: 2px solid #1a1714;
+                      border-radius: 20px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 16px 17px;
+                      display: flex;
+                      align-items: center;
+                      gap: 14px;
+                    "
+                  >
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Al terminar la ruta</span
+                      >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 16px;
+                          font-weight: 800;
+                          line-height: 1.15;
+                        "
+                        >Certificado de especialista</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 600; color: #6b6157"
+                        >Te faltan 2 cursos · 7 h estimadas</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        flex: none;
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: #f04e23;
+                        border: 2px solid #1a1714;
+                        color: #fff7ee;
+                        display: grid;
+                        place-items: center;
+                        font-size: 15px;
+                      "
+                      >→</span
+                    >
+                  </div>
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Hoy</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Explorar</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Logros</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">09 · Rutas.</strong> Escalera vertical: hecho en
+                  tinta sólida, en curso con tarjeta elevada, lo que viene en punteado.
+                </p>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================= INSTRUCTOR ======================= -->
+        <div style="display: flex; flex-direction: column; gap: 26px">
+          <div
+            style="
+              display: flex;
+              align-items: baseline;
+              gap: 14px;
+              border-bottom: 2px solid #1a1714;
+              padding-bottom: 12px;
+            "
+          >
+            <span
+              style="
+                font-family: 'Bricolage Grotesque', sans-serif;
+                font-size: 24px;
+                font-weight: 800;
+              "
+              >Instructor</span
+            >
+            <span
+              style="
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                color: #9a8f82;
+              "
+              >10</span
+            >
+          </div>
+          <div style="display: flex; gap: 36px; flex-wrap: wrap; align-items: flex-start">
+            <!-- 10 PANEL -->
+            <div style="display: flex; flex-direction: column; gap: 14px; width: 390px">
+              <div
+                data-screen-label="10 Panel de instructor"
+                style="
+                  width: 390px;
+                  height: 844px;
+                  border-radius: 46px;
+                  overflow: hidden;
+                  position: relative;
+                  background: #fff7ee;
+                  color: #1a1714;
+                  box-shadow:
+                    0 30px 60px -22px rgba(60, 40, 20, 0.32),
+                    0 0 0 1px rgba(26, 23, 20, 0.08);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 16px 26px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                  "
+                >
+                  <span>9:41</span
+                  ><span
+                    style="
+                      width: 22px;
+                      height: 10px;
+                      border: 1.5px solid #1a1714;
+                      border-radius: 3px;
+                      display: block;
+                    "
+                  ></span>
+                </div>
+
+                <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div style="display: flex; flex-direction: column; gap: 2px">
+                      <span
+                        style="
+                          font-size: 11px;
+                          font-weight: 800;
+                          letter-spacing: 0.16em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Instructora</span
+                      >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 26px;
+                          font-weight: 800;
+                          letter-spacing: -0.02em;
+                        "
+                        >Mariana Solís</span
+                      >
+                    </div>
+                    <span
+                      style="
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: #ffe9b8;
+                        border: 2px solid #1a1714;
+                        display: grid;
+                        place-items: center;
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 17px;
+                        font-weight: 800;
+                      "
+                      >M</span
+                    >
+                  </div>
+
+                  <div style="display: flex; gap: 10px">
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 22px;
+                          font-weight: 800;
+                        "
+                        >248</span
+                      >
+                      <span
+                        style="
+                          font-size: 9.5px;
+                          font-weight: 800;
+                          letter-spacing: 0.1em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Alumnos</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 22px;
+                          font-weight: 800;
+                        "
+                        >4.8</span
+                      >
+                      <span
+                        style="
+                          font-size: 9.5px;
+                          font-weight: 800;
+                          letter-spacing: 0.1em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Valoración</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        flex: 1;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 3px;
+                      "
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 22px;
+                          font-weight: 800;
+                        "
+                        >62%</span
+                      >
+                      <span
+                        style="
+                          font-size: 9.5px;
+                          font-weight: 800;
+                          letter-spacing: 0.1em;
+                          text-transform: uppercase;
+                          color: #9a8f82;
+                        "
+                        >Terminan</span
+                      >
+                    </div>
+                  </div>
+
+                  <div
+                    style="
+                      background: #ffd9cc;
+                      border: 2px solid #1a1714;
+                      border-radius: 22px;
+                      box-shadow: 4px 4px 0 #1a1714;
+                      padding: 17px;
+                      display: flex;
+                      flex-direction: column;
+                      gap: 13px;
+                    "
+                  >
+                    <span
+                      style="
+                        font-family: 'Bricolage Grotesque', sans-serif;
+                        font-size: 18px;
+                        font-weight: 800;
+                      "
+                      >Requiere tu atención</span
+                    >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 14px;
+                        padding: 11px 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          background: #f04e23;
+                          color: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >12</span
+                      >
+                      <span style="flex: 1; font-size: 13px; font-weight: 700"
+                        >Proyectos por calificar</span
+                      >
+                      <span style="font-size: 14px; font-weight: 800">→</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 14px;
+                        padding: 11px 13px;
+                      "
+                    >
+                      <span
+                        style="
+                          width: 30px;
+                          height: 30px;
+                          border-radius: 9px;
+                          background: #1a1714;
+                          color: #fff7ee;
+                          border: 1.5px solid #1a1714;
+                          display: grid;
+                          place-items: center;
+                          font-size: 13px;
+                          font-weight: 800;
+                        "
+                        >3</span
+                      >
+                      <span style="flex: 1; font-size: 13px; font-weight: 700"
+                        >Dudas sin responder</span
+                      >
+                      <span style="font-size: 14px; font-weight: 800">→</span>
+                    </div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 10px">
+                    <div
+                      style="display: flex; justify-content: space-between; align-items: baseline"
+                    >
+                      <span
+                        style="
+                          font-family: 'Bricolage Grotesque', sans-serif;
+                          font-size: 17px;
+                          font-weight: 800;
+                        "
+                        >Tus cursos</span
+                      >
+                      <span style="font-size: 11.5px; font-weight: 800; color: #f04e23"
+                        >Ver todos</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                      "
+                    >
+                      <div
+                        style="
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: center;
+                          gap: 10px;
+                        "
+                      >
+                        <span style="font-size: 13.5px; font-weight: 800"
+                          >Arquitectura de redes móviles</span
+                        >
+                        <span
+                          style="
+                            background: #d9f0c7;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 999px;
+                            padding: 3px 8px;
+                            font-size: 10px;
+                            font-weight: 800;
+                          "
+                          >Activo</span
+                        >
+                      </div>
+                      <div style="display: flex; align-items: flex-end; gap: 5px; height: 44px">
+                        <span
+                          style="
+                            flex: 1;
+                            height: 40%;
+                            background: #efe2d2;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 62%;
+                            background: #efe2d2;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 52%;
+                            background: #efe2d2;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 78%;
+                            background: #f04e23;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 96%;
+                            background: #f04e23;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 70%;
+                            background: #efe2d2;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                        <span
+                          style="
+                            flex: 1;
+                            height: 34%;
+                            background: #efe2d2;
+                            border: 1.5px solid #1a1714;
+                            border-radius: 4px 4px 0 0;
+                          "
+                        ></span>
+                      </div>
+                      <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                        >168 alumnos activos · pico el jueves</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background: #fffdf9;
+                        border: 2px solid #1a1714;
+                        border-radius: 18px;
+                        padding: 13px;
+                      "
+                    >
+                      <div style="display: flex; flex-direction: column; gap: 3px">
+                        <span style="font-size: 13.5px; font-weight: 800"
+                          >Liderazgo de cuadrilla</span
+                        >
+                        <span style="font-size: 11px; font-weight: 600; color: #9a8f82"
+                          >80 alumnos · 91% termina</span
+                        >
+                      </div>
+                      <span
+                        style="
+                          border: 2px solid #1a1714;
+                          border-radius: 999px;
+                          padding: 5px 10px;
+                          font-size: 10px;
+                          font-weight: 800;
+                        "
+                        >Borrador v2</span
+                      >
+                    </div>
+                  </div>
+
+                  <span
+                    style="
+                      background: #1a1714;
+                      color: #fff7ee;
+                      border-radius: 18px;
+                      padding: 16px;
+                      text-align: center;
+                      font-family: 'Bricolage Grotesque', sans-serif;
+                      font-size: 15.5px;
+                      font-weight: 800;
+                    "
+                    >Nueva lección</span
+                  >
+                </div>
+
+                <sc-if value="{{ showTabBars }}" hint-placeholder-val="{{ true }}">
+                  <div
+                    style="
+                      position: absolute;
+                      bottom: 0;
+                      left: 0;
+                      right: 0;
+                      height: 84px;
+                      background: #fffdf9;
+                      border-top: 2px solid #1a1714;
+                      display: flex;
+                      align-items: center;
+                      padding: 0 18px;
+                      gap: 6px;
+                    "
+                  >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 800;
+                        background: #f04e23;
+                        color: #fff7ee;
+                        border: 2px solid #1a1714;
+                        border-radius: 999px;
+                        padding: 9px 0;
+                        margin-bottom: 14px;
+                      "
+                      >Panel</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Cursos</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Alumnos</span
+                    >
+                    <span
+                      style="
+                        flex: 1;
+                        text-align: center;
+                        font-size: 11.5px;
+                        font-weight: 700;
+                        color: #9a8f82;
+                        margin-bottom: 14px;
+                      "
+                      >Perfil</span
+                    >
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}">
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b6157">
+                  <strong style="font-weight: 800">10 · Panel.</strong> Mismo lenguaje, otra
+                  prioridad: primero lo que bloquea al alumno, después las métricas de vanidad.
+                </p>
+              </sc-if>
+            </div>
+
+            <div
+              style="
+                width: 390px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding-top: 6px;
+              "
+            >
+              <span
+                style="
+                  font-family: 'Bricolage Grotesque', sans-serif;
+                  font-size: 22px;
+                  font-weight: 800;
+                "
+                >Reglas del sistema</span
+              >
+              <div style="display: flex; flex-direction: column; gap: 12px">
+                <div
+                  style="
+                    background: #fffdf9;
+                    border: 2px solid #1a1714;
+                    border-radius: 18px;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                  "
+                >
+                  <span style="font-size: 13.5px; font-weight: 800"
+                    >Una sola acción naranja por pantalla</span
+                  >
+                  <span style="font-size: 12.5px; line-height: 1.5; color: #6b6157"
+                    >El naranja es siempre “seguir aprendiendo”. Nunca decora.</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #fffdf9;
+                    border: 2px solid #1a1714;
+                    border-radius: 18px;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                  "
+                >
+                  <span style="font-size: 13.5px; font-weight: 800"
+                    >Sombra dura = tocable y prioritario</span
+                  >
+                  <span style="font-size: 12.5px; line-height: 1.5; color: #6b6157"
+                    >Tarjetas planas para información; sombra de 3–4 px solo donde se espera un
+                    toque.</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #fffdf9;
+                    border: 2px solid #1a1714;
+                    border-radius: 18px;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                  "
+                >
+                  <span style="font-size: 13.5px; font-weight: 800"
+                    >Cada curso tiene su pastel</span
+                  >
+                  <span style="font-size: 12.5px; line-height: 1.5; color: #6b6157"
+                    >Azul red, verde datos, lila seguridad, durazno personas. La letra hace de
+                    portada, sin ilustración por curso.</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #fffdf9;
+                    border: 2px solid #1a1714;
+                    border-radius: 18px;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                  "
+                >
+                  <span style="font-size: 13.5px; font-weight: 800"
+                    >Bordes de 2 px, radios de 14–26 px</span
+                  >
+                  <span style="font-size: 12.5px; line-height: 1.5; color: #6b6157"
+                    >Tinta #1A1714 en todo contorno; áreas tocables de 44 px mínimo.</span
+                  >
+                </div>
+                <div
+                  style="
+                    background: #efe2d2;
+                    border: 2px dashed #1a1714;
+                    border-radius: 18px;
+                    padding: 15px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                  "
+                >
+                  <span style="font-size: 13.5px; font-weight: 800">Pendiente de tu lado</span>
+                  <span style="font-size: 12.5px; line-height: 1.5; color: #6b6157"
+                    >Logo y color de marca reales, nombres de cursos del catálogo actual, y si el XP
+                    y la racha existen en el producto o hay que crearlos.</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"showNotes":{"editor":"boolean","default":true,"tsType":"boolean","section":"Presentación"},"showTabBars":{"editor":"boolean","default":true,"tsType":"boolean","section":"Presentación"}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          return {
+            showNotes: this.props.showNotes ?? true,
+            showTabBars: this.props.showTabBars ?? true,
+          };
+        }
+      }
+    </script>
+  </body>
+</html>
