@@ -14,9 +14,15 @@
   background: var(--paper);
 }
 
+/* El aparte pinta con la variante OSCURA del primario, como la barra de
+   navegación, y no con el primario vivo: el acento de acción puede ser un
+   color claro (el naranja da 3.4:1 con cualquier tinta clara) y esta
+   superficie lleva párrafos enteros. La tinta es --sobre-primary-dark y las
+   variantes tenues se derivan de ella con opacidad, no con blanco clavado:
+   con una marca clara la tinta derivada es oscura y el blanco desaparecía. */
 .auth-aside {
-  background: var(--brand-primary);
-  color: var(--sobre-primary);
+  background: var(--brand-primary-dark);
+  color: var(--sobre-primary-dark);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -51,7 +57,11 @@
   margin: 0 auto;
 }
 .auth-aside-kicker {
-  color: var(--brand-accent-soft);
+  /* Hereda la tinta del aparte (.eyebrow la fijaría en --ink-3, que sigue al
+     modo y aquí pisa una superficie de marca). El acento amarillo queda para
+     el énfasis del titular, que por tamaño tolera 3:1. */
+  color: inherit;
+  opacity: 0.8;
   margin-bottom: calc(var(--unit) * 3);
 }
 .auth-aside-quote {
@@ -75,8 +85,9 @@
 .auth-aside-meta {
   font-size: var(--text-xs);
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.7);
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  color: inherit;
+  opacity: 0.75;
+  border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   padding-top: calc(var(--unit) * 2);
   max-width: 32ch;
 }
