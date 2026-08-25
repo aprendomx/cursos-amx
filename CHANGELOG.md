@@ -14,6 +14,26 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
   y las superficies utilitarias `.tarjeta-dura`, `.tarjeta-plana`,
   `.pildora-filtro` y `.distintivo-recompensa`. Bricolage Grotesque y Manrope
   se cargan junto a las familias del tema neutro.
+- **Pantallas de alumno con la dirección nueva** (fase 2) — catálogo con
+  portada pastel por categoría e inicial del curso y filtros por nivel en
+  píldora; detalle de curso con el progreso como titular, acento único en el
+  módulo en curso y colapso móvil real; login que vende el hábito;
+  evaluación con avance por segmentos, opción seleccionada con acento y
+  mensaje de repaso al fallar; reproductor con superficie de visionado
+  oscura en ambos modos, saltos de ±15 s y pestañas Notas · Recursos ·
+  Dudas con datos reales.
+
+### Corregido (fase 2)
+
+- El detalle de curso y el reproductor quedaban partidos en columnas de
+  escritorio a 390px (retículas sin media queries); ambos colapsan ya a una
+  columna.
+- El aparte del login suponía tinta blanca sobre el primario vivo (3.4:1 con
+  el naranja); pasa al par `primary-dark`/`sobre-primary-dark`, como la nav.
+- Datos de utilería que mentían en producción: «Última actividad: hace 2
+  días» del detalle, las «notas de lección» clavadas sobre la PNT, el
+  distintivo «Aula viva» en toda lección grabada y el «Módulo 02» fijo del
+  reproductor. Fuera o sustituidos por el dato real.
 
 ### Corregido
 
