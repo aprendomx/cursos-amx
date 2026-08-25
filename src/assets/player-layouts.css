@@ -1,5 +1,28 @@
 /* ─── Page shell ─────────────────────────────────── */
 .player-page {
+  /* Superficie de VISIONADO: oscura en los dos modos, como el letterbox —
+     es condición de visionado, no tema. En vez de repintar cada hijo, se
+     re-fijan aquí los neutros y el primario a sus valores de modo claro:
+     todo el reproductor se diseñó sobre ellos (tinta oscura de fondo, papel
+     claro de tinta), así que con esto se ve igual con el tema que sea. Antes,
+     en modo oscuro, --ink se invertía a casi blanco y el reproductor quedaba
+     claro con sus tintas blancas fijas encima. */
+  --lienzo: #fff7ee;
+  --paper: #fffdf9;
+  --paper-2: #f7f0e5;
+  --paper-3: #efe2d2;
+  --line: #e3e7ed;
+  --line-soft: #edf0f4;
+  --ink: var(--brand-ink);
+  --ink-2: var(--gris-70);
+  --ink-3: #5f5f5f;
+  --ink-4: #666666;
+  --primary: var(--brand-primary);
+  --primary-700: var(--brand-primary-dark);
+  --primary-100: var(--brand-primary-soft);
+  --primary-fg: var(--brand-primary-on-light, var(--brand-primary));
+  --focus-ring: var(--paper);
+
   background: var(--ink);
   color: var(--paper);
   min-height: 100vh;
@@ -153,50 +176,18 @@
   /* inherits video-surface */
 }
 
+/* Aloja las pestañas Notas · Recursos · Dudas (el bloque de notas clavadas
+   y su CSS se fueron con él). */
 .stacked-bottom {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
   min-height: 280px;
 }
-
-.stacked-notes {
-  padding: 24px;
-  overflow-y: auto;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.notes-header {
-  margin-bottom: 20px;
-}
-.notes-header .eyebrow {
-  color: var(--ink-4);
-  display: block;
-  margin-bottom: 6px;
-}
-.notes-header h3 {
-  font-size: 22px;
-  color: var(--paper);
-}
-
-.notes-body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.notes-body p {
-  font-size: 14px;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.6);
-}
-.notes-highlight {
-  padding: 16px;
-  border-left: 3px solid var(--brand-accent);
-  background: rgba(212, 193, 156, 0.06);
-  color: rgba(255, 255, 255, 0.75) !important;
-  font-style: italic;
+.stacked-bottom .player-tabs {
+  flex: 1;
 }
 
 .layout-stacked .chat-pane {
@@ -257,6 +248,21 @@
   gap: 10px;
   flex-shrink: 0;
 }
+.focus-tabs-wrap {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 24px;
+}
+.focus-tabs-wrap .player-tabs {
+  flex: 1;
+}
+.focus-tabs-wrap .chat-pane {
+  min-height: 280px;
+}
 .focus-actions .btn-ghost {
   border-color: rgba(255, 255, 255, 0.12);
   color: var(--paper);
@@ -286,6 +292,144 @@
   gap: 8px;
   color: var(--success, #4ade80);
   font-weight: 600;
+}
+
+/* ─── Pestañas bajo la superficie (Notas · Recursos · Dudas) ── */
+.player-tabs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.player-tabs-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+.player-tab {
+  min-height: 44px;
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  border-bottom: 2px solid transparent;
+  transition:
+    color 160ms var(--ease),
+    border-color 160ms var(--ease);
+}
+.player-tab:hover {
+  color: var(--paper);
+}
+.player-tab[aria-selected='true'] {
+  color: var(--paper);
+  border-bottom-color: var(--brand-accent);
+}
+.player-tabs-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.player-tab-vacio {
+  padding: 24px;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  max-width: 52ch;
+}
+.player-tab-recursos {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+.player-tab-recurso-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-md);
+  color: var(--paper);
+  font-size: var(--text-sm);
+  transition: border-color 160ms var(--ease);
+}
+.player-tab-recurso-item:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.player-tabs .chat-pane {
+  height: 100%;
+  border-left: none;
+}
+
+/* ─── Saltos de ±15 s ─────────────────────────────── */
+.player-skips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.player-skip-btn {
+  min-height: 44px;
+  min-width: 64px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-full);
+  color: var(--paper);
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  transition:
+    border-color 160ms var(--ease),
+    background 160ms var(--ease);
+}
+.player-skip-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.player-skips-hint {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ─── Móvil: las tres variantes colapsan a una columna ── */
+@media (max-width: 900px) {
+  .layout-split {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+  .layout-split .chat-pane {
+    height: 360px;
+  }
+  .stacked-top {
+    grid-template-columns: 1fr;
+  }
+  .stacked-bottom {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .player-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .topbar-variants {
+    display: none; /* los tres acomodos son cosa de pantalla ancha */
+  }
+  .focus-center {
+    padding: 12px 12px 0;
+  }
+  .focus-below {
+    flex-direction: column;
+    gap: 12px;
+  }
 }
 
 /* ─── Aviso de avance guardado ───────────────────── */

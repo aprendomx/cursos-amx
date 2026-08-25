@@ -3,11 +3,11 @@ import { defineProps, computed, watch } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import PlayerVideoSurface from '@/components/PlayerVideoSurface.vue'
 import PlayerChatPane from '@/components/PlayerChatPane.vue'
+import PlayerTabsPanel from '@/components/PlayerTabsPanel.vue'
 import PlayerLessonNavigator from '@/components/PlayerLessonNavigator.vue'
 import EntregaUploadField from '@/components/EntregaUploadField.vue'
 import AiSummarizeButton from '@/components/AiSummarizeButton.vue'
 import AiChatWidget from '@/components/AiChatWidget.vue'
-import DownloadButton from '@/components/DownloadButton.vue'
 import VideoHeatmap from '@/components/VideoHeatmap.vue'
 import EntregaAlumnoPanel from '@/components/EntregaAlumnoPanel.vue'
 import { featureEnabled } from '@/lib/featureFlags.js'
@@ -107,6 +107,20 @@ function extractTextFromContenido(contenido) {
 }
 
 const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.contenido))
+
+// Saltos de ±15 s: el control de video que más se usa en móvil, legible y
+// con área propia en vez de depender de la barra nativa.
+function saltar(delta) {
+  const el = videoEl.value
+  if (source.value?.kind === 'hls' && el) {
+    const tope = Number.isFinite(el.duration) ? el.duration : Infinity
+    el.currentTime = Math.max(0, Math.min(tope, el.currentTime + delta))
+  } else if (totalTime.value) {
+    handleSeek(Math.max(0, Math.min(1, (currentTime.value + delta) / totalTime.value)))
+  }
+}
+
+const esVideo = computed(() => source.value?.kind === 'hls' || source.value?.kind === 'none')
 </script>
 <template>
   <div class="player-page" :class="`variant-${variant}`">
@@ -122,7 +136,10 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
         </button>
         <div class="topbar-divider" />
         <div class="topbar-info">
-          <span class="eyebrow">Modulo 02 &middot; Leccion {{ leccion.orden }}</span>
+          <span class="eyebrow"
+            >M&oacute;dulo {{ leccion.modulo_orden || 1 }} &middot; Lecci&oacute;n
+            {{ leccion.orden }}</span
+          >
           <span class="topbar-title display-italic">{{ leccion.titulo }}</span>
         </div>
       </div>
@@ -163,6 +180,14 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
         />
+        <div v-if="esVideo" class="player-skips">
+          <button class="player-skip-btn" aria-label="Retroceder 15 segundos" @click="saltar(-15)">
+            −15 s
+          </button>
+          <button class="player-skip-btn" aria-label="Adelantar 15 segundos" @click="saltar(15)">
+            +15 s
+          </button>
+        </div>
         <VideoHeatmap
           v-if="featureEnabled('video_analytics_heatmap')"
           :data="heatmapMockData"
@@ -232,6 +257,14 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
         />
+        <div v-if="esVideo" class="player-skips">
+          <button class="player-skip-btn" aria-label="Retroceder 15 segundos" @click="saltar(-15)">
+            −15 s
+          </button>
+          <button class="player-skip-btn" aria-label="Adelantar 15 segundos" @click="saltar(15)">
+            +15 s
+          </button>
+        </div>
         <VideoHeatmap
           v-if="featureEnabled('video_analytics_heatmap')"
           :data="heatmapMockData"
@@ -273,30 +306,23 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @select="selectLesson"
         />
       </div>
+      <!-- El bloque de «notas» traía tres párrafos clavados sobre la PNT,
+           idénticos para toda lección: utilería que mentía. Lo sustituyen las
+           pestañas Notas · Recursos · Dudas con datos reales (y la de notas
+           dice honesto que aún no hay dato). -->
       <div class="stacked-bottom">
-        <div class="stacked-notes">
-          <div class="notes-header">
-            <span class="eyebrow">Notas de leccion</span>
-            <h1 class="display-italic">
-              {{ leccion.titulo }}
-            </h1>
-          </div>
-          <div class="notes-body">
-            <p>
-              La Plataforma Nacional de Transparencia (PNT) es el sistema informatico que concentra
-              las obligaciones de transparencia de todos los sujetos obligados en Mexico.
-            </p>
-            <p>
-              Permite a cualquier ciudadano consultar la informacion publica de oficio, presentar
-              solicitudes de acceso a la informacion y dar seguimiento a recursos de revision.
-            </p>
-            <p class="notes-highlight">
-              Articulo 70 de la LGTAIP establece 48 fracciones de obligaciones comunes que deben
-              publicarse y actualizarse periodicamente.
-            </p>
-          </div>
-        </div>
-        <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
+        <PlayerTabsPanel
+          :lecciones="lecciones"
+          :comentarios="comentarios"
+          :draft="draft"
+          :offline-enabled="offlineEnabled"
+          :source="source"
+          :hls-master-url="hlsMasterUrl"
+          :leccion-id="leccion.id"
+          @update:draft="(v) => (draft = v)"
+          @send="sendComment"
+          @select="selectLesson"
+        />
       </div>
     </div>
 
@@ -326,6 +352,14 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           @eval-aprobada="handleEvaluacionAprobada"
           @marcar-lectura-completada="marcarLecturaCompletada"
         />
+        <div v-if="esVideo" class="player-skips">
+          <button class="player-skip-btn" aria-label="Retroceder 15 segundos" @click="saltar(-15)">
+            −15 s
+          </button>
+          <button class="player-skip-btn" aria-label="Adelantar 15 segundos" @click="saltar(15)">
+            +15 s
+          </button>
+        </div>
         <VideoHeatmap
           v-if="featureEnabled('video_analytics_heatmap')"
           :data="heatmapMockData"
@@ -351,28 +385,36 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
         />
         <div class="focus-below">
           <div class="focus-title-block">
-            <span class="eyebrow">Modulo 02 &middot; Leccion {{ leccion.orden }}</span>
+            <span class="eyebrow"
+              >M&oacute;dulo {{ leccion.modulo_orden || 1 }} &middot; Lecci&oacute;n
+              {{ leccion.orden }}</span
+            >
             <h1 class="display-italic focus-lesson-title">
               {{ leccion.titulo }}
             </h1>
           </div>
           <div class="focus-actions">
-            <button class="btn btn-ghost btn-sm" title="Notas (proximamente)" @click="() => {}">
-              <IconSet name="doc" /> Notas
-            </button>
-            <button class="btn btn-ghost btn-sm" title="Chat (proximamente)" @click="() => {}">
-              <IconSet name="chat" /> Chat
-            </button>
-            <DownloadButton
-              v-if="offlineEnabled && source?.kind === 'hls'"
-              :video-id="source.videoId"
-              :leccion-id="leccion.id"
-              :playlist-url="hlsMasterUrl"
-            />
             <button v-if="completada" class="btn btn-primary btn-sm" @click="goToNextLesson">
               Siguiente leccion <IconSet name="arrow" />
             </button>
           </div>
+        </div>
+        <!-- Los botones de Notas y Chat estaban muertos (@click vacío, título
+             «próximamente»); la descarga sin conexión vive ahora en la
+             pestaña de Recursos. -->
+        <div class="focus-tabs-wrap">
+          <PlayerTabsPanel
+            :lecciones="lecciones"
+            :comentarios="comentarios"
+            :draft="draft"
+            :offline-enabled="offlineEnabled"
+            :source="source"
+            :hls-master-url="hlsMasterUrl"
+            :leccion-id="leccion.id"
+            @update:draft="(v) => (draft = v)"
+            @send="sendComment"
+            @select="selectLesson"
+          />
         </div>
       </div>
       <PlayerLessonNavigator
