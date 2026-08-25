@@ -104,9 +104,13 @@
   --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
   --ink-3: #5f5f5f;
-  /* #767676 daba 4.20:1 sobre el lienzo nuevo; este da 4.68, y 5.02 sobre
-     blanco. */
-  --ink-4: #6f6f6f;
+  /* El anterior (#6f6f6f) daba 3.94:1 sobre el --paper-3 cálido: legal en las
+     demás superficies, corto justo en la más oscura. Este cumple en las tres
+     (4.50 / 5.41 / 5.65 sobre paper-3 / lienzo / paper) a cambio de comprimir
+     aún más la jerarquía contra --ink-3 — que es donde el umbral no deja
+     margen, como ya pasaba. Aclarar --paper-3 no era salida: quedaba a 1.02:1
+     de --paper-2 y la escala dejaba de escalonar. */
+  --ink-4: #666666;
 
   /* Semantic (derivados de la paleta institucional) */
   --success: var(--brand-secondary);
