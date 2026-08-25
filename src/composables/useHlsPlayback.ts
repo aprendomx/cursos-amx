@@ -95,10 +95,12 @@ export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
     }
   }
 
+  // Devuelve la promesa del guardado para que la página pueda reflejar el
+  // avance (botón de continuar, lista de lecciones) sin recargar.
   function onHlsEnded() {
     if (!leccionId.value) return
     flushSave(leccionId.value, totalTime.value)
-    marcarLeccionCompletada(leccionId.value).catch(() => {})
+    return marcarLeccionCompletada(leccionId.value)
   }
 
   watch(

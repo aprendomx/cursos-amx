@@ -53,6 +53,7 @@ const {
   handleEvaluacionAprobada,
   marcarLecturaCompletada,
   goToNextLesson,
+  avisoAvance,
 } = usePlayerPage(props)
 
 const aiSummariesEnabled = featureEnabled('ai_summaries')
@@ -185,6 +186,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           content-type="text"
           :leccion-id="leccion.id"
         />
+        <div v-if="completada" class="leccion-completada-strip" role="status">
+          <span class="strip-check"><IconSet name="check" /> Lección completada</span>
+          <button class="btn btn-primary btn-sm" @click="goToNextLesson">
+            Siguiente leccion <IconSet name="arrow" />
+          </button>
+        </div>
         <PlayerLessonNavigator
           :lecciones="lecciones"
           :current-leccion-id="currentLeccion"
@@ -248,6 +255,12 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
           content-type="text"
           :leccion-id="leccion.id"
         />
+        <div v-if="completada" class="leccion-completada-strip" role="status">
+          <span class="strip-check"><IconSet name="check" /> Lección completada</span>
+          <button class="btn btn-primary btn-sm" @click="goToNextLesson">
+            Siguiente leccion <IconSet name="arrow" />
+          </button>
+        </div>
         <PlayerLessonNavigator
           variant="stacked"
           :lecciones="lecciones"
@@ -375,5 +388,16 @@ const leccionTexto = computed(() => extractTextFromContenido(leccion.value?.cont
     </div>
 
     <AiChatWidget v-if="aiChatEnabled && leccionTexto" :context="leccionTexto" />
+
+    <!-- Confirmación de avance guardado -->
+    <div
+      v-if="avisoAvance"
+      class="avance-toast"
+      :class="`avance-toast-${avisoAvance.tipo}`"
+      role="status"
+      aria-live="polite"
+    >
+      {{ avisoAvance.texto }}
+    </div>
   </div>
 </template>

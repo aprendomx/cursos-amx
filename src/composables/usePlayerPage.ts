@@ -1,4 +1,4 @@
-import { computed, watch } from 'vue'
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { useUiStore } from '@/stores/ui.js'
@@ -73,6 +73,35 @@ export function usePlayerPage(props: PlayerPageProps) {
     }
   })
 
+  /* ── Aviso de avance guardado ───────────────────── */
+  // Confirmación visible al guardar el avance: sin ella el alumno no sabía si
+  // su progreso quedó registrado y recargaba la página "por si acaso".
+  const avisoAvance = ref<{ tipo: 'ok' | 'offline' | 'error'; texto: string } | null>(null)
+  let avisoTimer: ReturnType<typeof window.setTimeout> | null = null
+  function mostrarAviso(tipo: 'ok' | 'offline' | 'error', texto: string) {
+    avisoAvance.value = { tipo, texto }
+    if (avisoTimer) clearTimeout(avisoTimer)
+    avisoTimer = setTimeout(() => {
+      avisoAvance.value = null
+    }, 5000)
+  }
+  onBeforeUnmount(() => {
+    if (avisoTimer) clearTimeout(avisoTimer)
+  })
+
+  function marcarLeccionEnLista(leccionId: string | undefined) {
+    const lec = nav.lecciones.value.find((l) => l.id === leccionId)
+    if (lec) lec.completado = true
+  }
+
+  function confirmarAvance(diferido: boolean | undefined) {
+    if (diferido) {
+      mostrarAviso('offline', 'Avance guardado; se sincronizará al recuperar la conexión.')
+    } else {
+      mostrarAviso('ok', 'Avance guardado.')
+    }
+  }
+
   /* ── Delegación ─────────────────────────────────── */
   function togglePlay() {
     if (nav.source.value.kind === 'hls') {
@@ -102,16 +131,40 @@ export function usePlayerPage(props: PlayerPageProps) {
     playback.handleFinLectura()
   }
 
+  // Al terminar un video HLS el guardado ocurría solo en el servidor: la vista
+  // no se enteraba y el alumno tenía que recargar con F5 para poder continuar.
+  async function onHlsEnded() {
+    const leccionId = nav.leccion.value?.id
+    try {
+      const resultado = await hls.onHlsEnded()
+      playback.completada.value = true
+      marcarLeccionEnLista(leccionId)
+      confirmarAvance(resultado?.diferido)
+      await nav.refrescarProgreso()
+    } catch (e) {
+      console.error('guardar avance:', e)
+      mostrarAviso('error', 'No se pudo guardar tu avance. Revisa tu conexión e intenta de nuevo.')
+    }
+  }
+
   function handleEvaluacionAprobada() {
     playback.handleEvaluacionAprobada()
-    const lec = nav.lecciones.value.find((l) => l.id === nav.leccion.value?.id)
-    if (lec) lec.completado = true
+    marcarLeccionEnLista(nav.leccion.value?.id)
+    confirmarAvance(false)
+    nav.refrescarProgreso().catch(() => {})
   }
 
   async function marcarLecturaCompletada() {
-    await playback.marcarLecturaCompletada()
-    const lec = nav.lecciones.value.find((l) => l.id === nav.leccion.value?.id)
-    if (lec) lec.completado = true
+    try {
+      const resultado = await playback.marcarLecturaCompletada()
+      if (!resultado) return
+      marcarLeccionEnLista(nav.leccion.value?.id)
+      confirmarAvance(resultado.diferido)
+      await nav.refrescarProgreso()
+    } catch (e) {
+      console.error('guardar avance:', e)
+      mostrarAviso('error', 'No se pudo guardar tu avance. Revisa tu conexión e intenta de nuevo.')
+    }
   }
 
   /* ── Retorno (interfaz exacta de antes) ─────────── */
@@ -161,7 +214,8 @@ export function usePlayerPage(props: PlayerPageProps) {
     handleSeek,
     onHlsTimeUpdate: hls.onHlsTimeUpdate,
     onHlsLoadedMetadata: hls.onHlsLoadedMetadata,
-    onHlsEnded: hls.onHlsEnded,
+    onHlsEnded,
+    avisoAvance,
     selectLesson: nav.selectLesson,
     seekProgress,
     sendComment: chat.sendComment,

@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, type Ref, type ComputedRef } from 'vue'
+import { ref, computed, watch, onMounted, type Ref, type ComputedRef } from 'vue'
 import type { Router } from 'vue-router'
 import { sbSelect } from '@/lib/sbRest'
 
@@ -92,6 +92,18 @@ export function useLessonNavigation({
       router.push({ name: 'curso', params: { id: props.cursoId } })
     }
   }
+
+  // goToNextLesson navega con router.push y la ruta reutiliza esta misma
+  // instancia del componente: sin este watch la URL cambiaba de lección pero
+  // la vista no, y el usuario tenía que recargar con F5 para avanzar.
+  watch(
+    () => props.leccionId,
+    (id) => {
+      if (id && id !== currentLeccion.value && lecciones.value.some((l) => l.id === id)) {
+        selectLesson(id)
+      }
+    }
+  )
 
   function selectLesson(id: string) {
     currentLeccion.value = id
@@ -262,6 +274,26 @@ export function useLessonNavigation({
     loadingLecciones.value = false
   }
 
+  // Re-consulta el avance guardado y lo vuelca sobre la lista ya cargada, sin
+  // tocar la lección actual. Solo marca hacia adelante: un guardado diferido
+  // (offline) aún no está en el servidor y no debe des-marcar la lección.
+  async function refrescarProgreso() {
+    const userId = session.value?.user?.id
+    if (!userId || !lecciones.value.length) return
+    try {
+      const { data: prog } = await sbSelect(
+        `progreso?select=leccion_id&user_id=eq.${userId}&completado=eq.true&limit=10000`,
+        session.value?.access_token
+      )
+      const completadas = new Set((prog || []).map((p) => p.leccion_id))
+      for (const l of lecciones.value) {
+        if (completadas.has(l.id)) l.completado = true
+      }
+    } catch (e) {
+      console.warn('refrescar progreso:', e)
+    }
+  }
+
   /* ── Lifecycle ────────────────────────────────────── */
   onMounted(cargar)
 
@@ -289,5 +321,6 @@ export function useLessonNavigation({
     setVariant,
     seekProgress,
     cargar,
+    refrescarProgreso,
   }
 }

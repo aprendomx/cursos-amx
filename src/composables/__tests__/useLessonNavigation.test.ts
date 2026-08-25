@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { computed, defineComponent, h } from 'vue'
+import { computed, defineComponent, h, nextTick, reactive } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import { useLessonNavigation } from '../useLessonNavigation'
 
@@ -94,6 +94,31 @@ describe('useLessonNavigation', () => {
       name: 'player',
       params: { cursoId: 'c1', leccionId: 'l2' },
     })
+  })
+
+  it('sigue el cambio de props.leccionId cuando la ruta avanza', async () => {
+    const props = reactive({ cursoId: 'c1', leccionId: '' })
+    const nav = factory(props)
+    nav.lecciones.value = [
+      { id: 'l1', modulo_titulo: 'M1' } as any,
+      { id: 'l2', modulo_titulo: 'M2' } as any,
+    ]
+    nav.currentLeccion.value = 'l1'
+    props.leccionId = 'l2'
+    await nextTick()
+    expect(nav.currentLeccion.value).toBe('l2')
+  })
+
+  it('refrescarProgreso vuelve a consultar el avance y actualiza las lecciones', async () => {
+    const nav = factory()
+    nav.lecciones.value = [
+      { id: 'l1', completado: false } as any,
+      { id: 'l2', completado: false } as any,
+    ]
+    vi.mocked(sbSelect).mockResolvedValue({ data: [{ leccion_id: 'l2' }], count: null })
+    await (nav as any).refrescarProgreso()
+    expect(nav.lecciones.value.find((l) => l.id === 'l2')?.completado).toBe(true)
+    expect(nav.lecciones.value.find((l) => l.id === 'l1')?.completado).toBe(false)
   })
 
   it('fmtTime formatea segundos', () => {

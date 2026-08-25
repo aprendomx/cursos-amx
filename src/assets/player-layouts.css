@@ -267,3 +267,50 @@
 }
 
 /* ─── Focus horizontal lesson strip ──────────────── */
+
+/* ─── Lección completada: continuar sin recargar ─── */
+.leccion-completada-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--paper);
+}
+.leccion-completada-strip .strip-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--success, #4ade80);
+  font-weight: 600;
+}
+
+/* ─── Aviso de avance guardado ───────────────────── */
+.avance-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid var(--success);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.avance-toast-offline {
+  background: var(--warn-soft);
+  color: var(--warn);
+  border-color: var(--warn);
+}
+.avance-toast-error {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
