@@ -2,6 +2,26 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [Sin publicar]
+
+### Agregado
+
+- **Base de la dirección visual «hábito con recompensa»** (fase 1 de
+  `docs/propuesta-visual-aprendo.md`) — la escala de papel pasa a cálida en
+  modo claro (el oscuro no cambia) y entran los tokens de contorno de tinta
+  (`--borde-*`), elevación dura (`--elev-dura-*`, `none` en oscuro), los
+  cuatro pasteles de categoría con tinta explícita (`--cat-*`/`--sobre-cat-*`)
+  y las superficies utilitarias `.tarjeta-dura`, `.tarjeta-plana`,
+  `.pildora-filtro` y `.distintivo-recompensa`. Bricolage Grotesque y Manrope
+  se cargan junto a las familias del tema neutro.
+
+### Corregido
+
+- La derivación de los colores de primer plano se calibraba contra `#ffffff`;
+  sobre el lienzo —la superficie clara más oscura y la más usada— el derivado
+  podía quedarse en 4.26:1. Ahora se calibra contra el lienzo, así que cumple
+  4.5:1 en todas las superficies claras.
+
 ## [0.21.0] — 2026-08-22
 
 ### Agregado
