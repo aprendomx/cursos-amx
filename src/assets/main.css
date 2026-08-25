@@ -601,6 +601,27 @@ h4 {
   box-shadow: var(--elev-dura-1);
 }
 
+/* Pares de pastel de categoría, ya resueltos: fondo fijo + tinta fija (ver
+   tokens --cat-*). Los componentes aplican la clase completa en vez de armar
+   el par a mano — así la regla del par no se puede romper a medias. La clave
+   la da categoriaVisual() en src/lib/categoriaVisual.js. */
+.pastel-red {
+  background: var(--cat-red);
+  color: var(--sobre-cat-red);
+}
+.pastel-datos {
+  background: var(--cat-datos);
+  color: var(--sobre-cat-datos);
+}
+.pastel-seguridad {
+  background: var(--cat-seguridad);
+  color: var(--sobre-cat-seguridad);
+}
+.pastel-personas {
+  background: var(--cat-personas);
+  color: var(--sobre-cat-personas);
+}
+
 /* Distintivo de recompensa (+XP, pistas, logro reciente). Fondo del acento
    suave con su tinta propia: par fijo/fijo, como los --sobre-* (4.74:1 sobre
    el amarillo de la dirección nueva, 4.54:1 sobre el del tema neutro). */
