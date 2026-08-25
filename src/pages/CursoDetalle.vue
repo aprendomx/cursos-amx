@@ -363,18 +363,11 @@ async function continueCurso() {
       </p>
     </div>
     <template v-else>
-      <!-- Hero -->
-      <section
-        class="container"
-        :style="{
-          display: 'grid',
-          gridTemplateColumns: '7fr 5fr',
-          gap: 'calc(var(--unit) * 8)',
-          paddingTop: 'calc(var(--unit) * 8)',
-          paddingBottom: 'calc(var(--unit) * 8)',
-          alignItems: 'start',
-        }"
-      >
+      <!-- Hero. La retícula vive en CSS y no inline: los estilos inline no
+           tienen media queries, así que a 390px la página quedaba partida en
+           dos columnas apretadas. Mobile-first: una columna; el desktop es la
+           adaptación. -->
+      <section class="container detalle-hero">
         <!-- Left: course info -->
         <div :style="{ display: 'flex', flexDirection: 'column', gap: 'calc(var(--unit) * 3)' }">
           <p class="eyebrow">
@@ -425,7 +418,9 @@ async function continueCurso() {
                 {{ curso.nivel }}
               </div>
             </div>
-            <div>
+            <!-- Inscritos: la consulta nunca se hizo y el dato era un 0
+                 clavado; se muestra solo cuando exista de verdad. -->
+            <div v-if="curso.inscritos > 0">
               <div class="eyebrow" :style="{ marginBottom: '4px' }">Inscritos</div>
               <div :style="{ fontSize: 'var(--text-base)', fontWeight: '500' }">
                 {{ curso.inscritos.toLocaleString() }}
@@ -438,9 +433,10 @@ async function continueCurso() {
           </div>
         </div>
 
-        <!-- Right: side card -->
+        <!-- Right: side card. Tocable (lleva el CTA): tarjeta dura. El
+             progreso es el titular de la tarjeta, no un dato más. -->
         <div
-          class="card"
+          class="tarjeta-dura"
           :style="{
             padding: 'calc(var(--unit) * 4)',
             display: 'flex',
@@ -452,7 +448,7 @@ async function continueCurso() {
           <div :style="{ textAlign: 'center' }">
             <div
               class="display"
-              :style="{ fontSize: 'var(--text-4xl)', color: 'var(--primary)', lineHeight: '1' }"
+              :style="{ fontSize: 'var(--text-4xl)', color: 'var(--primary-fg)', lineHeight: '1' }"
             >
               {{ Math.round(curso.progreso * 100) }}%
             </div>
@@ -462,7 +458,7 @@ async function continueCurso() {
           </div>
 
           <!-- Progress bar -->
-          <ProgressBar :value="curso.progreso" />
+          <ProgressBar :value="curso.progreso" alto="8px" />
 
           <!-- Stats -->
           <div
@@ -478,17 +474,9 @@ async function continueCurso() {
               <span :style="{ color: 'var(--ink-3)' }">Lecciones completadas</span>
               <span :style="{ fontWeight: '500' }">{{ lessonsCompleted }}</span>
             </div>
-            <hr class="hairline" />
-            <div
-              :style="{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: 'var(--text-sm)',
-              }"
-            >
-              <span :style="{ color: 'var(--ink-3)' }">&Uacute;ltima actividad</span>
-              <span :style="{ fontWeight: '500' }">Hace 2 d&iacute;as</span>
-            </div>
+            <!-- «Última actividad: hace 2 días» era texto clavado del mock:
+                 mentía igual para todo el mundo. La fila vuelve cuando exista
+                 el dato real (racha/actividad, fase 3). -->
             <hr class="hairline" />
             <div
               :style="{
@@ -536,8 +524,10 @@ async function continueCurso() {
             {{ inscripcionError }}
           </p>
 
-          <!-- Instructor info -->
+          <!-- Instructor info. Solo con dato real: el mock dejaba un avatar
+               vacío y dos líneas en blanco. -->
           <div
+            v-if="curso.instructor"
             :style="{
               display: 'flex',
               alignItems: 'center',
@@ -635,22 +625,25 @@ async function continueCurso() {
                     display: 'grid',
                     placeItems: 'center',
                     flexShrink: '0',
+                    /* Una sola fila de acento por pantalla: el módulo EN
+                       CURSO. Lo completado va en tinta sólida (hecho, ya no
+                       pide atención) y lo bloqueado en punteado. */
                     ...(mod.status === 'completed'
                       ? {
-                          background: 'var(--primary)',
+                          background: 'var(--ink)',
                           color: 'var(--paper)',
                         }
                       : mod.status === 'in-progress'
                         ? {
                             background: 'transparent',
-                            border: '3px solid var(--primary)',
-                            color: 'var(--primary)',
+                            border: '3px solid var(--primary-fg)',
+                            color: 'var(--primary-fg)',
                           }
                         : mod.status === 'locked'
                           ? {
                               background: 'var(--paper-3)',
                               color: 'var(--ink-4)',
-                              border: '1px solid var(--line)',
+                              border: '2px dashed var(--line)',
                             }
                           : {
                               background: 'var(--paper)',
@@ -674,20 +667,24 @@ async function continueCurso() {
                     width: '1px',
                     flex: '1',
                     minHeight: 'calc(var(--unit) * 3)',
-                    background: mod.status === 'completed' ? 'var(--primary)' : 'var(--line)',
+                    background: mod.status === 'completed' ? 'var(--ink)' : 'var(--line)',
                   }"
                 />
               </div>
 
-              <!-- Right column: card with module info -->
+              <!-- Right column: card with module info. Solo el módulo en
+                   curso se «apoya» con sombra dura; el resto va plano, y el
+                   bloqueado además en punteado. -->
               <div
-                class="card"
+                :class="mod.status === 'in-progress' ? 'tarjeta-dura' : 'tarjeta-plana'"
                 :style="{
                   padding: 'calc(var(--unit) * 3)',
                   marginBottom: index < modulos.length - 1 ? 'calc(var(--unit) * 2)' : '0',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 'calc(var(--unit) * 1.5)',
+                  overflow: 'hidden',
+                  ...(mod.status === 'locked' ? { borderStyle: 'dashed' } : {}),
                 }"
               >
                 <!-- Cover banner (solo si el módulo tiene portada) -->
@@ -970,6 +967,22 @@ async function continueCurso() {
 </template>
 
 <style scoped>
+.detalle-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: calc(var(--unit) * 4);
+  padding-top: calc(var(--unit) * 4);
+  padding-bottom: calc(var(--unit) * 6);
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .detalle-hero {
+    grid-template-columns: 7fr 5fr;
+    gap: calc(var(--unit) * 8);
+    padding-top: calc(var(--unit) * 8);
+    padding-bottom: calc(var(--unit) * 8);
+  }
+}
 .chat-curso-wrap {
   max-width: 980px;
   margin: 0 auto;
