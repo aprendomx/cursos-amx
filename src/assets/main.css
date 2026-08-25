@@ -75,17 +75,23 @@
      no hay fondo propio en la regla contra el que decidir. */
   --sobre-marca: var(--sobre-primary-dark);
 
-  /* Neutrals — paper blanco institucional + grays oficiales.
+  /* Neutrals — papel cálido.
 
      --lienzo es el suelo de la página y --paper la superficie que se apoya en
      él. Antes eran lo mismo (todo blanco) y la interfaz se leía plana: sin un
-     fondo atenuado detrás, una tarjeta blanca no puede flotar. El lienzo tira
-     ligeramente a frío para emparentar con el azul institucional; los bordes
-     lo acompañan. */
-  --lienzo: #f5f7fa;
-  --paper: #ffffff;
-  --paper-2: #fafafa;
-  --paper-3: #f1f3f6;
+     fondo atenuado detrás, una tarjeta blanca no puede flotar.
+
+     La escala tiraba a frío para emparentar con el azul institucional; la
+     dirección «hábito con recompensa» (docs/propuesta-visual-aprendo.md) la
+     lleva a papel cálido: el lienzo es la textura de cuaderno sobre la que la
+     tinta y la sombra dura tienen sentido. --paper-2 no está en la propuesta:
+     se interpola entre --paper y --paper-3 porque dejar el gris frío anterior
+     en medio de una escala cálida partía la familia en dos. En oscuro los
+     cuatro conservan sus valores de siempre. */
+  --lienzo: #fff7ee;
+  --paper: #fffdf9;
+  --paper-2: #f7f0e5;
+  --paper-3: #efe2d2;
   --line: #e3e7ed;
   --line-soft: #edf0f4;
   /* Escala de tinta. Los cuatro niveles se usan como COLOR DE TEXTO —68 usos
@@ -186,6 +192,35 @@
   --elev-3:
     0 8px 12px -4px rgb(16 24 40 / 9%), 0 20px 36px -8px rgb(16 24 40 / 16%); /* diálogo sobre velo */
 
+  /* ----- Contorno de tinta y elevación dura -----
+     La textura de cuaderno de la dirección «hábito con recompensa»: lo
+     TOCABLE se distingue de lo informativo por un contorno de 2px de tinta y
+     una sombra desplazada sin difuminar, no por color. Conviven con --elev-*:
+     las difusas siguen siendo las de menús y diálogos (flotan), la dura es la
+     de superficies que esperan un toque (se apoyan).
+     La sombra usa la tinta y no negro para que siga al tema: en oscuro estas
+     dos se anulan (sombra dura sobre fondo oscuro no se ve) y el contorno
+     queda como única señal de superficie — mismo criterio que --elev-*. */
+  --borde-ancho: 2px;
+  --borde-tinta: var(--ink);
+  --elev-dura-1: 3px 3px 0 var(--borde-tinta);
+  --elev-dura-2: 4px 4px 0 var(--borde-tinta);
+
+  /* ----- Pasteles de categoría -----
+     Cada curso se reconoce por el color de su categoría antes que por texto
+     (red, datos, seguridad, personas). Fondo FIJO + tinta FIJA: no siguen al
+     modo, igual que los --sobre-*; por eso cada pastel declara su tinta
+     explícita y la regla del par (temaPares.test.js) queda satisfecha por
+     construcción. Contrastes: los cuatro dan ≥13:1 con su tinta. */
+  --cat-red: #cfe4ff;
+  --sobre-cat-red: #1a1714;
+  --cat-datos: #d9f0c7;
+  --sobre-cat-datos: #1a1714;
+  --cat-seguridad: #f3d9ff;
+  --sobre-cat-seguridad: #1a1714;
+  --cat-personas: #ffd9cc;
+  --sobre-cat-personas: #1a1714;
+
   /* Color de marca en PRIMER PLANO: texto, iconos, bordes y anillo de foco.
      Distinto del color de fondo, que conserva el valor tal cual lo declara la
      institución. theme.js lo deriva para que cumpla 4.5:1 sobre este papel. */
@@ -242,6 +277,11 @@
   --elev-1: 0 1px 2px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 30%);
   --elev-2: 0 2px 4px -2px rgb(0 0 0 / 40%), 0 6px 14px -3px rgb(0 0 0 / 35%);
   --elev-3: 0 8px 12px -4px rgb(0 0 0 / 45%), 0 20px 36px -8px rgb(0 0 0 / 40%);
+  /* La sombra dura (tinta desplazada sin difuminar) pierde el sentido sobre
+     fondo oscuro: aquí el contorno de --borde-tinta queda como única señal de
+     superficie tocable. */
+  --elev-dura-1: none;
+  --elev-dura-2: none;
 
   /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
      no llegan al 4.5:1 de WCAG AA (el azul del tema de ejemplo daba 2.17:1, y
