@@ -23,6 +23,23 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
   oscura en ambos modos, saltos de ±15 s y pestañas Notas · Recursos ·
   Dudas con datos reales.
 
+- **Hábito y recompensa** (fase 3) — migración 002: racha diaria DERIVADA de
+  la actividad ya registrada (sin contadores nuevos), con corte de día en la
+  zona horaria de la plataforma, y la función `streak_dias_usuario` que el
+  badge «Constante» invocaba en el vacío; tabla `notas_leccion` privada con
+  segundo de video. Pantalla «Hoy» (`/hoy`) como destino post-login con
+  «sigue aquí», siguientes y racha; la pestaña de Notas del reproductor con
+  datos reales; y el perfil encabezado por la racha con la semana en barras
+  y meta semanal, insignias con contorno/punteado y constancias con enlace
+  de verificación compartible. Todo se degrada sin huecos con
+  `gamificacion` apagada.
+
+### Corregido (fase 3)
+
+- `emitirEvento` insertaba `result` donde la columna es `result_json`: los
+  eventos `logged_in`/`answered` fallaban en silencio desde siempre. El mapa
+  de actividad leía claves que su vista no tiene y pintaba vacío.
+
 ### Corregido (fase 2)
 
 - El detalle de curso y el reproductor quedaban partidos en columnas de
