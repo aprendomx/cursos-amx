@@ -114,7 +114,11 @@ const pasos = [
 .cc-card {
   background: var(--brand-secondary-dark);
   color: var(--sobre-secondary-dark);
-  border-radius: var(--radius-full);
+  /* radius-lg y no radius-full: con 999px la tarjeta era un estadio y el
+     overflow:hidden recortaba el contenido por los lados — las fuentes de la
+     dirección nueva, más anchas, lo hicieron visible. La píldora queda para
+     el botón, que sí lo es. */
+  border-radius: var(--radius-lg);
   overflow: hidden;
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -255,7 +259,6 @@ const pasos = [
 @media (max-width: 980px) {
   .cc-card {
     grid-template-columns: 1fr;
-    border-radius: var(--radius-lg);
   }
   .cc-right {
     order: 2;
