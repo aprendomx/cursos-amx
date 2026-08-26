@@ -34,6 +34,12 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado:
   de verificación compartible. Todo se degrada sin huecos con
   `gamificacion` apagada.
 
+- **Panel de instructor reordenado por prioridad** (fase 4) — abre con la
+  franja de pendientes (entregas por calificar y comentarios de alumnos, con
+  salto directo) y las entregas van a ancho completo antes de las métricas.
+  El panel de «pendientes de calificar» deja los dos alumnos inventados del
+  mock y lista las entregas reales de las tareas del curso activo.
+
 ### Corregido (fase 3)
 
 - `emitirEvento` insertaba `result` donde la columna es `result_json`: los
