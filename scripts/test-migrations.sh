@@ -53,7 +53,8 @@ faltantes="$(psql "$DB_URL" -At -c "
     ('rubricas'),('rubrica_criterios'),('rubrica_niveles'),
     ('notificaciones'),('notificacion_plantillas'),('anuncios'),
     ('sesiones_virtuales'),('sesiones_rsvp'),('sesiones_grabaciones'),
-    ('sesiones_transcripciones'),('zoom_configuracion'),('push_subscriptions'))
+    ('sesiones_transcripciones'),('zoom_configuracion'),('push_subscriptions'),
+    ('notas_leccion'))
   select t from esperadas where to_regclass('public.' || t) is null;")"
 
 if [[ -n "$faltantes" ]]; then

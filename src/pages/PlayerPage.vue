@@ -121,6 +121,16 @@ function saltar(delta) {
 }
 
 const esVideo = computed(() => source.value?.kind === 'hls' || source.value?.kind === 'none')
+
+// Una nota con sello de minuto es también un marcador: el clic lleva ahí.
+function irASegundo(segundo) {
+  const el = videoEl.value
+  if (source.value?.kind === 'hls' && el) {
+    el.currentTime = Math.max(0, segundo)
+  } else if (totalTime.value) {
+    handleSeek(Math.max(0, Math.min(1, segundo / totalTime.value)))
+  }
+}
 </script>
 <template>
   <div class="player-page" :class="`variant-${variant}`">
@@ -319,9 +329,12 @@ const esVideo = computed(() => source.value?.kind === 'hls' || source.value?.kin
           :source="source"
           :hls-master-url="hlsMasterUrl"
           :leccion-id="leccion.id"
+          :current-time="currentTime"
+          :con-sesion="!!session"
           @update:draft="(v) => (draft = v)"
           @send="sendComment"
           @select="selectLesson"
+          @ir-a-segundo="irASegundo"
         />
       </div>
     </div>
