@@ -31,20 +31,26 @@ function defaultBadgeIcon() {
 </template>
 
 <style scoped>
+/* Una insignia OBTENIDA es un objeto: contorno de tinta y sombra dura. La
+   pendiente es una promesa: línea punteada, sin sombra (la dura es solo de
+   lo conseguido o tocable). */
 .badge-card {
   display: flex;
   align-items: center;
   gap: calc(var(--unit) * 2);
   padding: calc(var(--unit) * 2);
-  border: 1px solid var(--line);
+  border: var(--borde-ancho) solid var(--borde-tinta);
   border-radius: var(--radius-md);
   background: var(--brand-secondary-soft);
+  box-shadow: var(--elev-dura-1);
   transition: all 220ms var(--ease);
 }
 .badge-card.locked {
-  opacity: 0.4;
+  opacity: 0.55;
   filter: grayscale(100%);
   background: var(--paper-2);
+  border: 2px dashed var(--line);
+  box-shadow: none;
 }
 .badge-icon {
   flex-shrink: 0;

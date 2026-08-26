@@ -11,6 +11,7 @@ vi.mock('@/services/gamificacion.js', () => ({
   listarBadgesUsuario: vi.fn(),
   listarLogPuntos: vi.fn(),
   obtenerRacha: vi.fn(async () => ({ racha_actual: 0, mejor_racha: 0, activo_hoy: false })),
+  obtenerDiasActivos: vi.fn(async () => []),
 }))
 
 vi.mock('@/services/badgeEngine.js', () => ({

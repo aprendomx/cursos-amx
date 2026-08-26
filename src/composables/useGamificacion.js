@@ -7,6 +7,7 @@ import {
   listarBadgesUsuario,
   listarLogPuntos,
   obtenerRacha,
+  obtenerDiasActivos,
 } from '@/services/gamificacion.js'
 import { evaluarBadges } from '@/services/badgeEngine.js'
 
@@ -18,6 +19,7 @@ export function useGamificacion(userId) {
   const badgesUsuario = ref([])
   const logPuntos = ref([])
   const racha = ref({ racha_actual: 0, mejor_racha: 0, activo_hoy: false })
+  const diasActivos = ref([])
   const loading = ref(false)
   const error = ref(null)
   const nuevosBadges = ref([])
@@ -31,7 +33,7 @@ export function useGamificacion(userId) {
     loading.value = true
     error.value = null
     try {
-      const [b, n, p, nv, bu, lp, r] = await Promise.all([
+      const [b, n, p, nv, bu, lp, r, da] = await Promise.all([
         listarBadges(),
         listarNiveles(),
         obtenerPuntosUsuario(userId),
@@ -45,6 +47,7 @@ export function useGamificacion(userId) {
           mejor_racha: 0,
           activo_hoy: false,
         })),
+        obtenerDiasActivos(userId).catch(() => []),
       ])
       badges.value = b
       niveles.value = n
@@ -53,6 +56,7 @@ export function useGamificacion(userId) {
       badgesUsuario.value = bu
       logPuntos.value = lp
       racha.value = r
+      diasActivos.value = da
     } catch (e) {
       error.value = e
     } finally {
@@ -85,6 +89,7 @@ export function useGamificacion(userId) {
     badgesUsuario,
     logPuntos,
     racha,
+    diasActivos,
     loading,
     error,
     nuevosBadges,
