@@ -143,7 +143,11 @@ const pasos = [
   font-size: clamp(34px, 4vw, 52px);
   line-height: 1.05;
   letter-spacing: -0.015em;
-  color: var(--sobre-primary);
+  /* La superficie es el SECUNDARIO oscuro: su tinta es --sobre-secondary-dark.
+     Con --sobre-primary funcionaba de casualidad mientras el primario era
+     azul (tinta blanca); con un primario claro la tinta derivada es oscura y
+     desaparecía sobre el verde. */
+  color: var(--sobre-secondary-dark);
 }
 
 .cc-intro,
@@ -214,7 +218,7 @@ const pasos = [
 }
 .cc-pill {
   background: rgba(255, 255, 255, 0.06);
-  color: var(--sobre-primary);
+  color: var(--sobre-secondary-dark);
   border: 1.5px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius-full);
   padding: 16px 38px;
