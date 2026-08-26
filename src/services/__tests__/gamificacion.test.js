@@ -13,6 +13,8 @@ import {
   crearCondicion,
   eliminarCondicion,
   obtenerLeaderboard,
+  obtenerRacha,
+  obtenerDiasActivos,
 } from '@/services/gamificacion.js'
 
 const mockFrom = vi.fn()
@@ -245,5 +247,33 @@ describe('gamificacion service', () => {
       p_curso_id: 'curso-1',
       p_limit: 20,
     })
+  })
+
+  it('obtenerRacha normaliza la fila de la RPC', async () => {
+    mockRpc.mockResolvedValue({
+      data: [{ racha_actual: 5, mejor_racha: 12, activo_hoy: true }],
+      error: null,
+    })
+    const racha = await obtenerRacha('u1')
+    expect(racha).toEqual({ racha_actual: 5, mejor_racha: 12, activo_hoy: true })
+    expect(mockRpc).toHaveBeenCalledWith('racha_usuario', { p_user_id: 'u1' })
+  })
+
+  it('obtenerRacha sin filas (usuario sin actividad) devuelve ceros', async () => {
+    mockRpc.mockResolvedValue({ data: [], error: null })
+    expect(await obtenerRacha('u1')).toEqual({
+      racha_actual: 0,
+      mejor_racha: 0,
+      activo_hoy: false,
+    })
+  })
+
+  it('obtenerDiasActivos aplana las fechas', async () => {
+    mockRpc.mockResolvedValue({
+      data: [{ fecha: '2026-08-24' }, { fecha: '2026-08-25' }],
+      error: null,
+    })
+    expect(await obtenerDiasActivos('u1')).toEqual(['2026-08-24', '2026-08-25'])
+    expect(mockRpc).toHaveBeenCalledWith('dias_activos_usuario', { p_user_id: 'u1' })
   })
 })

@@ -58,6 +58,17 @@ describe('useHlsPlayback', () => {
     expect(marcarLeccionCompletada).toHaveBeenCalledWith('lec-123')
   })
 
+  it('onHlsEnded devuelve el resultado del guardado para que la página reaccione', async () => {
+    ;(marcarLeccionCompletada as Mock).mockResolvedValue({ diferido: true })
+    const hls = useHlsPlayback({
+      videoId: computed(() => 'vid-123'),
+      leccionId: ref('lec-123'),
+      session: computed(() => ({ access_token: 'tok' })),
+    })
+    const res = await hls.onHlsEnded()
+    expect(res).toEqual({ diferido: true })
+  })
+
   it('toggleHlsPlay calls video.play()', () => {
     const hls = useHlsPlayback({
       videoId: computed(() => 'vid-123'),

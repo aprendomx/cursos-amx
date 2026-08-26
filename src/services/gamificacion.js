@@ -99,6 +99,27 @@ export async function eliminarCondicion(id) {
   if (error) throw error
 }
 
+// Racha diaria (migración 002). Derivada en la base de la actividad ya
+// registrada, con corte de día en la zona horaria de la plataforma; aquí solo
+// se consulta. `racha_actual` está viva si hubo actividad hoy o ayer.
+export async function obtenerRacha(userId) {
+  const { data, error } = await supabase.rpc('racha_usuario', { p_user_id: userId })
+  if (error) throw error
+  const fila = Array.isArray(data) ? data[0] : data
+  return {
+    racha_actual: fila?.racha_actual || 0,
+    mejor_racha: fila?.mejor_racha || 0,
+    activo_hoy: fila?.activo_hoy === true,
+  }
+}
+
+// Días con actividad (fecha local), para la semana en barras del avance.
+export async function obtenerDiasActivos(userId) {
+  const { data, error } = await supabase.rpc('dias_activos_usuario', { p_user_id: userId })
+  if (error) throw error
+  return (data || []).map((d) => d.fecha)
+}
+
 export async function obtenerLeaderboard(cursoId, limit = 20) {
   const { data, error } = await supabase.rpc('leaderboard_curso', {
     p_curso_id: cursoId,

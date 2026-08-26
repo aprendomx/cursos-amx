@@ -17,6 +17,7 @@ const route = useRoute()
 const router = useRouter()
 
 const navLinks = [
+  { name: 'hoy', label: 'Hoy' },
   { name: 'home', label: 'Cursos' },
   { name: 'perfil', label: 'Mi aprendizaje' },
   { name: 'instructor', label: 'Instructor' },
@@ -24,6 +25,7 @@ const navLinks = [
 ]
 
 function linkVisible(link) {
+  if (link.name === 'hoy') return !!props.session
   if (link.name === 'admin') return props.user?.es_admin === true
   if (link.name === 'instructor') {
     return (

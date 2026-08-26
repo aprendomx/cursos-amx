@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import themeConfig from '@theme'
+import temaEjemplo from '../../../theme/theme.config.example.js'
 import { validateTheme, applyTheme, storageKey, THEME_SCHEMA_VERSION } from '../theme.js'
 import { cumpleAA } from '../contraste.js'
 
@@ -73,8 +74,12 @@ describe('applyTheme y modo oscuro', () => {
     }
   })
 
+  // Sobre el tema de EJEMPLO y no sobre '@theme': la prueba documenta que la
+  // derivación existe porque un color pensado para papel blanco puede no
+  // cumplir en oscuro. Un tema local cuyo primario sí cumple (un naranja
+  // vivo, p. ej.) es legítimo y no debe tirar esta prueba.
   it('el color original NO cumple: la derivación no es decorativa', () => {
-    expect(cumpleAA(themeConfig.colors.primary, '#0f1115')).toBe(false)
+    expect(cumpleAA(temaEjemplo.colors.primary, '#0f1115')).toBe(false)
   })
 
   it('una variante declarada explícitamente por el tema tiene prioridad', () => {

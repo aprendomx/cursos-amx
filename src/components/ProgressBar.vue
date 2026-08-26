@@ -2,11 +2,14 @@
 defineProps({
   value: { type: Number, default: 0 },
   color: { type: String, default: 'var(--primary)' },
+  // 'titular' cuando el progreso ES el mensaje de la pantalla (detalle de
+  // curso); el grosor por defecto queda para usos de soporte.
+  alto: { type: String, default: '4px' },
 })
 </script>
 
 <template>
-  <div class="progress-bar">
+  <div class="progress-bar" :style="{ height: alto }">
     <div
       class="progress-bar-fill"
       :style="{
@@ -20,7 +23,6 @@ defineProps({
 <style scoped>
 .progress-bar {
   width: 100%;
-  height: 4px;
   background: var(--paper-3);
   border-radius: var(--radius-sm);
   overflow: hidden;

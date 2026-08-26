@@ -67,4 +67,18 @@ describe('useVideoPlayback', () => {
     expect(marcarLeccionCompletada).toHaveBeenCalledWith('l1')
     expect(pb.completada.value).toBe(true)
   })
+
+  it('marcarLecturaCompletada devuelve el resultado del guardado', async () => {
+    vi.mocked(marcarLeccionCompletada).mockResolvedValue({ diferido: false })
+    const pb = factory()
+    const res = await pb.marcarLecturaCompletada()
+    expect(res).toEqual({ diferido: false })
+  })
+
+  it('marcarLecturaCompletada propaga el error y no marca completada', async () => {
+    vi.mocked(marcarLeccionCompletada).mockRejectedValue(new Error('red caída'))
+    const pb = factory()
+    await expect(pb.marcarLecturaCompletada()).rejects.toThrow('red caída')
+    expect(pb.completada.value).toBe(false)
+  })
 })

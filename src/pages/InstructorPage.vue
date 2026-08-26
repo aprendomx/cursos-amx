@@ -1,8 +1,10 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import '@/assets/admin-shared.css'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInstructor } from '@/composables/useInstructor.js'
 import { ESTADO_LABEL } from '@/composables/useEntregas.js'
+import { listarTareasPorCurso, listarEntregasPorTarea } from '@/services/entregas'
 import SesionesVirtualesPanel from '@/components/SesionesVirtualesPanel.vue'
 import InstructorReportPanel from '@/components/InstructorReportPanel.vue'
 import InstructorModulosPanel from '@/components/InstructorModulosPanel.vue'
@@ -101,27 +103,45 @@ async function onRevisar(e, estado) {
 const fmtBytes = (b) =>
   b > 1024 * 1024 ? (b / 1024 / 1024).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'
 
-/* ── Entregas Fase K (tareas/rúbricas) ── */
-const mockPendingEntregas = ref([
-  {
-    id: 'mock-1',
-    perfiles: { nombres: 'Ana', apellido_paterno: 'López' },
-    estado: 'entregada',
-    version_actual: 1,
-    entregado_en: new Date().toISOString(),
-    puntaje_final: null,
-    dias_retraso: 0,
-  },
-  {
-    id: 'mock-2',
-    perfiles: { nombres: 'Carlos', apellido_paterno: 'Ruiz' },
-    estado: 'entregada',
-    version_actual: 2,
-    entregado_en: new Date(Date.now() - 86400000).toISOString(),
-    puntaje_final: null,
-    dias_retraso: 1,
-  },
-])
+/* ── Entregas Fase K (tareas/rúbricas) ──
+   Datos REALES: antes este panel mostraba dos alumnos inventados («Ana
+   López», «Carlos Ruiz») clavados en el código. Se listan las entregas en
+   estado `entregada` (esperan calificación) de las tareas del curso. */
+const entregasPorCalificar = ref([])
+
+async function cargarEntregasTareas(cursoId) {
+  if (!cursoId || !entregasHabilitadas.value) {
+    entregasPorCalificar.value = []
+    return
+  }
+  try {
+    const tareas = await listarTareasPorCurso(cursoId)
+    const listas = await Promise.all(
+      tareas.map((t) => listarEntregasPorTarea(t.id).catch(() => []))
+    )
+    entregasPorCalificar.value = listas.flat().filter((e) => e.estado === 'entregada')
+  } catch {
+    entregasPorCalificar.value = []
+  }
+}
+
+watch(
+  () => cursoActivo.value?.id,
+  (id) => cargarEntregasTareas(id),
+  { immediate: true }
+)
+
+/* ── Lo que bloquea al alumno, antes que las métricas ── */
+const pendientesEntregas = computed(
+  () =>
+    entregasPorCalificar.value.length +
+    entregas.value.filter((e) => e.estado === 'pendiente').length
+)
+const dudasVisibles = computed(() => comentarios.value.filter((c) => !c.oculto).length)
+
+function scrollA(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
 
 <template>
@@ -165,6 +185,32 @@ const mockPendingEntregas = ref([
       </div>
 
       <template v-else-if="cursoActivo">
+        <!-- Primero lo que BLOQUEA al alumno; las métricas son soporte y van
+             después. La franja dice cuánto espera y lleva ahí de un clic. -->
+        <section class="inst-prioridad" aria-label="Pendientes que bloquean a tus alumnos">
+          <button
+            v-if="entregasHabilitadas"
+            class="tarjeta-dura inst-prioridad-item"
+            type="button"
+            @click="scrollA('inst-entregas')"
+          >
+            <span class="display inst-prioridad-num">{{ pendientesEntregas }}</span>
+            <span class="inst-prioridad-label">
+              {{ pendientesEntregas === 1 ? 'entrega espera' : 'entregas esperan' }} tu calificación
+            </span>
+          </button>
+          <button
+            class="tarjeta-dura inst-prioridad-item"
+            type="button"
+            @click="scrollA('inst-comentarios')"
+          >
+            <span class="display inst-prioridad-num">{{ dudasVisibles }}</span>
+            <span class="inst-prioridad-label">
+              {{ dudasVisibles === 1 ? 'comentario reciente' : 'comentarios recientes' }} de alumnos
+            </span>
+          </button>
+        </section>
+
         <!-- Métricas -->
         <section class="inst-metricas">
           <div class="card inst-metrica">
@@ -185,9 +231,75 @@ const mockPendingEntregas = ref([
           </div>
         </section>
 
+        <!-- Entregas: lo que bloquea al alumno, a ancho completo y antes que
+             todo lo demás. -->
+        <div v-if="entregasHabilitadas" id="inst-entregas" class="inst-entregas-grid">
+          <!-- Entregas por lección (módulo LMS 3) -->
+          <section class="card inst-panel">
+            <div class="inst-panel-head">
+              <h2 class="inst-panel-titulo">Entregas</h2>
+              <select v-model="filtroEntregas" class="inst-filtro mono">
+                <option value="">Todas</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="revisada">Revisadas</option>
+                <option value="aprobada">Aprobadas</option>
+                <option value="rechazada">Rechazadas</option>
+              </select>
+            </div>
+            <p v-if="!entregasFiltradas.length" class="inst-vacio">
+              Sin entregas{{ filtroEntregas ? ' en este estado' : '' }}.
+            </p>
+            <ul v-else class="inst-entregas">
+              <li v-for="e in entregasFiltradas" :key="e.id" class="inst-entrega">
+                <div class="inst-entrega-meta">
+                  <strong>{{ nombreCorto(e.perfiles) }}</strong>
+                  <span class="mono">{{ e.lecciones?.titulo }}</span>
+                  <span class="chip" :data-estado="e.estado">{{
+                    ESTADO_LABEL[e.estado] || e.estado
+                  }}</span>
+                </div>
+                <div class="inst-entrega-archivo">
+                  <a href="#" @click.prevent="descargarEntrega(e)">📎 {{ e.archivo_nombre }}</a>
+                  <span class="mono inst-fecha"
+                    >v{{ e.version }} · {{ fmtBytes(e.archivo_bytes) }} ·
+                    {{ fmtFecha(e.creado_en) }}</span
+                  >
+                </div>
+                <p v-if="e.comentario_instructor" class="inst-entrega-comentario">
+                  {{ e.comentario_instructor }}
+                </p>
+                <div class="inst-acciones">
+                  <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'aprobada')">
+                    Aprobar
+                  </button>
+                  <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'revisada')">
+                    Revisada
+                  </button>
+                  <button
+                    class="btn btn-ghost btn-sm inst-eliminar"
+                    @click="onRevisar(e, 'rechazada')"
+                  >
+                    Rechazar
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Entregas de tareas pendientes de calificar (Fase K), con datos
+               reales del curso activo. -->
+          <section class="card inst-panel">
+            <h2 class="inst-panel-titulo">Entregas pendientes de calificar</h2>
+            <p v-if="!entregasPorCalificar.length" class="inst-vacio">
+              Nada por calificar. Cuando un alumno entregue una tarea, aparece aquí.
+            </p>
+            <EntregasInstructorTable v-else :entregas="entregasPorCalificar" />
+          </section>
+        </div>
+
         <div class="inst-grid">
           <!-- Comentarios / moderación -->
-          <section class="card inst-panel">
+          <section id="inst-comentarios" class="card inst-panel">
             <h2 class="inst-panel-titulo">Comentarios recientes</h2>
             <p v-if="!comentarios.length" class="inst-vacio">Sin comentarios en este curso.</p>
             <ul v-else class="inst-comentarios">
@@ -244,64 +356,6 @@ const mockPendingEntregas = ref([
           </section>
 
           <div class="inst-col">
-            <!-- Entregas por revisar (módulo LMS 3) -->
-            <section v-if="entregasHabilitadas" class="card inst-panel">
-              <div class="inst-panel-head">
-                <h2 class="inst-panel-titulo">Entregas</h2>
-                <select v-model="filtroEntregas" class="inst-filtro mono">
-                  <option value="">Todas</option>
-                  <option value="pendiente">Pendientes</option>
-                  <option value="revisada">Revisadas</option>
-                  <option value="aprobada">Aprobadas</option>
-                  <option value="rechazada">Rechazadas</option>
-                </select>
-              </div>
-              <p v-if="!entregasFiltradas.length" class="inst-vacio">
-                Sin entregas{{ filtroEntregas ? ' en este estado' : '' }}.
-              </p>
-              <ul v-else class="inst-entregas">
-                <li v-for="e in entregasFiltradas" :key="e.id" class="inst-entrega">
-                  <div class="inst-entrega-meta">
-                    <strong>{{ nombreCorto(e.perfiles) }}</strong>
-                    <span class="mono">{{ e.lecciones?.titulo }}</span>
-                    <span class="chip" :data-estado="e.estado">{{
-                      ESTADO_LABEL[e.estado] || e.estado
-                    }}</span>
-                  </div>
-                  <div class="inst-entrega-archivo">
-                    <a href="#" @click.prevent="descargarEntrega(e)">📎 {{ e.archivo_nombre }}</a>
-                    <span class="mono inst-fecha"
-                      >v{{ e.version }} · {{ fmtBytes(e.archivo_bytes) }} ·
-                      {{ fmtFecha(e.creado_en) }}</span
-                    >
-                  </div>
-                  <p v-if="e.comentario_instructor" class="inst-entrega-comentario">
-                    {{ e.comentario_instructor }}
-                  </p>
-                  <div class="inst-acciones">
-                    <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'aprobada')">
-                      Aprobar
-                    </button>
-                    <button class="btn btn-ghost btn-sm" @click="onRevisar(e, 'revisada')">
-                      Revisada
-                    </button>
-                    <button
-                      class="btn btn-ghost btn-sm inst-eliminar"
-                      @click="onRevisar(e, 'rechazada')"
-                    >
-                      Rechazar
-                    </button>
-                  </div>
-                </li>
-              </ul>
-            </section>
-
-            <!-- Entregas pendientes de calificar (Fase K) -->
-            <section v-if="entregasHabilitadas" class="card inst-panel">
-              <h2 class="inst-panel-titulo">Entregas pendientes de calificar</h2>
-              <EntregasInstructorTable :entregas="mockPendingEntregas" />
-            </section>
-
             <!-- Alumnos -->
             <section class="card inst-panel">
               <h2 class="inst-panel-titulo">Alumnos inscritos</h2>
@@ -409,6 +463,35 @@ const mockPendingEntregas = ref([
   gap: calc(var(--unit) * 2);
   text-align: center;
   color: var(--ink-3);
+}
+.inst-prioridad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--unit) * 2);
+  margin-bottom: calc(var(--unit) * 3);
+}
+.inst-prioridad-item {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--unit) * 1.5);
+  padding: calc(var(--unit) * 2) calc(var(--unit) * 2.5);
+  text-align: left;
+  cursor: pointer;
+}
+.inst-prioridad-num {
+  font-size: var(--text-3xl);
+  line-height: 1;
+}
+.inst-prioridad-label {
+  font-size: var(--text-sm);
+  color: var(--ink-2);
+}
+.inst-entregas-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: calc(var(--unit) * 2);
+  align-items: start;
+  margin-bottom: calc(var(--unit) * 2);
 }
 .inst-metricas {
   display: grid;
@@ -600,7 +683,9 @@ const mockPendingEntregas = ref([
   .inst-metricas {
     grid-template-columns: repeat(2, 1fr);
   }
-  .inst-grid {
+  .inst-grid,
+  .inst-prioridad,
+  .inst-entregas-grid {
     grid-template-columns: 1fr;
   }
 }

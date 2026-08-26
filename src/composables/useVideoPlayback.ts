@@ -54,12 +54,9 @@ export function useVideoPlayback({ leccion, totalTime }: VideoPlaybackOptions) {
   /* ── Completion handlers ──────────────────────────── */
   async function marcarLecturaCompletada() {
     if (!leccion.value?.id || completada.value) return
-    try {
-      await marcarLeccionCompletada(leccion.value.id)
-      completada.value = true
-    } catch (e) {
-      console.error('marcar leida:', e)
-    }
+    const resultado = await marcarLeccionCompletada(leccion.value.id)
+    completada.value = true
+    return resultado
   }
 
   function handleEvaluacionAprobada() {

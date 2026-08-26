@@ -40,6 +40,14 @@ const routes = [
     props: true,
     meta: { requiresAuth: true },
   },
+  // Destino post-login (App.vue empuja aquí tras entrar). `/` sigue siendo
+  // el catálogo público: esta ruta no lo secuestra.
+  {
+    path: '/hoy',
+    name: 'hoy',
+    component: () => import('@/pages/HoyPage.vue'),
+    meta: { requiresAuth: true },
+  },
   { path: '/perfil', name: 'perfil', component: PerfilPage, meta: { requiresAuth: true } },
   {
     path: '/constancia/:cursoId',

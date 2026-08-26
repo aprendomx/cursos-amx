@@ -1,4 +1,5 @@
 <script setup>
+import '@/assets/admin-shared.css'
 import { onMounted, watch } from 'vue'
 import AdminDashboard from '@/components/AdminDashboard.vue'
 import AdminCourseList from '@/components/AdminCourseList.vue'

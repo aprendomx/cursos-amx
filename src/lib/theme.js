@@ -95,7 +95,13 @@ const COLOR_VARS = {
 }
 
 // Papel del modo claro, para derivar las variantes de primer plano.
-const PAPEL_CLARO = '#ffffff'
+//
+// Es el LIENZO y no el blanco del papel a propósito: es la superficie clara
+// más oscura sobre la que se escribe texto de marca, así que un color que
+// cumple 4.5:1 aquí cumple en todas las demás. Calibrar contra #ffffff dejaba
+// al derivado en 4.26:1 sobre el lienzo cálido — legal sobre el papel,
+// ilegible donde más se usa. Debe coincidir con --lienzo de src/assets/main.css.
+const PAPEL_CLARO = '#fff7ee'
 
 // Papel del modo oscuro. Debe coincidir con --paper de [data-theme='dark']
 // en src/assets/main.css.

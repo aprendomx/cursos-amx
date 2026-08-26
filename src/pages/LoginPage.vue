@@ -31,9 +31,11 @@ function submit() {
     <aside class="auth-aside" aria-hidden="true">
       <div class="auth-aside-inner">
         <p class="eyebrow auth-aside-kicker">{{ theme.nav.title }} · {{ theme.app.name }}</p>
+        <!-- La primera pantalla vende el HÁBITO, no el catálogo: qué gana
+             quien vuelve mañana. -->
         <h2 class="auth-aside-quote">
-          Formación oficial,
-          <em>constancia verificable</em>, servicio público profesional.
+          Un poco cada día,
+          <em>a tu ritmo</em>. Tu avance queda guardado.
         </h2>
         <p class="auth-aside-meta">
           {{ theme.org.name }}
@@ -46,8 +48,8 @@ function submit() {
       <div class="auth-form">
         <header class="auth-header">
           <p class="eyebrow">Inicio de sesión</p>
-          <h1 id="login-titulo" class="display">Accede a tu plataforma</h1>
-          <p class="auth-subtitle">Para servidoras y servidores públicos registrados.</p>
+          <h1 id="login-titulo" class="display">Retoma donde te quedaste</h1>
+          <p class="auth-subtitle">Tu avance se guarda solo: entra y continúa tu curso.</p>
         </header>
 
         <div class="auth-fields">

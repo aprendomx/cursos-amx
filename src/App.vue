@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase.js'
 import { mapSupabaseError } from '@/lib/errors'
 import { storageKey } from '@/lib/theme.js'
 import { featureEnabled } from '@/lib/featureFlags'
-import { registerSW } from 'virtual:pwa-register'
+import { useAppUpdate } from '@/composables/useAppUpdate.js'
 import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 
 const route = useRoute()
@@ -29,14 +29,12 @@ const ui = useUiStore()
 
 const offlineEnabled = featureEnabled('pwa_offline')
 
+// Avisa cuando hay una versión nueva desplegada y permite aplicarla sin que
+// el usuario tenga que descubrir por su cuenta que debe recargar.
+const { nuevaVersionDisponible, actualizarAhora } = useAppUpdate({ enabled: offlineEnabled })
+
 onMounted(() => {
   auth.init()
-  if (offlineEnabled) {
-    registerSW({
-      onNeedRefresh() {},
-      onOfflineReady() {},
-    })
-  }
 })
 
 const registroLoading = ref(false)
@@ -105,7 +103,9 @@ async function onRegistroComplete(form) {
         localStorage.setItem(storageKey('registered'), 'true')
       } catch {}
 
-      router.push('/')
+      // Con sesión viva el alta aterriza en «Hoy»; sin sesión (confirmación
+      // por correo pendiente) la portada, porque /hoy rebotaría al login.
+      router.push(authData.session ? { name: 'hoy' } : '/')
     } catch (e) {
       console.error('Registro error:', e)
       registroError.value = 'Error inesperado: ' + (e?.message || String(e))
@@ -145,7 +145,9 @@ async function onLogin({ correo, password }) {
       localStorage.setItem(storageKey('registered'), 'true')
     } catch {}
     const redirect = route.query.redirect
-    router.push(typeof redirect === 'string' ? redirect : '/')
+    // Sin destino pendiente, el login cae en «Hoy»: la pantalla que responde
+    // dónde seguir, no el catálogo.
+    router.push(typeof redirect === 'string' ? redirect : { name: 'hoy' })
   } catch (e) {
     loginError.value = 'Error inesperado: ' + e.message
   }
@@ -180,6 +182,10 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
 
     <template v-else>
       <OfflineBanner />
+      <div v-if="nuevaVersionDisponible" class="update-banner" role="status" aria-live="polite">
+        <span>Hay una nueva versión de la plataforma.</span>
+        <button class="update-banner-btn" @click="actualizarAhora">Actualizar</button>
+      </div>
       <main id="contenido-principal" tabindex="-1">
         <router-view
           :session="auth.session"
@@ -216,6 +222,31 @@ const showNav = (name) => name !== 'registro' && name !== 'verificar'
 </template>
 
 <style scoped>
+.update-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ink, #1a1a1a);
+  color: var(--paper, #fff);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.update-banner-btn {
+  background: var(--paper, #fff);
+  color: var(--ink, #1a1a1a);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
 .auth-hydrating {
   min-height: 60vh;
   display: grid;

@@ -75,17 +75,23 @@
      no hay fondo propio en la regla contra el que decidir. */
   --sobre-marca: var(--sobre-primary-dark);
 
-  /* Neutrals — paper blanco institucional + grays oficiales.
+  /* Neutrals — papel cálido.
 
      --lienzo es el suelo de la página y --paper la superficie que se apoya en
      él. Antes eran lo mismo (todo blanco) y la interfaz se leía plana: sin un
-     fondo atenuado detrás, una tarjeta blanca no puede flotar. El lienzo tira
-     ligeramente a frío para emparentar con el azul institucional; los bordes
-     lo acompañan. */
-  --lienzo: #f5f7fa;
-  --paper: #ffffff;
-  --paper-2: #fafafa;
-  --paper-3: #f1f3f6;
+     fondo atenuado detrás, una tarjeta blanca no puede flotar.
+
+     La escala tiraba a frío para emparentar con el azul institucional; la
+     dirección «hábito con recompensa» (docs/propuesta-visual-aprendo.md) la
+     lleva a papel cálido: el lienzo es la textura de cuaderno sobre la que la
+     tinta y la sombra dura tienen sentido. --paper-2 no está en la propuesta:
+     se interpola entre --paper y --paper-3 porque dejar el gris frío anterior
+     en medio de una escala cálida partía la familia en dos. En oscuro los
+     cuatro conservan sus valores de siempre. */
+  --lienzo: #fff7ee;
+  --paper: #fffdf9;
+  --paper-2: #f7f0e5;
+  --paper-3: #efe2d2;
   --line: #e3e7ed;
   --line-soft: #edf0f4;
   /* Escala de tinta. Los cuatro niveles se usan como COLOR DE TEXTO —68 usos
@@ -98,9 +104,13 @@
   --ink: var(--brand-ink);
   --ink-2: var(--gris-70);
   --ink-3: #5f5f5f;
-  /* #767676 daba 4.20:1 sobre el lienzo nuevo; este da 4.68, y 5.02 sobre
-     blanco. */
-  --ink-4: #6f6f6f;
+  /* El anterior (#6f6f6f) daba 3.94:1 sobre el --paper-3 cálido: legal en las
+     demás superficies, corto justo en la más oscura. Este cumple en las tres
+     (4.50 / 5.41 / 5.65 sobre paper-3 / lienzo / paper) a cambio de comprimir
+     aún más la jerarquía contra --ink-3 — que es donde el umbral no deja
+     margen, como ya pasaba. Aclarar --paper-3 no era salida: quedaba a 1.02:1
+     de --paper-2 y la escala dejaba de escalonar. */
+  --ink-4: #666666;
 
   /* Semantic (derivados de la paleta institucional) */
   --success: var(--brand-secondary);
@@ -186,6 +196,35 @@
   --elev-3:
     0 8px 12px -4px rgb(16 24 40 / 9%), 0 20px 36px -8px rgb(16 24 40 / 16%); /* diálogo sobre velo */
 
+  /* ----- Contorno de tinta y elevación dura -----
+     La textura de cuaderno de la dirección «hábito con recompensa»: lo
+     TOCABLE se distingue de lo informativo por un contorno de 2px de tinta y
+     una sombra desplazada sin difuminar, no por color. Conviven con --elev-*:
+     las difusas siguen siendo las de menús y diálogos (flotan), la dura es la
+     de superficies que esperan un toque (se apoyan).
+     La sombra usa la tinta y no negro para que siga al tema: en oscuro estas
+     dos se anulan (sombra dura sobre fondo oscuro no se ve) y el contorno
+     queda como única señal de superficie — mismo criterio que --elev-*. */
+  --borde-ancho: 2px;
+  --borde-tinta: var(--ink);
+  --elev-dura-1: 3px 3px 0 var(--borde-tinta);
+  --elev-dura-2: 4px 4px 0 var(--borde-tinta);
+
+  /* ----- Pasteles de categoría -----
+     Cada curso se reconoce por el color de su categoría antes que por texto
+     (red, datos, seguridad, personas). Fondo FIJO + tinta FIJA: no siguen al
+     modo, igual que los --sobre-*; por eso cada pastel declara su tinta
+     explícita y la regla del par (temaPares.test.js) queda satisfecha por
+     construcción. Contrastes: los cuatro dan ≥13:1 con su tinta. */
+  --cat-red: #cfe4ff;
+  --sobre-cat-red: #1a1714;
+  --cat-datos: #d9f0c7;
+  --sobre-cat-datos: #1a1714;
+  --cat-seguridad: #f3d9ff;
+  --sobre-cat-seguridad: #1a1714;
+  --cat-personas: #ffd9cc;
+  --sobre-cat-personas: #1a1714;
+
   /* Color de marca en PRIMER PLANO: texto, iconos, bordes y anillo de foco.
      Distinto del color de fondo, que conserva el valor tal cual lo declara la
      institución. theme.js lo deriva para que cumpla 4.5:1 sobre este papel. */
@@ -242,6 +281,11 @@
   --elev-1: 0 1px 2px rgb(0 0 0 / 35%), 0 1px 3px rgb(0 0 0 / 30%);
   --elev-2: 0 2px 4px -2px rgb(0 0 0 / 40%), 0 6px 14px -3px rgb(0 0 0 / 35%);
   --elev-3: 0 8px 12px -4px rgb(0 0 0 / 45%), 0 20px 36px -8px rgb(0 0 0 / 40%);
+  /* La sombra dura (tinta desplazada sin difuminar) pierde el sentido sobre
+     fondo oscuro: aquí el contorno de --borde-tinta queda como única señal de
+     superficie tocable. */
+  --elev-dura-1: none;
+  --elev-dura-2: none;
 
   /* Los colores de marca están pensados sobre papel blanco: sobre este fondo
      no llegan al 4.5:1 de WCAG AA (el azul del tema de ejemplo daba 2.17:1, y
@@ -489,6 +533,109 @@ h4 {
 }
 .card:hover {
   border-color: var(--ink);
+}
+
+/* ----- Superficies de la dirección «hábito con recompensa» -----
+   Regla de reparto: sombra dura SOLO donde se espera un toque. Lo informativo
+   va plano, con hairline; lo tocable lleva contorno de tinta y se «apoya» en
+   el lienzo. En oscuro --elev-dura-* es none y el contorno queda como única
+   señal (ver tokens). */
+
+/* Tarjeta TOCABLE: contorno de tinta + sombra dura. El hover no flota (eso es
+   de las difusas): se levanta un paso contra su sombra. El active la asienta. */
+.tarjeta-dura {
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--borde-ancho) solid var(--borde-tinta);
+  border-radius: var(--radius-md);
+  box-shadow: var(--elev-dura-1);
+  transition:
+    box-shadow 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+.tarjeta-dura:hover {
+  box-shadow: var(--elev-dura-2);
+  transform: translate(-1px, -1px);
+}
+.tarjeta-dura:active {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+/* Tarjeta PLANA informativa: sin sombra y con hairline. Si no se puede tocar,
+   no se distingue de la superficie más que por apoyarse en el lienzo. */
+.tarjeta-plana {
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+/* Píldora de filtro. El estado activo no cambia de color: cambia de peso de
+   contorno — mismo lenguaje que separa lo tocable de lo informativo. El área
+   accionable no baja de 44px (WCAG 2.5.5) aunque la caja visible sea menor. */
+.pildora-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: calc(var(--unit)) calc(var(--unit) * 2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  color: var(--ink-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  transition:
+    border-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.pildora-filtro:hover {
+  border-color: var(--ink-3);
+  color: var(--ink);
+}
+.pildora-filtro.activa,
+.pildora-filtro[aria-pressed='true'] {
+  border: var(--borde-ancho) solid var(--borde-tinta);
+  color: var(--ink);
+  box-shadow: var(--elev-dura-1);
+}
+
+/* Pares de pastel de categoría, ya resueltos: fondo fijo + tinta fija (ver
+   tokens --cat-*). Los componentes aplican la clase completa en vez de armar
+   el par a mano — así la regla del par no se puede romper a medias. La clave
+   la da categoriaVisual() en src/lib/categoriaVisual.js. */
+.pastel-red {
+  background: var(--cat-red);
+  color: var(--sobre-cat-red);
+}
+.pastel-datos {
+  background: var(--cat-datos);
+  color: var(--sobre-cat-datos);
+}
+.pastel-seguridad {
+  background: var(--cat-seguridad);
+  color: var(--sobre-cat-seguridad);
+}
+.pastel-personas {
+  background: var(--cat-personas);
+  color: var(--sobre-cat-personas);
+}
+
+/* Distintivo de recompensa (+XP, pistas, logro reciente). Fondo del acento
+   suave con su tinta propia: par fijo/fijo, como los --sobre-* (4.74:1 sobre
+   el amarillo de la dirección nueva, 4.54:1 sobre el del tema neutro). */
+.distintivo-recompensa {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--brand-accent-soft);
+  color: var(--sobre-accent-soft);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.02em;
 }
 
 /* Placeholders for imagery — striped */

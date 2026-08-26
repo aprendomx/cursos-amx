@@ -1,8 +1,9 @@
 <!-- src/components/EvaluacionPanel.vue -->
 <script setup>
-import { ref, reactive, watch, onMounted } from 'vue'
+import { ref, reactive, watch, onMounted, computed } from 'vue'
 import { obtenerEvaluacion, calificarEvaluacion } from '@/services/evaluaciones'
 import { emitirEvento } from '@/services/analytics'
+import { featureEnabled } from '@/lib/featureFlags.js'
 
 const props = defineProps({
   leccionId: { type: String, required: true },
@@ -96,6 +97,16 @@ function estaRespondida(p) {
 
 const todasRespondidas = () => !!examen.value && examen.value.preguntas.every(estaRespondida)
 
+// Un segmento por pregunta: el avance dentro del examen se ve, no se deduce
+// del scroll. `respondidas` es reactivo a `seleccion`.
+const respondidas = computed(() =>
+  examen.value ? examen.value.preguntas.map((p) => estaRespondida(p)) : []
+)
+
+// La racha es la promesa de la dirección «hábito»: fallar manda a repaso, no
+// castiga. La mención solo aparece con gamificación encendida.
+const conGamificacion = featureEnabled('gamificacion')
+
 function detalleDe(preguntaId) {
   return resultado.value?.detalle?.find((d) => d.pregunta_id === preguntaId) || null
 }
@@ -174,6 +185,12 @@ function reintentar() {
             {{ detalleDe(p.id)?.correcta ? 'Correcta' : 'Incorrecta' }}
           </li>
         </ul>
+        <!-- Fallar manda a repaso, no castiga: se dice explícito para que el
+             intento no se viva como riesgo. -->
+        <p v-if="!resultado.aprobado" class="eval-repaso">
+          No pasa nada: repasa la lección y vuelve a intentarlo.
+          <template v-if="conGamificacion"> Fallar no rompe tu racha. </template>
+        </p>
         <button
           v-if="!resultado.aprobado && resultado.intentos_restantes > 0"
           class="btn btn-primary"
@@ -196,7 +213,24 @@ function reintentar() {
           {{ examen.intentos_usados + 1 }} de {{ examen.max_intentos }}
         </p>
 
-        <div v-for="(p, i) in examen.preguntas" :key="p.id" class="eval-q card">
+        <!-- Progreso por segmentos: uno por pregunta, lleno al responderla. -->
+        <div
+          class="eval-segmentos"
+          role="progressbar"
+          :aria-valuenow="respondidas.filter(Boolean).length"
+          :aria-valuemin="0"
+          :aria-valuemax="examen.preguntas.length"
+          :aria-label="`${respondidas.filter(Boolean).length} de ${examen.preguntas.length} preguntas respondidas`"
+        >
+          <span
+            v-for="(done, si) in respondidas"
+            :key="si"
+            class="eval-segmento"
+            :class="{ 'is-done': done }"
+          />
+        </div>
+
+        <div v-for="(p, i) in examen.preguntas" :key="p.id" class="eval-q tarjeta-plana">
           <p class="eval-q-text">
             <span class="mono">{{ String(i + 1).padStart(2, '0') }}</span>
             {{ p.enunciado }}
@@ -204,9 +238,15 @@ function reintentar() {
             <span v-if="p.tipo === 'ensayo'" class="eval-hint">(respuesta libre)</span>
           </p>
 
-          <!-- Opciones clásicas -->
+          <!-- Opciones clásicas. La seleccionada es la única superficie con
+               acento de la pregunta. -->
           <template v-if="['opcion_unica', 'opcion_multiple', 'verdadero_falso'].includes(p.tipo)">
-            <label v-for="o in p.opciones" :key="o.id" class="eval-opt">
+            <label
+              v-for="o in p.opciones"
+              :key="o.id"
+              class="eval-opt eval-opt-caja"
+              :class="{ 'is-selected': estaSeleccionada(p.id, o.id) }"
+            >
               <input
                 v-if="p.tipo === 'opcion_multiple'"
                 type="checkbox"
@@ -332,6 +372,52 @@ function reintentar() {
   font-size: var(--text-sm);
   color: var(--ink-2);
 }
+/* Fila tocable. La seleccionada es la única con acento en la pregunta:
+   contorno y tinta del primario, sin rellenar el fondo (el color no es el
+   único canal: el control nativo sigue marcado). Área ≥44px (WCAG 2.5.5). */
+.eval-opt-caja {
+  min-height: 44px;
+  padding: calc(var(--unit) * 1) calc(var(--unit) * 1.5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+.eval-opt-caja:hover {
+  border-color: var(--ink-3);
+}
+.eval-opt-caja.is-selected {
+  border: var(--borde-ancho) solid var(--primary-fg);
+  color: var(--ink);
+}
+.eval-opt-caja input {
+  accent-color: var(--primary-fg);
+}
+
+/* Progreso por segmentos: uno por pregunta. */
+.eval-segmentos {
+  display: flex;
+  gap: 4px;
+}
+.eval-segmento {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-3);
+  transition: background 200ms var(--ease);
+}
+.eval-segmento.is-done {
+  background: var(--primary-fg);
+}
+
+.eval-repaso {
+  font-size: var(--text-sm);
+  background: var(--brand-accent-soft);
+  color: var(--sobre-accent-soft);
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 2);
+  border-radius: var(--radius-sm);
+}
 .eval-result-head {
   display: flex;
   align-items: baseline;
@@ -340,8 +426,10 @@ function reintentar() {
 .eval-result-head.is-ok .eval-verdict {
   color: var(--brand-secondary, var(--success));
 }
+/* «No aprobado» e «Incorrecta» son estado, no acción: van en --danger. El
+   acento queda reservado al botón de reintento. */
 .eval-result-head.is-fail .eval-verdict {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 .eval-score {
   font-size: var(--text-4xl);
@@ -366,7 +454,7 @@ function reintentar() {
   color: var(--brand-secondary, var(--success));
 }
 .eval-detalle li.is-fail {
-  color: var(--primary-fg);
+  color: var(--danger);
 }
 
 .eval-result-diferido {

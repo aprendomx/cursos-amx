@@ -228,9 +228,9 @@ function onEnded() {
         </div>
       </template>
 
-      <!-- Badges -->
+      <!-- Badge de duración. El de «Aula viva» pulsante se fue: se mostraba
+           SIEMPRE, en toda lección grabada — un dato fabricado. -->
       <div class="video-badges">
-        <span class="badge-live"><span class="badge-dot pulsing" /> Aula viva</span>
         <span class="badge-duration">{{ leccion.duracion }}</span>
       </div>
 
@@ -373,28 +373,6 @@ function onEnded() {
   display: flex;
   gap: 8px;
   z-index: 5;
-}
-
-.badge-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  background: var(--primary);
-  color: var(--paper);
-  font-family: var(--mono);
-  font-size: var(--text-xs);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.badge-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--paper);
-  display: inline-block;
 }
 
 .badge-duration {

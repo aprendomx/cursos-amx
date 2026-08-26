@@ -23,7 +23,12 @@ const ASSETS = join(DIST, 'assets')
 // obligar a tocar el archivo en cada cambio pequeño.
 const PRESUPUESTOS = {
   // Lo que descarga alguien que solo abre la landing.
-  inicial: 180,
+  // 180 → 184 con la dirección «hábito con recompensa»: los tokens y las
+  // superficies utilitarias nuevas de main.css y los filtros del catálogo son
+  // crecimiento intencional (~2 kB); las hojas de admin y del reproductor ya
+  // salieron del chunk inicial en el mismo cambio. El margen extra cubre el
+  // ruido de gzip entre plataformas (el CI mide ~0.6 kB más que local).
+  inicial: 184,
   // Chunks individuales que no deben crecer sin que nos enteremos.
   vendor: 95,
   // hls.js, y nada más: el chunk ES la librería. Subió de 175 a 185 kB cuando

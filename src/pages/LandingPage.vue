@@ -99,10 +99,21 @@ function normaliza(s) {
     .replace(/[̀-ͯ]/g, '')
 }
 
+// Filtro por nivel en píldoras. `null` = todos. Es el único eje de filtrado
+// real del esquema (cursos.nivel); si algún día entra una categoría temática,
+// el filtro se amplía aquí y el pastel en src/lib/categoriaVisual.js.
+const NIVELES = ['Fundamental', 'Intermedio', 'Avanzado']
+const nivelFiltro = ref(null)
+
+function toggleNivel(nivel) {
+  nivelFiltro.value = nivelFiltro.value === nivel ? null : nivel
+}
+
 const cursosFiltrados = computed(() => {
   const q = normaliza(searchQuery.value)
-  if (!q) return cursos.value
   return cursos.value.filter((c) => {
+    if (nivelFiltro.value && c.nivel !== nivelFiltro.value) return false
+    if (!q) return true
     return (
       normaliza(c.titulo).includes(q) ||
       normaliza(c.descripcion || '').includes(q) ||
@@ -112,7 +123,7 @@ const cursosFiltrados = computed(() => {
 })
 
 const displayCursos = computed(() =>
-  searchQuery.value ? cursosFiltrados.value : cursos.value.slice(0, 6)
+  searchQuery.value || nivelFiltro.value ? cursosFiltrados.value : cursos.value.slice(0, 6)
 )
 
 const showStats = computed(() => {
@@ -212,6 +223,19 @@ function onEnviarMensajeFaq() {
           </template>
           <template v-else> Cursos disponibles. </template>
         </h2>
+        <div class="cursos-filtros" role="group" aria-label="Filtrar por nivel">
+          <button
+            v-for="nivel in NIVELES"
+            :key="nivel"
+            type="button"
+            class="pildora-filtro"
+            :aria-pressed="nivelFiltro === nivel"
+            @click="toggleNivel(nivel)"
+          >
+            {{ nivel }}
+          </button>
+        </div>
+
         <div v-if="searchQuery" class="cursos-search-meta">
           <span class="mono"
             >{{ displayCursos.length }} resultado{{ displayCursos.length === 1 ? '' : 's' }}</span
@@ -238,7 +262,19 @@ function onEnviarMensajeFaq() {
       </div>
 
       <div v-else-if="displayCursos.length === 0" class="cursos-empty">
-        <template v-if="searchQuery">
+        <template v-if="nivelFiltro && !searchQuery">
+          <p class="eyebrow">Sin cursos de este nivel</p>
+          <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
+            No hay cursos publicados de nivel {{ nivelFiltro }}.
+            <a
+              href="#"
+              :style="{ color: 'var(--primary-fg)', textDecoration: 'underline' }"
+              @click.prevent="nivelFiltro = null"
+              >Ver todos</a
+            >.
+          </p>
+        </template>
+        <template v-else-if="searchQuery">
           <p class="eyebrow">Sin coincidencias</p>
           <p :style="{ marginTop: '8px', color: 'var(--ink-2)' }">
             No encontramos cursos para &laquo;{{ searchQuery }}&raquo;. Prueba con otro
@@ -312,6 +348,12 @@ function onEnviarMensajeFaq() {
   text-align: center;
 }
 
+.cursos-filtros {
+  margin-top: calc(var(--unit) * 2);
+  display: flex;
+  gap: calc(var(--unit) * 1);
+  flex-wrap: wrap;
+}
 .cursos-search-meta {
   margin-top: calc(var(--unit) * 2);
   display: flex;

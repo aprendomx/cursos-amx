@@ -51,7 +51,10 @@ export async function emitirEvento({
       verb,
       object_type: objectType,
       object_id: objectId,
-      result,
+      // La columna es result_json (001_base.sql): con la clave `result` el
+      // insert fallaba en silencio y los eventos logged_in/answered jamás
+      // llegaron a lrs_statements.
+      result_json: result,
       timestamp: new Date().toISOString(),
     })
     .select()

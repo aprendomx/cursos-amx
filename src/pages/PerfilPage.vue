@@ -14,6 +14,7 @@ import AppLogo from '@/components/AppLogo.vue'
 import BadgeDisplay from '@/components/BadgeDisplay.vue'
 import MiCalendario from '@/components/MiCalendario.vue'
 import UserLevelBar from '@/components/UserLevelBar.vue'
+import AvanceSemanal from '@/components/AvanceSemanal.vue'
 import { theme } from '@/lib/theme.js'
 import MisDatosPanel from '@/components/MisDatosPanel.vue'
 
@@ -169,11 +170,15 @@ const cursosRecomendados = computed(() =>
   cursosList.value.filter((c) => !c._inscrito && c._publicado).slice(0, 3)
 )
 
+// Horas y XP son SOPORTE, no titular: la racha encabeza (AvanceSemanal).
 const kpis = computed(() => [
   { label: 'Cursos activos', value: userStats.value.cursos_activos },
   { label: 'Completados', value: userStats.value.cursos_completados },
   { label: 'Horas de estudio', value: userStats.value.horas },
   { label: 'Constancias', value: userStats.value.constancias },
+  ...(gamificacionHabilitada && gamificacion.value
+    ? [{ label: 'Puntos XP', value: gamificacion.value.puntos }]
+    : []),
 ])
 
 function nextLessonHint(curso) {
@@ -187,6 +192,23 @@ function goToCurso(curso) {
 
 function goToConstancia(curso) {
   router.push({ name: 'constancia', params: { cursoId: curso.id } })
+}
+
+// Compartir = el enlace de VERIFICACIÓN pública, no el PDF: es lo que un
+// tercero puede comprobar sin cuenta.
+const folioCopiado = ref('')
+async function copiarVerificacion(curso) {
+  const url = `${window.location.origin}${window.location.pathname}#/verificar/${curso.folio}`
+  try {
+    await navigator.clipboard.writeText(url)
+    folioCopiado.value = curso.folio
+    setTimeout(() => {
+      if (folioCopiado.value === curso.folio) folioCopiado.value = ''
+    }, 2500)
+  } catch {
+    // Sin permiso de portapapeles: se muestra el enlace para copiarlo a mano.
+    window.prompt('Copia el enlace de verificación:', url)
+  }
 }
 
 function goToHome() {
@@ -247,9 +269,15 @@ function goToHome() {
       <div class="perfil-section-header">
         <span class="mono" :style="{ color: 'var(--ink-4)' }">00</span>
         <h2 class="display" :style="{ fontSize: 'var(--text-3xl)', color: 'var(--ink)' }">
-          Logros
+          Avance y logros
         </h2>
       </div>
+      <!-- La racha es el titular; horas y XP quedan de soporte en los KPIs. -->
+      <AvanceSemanal
+        :racha="gamificacion.racha"
+        :dias-activos="gamificacion.diasActivos"
+        :style="{ marginBottom: 'calc(var(--unit) * 3)' }"
+      />
       <UserLevelBar
         :puntos="gamificacion.puntos"
         :nivel="gamificacion.nivel"
@@ -474,11 +502,17 @@ function goToHome() {
               </p>
             </div>
 
-            <!-- Action -->
-            <button class="btn btn-ghost btn-sm" @click="goToConstancia(curso)">
-              Ver
-              <IconSet name="arrow" />
-            </button>
+            <!-- Actions: ver/descargar (la página de constancia genera el
+                 PDF) y compartir el enlace de verificación pública. -->
+            <div class="perfil-cert-actions">
+              <button class="btn btn-ghost btn-sm" @click="goToConstancia(curso)">
+                Ver
+                <IconSet name="arrow" />
+              </button>
+              <button class="btn btn-ghost btn-sm" @click="copiarVerificacion(curso)">
+                {{ folioCopiado === curso.folio ? 'Enlace copiado' : 'Compartir' }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -620,6 +654,12 @@ function goToHome() {
   gap: calc(var(--unit) * 3);
 }
 
+.perfil-cert-actions {
+  display: flex;
+  gap: calc(var(--unit) * 1);
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
 .perfil-cert-row {
   display: flex;
   align-items: center;

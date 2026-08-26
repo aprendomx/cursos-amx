@@ -1,7 +1,7 @@
 <!-- src/components/LandingCursoBloque.vue -->
 <script setup>
 import IconSet from '@/components/IconSet.vue'
-import PlaceholderImage from '@/components/PlaceholderImage.vue'
+import { categoriaVisual, inicialPortada } from '@/lib/categoriaVisual.js'
 
 const props = defineProps({
   curso: { type: Object, required: true },
@@ -9,6 +9,10 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['ver-curso', 'ver-modulo'])
+
+// El pastel identifica al curso; sus módulos lo heredan para que el bloque se
+// lea como una sola familia de color.
+const pastel = () => `pastel-${categoriaVisual(props.curso)}`
 
 function statusChip() {
   if (props.curso.progreso === 1) return { label: 'Completado', cls: 'chip chip-verde' }
@@ -43,7 +47,13 @@ function isUrl(v) {
         class="curso-cover-img"
         loading="lazy"
       />
-      <PlaceholderImage v-else :label="curso.imagen || curso.titulo" />
+      <!-- Sin imagen subida, la portada es el pastel de categoría con la
+           inicial del curso: se reconoce por color y letra antes que por
+           texto, sin depender de ilustración por curso. -->
+      <div v-else class="curso-cover-pastel" :class="pastel()" aria-hidden="true">
+        <span class="curso-cover-inicial display">{{ inicialPortada(curso.titulo) }}</span>
+        <span class="curso-cover-nivel mono">{{ curso.nivel || 'Curso' }}</span>
+      </div>
     </div>
 
     <div class="curso-body">
@@ -97,7 +107,7 @@ function isUrl(v) {
         <div
           v-for="m in curso.modulos"
           :key="m.id"
-          class="card modulo-card"
+          class="tarjeta-dura modulo-card"
           @click="emit('ver-modulo', { curso, modulo: m })"
         >
           <div class="modulo-cover">
@@ -108,7 +118,9 @@ function isUrl(v) {
               class="modulo-cover-img"
               loading="lazy"
             />
-            <PlaceholderImage v-else :label="m.imagen_portada || m.titulo" />
+            <div v-else class="modulo-cover-pastel" :class="pastel()" aria-hidden="true">
+              <span class="modulo-cover-inicial display">{{ inicialPortada(m.titulo) }}</span>
+            </div>
           </div>
           <div class="modulo-body">
             <span class="mono modulo-meta">
@@ -143,17 +155,33 @@ function isUrl(v) {
   aspect-ratio: 16 / 9;
   cursor: pointer;
   overflow: hidden;
-}
-.curso-cover :deep(.ph-stripe),
-.curso-cover :deep(.ph-stripe-dark) {
-  width: 100%;
-  height: 100%;
+  /* Tocable: contorno de tinta, como toda superficie que espera un toque. */
+  border: var(--borde-ancho) solid var(--borde-tinta);
+  border-radius: var(--radius-md);
 }
 .curso-cover-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+.curso-cover-pastel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--unit) * 0.5);
+}
+.curso-cover-inicial {
+  font-size: clamp(64px, 14vw, 120px);
+  line-height: 1;
+}
+.curso-cover-nivel {
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  opacity: 0.75;
 }
 .modulo-cover {
   position: relative;
@@ -229,16 +257,22 @@ function isUrl(v) {
   cursor: pointer;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .modulo-cover {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
 }
-.modulo-cover :deep(.ph-stripe),
-.modulo-cover :deep(.ph-stripe-dark) {
+.modulo-cover-pastel {
   width: 100%;
   height: 100%;
+  display: grid;
+  place-items: center;
+}
+.modulo-cover-inicial {
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1;
 }
 .modulo-body {
   padding: calc(var(--unit) * 2);

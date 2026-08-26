@@ -2,6 +2,69 @@
 
 Formato: [Keep a Changelog](https://keepachangelog.com/es/1.1.0/) · Versionado: SemVer.
 
+## [Sin publicar]
+
+### Agregado
+
+- **Base de la dirección visual «hábito con recompensa»** (fase 1 de
+  `docs/propuesta-visual-aprendo.md`) — la escala de papel pasa a cálida en
+  modo claro (el oscuro no cambia) y entran los tokens de contorno de tinta
+  (`--borde-*`), elevación dura (`--elev-dura-*`, `none` en oscuro), los
+  cuatro pasteles de categoría con tinta explícita (`--cat-*`/`--sobre-cat-*`)
+  y las superficies utilitarias `.tarjeta-dura`, `.tarjeta-plana`,
+  `.pildora-filtro` y `.distintivo-recompensa`. Bricolage Grotesque y Manrope
+  se cargan junto a las familias del tema neutro.
+- **Pantallas de alumno con la dirección nueva** (fase 2) — catálogo con
+  portada pastel por categoría e inicial del curso y filtros por nivel en
+  píldora; detalle de curso con el progreso como titular, acento único en el
+  módulo en curso y colapso móvil real; login que vende el hábito;
+  evaluación con avance por segmentos, opción seleccionada con acento y
+  mensaje de repaso al fallar; reproductor con superficie de visionado
+  oscura en ambos modos, saltos de ±15 s y pestañas Notas · Recursos ·
+  Dudas con datos reales.
+
+- **Hábito y recompensa** (fase 3) — migración 002: racha diaria DERIVADA de
+  la actividad ya registrada (sin contadores nuevos), con corte de día en la
+  zona horaria de la plataforma, y la función `streak_dias_usuario` que el
+  badge «Constante» invocaba en el vacío; tabla `notas_leccion` privada con
+  segundo de video. Pantalla «Hoy» (`/hoy`) como destino post-login con
+  «sigue aquí», siguientes y racha; la pestaña de Notas del reproductor con
+  datos reales; y el perfil encabezado por la racha con la semana en barras
+  y meta semanal, insignias con contorno/punteado y constancias con enlace
+  de verificación compartible. Todo se degrada sin huecos con
+  `gamificacion` apagada.
+
+- **Panel de instructor reordenado por prioridad** (fase 4) — abre con la
+  franja de pendientes (entregas por calificar y comentarios de alumnos, con
+  salto directo) y las entregas van a ancho completo antes de las métricas.
+  El panel de «pendientes de calificar» deja los dos alumnos inventados del
+  mock y lista las entregas reales de las tareas del curso activo.
+
+### Corregido (fase 3)
+
+- `emitirEvento` insertaba `result` donde la columna es `result_json`: los
+  eventos `logged_in`/`answered` fallaban en silencio desde siempre. El mapa
+  de actividad leía claves que su vista no tiene y pintaba vacío.
+
+### Corregido (fase 2)
+
+- El detalle de curso y el reproductor quedaban partidos en columnas de
+  escritorio a 390px (retículas sin media queries); ambos colapsan ya a una
+  columna.
+- El aparte del login suponía tinta blanca sobre el primario vivo (3.4:1 con
+  el naranja); pasa al par `primary-dark`/`sobre-primary-dark`, como la nav.
+- Datos de utilería que mentían en producción: «Última actividad: hace 2
+  días» del detalle, las «notas de lección» clavadas sobre la PNT, el
+  distintivo «Aula viva» en toda lección grabada y el «Módulo 02» fijo del
+  reproductor. Fuera o sustituidos por el dato real.
+
+### Corregido
+
+- La derivación de los colores de primer plano se calibraba contra `#ffffff`;
+  sobre el lienzo —la superficie clara más oscura y la más usada— el derivado
+  podía quedarse en 4.26:1. Ahora se calibra contra el lienzo, así que cumple
+  4.5:1 en todas las superficies claras.
+
 ## [0.21.0] — 2026-08-22
 
 ### Agregado
