@@ -48,6 +48,17 @@ describe('decidirNavegacion', () => {
     expect(decidirNavegacion(RUTA({ requiresInstructor: true }), instructor)).toBeNull()
     expect(decidirNavegacion(RUTA({ requiresInstructor: true }), admin)).toBeNull()
   })
+
+  // «Hoy» es el destino post-login: sin sesión rebota a login CONSERVANDO el
+  // destino, para que el propio login te devuelva ahí.
+  it('sin sesión, /hoy exige login y conserva el destino', () => {
+    const r = decidirNavegacion(RUTA({ requiresAuth: true }, '/hoy'), null)
+    expect(r).toEqual({ path: '/login', query: { redirect: '/hoy' } })
+  })
+
+  it('con sesión, /hoy pasa para cualquier rol', () => {
+    expect(decidirNavegacion(RUTA({ requiresAuth: true }, '/hoy'), alumno)).toBeNull()
+  })
 })
 
 function clienteFalso({ session = null, perfil = null } = {}) {

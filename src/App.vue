@@ -103,7 +103,9 @@ async function onRegistroComplete(form) {
         localStorage.setItem(storageKey('registered'), 'true')
       } catch {}
 
-      router.push('/')
+      // Con sesión viva el alta aterriza en «Hoy»; sin sesión (confirmación
+      // por correo pendiente) la portada, porque /hoy rebotaría al login.
+      router.push(authData.session ? { name: 'hoy' } : '/')
     } catch (e) {
       console.error('Registro error:', e)
       registroError.value = 'Error inesperado: ' + (e?.message || String(e))
@@ -143,7 +145,9 @@ async function onLogin({ correo, password }) {
       localStorage.setItem(storageKey('registered'), 'true')
     } catch {}
     const redirect = route.query.redirect
-    router.push(typeof redirect === 'string' ? redirect : '/')
+    // Sin destino pendiente, el login cae en «Hoy»: la pantalla que responde
+    // dónde seguir, no el catálogo.
+    router.push(typeof redirect === 'string' ? redirect : { name: 'hoy' })
   } catch (e) {
     loginError.value = 'Error inesperado: ' + e.message
   }
