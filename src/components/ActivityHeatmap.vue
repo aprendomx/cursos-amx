@@ -3,11 +3,14 @@ const props = defineProps({
   engagement: { type: Array, default: () => [] },
 })
 
+// Las claves son las columnas REALES de v_engagement_diario. Antes se leían
+// `lecciones`/`quizzes`/`foros`, que la vista no tiene: cada celda caía al
+// `?? 0` y el mapa pintaba vacío aunque hubiera actividad.
 const columns = [
   { key: 'logins', label: 'Logins' },
-  { key: 'lecciones', label: 'Lecciones' },
-  { key: 'quizzes', label: 'Quizzes' },
-  { key: 'foros', label: 'Foros' },
+  { key: 'lecciones_completadas', label: 'Lecciones' },
+  { key: 'quizzes_respondidos', label: 'Quizzes' },
+  { key: 'foros_posts', label: 'Foros' },
 ]
 
 function maxValue(key) {
@@ -24,9 +27,9 @@ function cellColor(value, key) {
   const baseColor =
     key === 'logins'
       ? 'var(--primary)'
-      : key === 'lecciones'
+      : key === 'lecciones_completadas'
         ? 'var(--success)'
-        : key === 'quizzes'
+        : key === 'quizzes_respondidos'
           ? 'var(--warn)'
           : 'var(--brand-accent)'
   return baseColor
