@@ -10,7 +10,8 @@ test.describe('Landing Page', () => {
     await page.goto('/')
     await page.click('text=Iniciar sesión')
     await expect(page).toHaveURL(/.*login/)
-    await expect(page.locator('text=Accede a tu plataforma')).toBeVisible()
+    // Encabezado de la dirección «hábito con recompensa» (fase 2).
+    await expect(page.locator('text=Retoma donde te quedaste')).toBeVisible()
   })
 
   test('should navigate to registro page', async ({ page }) => {

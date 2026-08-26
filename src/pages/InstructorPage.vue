@@ -1,4 +1,5 @@
 <script setup>
+import '@/assets/admin-shared.css'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInstructor } from '@/composables/useInstructor.js'

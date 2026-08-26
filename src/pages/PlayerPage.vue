@@ -1,4 +1,7 @@
 <script setup>
+import '@/assets/player-layouts.css'
+// EntregaAlumnoPanel y el heatmap usan clases de admin-shared.
+import '@/assets/admin-shared.css'
 import { defineProps, computed, watch } from 'vue'
 import IconSet from '@/components/IconSet.vue'
 import PlayerVideoSurface from '@/components/PlayerVideoSurface.vue'

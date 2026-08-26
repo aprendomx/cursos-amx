@@ -7,8 +7,10 @@ import { applyTheme } from './lib/theme.js'
 import i18n from './lib/i18n.js'
 import { loadFeatureFlags, hidratarFlagsGuardados } from './composables/useFeatureFlags.js'
 import './assets/main.css'
-import './assets/admin-shared.css'
-import './assets/player-layouts.css'
+// admin-shared.css y player-layouts.css NO van aquí: las importan sus rutas
+// diferidas (AdminPage/InstructorPage/CursoDetalle y PlayerPage). En el chunk
+// inicial las pagaba hasta quien solo mira la portada, y el crecimiento del
+// reproductor lo sacó del presupuesto (check-bundle).
 
 const app = createApp(App)
 

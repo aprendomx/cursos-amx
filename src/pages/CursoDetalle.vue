@@ -1,4 +1,6 @@
 <script setup>
+// CrearTareaPanel y los paneles de instructor usan clases de admin-shared.
+import '@/assets/admin-shared.css'
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 import { useRouter } from 'vue-router'
