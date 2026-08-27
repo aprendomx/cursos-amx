@@ -48,6 +48,24 @@ describe('Auth Store', () => {
     expect(store.iniciales).toBe('JP')
   })
 
+  // El guard de navegación espera a init() en CADA ruta protegida. Si cada
+  // llamada volviera a preguntarle a la API de auth, volveríamos al defecto
+  // que dejaba los menús muertos tras iniciar sesión: ese camino se serializa
+  // dentro de auth-js y podía quedarse atorado. Una consulta por carga.
+  it('init() resuelve la sesión una sola vez, aunque se le llame en cada navegación', async () => {
+    const { supabase } = await import('@/lib/supabase.js')
+    supabase.auth.getSession.mockClear()
+    supabase.auth.onAuthStateChange.mockClear()
+    supabase.auth.getSession.mockResolvedValue({ data: { session: null } })
+
+    const store = useAuthStore()
+    await Promise.all([store.init(), store.init(), store.init()])
+    await store.init()
+
+    expect(supabase.auth.getSession).toHaveBeenCalledTimes(1)
+    expect(supabase.auth.onAuthStateChange).toHaveBeenCalledTimes(1)
+  })
+
   it('should reset state on logout', async () => {
     const store = useAuthStore()
     store.session = { user: { id: '123' } }

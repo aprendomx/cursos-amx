@@ -75,18 +75,32 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function init() {
+  // La sesión se resuelve UNA sola vez por carga de página. `init()` devuelve
+  // siempre la misma promesa, y eso no es una optimización: el guard de
+  // navegación la espera en cada ruta protegida, así que si cada llamada
+  // volviera a preguntarle a la API de auth, volveríamos al defecto que dejaba
+  // los menús muertos tras iniciar sesión. Ver src/router/guards.js.
+  let promesaInit: Promise<void> | null = null
+
+  function init(): Promise<void> {
+    if (!promesaInit) promesaInit = resolverSesionInicial()
+    return promesaInit
+  }
+
+  async function resolverSesionInicial() {
     authLoading.value = true
     try {
       const { data } = await supabase.auth.getSession()
       session.value = data.session
       if (data.session) {
         await fetchPerfil(data.session.user.id)
-        try {
-          await emitirEvento({ verb: 'logged_in', objectType: 'platform' })
-        } catch {
+        // Telemetría, deliberadamente SIN esperar: `emitirEvento` valida el
+        // usuario contra el servidor, y con el guard esperando a que la sesión
+        // quede resuelta, ese viaje de red retrasaba la primera navegación
+        // protegida sin que nada dependiera de su resultado.
+        emitirEvento({ verb: 'logged_in', objectType: 'platform' }).catch(() => {
           /* best effort */
-        }
+        })
       }
     } catch {}
     authLoading.value = false
