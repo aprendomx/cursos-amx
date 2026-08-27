@@ -107,169 +107,75 @@ async function runReport(report) {
   }
 }
 
-async function reportInscripcionesDep(t) {
-  const { data } = await sbSelect(
-    'inscripciones?select=perfiles(dependencias(nombre,siglas))&limit=10000',
-    t
-  )
-  const map = new Map()
-  for (const r of data || []) {
-    const dep = r.perfiles?.dependencias?.nombre || 'Sin dependencia'
-    const sig = r.perfiles?.dependencias?.siglas || '—'
-    const cur = map.get(dep) || { dependencia: dep, siglas: sig, inscripciones: 0 }
-    cur.inscripciones++
-    map.set(dep, cur)
-  }
-  const rows = [...map.values()].sort((a, b) => b.inscripciones - a.inscripciones)
-  return { columns: ['dependencia', 'siglas', 'inscripciones'], rows }
-}
+// Los ocho informes se resuelven con un GROUP BY en la base.
+//
+// Antes cada uno descargaba `limit=10000` filas crudas y agregaba en el
+// navegador: ~80 000 filas para producir unas cien. Peor que el coste era la
+// corrección — al superar ese límite, los informes empezaban a mentir en
+// silencio, sin que nada lo indicara. Las vistas viven en la migración 004 y
+// heredan la RLS de sus tablas (security_invoker), así que no abren ninguna
+// puerta nueva.
 
-function buildLast12Months() {
-  const out = []
-  const now = new Date()
-  for (let i = 11; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-    out.push(key)
-  }
-  return out
+const pct = (v) => (v == null ? '—' : `${v}%`)
+
+async function reportInscripcionesDep(t) {
+  const { data } = await sbSelect('v_reporte_inscripciones_dependencia?select=*', t)
+  return { columns: ['dependencia', 'siglas', 'inscripciones'], rows: data || [] }
 }
 
 async function reportAvancePeriodo(t) {
-  const months = buildLast12Months()
-  const since = new Date(new Date().getFullYear(), new Date().getMonth() - 11, 1).toISOString()
-  const { data } = await sbSelect(
-    `inscripciones?select=inscrito_en&inscrito_en=gte.${since}&limit=10000`,
-    t
-  )
-  const counts = Object.fromEntries(months.map((m) => [m, 0]))
-  for (const r of data || []) {
-    const k = (r.inscrito_en || '').slice(0, 7)
-    if (k in counts) counts[k]++
-  }
-  const rows = months.map((m) => ({ mes: m, inscripciones: counts[m] }))
-  return { columns: ['mes', 'inscripciones'], rows }
+  const { data } = await sbSelect('v_reporte_inscripciones_mes?select=*&order=mes.asc', t)
+  return { columns: ['mes', 'inscripciones'], rows: data || [] }
 }
 
 async function reportConstanciasMes(t) {
-  const months = buildLast12Months()
-  const since = new Date(new Date().getFullYear(), new Date().getMonth() - 11, 1).toISOString()
-  const { data } = await sbSelect(
-    `constancias?select=emitida_en&emitida_en=gte.${since}&limit=10000`,
-    t
-  )
-  const counts = Object.fromEntries(months.map((m) => [m, 0]))
-  for (const r of data || []) {
-    const k = (r.emitida_en || '').slice(0, 7)
-    if (k in counts) counts[k]++
-  }
-  const rows = months.map((m) => ({ mes: m, constancias: counts[m] }))
-  return { columns: ['mes', 'constancias'], rows }
+  const { data } = await sbSelect('v_reporte_constancias_mes?select=*&order=mes.asc', t)
+  return { columns: ['mes', 'constancias'], rows: data || [] }
 }
 
 async function reportTasaCurso(t) {
-  const [{ data: insc }, { data: cons }, { data: cursos }] = await Promise.all([
-    sbSelect('inscripciones?select=curso_id&limit=10000', t),
-    sbSelect('constancias?select=curso_id&limit=10000', t),
-    sbSelect('cursos?select=id,titulo,nivel&limit=1000', t),
-  ])
-  const inscBy = {},
-    consBy = {}
-  for (const r of insc || []) inscBy[r.curso_id] = (inscBy[r.curso_id] || 0) + 1
-  for (const r of cons || []) consBy[r.curso_id] = (consBy[r.curso_id] || 0) + 1
-  const rows = (cursos || [])
-    .map((c) => {
-      const i = inscBy[c.id] || 0
-      const k = consBy[c.id] || 0
-      return {
-        curso: c.titulo,
-        nivel: c.nivel || '—',
-        inscritos: i,
-        constancias: k,
-        tasa: i > 0 ? ((k / i) * 100).toFixed(1) + '%' : '—',
-      }
-    })
-    .sort((a, b) => b.inscritos - a.inscritos)
+  const { data } = await sbSelect('v_reporte_tasa_curso?select=*&order=inscritos.desc', t)
+  const rows = (data || []).map((r) => ({
+    curso: r.curso,
+    nivel: r.nivel,
+    inscritos: r.inscritos,
+    constancias: r.constancias,
+    tasa: pct(r.tasa_pct),
+  }))
   return { columns: ['curso', 'nivel', 'inscritos', 'constancias', 'tasa'], rows }
 }
 
 async function reportHoras(t) {
-  const { data } = await sbSelect(
-    'progreso?select=segundos_vistos,perfiles(nombres_completos,dependencias(siglas))&limit=10000',
-    t
-  )
-  const byUser = new Map()
-  for (const r of data || []) {
-    const nombre = r.perfiles?.nombres_completos || 'Usuario'
-    const dep = r.perfiles?.dependencias?.siglas || '—'
-    const cur = byUser.get(nombre) || { usuario: nombre, dependencia: dep, segundos: 0 }
-    cur.segundos += r.segundos_vistos || 0
-    byUser.set(nombre, cur)
-  }
-  const rows = [...byUser.values()]
-    .sort((a, b) => b.segundos - a.segundos)
-    .map((r) => ({
-      usuario: r.usuario,
-      dependencia: r.dependencia,
-      horas: (r.segundos / 3600).toFixed(2),
-    }))
-  return { columns: ['usuario', 'dependencia', 'horas'], rows }
+  const { data } = await sbSelect('v_reporte_horas_usuario?select=*&order=horas.desc', t)
+  return { columns: ['usuario', 'dependencia', 'horas'], rows: data || [] }
 }
 
 async function reportUsuariosActividad(t) {
-  const since = new Date(Date.now() - 30 * 86400 * 1000).toISOString()
-  const [{ data: users }, { data: prog }] = await Promise.all([
-    sbSelect('perfiles?select=id&limit=10000', t),
-    sbSelect(`progreso?select=user_id&completado_en=gte.${since}&limit=10000`, t),
-  ])
-  const active = new Set((prog || []).map((p) => p.user_id))
-  const total = (users || []).length
-  const activos = (users || []).filter((u) => active.has(u.id)).length
-  return {
-    columns: ['categoria', 'cantidad', 'porcentaje'],
-    rows: [
-      {
-        categoria: 'Activos (últimos 30 días)',
-        cantidad: activos,
-        porcentaje: total ? ((activos / total) * 100).toFixed(1) + '%' : '—',
-      },
-      {
-        categoria: 'Inactivos',
-        cantidad: total - activos,
-        porcentaje: total ? (((total - activos) / total) * 100).toFixed(1) + '%' : '—',
-      },
-      { categoria: 'Total registrados', cantidad: total, porcentaje: '100%' },
-    ],
-  }
+  const { data } = await sbSelect('v_reporte_usuarios_actividad?select=*&order=orden.asc', t)
+  const rows = (data || []).map((r) => ({
+    categoria: r.categoria,
+    cantidad: r.cantidad,
+    porcentaje: pct(r.porcentaje),
+  }))
+  return { columns: ['categoria', 'cantidad', 'porcentaje'], rows }
 }
 
 async function reportTopLecciones(t) {
-  const { data } = await sbSelect(
-    'progreso?select=leccion_id,lecciones(titulo,modulos(cursos(titulo)))&limit=10000',
-    t
-  )
-  const map = new Map()
-  for (const r of data || []) {
-    const tit = r.lecciones?.titulo || 'Lección'
-    const cur = r.lecciones?.modulos?.cursos?.titulo || '—'
-    const key = `${cur}||${tit}`
-    const e = map.get(key) || { leccion: tit, curso: cur, vistas: 0 }
-    e.vistas++
-    map.set(key, e)
-  }
-  const rows = [...map.values()].sort((a, b) => b.vistas - a.vistas).slice(0, 15)
-  return { columns: ['leccion', 'curso', 'vistas'], rows }
+  // El corte a 15 lo hace la base: antes se traían 10 000 filas para quedarse
+  // con quince.
+  const { data } = await sbSelect('v_reporte_top_lecciones?select=*&order=vistas.desc&limit=15', t)
+  return { columns: ['leccion', 'curso', 'vistas'], rows: data || [] }
 }
 
 async function reportTiempoCurso(t) {
   const { data } = await sbSelect(
-    'tiempo_curso?select=segundos_activos,perfiles(nombres_completos,dependencias(siglas)),cursos(titulo)&order=segundos_activos.desc&limit=10000',
+    'v_reporte_tiempo_curso?select=*&order=segundos_activos.desc&limit=500',
     t
   )
   const rows = (data || []).map((r) => ({
-    usuario: r.perfiles?.nombres_completos || 'Usuario',
-    dependencia: r.perfiles?.dependencias?.siglas || '—',
-    curso: r.cursos?.titulo || '—',
+    usuario: r.usuario,
+    dependencia: r.dependencia,
+    curso: r.curso,
     tiempo: formatearDuracion(r.segundos_activos),
     horas: ((r.segundos_activos || 0) / 3600).toFixed(2),
   }))

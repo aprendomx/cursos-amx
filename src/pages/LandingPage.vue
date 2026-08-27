@@ -30,16 +30,22 @@ const fetchError = ref(null)
 
 onMounted(async () => {
   try {
-    const [cursosRes, inscripcionesRes, constanciasRes] = await Promise.all([
+    // `lecciones(count)` en vez de traer las filas: de la lección solo se
+    // necesita cuántas hay. Con un catálogo de treinta cursos, la consulta
+    // anterior descargaba unas tres mil filas en la portada pública para
+    // pintar un número por módulo.
+    const [cursosRes, statsRes] = await Promise.all([
       supabase
         .from('cursos')
         .select(
-          'id, slug, titulo, descripcion, imagen_portada, nivel, duracion_min, modulos(id, orden, titulo, imagen_portada, lecciones(id, duracion_seg))'
+          'id, slug, titulo, descripcion, imagen_portada, nivel, duracion_min, modulos(id, orden, titulo, imagen_portada, lecciones(count))'
         )
         .eq('publicado', true)
         .order('creado_en', { ascending: false }),
-      supabase.from('inscripciones').select('user_id'),
-      supabase.from('constancias').select('id', { count: 'exact', head: true }),
+      // Los tres contadores en una sola llamada agregada. Antes se descargaba
+      // la tabla `inscripciones` entera para contar usuarios distintos —y la
+      // RLS la rechazaba sin sesión, así que el número siempre salía en cero.
+      supabase.rpc('stats_portada'),
     ])
 
     if (cursosRes.error) throw cursosRes.error
@@ -53,7 +59,8 @@ onMounted(async () => {
           orden: m.orden,
           titulo: m.titulo,
           imagen_portada: m.imagen_portada,
-          lecciones: m.lecciones?.length || 0,
+          // PostgREST devuelve el agregado como [{ count: n }].
+          lecciones: m.lecciones?.[0]?.count || 0,
         }))
       const totalLecciones = modulos.reduce((sum, m) => sum + m.lecciones, 0)
       const min = c.duracion_min || 0
@@ -72,14 +79,11 @@ onMounted(async () => {
       }
     })
 
-    // Servidores inscritos: distinct user_id en cliente.
-    const inscripcionesData = inscripcionesRes.data || []
-    const distinctUsers = new Set(inscripcionesData.map((r) => r.user_id))
-
+    const s = Array.isArray(statsRes.data) ? statsRes.data[0] : statsRes.data
     stats.value = {
-      servidoresInscritos: distinctUsers.size,
-      constanciasEmitidas: constanciasRes.count || 0,
-      cursosDisponibles: cursos.value.length,
+      servidoresInscritos: s?.servidores_inscritos || 0,
+      constanciasEmitidas: s?.constancias_emitidas || 0,
+      cursosDisponibles: s?.cursos_publicados || cursos.value.length,
     }
   } catch (e) {
     console.error('Error cargando portada desde Supabase:', e)

@@ -65,12 +65,17 @@ export const useAuthStore = defineStore('auth', () => {
         constancias: 0,
       }
       hasRegistered.value = true
+      // Las insignias se evalúan SIN esperar, y el motivo es de peso:
+      // `evaluarBadges` recorre las insignias activas en serie, una petición
+      // por cada una, y `fetchPerfil` se espera dentro de la resolución de la
+      // sesión, que a su vez espera el guard de navegación. Encadenado, eso
+      // convertía la primera navegación de cada sesión en 15-45 viajes de red
+      // en cuanto se encendiera `gamificacion`. Nada de la interfaz depende
+      // del resultado: las insignias nuevas se leen en la siguiente carga.
       if (featureEnabled('gamificacion')) {
-        try {
-          await evaluarBadges(userId)
-        } catch (e) {
+        evaluarBadges(userId).catch((e) => {
           console.error('Error evaluando badges en login:', e)
-        }
+        })
       }
     }
   }
