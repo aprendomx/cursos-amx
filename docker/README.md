@@ -140,6 +140,30 @@ docker compose up -d
 docker compose -f docker-compose.yml -f overrides/nginx.yml up -d
 ```
 
+#### Servicios opcionales (perfiles)
+
+Tres servicios **no arrancan por defecto** porque cuestan mucha memoria y no
+sirven a ningún módulo encendido de fábrica:
+
+| Perfil          | Servicios             | Qué te da                          | Coste medido       |
+| --------------- | --------------------- | ---------------------------------- | ------------------ |
+| `analytics`     | `analytics`, `vector` | El visor de logs de Studio         | ~680 MB y ~6 % CPU |
+| `transcripcion` | `whisper-service`     | Transcripción local de grabaciones | ~880 MB            |
+
+```bash
+# con el visor de logs de Studio
+docker compose --profile analytics up -d
+
+# con transcripción local (enciéndelo junto al módulo, no antes)
+docker compose --profile transcripcion up -d
+```
+
+Por qué están apagados: medido en una instalación en reposo, Logflare
+(`analytics`) generaba por sí solo 2,3 millones de consultas por semana desde su
+cola interna —más de la mitad de todas las que veía la base— mientras la
+aplicación hacía 328. Si enciendes el perfil `analytics`, pon también
+`STUDIO_ENABLE_LOGS=true` en tu `.env` para que Studio muestre la pestaña.
+
 ### 7. Aplicar las migraciones del proyecto
 
 ```bash

@@ -51,6 +51,11 @@ services:
   whisper-service:
     build: ../services/whisper-service
     restart: unless-stopped
+    # Opcional: solo arranca con `--profile transcripcion`. El modelo residente
+    # ocupa ~880 MB aunque no se transcriba nada, y el módulo
+    # `transcripcion_whisper` viene apagado de fábrica. Enciéndelo a la vez que
+    # el flag, no antes.
+    profiles: ['transcripcion']
     environment:
       WHISPER_MODEL: ${WHISPER_MODEL:-medium}
       DEVICE: ${WHISPER_DEVICE:-cpu}
@@ -86,8 +91,11 @@ services:
       timeout: 10s
       interval: 5s
       retries: 3
+    # Antes esperaba a `analytics`, que ahora es opcional: con el perfil
+    # apagado, ese depends_on impedía arrancar Studio entero. Lo que Studio
+    # necesita de verdad es la base (habla con `meta` y `kong` por red).
     depends_on:
-      analytics:
+      db:
         condition: service_healthy
     environment:
       #  Listen on all IPv4 interfaces
@@ -119,7 +127,10 @@ services:
       LOGFLARE_PRIVATE_ACCESS_TOKEN: ${LOGFLARE_PRIVATE_ACCESS_TOKEN}
 
       LOGFLARE_URL: http://analytics:4000
-      NEXT_PUBLIC_ENABLE_LOGS: 'true'
+      # El visor de logs de Studio necesita analytics. Con el perfil apagado
+      # muestra errores en cada pestaña, así que se desactiva por defecto y se
+      # enciende junto con el perfil.
+      NEXT_PUBLIC_ENABLE_LOGS: ${STUDIO_ENABLE_LOGS:-false}
       # Comment to use Big Query backend for analytics
       NEXT_ANALYTICS_BACKEND_PROVIDER: postgres
       # Uncomment to use Big Query backend for analytics
@@ -520,6 +531,14 @@ services:
     container_name: supabase-analytics
     image: supabase/logflare:1.36.1
     restart: unless-stopped
+    # Opcional: solo arranca con `--profile analytics`.
+    #
+    # Medido en producción con la plataforma en reposo: 618 MB y ~6 % de CPU,
+    # y su cola interna `oban_jobs` genera por sí sola 2,3 millones de
+    # consultas por semana — más de la mitad de TODAS las que ve la base,
+    # mientras la aplicación hacía 328. Lo que aporta a cambio es el visor de
+    # logs de Studio, y nada más: el módulo `analytics` del producto no lo usa.
+    profiles: ['analytics']
     # ports:
     #   - 4000:4000
     # Uncomment to use Big Query backend for analytics
@@ -608,6 +627,9 @@ services:
     container_name: supabase-vector
     image: timberio/vector:0.53.0-alpine
     restart: unless-stopped
+    # Existe solo para enviarle los logs de Docker a Logflare: sin `analytics`
+    # no tiene destino, así que comparte su perfil.
+    profiles: ['analytics']
     volumes:
       - ./volumes/logs/vector.yml:/etc/vector/vector.yml:ro,z
       - ${DOCKER_SOCKET_LOCATION}:/var/run/docker.sock:ro,z
