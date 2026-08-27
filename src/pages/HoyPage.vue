@@ -12,6 +12,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
 import { supabase } from '@/lib/supabase.js'
+import { fetchProgresoUsuario } from '@/services/progreso.js'
 import { featureEnabled } from '@/lib/featureFlags.js'
 import { useGamificacion } from '@/composables/useGamificacion.js'
 import { categoriaVisual, inicialPortada } from '@/lib/categoriaVisual.js'
@@ -34,27 +35,31 @@ const gamificacion = conGamificacion && userId ? useGamificacion(userId) : null
 
 onMounted(async () => {
   try {
-    const [inscripcionesRes, cursosRes, progresoRes] = await Promise.all([
+    const [inscripcionesRes, cursosRes, progreso] = await Promise.all([
       supabase.from('inscripciones').select('curso_id').eq('user_id', userId),
+      // `lecciones(count)`: de las lecciones solo se necesita cuántas hay.
       supabase
         .from('cursos')
-        .select('id, titulo, descripcion, nivel, imagen_portada, modulos(id, lecciones(id))')
+        .select('id, titulo, descripcion, nivel, imagen_portada, modulos(id, lecciones(count))')
         .eq('publicado', true)
         .order('creado_en', { ascending: false }),
-      supabase.from('progreso').select('leccion_id, completado').eq('user_id', userId),
+      // Trae solo lo completado, ya emparejado con su curso y con caché. Antes
+      // se descargaba el progreso de TODOS los cursos para cruzarlo a mano.
+      fetchProgresoUsuario(userId),
     ])
-    const firstError = inscripcionesRes.error || cursosRes.error || progresoRes.error
+    const firstError = inscripcionesRes.error || cursosRes.error
     if (firstError) throw firstError
 
     inscritos.value = new Set((inscripcionesRes.data || []).map((i) => i.curso_id))
-    const completadas = new Set(
-      (progresoRes.data || []).filter((p) => p.completado).map((p) => p.leccion_id)
-    )
+    const hechasPorCurso = new Map()
+    for (const p of progreso || []) {
+      const cursoId = p.lecciones?.modulos?.curso_id
+      if (cursoId) hechasPorCurso.set(cursoId, (hechasPorCurso.get(cursoId) || 0) + 1)
+    }
 
     cursos.value = (cursosRes.data || []).map((c) => {
-      const lecciones = (c.modulos || []).flatMap((m) => m.lecciones || [])
-      const total = lecciones.length
-      const hechas = lecciones.filter((l) => completadas.has(l.id)).length
+      const total = (c.modulos || []).reduce((s, m) => s + (m.lecciones?.[0]?.count || 0), 0)
+      const hechas = hechasPorCurso.get(c.id) || 0
       return {
         id: c.id,
         titulo: c.titulo,

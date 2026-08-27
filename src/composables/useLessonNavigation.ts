@@ -19,6 +19,9 @@ export interface PlayerLesson {
   video_id: string | null
   documento_path: string | null
   documento_tipo: string | null
+  // `tiene_contenido` viene en el listado (columna generada); `contenido` se
+  // rellena bajo demanda solo para la lección activa.
+  tiene_contenido: boolean
   contenido: Record<string, unknown> | null
   tipo: string
   completado: boolean
@@ -66,6 +69,7 @@ export function useLessonNavigation({
     video_id: null,
     documento_path: null,
     documento_tipo: null,
+    tiene_contenido: false,
     contenido: null,
     tipo: 'video',
     completado: false,
@@ -81,6 +85,31 @@ export function useLessonNavigation({
       lecciones.value.find((l) => l.id === currentLeccion.value) ||
       lecciones.value[0] ||
       LECCION_CARGANDO
+  )
+
+  // Cuerpo de la lección de texto, bajo demanda.
+  //
+  // El listado no lo trae (ver la consulta de más abajo): son ~20 KB por
+  // lección y solo se lee la que se está viendo. Se pide al entrar en ella y
+  // se guarda en la propia fila, así que volver atrás no vuelve a pedirlo.
+  async function cargarContenido(id: string) {
+    const fila = lecciones.value.find((l) => l.id === id)
+    if (!fila || !fila.tiene_contenido || fila.contenido) return
+    try {
+      const { data } = await sbSelect(`lecciones?select=contenido&id=eq.${id}`, session.value?.access_token)
+      const contenido = data?.[0]?.contenido ?? null
+      if (contenido) fila.contenido = contenido
+    } catch (e) {
+      console.warn('contenido de la lección:', e)
+    }
+  }
+
+  watch(
+    () => leccion.value?.id,
+    (id) => {
+      if (id) cargarContenido(id)
+    },
+    { immediate: true }
   )
 
   function goToNextLesson() {
@@ -176,7 +205,7 @@ export function useLessonNavigation({
     if (leccion.value?.tipo === 'examen') return { kind: 'examen', leccionId: leccion.value.id }
     if (leccion.value?.documento_path) return { kind: 'documento', leccionId: leccion.value.id }
     if (leccion.value?.video_id) return { kind: 'hls', videoId: leccion.value.video_id }
-    if (leccion.value?.contenido) return { kind: 'texto', leccionId: leccion.value.id }
+    if (leccion.value?.tiene_contenido) return { kind: 'texto', leccionId: leccion.value.id }
     if (youtubeId.value) return { kind: 'youtube', id: youtubeId.value }
     return { kind: 'none' }
   })
@@ -212,8 +241,12 @@ export function useLessonNavigation({
         )
         cursoTitulo.value = cursoRows?.[0]?.titulo || ''
 
+        // Columnas enumeradas a propósito: `select=*` arrastraba `contenido`
+        // —el cuerpo completo de cada lección de texto— para todo el curso.
+        // Aquí basta con saber si lo tiene; el cuerpo se pide luego, y solo
+        // el de la lección que se está viendo.
         const { data: lecRows } = await sbSelect(
-          `lecciones?select=*,modulos!inner(curso_id,orden,titulo)&modulos.curso_id=eq.${props.cursoId}&order=orden.asc&limit=1000`,
+          `lecciones?select=id,modulo_id,orden,titulo,tipo_material,duracion_seg,url_youtube,video_id,documento_path,documento_tipo,tiene_contenido,requiere_entrega,entrega_tipos,entrega_max_mb,modulos!inner(curso_id,orden,titulo)&modulos.curso_id=eq.${props.cursoId}&order=orden.asc&limit=1000`,
           token
         )
 
@@ -247,7 +280,8 @@ export function useLessonNavigation({
             video_id: l.video_id || null,
             documento_path: l.documento_path || null,
             documento_tipo: l.documento_tipo || null,
-            contenido: l.contenido ?? null,
+            tiene_contenido: l.tiene_contenido === true,
+            contenido: null,
             tipo: l.tipo_material || 'video',
             completado: completedIds.has(l.id),
             modulo_titulo: l.modulos.titulo,

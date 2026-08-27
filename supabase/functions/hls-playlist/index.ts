@@ -16,9 +16,25 @@ function toPublic(url: string): string {
   return PUBLIC_URL === SUPABASE_URL ? url : url.replace(SUPABASE_URL, PUBLIC_URL)
 }
 
+// Ventana de caché del manifiesto en el navegador.
+//
+// Los manifiestos son VOD (`-hls_playlist_type vod` en el worker): para un
+// video dado no cambian nunca. Lo único perecedero que llevan dentro son las
+// URLs firmadas de segmento, así que la ventana se DERIVA de su vida en vez de
+// escribirse a mano: aunque alguien baje SEGMENT_TTL_SECONDS, la caché sigue
+// caducando mucho antes que las firmas que contiene.
+//
+// Antes era `no-store`, así que reanudar, buscar en la barra, cambiar de
+// calidad o recargar la página volvía a bajar el .m3u8 de Storage y a refirmar
+// todos sus segmentos. `private` y no `public` a propósito: la URL lleva el
+// token de reproducción del usuario y no debe acabar en una caché compartida.
+const MANIFEST_CACHE_SECONDS = Math.max(0, Math.min(900, Math.floor(SEG_TTL / 4)))
+
 const m3u8Headers = {
   'content-type': 'application/vnd.apple.mpegurl',
-  'cache-control': 'no-store',
+  'cache-control': MANIFEST_CACHE_SECONDS
+    ? `private, max-age=${MANIFEST_CACHE_SECONDS}`
+    : 'no-store',
   'access-control-allow-origin': '*',
 }
 

@@ -26,11 +26,20 @@ vi.mock('@/composables/useGamificacion.js', () => ({
   })),
 }))
 
-// Tres consultas: inscripciones, cursos, progreso.
+// Dos consultas (inscripciones, cursos) más el servicio de progreso, que ya
+// devuelve lo completado emparejado con su curso.
 const mockFrom = vi.fn()
 vi.mock('@/lib/supabase.js', () => ({
   supabase: { from: (...args) => mockFrom(...args) },
 }))
+
+const mockProgresoUsuario = vi.fn(async () => [])
+vi.mock('@/services/progreso.js', () => ({
+  fetchProgresoUsuario: (...args) => mockProgresoUsuario(...args),
+}))
+
+/** Fila de progreso tal como la devuelve el join del servicio. */
+const completada = (cursoId) => ({ lecciones: { modulos: { curso_id: cursoId } } })
 
 const CURSOS = [
   {
@@ -38,18 +47,20 @@ const CURSOS = [
     titulo: 'Redes para todos',
     descripcion: 'd',
     nivel: 'Fundamental',
-    modulos: [{ id: 'm1', lecciones: [{ id: 'l1' }, { id: 'l2' }] }],
+    // PostgREST devuelve el agregado del embed como [{ count: n }].
+    modulos: [{ id: 'm1', lecciones: [{ count: 2 }] }],
   },
   {
     id: 'c2',
     titulo: 'Datos abiertos',
     descripcion: 'd',
     nivel: 'Intermedio',
-    modulos: [{ id: 'm2', lecciones: [{ id: 'l3' }] }],
+    modulos: [{ id: 'm2', lecciones: [{ count: 1 }] }],
   },
 ]
 
 function prepararSupabase({ inscripciones = [], cursos = CURSOS, progreso = [] } = {}) {
+  mockProgresoUsuario.mockResolvedValue(progreso)
   mockFrom.mockImplementation((tabla) => {
     if (tabla === 'inscripciones') {
       return { select: () => ({ eq: () => Promise.resolve({ data: inscripciones, error: null }) }) }
@@ -83,7 +94,7 @@ describe('HoyPage — gamificación APAGADA (degradación sin huecos)', () => {
   it('muestra «sigue aquí» con el curso a medias y no pinta racha ni nivel', async () => {
     prepararSupabase({
       inscripciones: [{ curso_id: 'c1' }],
-      progreso: [{ leccion_id: 'l1', completado: true }],
+      progreso: [completada('c1')],
     })
     const w = montar()
     await flushPromises()
@@ -110,7 +121,7 @@ describe('HoyPage — gamificación APAGADA (degradación sin huecos)', () => {
   it('continuar empuja al reproductor del curso', async () => {
     prepararSupabase({
       inscripciones: [{ curso_id: 'c1' }],
-      progreso: [{ leccion_id: 'l1', completado: true }],
+      progreso: [completada('c1')],
     })
     const w = montar()
     await flushPromises()
@@ -131,7 +142,7 @@ describe('HoyPage — gamificación ENCENDIDA', () => {
   it('encabeza con la racha y muestra nivel e insignias', async () => {
     prepararSupabase({
       inscripciones: [{ curso_id: 'c1' }],
-      progreso: [{ leccion_id: 'l1', completado: true }],
+      progreso: [completada('c1')],
     })
     const w = montar()
     await flushPromises()
