@@ -16,11 +16,15 @@
 -- —una base de pruebas, otra imagen de Postgres— avisa y sigue, en vez de
 -- romper el despliegue entero.
 
+-- OJO con quién crea la extensión: en la imagen supabase/postgres el rol
+-- `postgres` NO es superusuario (lo es `supabase_admin`), y CREATE EXTENSION
+-- lo exige. Por eso este intento normalmente falla y la migración se limita a
+-- avisar: el paso lo tiene que dar el operador, UNA vez, antes de aplicar.
 do $$
 begin
   create extension if not exists pg_cron;
 exception when others then
-  raise notice '[006] No se pudo crear pg_cron (%). Los trabajos quedan sin programar.', sqlerrm;
+  raise notice '[006] No se pudo crear pg_cron (%).', sqlerrm;
 end $$;
 
 do $$
@@ -30,7 +34,12 @@ declare
   v_job text;
 begin
   if to_regproc('cron.schedule(text,text,text)') is null then
-    raise notice '[006] pg_cron no disponible: no se programa nada.';
+    raise notice '[006] pg_cron no está instalado: no se programa nada.';
+    raise notice '      Créalo como SUPERUSUARIO y vuelve a aplicar esta migración:';
+    raise notice '        docker compose exec -T db psql -U supabase_admin -d % \\', current_database();
+    raise notice '          -c "create extension if not exists pg_cron;" \\';
+    raise notice '          -c "grant usage on schema cron to postgres;" \\';
+    raise notice '          -c "grant all on all tables in schema cron to postgres;"';
     return;
   end if;
 
