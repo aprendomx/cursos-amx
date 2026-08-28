@@ -181,7 +181,14 @@ export function useCursoPersistence({
   async function publishCurso() {
     publishStatus.value = null
 
-    if (!allValid.value) {
+    // La validación completa solo se exige para PUBLICAR.
+    //
+    // Antes bloqueaba cualquier escritura, y eso convertía al editor en un
+    // trámite de todo o nada: arreglar una errata del título en un curso a
+    // medias obligaba a completarlo entero antes de poder guardar nada. Un
+    // borrador se guarda como esté; la lista de requisitos sigue a la vista en
+    // el paso Revisar, pero ya no es una puerta cerrada.
+    if (editingCurso.value?.publicado && !allValid.value) {
       const missing = validationChecks.value.filter((v) => !v.pass).map((v) => v.label)
       publishStatus.value = {
         type: 'error',

@@ -112,10 +112,35 @@ async function goToStep(i) {
           {{ editingCurso.titulo || 'Nuevo curso' }}
         </h1>
       </div>
-      <button class="btn btn-ghost btn-sm" @click="$emit('cancel')">
-        <IconSet name="close" />
-        Cerrar
-      </button>
+      <!-- Guardar vive aquí, y no al final del asistente, para que no haya
+           que recorrer los cuatro pasos por un cambio de una línea. Dice
+           «Guardar» a secas: publicar es la casilla del paso Básico, y
+           mezclar ambas cosas en un botón confundía las dos acciones. -->
+      <div class="editor-header-actions">
+        <button
+          class="btn btn-primary btn-sm"
+          data-test="guardar"
+          :disabled="publishing"
+          @click="publishCurso"
+        >
+          <template v-if="publishing"> Guardando&hellip; </template>
+          <template v-else> Guardar </template>
+        </button>
+        <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="$emit('cancel')">
+          <IconSet name="close" />
+          Cerrar
+        </button>
+      </div>
+    </div>
+
+    <!-- El resultado del guardado acompaña al botón: si viviera dentro de un
+         paso, guardar desde otro no diría nada. -->
+    <div
+      v-if="publishStatus"
+      class="publish-status"
+      :class="`publish-status-${publishStatus.type}`"
+    >
+      {{ publishStatus.text }}
     </div>
 
     <!-- Step indicator -->
@@ -390,31 +415,24 @@ async function goToStep(i) {
         </div>
       </div>
 
-      <div
-        v-if="publishStatus"
-        class="publish-status"
-        :class="`publish-status-${publishStatus.type}`"
-      >
-        {{ publishStatus.text }}
-      </div>
-
       <div class="editor-nav">
         <button class="btn btn-ghost btn-sm" :disabled="publishing" @click="editorStep = 2">
           <IconSet name="arrowLeft" />
-          Estructura
-        </button>
-        <button
-          class="btn btn-primary btn-sm"
-          :style="{ opacity: allValid && !publishing ? 1 : 0.6 }"
-          :disabled="publishing"
-          @click="publishCurso"
-        >
-          <template v-if="publishing"> Guardando&hellip; </template>
-          <template v-else-if="isUuid(editingCurso?.id || '')"> Actualizar curso </template>
-          <template v-else> Publicar curso </template>
-          <IconSet v-if="!publishing" name="arrow" />
+          Constancia
         </button>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Los dos únicos controles de la cabecera: guardar y cerrar. Guardar va
+   primero por ser la acción, y ambos quedan a la derecha porque
+   .admin-content-header reparte con space-between. */
+.editor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1);
+  flex-shrink: 0;
+}
+</style>

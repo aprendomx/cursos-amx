@@ -65,8 +65,8 @@ function stepButtons(w) {
   return w.findAll('.editor-step-btn')
 }
 
-function publishButton(w) {
-  return w.findAll('button').find((b) => /Publicar curso|Actualizar curso/.test(b.text()))
+function saveButton(w) {
+  return w.find('[data-test="guardar"]')
 }
 
 describe('AdminCourseEditor', () => {
@@ -141,14 +141,79 @@ describe('AdminCourseEditor', () => {
     expect(w.vm.editingCurso.modulos.map((m) => m.titulo)).toEqual(['Segundo', 'Primero'])
   })
 
-  it('bloquea la publicación cuando la validación falla', async () => {
+  it('rechaza guardar un curso MARCADO COMO PUBLICADO si le faltan datos', async () => {
     const w = factory()
     await flushPromises()
-    await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    w.vm.editingCurso.publicado = true
+    await saveButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Faltan datos')
     expect(sbInsert).not.toHaveBeenCalled()
+  })
+
+  // Lo contrario del caso anterior, y el motivo del cambio: arreglar una
+  // errata en un curso a medias no debe exigir completarlo entero.
+  it('guarda un borrador incompleto sin quejarse', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    // Sin descripción y con la lección en blanco: no pasaría la validación.
+    w.vm.editingCurso.titulo = 'Apenas un título'
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(w.find('.publish-status-error').exists()).toBe(false)
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ publicado: false }),
+      'tok-admin'
+    )
+  })
+
+  it('el botón Guardar está en los cuatro pasos, y vive en la cabecera', async () => {
+    const w = factory()
+    await flushPromises()
+    // En la cabecera y no dentro del panel del paso: es lo que garantiza que
+    // siga ahí al cambiar de pestaña.
+    expect(w.find('.admin-content-header [data-test="guardar"]').exists()).toBe(true)
+
+    for (let paso = 0; paso < 4; paso++) {
+      await stepButtons(w)[paso].trigger('click')
+      await flushPromises()
+      expect(saveButton(w).exists(), `falta en el paso ${paso}`).toBe(true)
+    }
+  })
+
+  it('guarda desde el paso Básico sin visitar ningún otro', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso guardado desde Básico'
+    c.descripcion = 'Descripción suficientemente larga.'
+    c.modulos[0].titulo = 'Módulo 1'
+    c.modulos[0].lecciones[0].titulo = 'Lección 1'
+    c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
+
+    // Sin tocar stepButtons: seguimos en el paso 0.
+    await saveButton(w).trigger('click')
+    await flushPromises()
+
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ titulo: 'Curso guardado desde Básico' }),
+      'tok-admin'
+    )
+    expect(w.emitted('published')).toEqual([[CURSO_ID]])
   })
 
   it('exige sesión para publicar', async () => {
@@ -159,7 +224,7 @@ describe('AdminCourseEditor', () => {
     c.descripcion = 'Descripción suficientemente larga.'
     c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Necesitas iniciar sesión')
   })
@@ -184,7 +249,7 @@ describe('AdminCourseEditor', () => {
     lec.entrega_tipos_csv = 'PDF, .zip'
 
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
 
     expect(sbInsert).toHaveBeenCalledWith(
@@ -334,7 +399,7 @@ describe('AdminCourseEditor', () => {
     w.vm.editingCurso.modulos[0].lecciones.splice(1, 1)
 
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
 
     expect(sbPatch).toHaveBeenCalledWith(
