@@ -102,10 +102,6 @@ export function onOnline(callback: () => void): void {
   onlineCallbacks.push(callback)
 }
 
-export function onOffline(callback: () => void): void {
-  offlineCallbacks.push(callback)
-}
-
 export async function checkNow(): Promise<void> {
   await check()
 }
