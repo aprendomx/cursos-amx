@@ -53,13 +53,6 @@ export async function listStuck(workerId) {
   return rows.map((r) => r.id)
 }
 
-export async function listPending() {
-  const { rows } = await pool.query(
-    `select id from public.videos where status = 'pending' order by creado_en`
-  )
-  return rows.map((r) => r.id)
-}
-
 /**
  * Claim the next pending job atomically using SKIP LOCKED.
  * Safe to call from multiple concurrent workers — only one will get each row.
