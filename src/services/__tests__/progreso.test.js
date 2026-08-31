@@ -7,7 +7,7 @@ import {
   fetchInscripciones,
   inscribirse,
 } from '@/services/progreso.js'
-import { invalidateCache } from '@/composables/cache.js'
+import { invalidateCache } from '@/lib/cache.js'
 
 // Create mock functions
 const mockFrom = vi.fn()

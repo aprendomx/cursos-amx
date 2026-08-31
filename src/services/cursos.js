@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase.js'
-import { withCache, invalidateCache } from '@/composables/cache.js'
+import { withCache, invalidateCache } from '@/lib/cache.js'
 
 async function _fetchCursos() {
   const { data, error } = await supabase

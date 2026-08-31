@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase.js'
-import { invalidateCache } from '@/composables/cache.js'
+import { invalidateCache } from '@/lib/cache.js'
 
 function invalidarEstructura() {
   invalidateCache(/^cursos:/)

@@ -10,7 +10,7 @@ import {
   reordenarModulos,
   reordenarLecciones,
 } from '@/services/courseBuilder.js'
-import { invalidateCache, withCache } from '@/composables/cache.js'
+import { invalidateCache, withCache } from '@/lib/cache.js'
 
 const mockFrom = vi.fn()
 const mockRpc = vi.fn()
