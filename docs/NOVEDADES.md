@@ -2,6 +2,8 @@
 
 Historial de novedades movido desde README.md para mantenerlo enfocado. Orden: más reciente primero.
 
+> Para v0.19.0 y posteriores (y la versión en desarrollo), ver `CHANGELOG.md`.
+
 ---
 
 ## Novedades v0.18.0 — Pendientes de la revisión técnica
