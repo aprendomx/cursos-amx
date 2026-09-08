@@ -18,7 +18,7 @@
 - [x] 3.3 Fundir `LandingComoConstancia` y `LandingConstancia` en una sección de cierre que conserve los cuatro pasos como subsección compacta. — Fusión en `LandingConstancia`; la clave `como-constancia` queda como alias (documentado en THEMING.md, sin subir schemaVersion porque ninguna clave deja de aceptarse).
 - [x] 3.4 Prueba que fije el orden: cursos antes que constancia, y una sola sección de constancia. — `LandingPage.test.js`: sección única aunque el tema declare ambas claves, catálogo antes que constancia, cuatro pasos presentes, y resultados solo cuando el curso los trae.
 - [x] 3.5 Revisión de la portada nueva con `e2e/anchuras.spec.js` y contraste en ambos modos. — 9/9 en verde sobre build fresca (4 anchuras × claro/oscuro + movimiento reducido); capturas revisadas en ambos modos con el tema de la instalación.
-- [ ] 3.6 No desplegar antes de que la línea base cumpla dos semanas; anotar la fecha del cambio para la comparación.
+- [x] 3.6 No desplegar antes de que la línea base cumpla dos semanas; anotar la fecha del cambio para la comparación. — **Desplegado el 2026-09-08 (~22:45 UTC, PR #53, merge `4bace32`)**, por decisión explícita de no esperar más. Backend con `deploy.sh` (respaldo `backup-20260908-223949.sql`, migración 008 aplicada y verificada, tutorial sembrado con 4 resultados) + frontend construido y publicado; verificado contra el sitio servido: hero nuevo, «Al terminar sabrás» en la tarjeta y una sola sección de constancia. **Ojo para 5.1/5.3:** la línea base solo tuvo 5 días limpios (2026-08-21 → 2026-08-26); el rediseño hábito-recompensa (PR #44) partió la ventana, así que la comparación antes/después queda comprometida y pesa más la prueba cualitativa.
 
 ## 4. Primera lección abierta (fase 2)
 
