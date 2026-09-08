@@ -28,7 +28,10 @@ const PRESUPUESTOS = {
   // crecimiento intencional (~2 kB); las hojas de admin y del reproductor ya
   // salieron del chunk inicial en el mismo cambio. El margen extra cubre el
   // ruido de gzip entre plataformas (el CI mide ~0.6 kB más que local).
-  inicial: 184,
+  // 184 → 186: la ronda de minors de dependabot de 2026-09 (vue, pinia,
+  // vue-i18n, tiptap…) dejó el inicial en 184.4 kB medidos en CI. Crecimiento
+  // de dependencias, no de código propio; 186 repone la holgura de ~1.5 kB.
+  inicial: 186,
   // Chunks individuales que no deben crecer sin que nos enteremos.
   vendor: 95,
   // hls.js, y nada más: el chunk ES la librería. Subió de 175 a 185 kB cuando
