@@ -12,7 +12,7 @@ import {
   crearLeccion,
   fetchAllCursosAdmin,
 } from '@/services/cursos.js'
-import { invalidateCache } from '@/composables/cache.js'
+import { invalidateCache } from '@/lib/cache.js'
 
 const mockFrom = vi.fn()
 

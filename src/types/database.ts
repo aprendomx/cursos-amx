@@ -30,6 +30,8 @@ export interface Curso {
   slug: string
   titulo: string
   descripcion?: string
+  /** Qué sabrá hacer quien termine; la portada lo muestra como «Al terminar sabrás…». */
+  resultados_aprendizaje?: string[] | null
   imagen_portada?: string
   nivel?: 'Fundamental' | 'Intermedio' | 'Avanzado'
   duracion_min?: number

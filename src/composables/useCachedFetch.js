@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { getCache, setCacheEntry, invalidateCache, getCacheEntry } from './cache.js'
+import { getCache, setCacheEntry, invalidateCache, getCacheEntry } from '@/lib/cache.js'
 
 const DEFAULT_TTL = 60_000 // 1 minuto
 
