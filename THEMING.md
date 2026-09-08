@@ -268,6 +268,14 @@ Las familias se aplican como variables CSS (`--display`, `--ui`, `--mono`) en
 | `hero.backgroundImage` | Ruta a imagen de fondo del hero (`null` usa color sólido) | LandingHero  | —         |
 | `hero.partnerLogos`    | Array de `{ src, alt }` con logos de aliados              | LandingHero  | —         |
 
+**El reparto de papeles del hero.** El titular (`hero.title`) vende el
+resultado de aprender —qué va a saber hacer la persona—, y la constancia
+respalda desde el antetítulo (`hero.eyebrow`), no encabeza. El orden viene de
+observar la portada anterior: prometía la constancia antes que el curso, y
+nadie quiere una constancia de un curso que no le interesa — **el curso vende,
+la constancia cierra**. Al personalizar estos textos conserva ese reparto;
+`theme.config.example.js` trae un ejemplo neutro.
+
 ### Grupo `footer`
 
 | Clave                    | Efecto                                         | Consumidores  | Requerida |
@@ -335,6 +343,14 @@ nada cambia.
 Las secciones `hero`, catálogo y footer son fijas y siempre se renderizan.
 Las secciones de este array son las opcionales (built-in o custom).
 
+Las built-in son `niveles`, `constancia` y `faq`. La constancia es **una sola
+sección**, de cierre: presenta la validez verificable y conserva los cuatro
+pasos para obtenerla como subsección compacta. Antes eran dos secciones
+(`como-constancia` y `constancia`); la clave `como-constancia` sigue
+funcionando como alias de `constancia` para los temas locales que la declaren,
+pero aunque un tema traiga ambas la sección se pinta una sola vez — no hace
+falta subir `schemaVersion` porque ninguna clave deja de aceptarse.
+
 ### Grupo `pwa`
 
 | Clave                 | Efecto                              | Consumidores   | Requerida |
@@ -394,7 +410,7 @@ pwa.themeColor
 
    ```js
    landing: {
-     sections: ['como-constancia', 'mi-seccion', 'faq'],
+     sections: ['niveles', 'mi-seccion', 'constancia', 'faq'],
    },
    ```
 

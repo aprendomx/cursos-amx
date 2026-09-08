@@ -7,7 +7,6 @@ import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 import LandingCursoBloque from '@/components/LandingCursoBloque.vue'
 import { theme } from '@/lib/theme.js'
 import { CUSTOM_SECTIONS } from '../../theme/sections/index.js'
-import LandingComoConstancia from '@/components/LandingComoConstancia.vue'
 import LandingNiveles from '@/components/LandingNiveles.vue'
 import LandingConstancia from '@/components/LandingConstancia.vue'
 import LandingFaq from '@/components/LandingFaq.vue'
@@ -38,7 +37,7 @@ onMounted(async () => {
       supabase
         .from('cursos')
         .select(
-          'id, slug, titulo, descripcion, imagen_portada, nivel, duracion_min, modulos(id, orden, titulo, imagen_portada, lecciones(count))'
+          'id, slug, titulo, descripcion, resultados_aprendizaje, imagen_portada, nivel, duracion_min, modulos(id, orden, titulo, imagen_portada, lecciones(count))'
         )
         .eq('publicado', true)
         .order('creado_en', { ascending: false }),
@@ -69,6 +68,7 @@ onMounted(async () => {
         slug: c.slug,
         titulo: c.titulo,
         descripcion: c.descripcion,
+        resultados: c.resultados_aprendizaje || [],
         duracion: min > 0 ? `${Math.floor(min / 60)}h ${min % 60}min` : '',
         lecciones: totalLecciones,
         modulosCount: modulos.length,
@@ -314,14 +314,16 @@ function onEnviarMensajeFaq() {
 
     <component :is="section.component" v-for="section in customSections" :key="section.name" />
 
-    <LandingComoConstancia
-      v-if="sectionEnabled('como-constancia')"
-      @descargar-constancia="onDescargarConstancia"
-    />
-
     <LandingNiveles v-if="sectionEnabled('niveles')" :cursos-por-nivel="cursosPorNivel" />
 
-    <LandingConstancia v-if="sectionEnabled('constancia')" />
+    <!-- UNA sola sección de constancia, como cierre: fusión de las antiguas
+         'como-constancia' y 'constancia'. La clave vieja sigue funcionando
+         como alias para los temas locales que la declaren, pero aunque un
+         tema traiga ambas la sección se pinta una vez. -->
+    <LandingConstancia
+      v-if="sectionEnabled('constancia') || sectionEnabled('como-constancia')"
+      @descargar-constancia="onDescargarConstancia"
+    />
 
     <LandingFaq v-if="sectionEnabled('faq')" @enviar-mensaje="onEnviarMensajeFaq" />
 
