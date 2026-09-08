@@ -85,10 +85,13 @@ export default {
     mono: "'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace",
   },
   hero: {
-    eyebrow: 'Cursos en línea con constancia verificable',
-    title: 'Aprende a tu ritmo',
+    // Reparto de papeles: el titular vende el resultado de aprender; la
+    // constancia respalda desde el antetítulo, no encabeza. Si personalizas
+    // estos textos, conserva ese orden — el porqué está en THEMING.md §hero.
+    eyebrow: 'Con constancia oficial verificable al terminar',
+    title: 'Aprende lo que vas a aplicar en tu trabajo',
     description:
-      'Explora el catálogo, avanza a tu ritmo y obtén constancias con verificación pública por QR.',
+      'Cada curso te dice qué sabrás hacer al terminarlo. Explora el catálogo, elige el que te sirva y avanza a tu ritmo.',
     cta: 'Ver oferta educativa',
     backgroundImage: null, // ej. '/theme/hero.webp' — null usa fondo de color
     partnerLogos: [], // [{ src: '/theme/aliado.svg', alt: 'Aliado' }]
@@ -132,7 +135,12 @@ export default {
   landing: {
     // Secciones opcionales activas, en orden. 'hero', catálogo y footer son fijos.
     // Custom: registra componentes en theme/sections/index.js y usa su clave aquí.
-    sections: ['como-constancia', 'niveles', 'constancia', 'faq'],
+    //
+    // 'constancia' es la sección de cierre (validez verificable + cómo
+    // obtenerla). La clave 'como-constancia' de temas anteriores sigue
+    // funcionando como alias de la misma sección: aunque un tema declare
+    // ambas, se pinta una sola vez.
+    sections: ['niveles', 'constancia', 'faq'],
   },
   pwa: {
     themeColor: '#1e3a8a',

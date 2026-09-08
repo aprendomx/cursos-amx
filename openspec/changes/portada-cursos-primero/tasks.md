@@ -7,17 +7,17 @@
 
 ## 2. Resultados de aprendizaje como dato del curso
 
-- [ ] 2.1 Campo de resultados en `cursos` (migración), editable desde el panel junto al resto del curso.
-- [ ] 2.2 El editor del panel lo pide al editar, sin bloquear la publicación si falta.
-- [ ] 2.3 Sembrar los resultados del curso tutorial, para que la portada de ejemplo no salga vacía.
+- [x] 2.1 Campo de resultados en `cursos` (migración), editable desde el panel junto al resto del curso. — `008_cursos_resultados.sql`: `resultados_aprendizaje text[]` nullable (check ≤ 8); el editor lo captura en el paso Básico y lo persiste como array limpio.
+- [x] 2.2 El editor del panel lo pide al editar, sin bloquear la publicación si falta. — Texto de ayuda en Básico + aviso no bloqueante en Revisar; vacío se guarda como `null` y la tarjeta degrada a solo metadatos.
+- [x] 2.3 Sembrar los resultados del curso tutorial, para que la portada de ejemplo no salga vacía. — UPDATE idempotente en la misma 008 sobre el UUID fijo del tutorial.
 
 ## 3. Portada reequilibrada
 
-- [ ] 3.1 Hero orientado a resultado, con la constancia como respaldo en el antetítulo. Cambia también el `theme.config.example` y se documenta en THEMING.md.
-- [ ] 3.2 Tarjetas de curso con «al terminar sabrás…», degradando con dignidad si el campo está vacío.
-- [ ] 3.3 Fundir `LandingComoConstancia` y `LandingConstancia` en una sección de cierre que conserve los cuatro pasos como subsección compacta.
-- [ ] 3.4 Prueba que fije el orden: cursos antes que constancia, y una sola sección de constancia.
-- [ ] 3.5 Revisión de la portada nueva con `e2e/anchuras.spec.js` y contraste en ambos modos.
+- [x] 3.1 Hero orientado a resultado, con la constancia como respaldo en el antetítulo. Cambia también el `theme.config.example` y se documenta en THEMING.md. — Titular «Aprende lo que vas a aplicar en tu trabajo», constancia al antetítulo; reparto documentado en THEMING.md §hero. También copiado a `theme.config.local.js` (fuera de git), que traía los textos viejos calcados.
+- [x] 3.2 Tarjetas de curso con «al terminar sabrás…», degradando con dignidad si el campo está vacío. — La portada pide `resultados_aprendizaje` y el bloque solo aparece si hay datos; sin ellos la tarjeta queda como estaba.
+- [x] 3.3 Fundir `LandingComoConstancia` y `LandingConstancia` en una sección de cierre que conserve los cuatro pasos como subsección compacta. — Fusión en `LandingConstancia`; la clave `como-constancia` queda como alias (documentado en THEMING.md, sin subir schemaVersion porque ninguna clave deja de aceptarse).
+- [x] 3.4 Prueba que fije el orden: cursos antes que constancia, y una sola sección de constancia. — `LandingPage.test.js`: sección única aunque el tema declare ambas claves, catálogo antes que constancia, cuatro pasos presentes, y resultados solo cuando el curso los trae.
+- [x] 3.5 Revisión de la portada nueva con `e2e/anchuras.spec.js` y contraste en ambos modos. — 9/9 en verde sobre build fresca (4 anchuras × claro/oscuro + movimiento reducido); capturas revisadas en ambos modos con el tema de la instalación.
 - [ ] 3.6 No desplegar antes de que la línea base cumpla dos semanas; anotar la fecha del cambio para la comparación.
 
 ## 4. Primera lección abierta (fase 2)

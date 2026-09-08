@@ -65,8 +65,8 @@ function stepButtons(w) {
   return w.findAll('.editor-step-btn')
 }
 
-function publishButton(w) {
-  return w.findAll('button').find((b) => /Publicar curso|Actualizar curso/.test(b.text()))
+function saveButton(w) {
+  return w.find('[data-test="guardar"]')
 }
 
 describe('AdminCourseEditor', () => {
@@ -141,14 +141,79 @@ describe('AdminCourseEditor', () => {
     expect(w.vm.editingCurso.modulos.map((m) => m.titulo)).toEqual(['Segundo', 'Primero'])
   })
 
-  it('bloquea la publicación cuando la validación falla', async () => {
+  it('rechaza guardar un curso MARCADO COMO PUBLICADO si le faltan datos', async () => {
     const w = factory()
     await flushPromises()
-    await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    w.vm.editingCurso.publicado = true
+    await saveButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Faltan datos')
     expect(sbInsert).not.toHaveBeenCalled()
+  })
+
+  // Lo contrario del caso anterior, y el motivo del cambio: arreglar una
+  // errata en un curso a medias no debe exigir completarlo entero.
+  it('guarda un borrador incompleto sin quejarse', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    // Sin descripción y con la lección en blanco: no pasaría la validación.
+    w.vm.editingCurso.titulo = 'Apenas un título'
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(w.find('.publish-status-error').exists()).toBe(false)
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ publicado: false }),
+      'tok-admin'
+    )
+  })
+
+  it('el botón Guardar está en los cuatro pasos, y vive en la cabecera', async () => {
+    const w = factory()
+    await flushPromises()
+    // En la cabecera y no dentro del panel del paso: es lo que garantiza que
+    // siga ahí al cambiar de pestaña.
+    expect(w.find('.admin-content-header [data-test="guardar"]').exists()).toBe(true)
+
+    for (let paso = 0; paso < 4; paso++) {
+      await stepButtons(w)[paso].trigger('click')
+      await flushPromises()
+      expect(saveButton(w).exists(), `falta en el paso ${paso}`).toBe(true)
+    }
+  })
+
+  it('guarda desde el paso Básico sin visitar ningún otro', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso guardado desde Básico'
+    c.descripcion = 'Descripción suficientemente larga.'
+    c.modulos[0].titulo = 'Módulo 1'
+    c.modulos[0].lecciones[0].titulo = 'Lección 1'
+    c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
+
+    // Sin tocar stepButtons: seguimos en el paso 0.
+    await saveButton(w).trigger('click')
+    await flushPromises()
+
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ titulo: 'Curso guardado desde Básico' }),
+      'tok-admin'
+    )
+    expect(w.emitted('published')).toEqual([[CURSO_ID]])
   })
 
   it('exige sesión para publicar', async () => {
@@ -159,7 +224,7 @@ describe('AdminCourseEditor', () => {
     c.descripcion = 'Descripción suficientemente larga.'
     c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
     expect(w.find('.publish-status-error').text()).toContain('Necesitas iniciar sesión')
   })
@@ -184,7 +249,7 @@ describe('AdminCourseEditor', () => {
     lec.entrega_tipos_csv = 'PDF, .zip'
 
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
 
     expect(sbInsert).toHaveBeenCalledWith(
@@ -334,7 +399,7 @@ describe('AdminCourseEditor', () => {
     w.vm.editingCurso.modulos[0].lecciones.splice(1, 1)
 
     await stepButtons(w)[3].trigger('click')
-    await publishButton(w).trigger('click')
+    await saveButton(w).trigger('click')
     await flushPromises()
 
     expect(sbPatch).toHaveBeenCalledWith(
@@ -345,5 +410,86 @@ describe('AdminCourseEditor', () => {
     )
     expect(sbDelete).toHaveBeenCalledWith(`lecciones?id=eq.${LECCION_BORRADA}`, 'tok-admin')
     expect(w.emitted('published')).toEqual([[CURSO_ID]])
+  })
+
+  it('carga los resultados de aprendizaje en el editor, uno por línea', async () => {
+    sbSelect.mockResolvedValue({
+      data: [
+        {
+          id: CURSO_ID,
+          slug: 'con-resultados',
+          titulo: 'Curso con resultados',
+          descripcion: 'Descripción suficientemente larga.',
+          resultados_aprendizaje: ['Aplicar la norma en tu área', 'Emitir opiniones de valor'],
+          nivel: 'Fundamental',
+          publicado: true,
+          modulos: [],
+        },
+      ],
+    })
+    const w = factory({ initialCurso: { id: CURSO_ID } })
+    await flushPromises()
+    expect(w.vm.editingCurso.resultados_texto).toBe(
+      'Aplicar la norma en tu área\nEmitir opiniones de valor'
+    )
+  })
+
+  it('publica los resultados como array limpio (sin líneas vacías)', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso con resultados'
+    c.descripcion = 'Descripción suficientemente larga.'
+    c.resultados_texto = '  Saber A  \n\nSaber B\n'
+    c.modulos[0].titulo = 'Módulo 1'
+    c.modulos[0].lecciones[0].titulo = 'Lección 1'
+    c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
+
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ resultados_aprendizaje: ['Saber A', 'Saber B'] }),
+      'tok-admin'
+    )
+  })
+
+  // Los resultados se piden pero NO bloquean: vacíos se guardan como null y
+  // la tarjeta de la portada degrada a solo metadatos (tarea 2.2).
+  it('guarda resultados_aprendizaje en null cuando el campo queda vacío', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso sin resultados'
+    c.descripcion = 'Descripción suficientemente larga.'
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ resultados_aprendizaje: null }),
+      'tok-admin'
+    )
+  })
+
+  it('el aviso de resultados aparece en Revisar solo cuando el campo está vacío', async () => {
+    const w = factory()
+    await flushPromises()
+    await stepButtons(w)[3].trigger('click')
+    expect(w.find('[data-test="aviso-resultados"]').exists()).toBe(true)
+    w.vm.editingCurso.resultados_texto = 'Saber A'
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="aviso-resultados"]').exists()).toBe(false)
   })
 })

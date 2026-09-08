@@ -77,6 +77,19 @@ function isUrl(v) {
         {{ curso.descripcion }}
       </p>
 
+      <!-- Resultados de aprendizaje: el argumento de venta de la tarjeta.
+           Sin el dato, el bloque no aparece y la tarjeta queda como siempre:
+           ninguna instalación se ve obligada a rellenarlo. -->
+      <div v-if="curso.resultados?.length" class="curso-resultados" data-test="curso-resultados">
+        <span class="eyebrow">Al terminar sabr&aacute;s</span>
+        <ul class="curso-resultados-lista">
+          <li v-for="r in curso.resultados" :key="r">
+            <IconSet name="check" />
+            <span>{{ r }}</span>
+          </li>
+        </ul>
+      </div>
+
       <div class="curso-meta-row">
         <span class="curso-meta-item">
           <IconSet name="clock" />
@@ -222,6 +235,34 @@ function isUrl(v) {
   line-height: 1.55;
   color: var(--ink-2);
   max-width: 64ch;
+}
+.curso-resultados {
+  margin-top: calc(var(--unit) * 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 1);
+}
+.curso-resultados-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 0.75);
+  max-width: 64ch;
+}
+.curso-resultados-lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--unit) * 1);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.curso-resultados-lista li :deep(svg) {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--primary-fg);
 }
 .curso-meta-row {
   display: flex;

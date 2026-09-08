@@ -61,7 +61,7 @@ Agrupados por dominio en `src/services/*.js`. Ejemplo: `cursos.js`, `progreso.js
 
 ### Cache SWR
 
-El composable `withCache` (`src/composables/cache.js`) envuelve funciones async para cachear resultados en memoria durante 60 segundos (default). Si el fetch falla, devuelve datos stale.
+El helper `withCache` (`src/lib/cache.ts`) envuelve funciones async para cachear resultados en memoria durante 60 segundos (default). Si el fetch falla, devuelve datos stale. (El composable `useCachedFetch` en `src/composables/` lo envuelve con estado Vue.)
 
 ```js
 export const fetchCursos = withCache(_fetchCursos, () => 'cursos:list')

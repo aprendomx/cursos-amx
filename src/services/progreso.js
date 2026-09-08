@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase.js'
 import { sbInsert } from '@/lib/sbRest'
-import { withCache, invalidateCache } from '@/composables/cache.js'
+import { withCache, invalidateCache } from '@/lib/cache.js'
 import { ejecutarODiferir } from '@/offline/sync-queue'
 
 async function _fetchProgresoCurso(userId, cursoId) {

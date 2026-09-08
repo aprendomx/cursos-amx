@@ -4,7 +4,12 @@ import { ref } from 'vue'
 import { sbSelect, sbInsert, sbPatch, sbDelete } from '@/lib/sbRest'
 import { cargarPreguntasAdmin, guardarEvaluacionAdmin } from '@/services/evaluaciones'
 import { parseDuracionToSeg } from '@/lib/duracion.js'
-import { createBlankModulo, entregaPayload, isUuid } from '@/composables/useCourseEditorModel'
+import {
+  createBlankModulo,
+  entregaPayload,
+  isUuid,
+  parseResultados,
+} from '@/composables/useCourseEditorModel'
 
 function leccionFromRow(l, mi, li) {
   return {
@@ -93,7 +98,7 @@ export function useCursoPersistence({
     try {
       const token = session.access_token
       const { data: rows } = await sbSelect(
-        `cursos?select=id,slug,titulo,descripcion,nivel,imagen_portada,publicado,modulos(id,orden,titulo,descripcion,imagen_portada,requiere_previo,lecciones(id,orden,titulo,tipo_material,url_youtube,duracion_seg,video_id,documento_path,documento_tipo,contenido,requiere_entrega,entrega_tipos,entrega_max_mb,eval_puntaje_minimo,eval_max_intentos))&id=eq.${curso.id}`,
+        `cursos?select=id,slug,titulo,descripcion,resultados_aprendizaje,nivel,imagen_portada,publicado,modulos(id,orden,titulo,descripcion,imagen_portada,requiere_previo,lecciones(id,orden,titulo,tipo_material,url_youtube,duracion_seg,video_id,documento_path,documento_tipo,contenido,requiere_entrega,entrega_tipos,entrega_max_mb,eval_puntaje_minimo,eval_max_intentos))&id=eq.${curso.id}`,
         token
       )
       const c = rows?.[0]
@@ -121,6 +126,7 @@ export function useCursoPersistence({
         slug: c.slug || '',
         titulo: c.titulo || '',
         descripcion: c.descripcion || '',
+        resultados_texto: (c.resultados_aprendizaje || []).join('\n'),
         nivel: c.nivel || 'Fundamental',
         idioma: 'Español',
         imagen: c.imagen_portada || '',
@@ -159,6 +165,9 @@ export function useCursoPersistence({
           slug: c.slug,
           titulo: c.titulo,
           descripcion: c.descripcion,
+          resultados_aprendizaje: parseResultados(c.resultados_texto).length
+            ? parseResultados(c.resultados_texto)
+            : null,
           nivel: c.nivel,
           imagen_portada: c.imagen || null,
           publicado: false,
@@ -181,7 +190,14 @@ export function useCursoPersistence({
   async function publishCurso() {
     publishStatus.value = null
 
-    if (!allValid.value) {
+    // La validación completa solo se exige para PUBLICAR.
+    //
+    // Antes bloqueaba cualquier escritura, y eso convertía al editor en un
+    // trámite de todo o nada: arreglar una errata del título en un curso a
+    // medias obligaba a completarlo entero antes de poder guardar nada. Un
+    // borrador se guarda como esté; la lista de requisitos sigue a la vista en
+    // el paso Revisar, pero ya no es una puerta cerrada.
+    if (editingCurso.value?.publicado && !allValid.value) {
       const missing = validationChecks.value.filter((v) => !v.pass).map((v) => v.label)
       publishStatus.value = {
         type: 'error',
@@ -206,10 +222,12 @@ export function useCursoPersistence({
       if (!accessToken) throw new Error('No hay access_token en la sesión.')
       const isExisting = isUuid(c.id)
 
+      const resultados = parseResultados(c.resultados_texto)
       const cursoPayload = {
         slug: c.slug,
         titulo: c.titulo,
         descripcion: c.descripcion,
+        resultados_aprendizaje: resultados.length ? resultados : null,
         nivel: c.nivel,
         imagen_portada: c.imagen || null,
         publicado: c.publicado,

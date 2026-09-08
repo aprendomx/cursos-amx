@@ -22,7 +22,3 @@ export function necesitaRenormalizar(lista) {
 export function renormalizar(lista) {
   return lista.map((item, i) => ({ ...item, orden: i + 1 }))
 }
-
-export function useCourseReorder() {
-  return { ordenParaIndice, necesitaRenormalizar, renormalizar, EPSILON }
-}

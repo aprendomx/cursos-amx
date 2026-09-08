@@ -48,3 +48,7 @@ docker/volumes/logs/*.log
 # Tema propio de la instalación (ver THEMING.md). No se versiona: así
 # un git pull nunca entra en conflicto con la identidad de la institución.
 theme/theme.config.local.js
+
+# Artefactos de propuesta comercial (no son código del producto)
+docs/propuesta/
+docs/propuesta.zip

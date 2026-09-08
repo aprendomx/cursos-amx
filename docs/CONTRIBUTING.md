@@ -62,7 +62,7 @@ refactor: extract cache logic into composable
 ## Cómo agregar un servicio de Supabase
 
 1. Crear funciones en `src/services/nuevoDominio.js`
-2. Para lecturas frecuentes, envolver con `withCache` desde `@/composables/cache.js`
+2. Para lecturas frecuentes, envolver con `withCache` desde `@/lib/cache.js`
 3. Para mutaciones, llamar `invalidateCache(/^patron:/)` después del éxito
 4. Exportar desde `src/services/index.js`
 5. Escribir tests en `src/services/__tests__/nuevoDominio.test.js`
