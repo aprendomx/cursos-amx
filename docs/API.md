@@ -38,6 +38,7 @@ Curso:
     slug:       { type: string, unique: true }
     titulo:     { type: string }
     descripcion:{ type: string }
+    resultados_aprendizaje: { type: array, items: { type: string }, nullable: true, maxItems: 8 }
     imagen_portada: { type: string, nullable: true }
     nivel:      { type: string, enum: [Fundamental, Intermedio, Avanzado] }
     duracion_min:{ type: integer, default: 0 }

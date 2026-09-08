@@ -18,6 +18,7 @@ import {
   isUuid,
   nivelOptions,
   idiomaOptions,
+  parseResultados,
 } from '@/composables/useCourseEditorModel'
 import { useCursoPersistence } from '@/composables/useCursoPersistence.js'
 
@@ -58,6 +59,10 @@ const { publishing, publishStatus, creandoBorrador, loadCurso, crearBorrador, pu
     validationChecks,
     onPublished: (cursoId) => emit('published', cursoId),
   })
+
+const tieneResultados = computed(
+  () => parseResultados(editingCurso.value?.resultados_texto).length > 0
+)
 
 watch(
   () => props.initialCurso,
@@ -189,6 +194,24 @@ async function goToStep(i) {
             placeholder="Describe el contenido y objetivos del curso..."
             :style="{ resize: 'vertical' }"
           />
+        </div>
+        <!-- Resultados de aprendizaje: la tarjeta de la portada los muestra
+             como «Al terminar sabrás…». Se piden aquí, junto al resto del
+             curso, pero NO bloquean publicar: sin ellos la tarjeta se muestra
+             solo con metadatos (change portada-cursos-primero, decisión 3). -->
+        <div class="field">
+          <label>Resultados de aprendizaje</label>
+          <textarea
+            v-model="editingCurso.resultados_texto"
+            rows="4"
+            placeholder="Un resultado por línea. Ej.: Aplicar el marco normativo de transparencia en tu área"
+            :style="{ resize: 'vertical' }"
+          />
+          <p class="editor-hint">
+            Qué sabrá hacer quien termine el curso, en lenguaje de la persona: la portada lo muestra
+            como «Al terminar sabrás…». Sin resultados, la tarjeta se muestra solo con nivel,
+            duración y módulos — puedes publicar igual y volver después.
+          </p>
         </div>
         <div
           :style="{
@@ -388,6 +411,12 @@ async function goToStep(i) {
           </div>
 
           <p class="eyebrow" :style="{ marginBottom: 'calc(var(--unit) * 2)' }">Validación</p>
+          <!-- Aviso, no requisito: los resultados se piden pero no bloquean
+               la publicación (change portada-cursos-primero, tarea 2.2). -->
+          <p v-if="!tieneResultados" class="editor-hint" data-test="aviso-resultados">
+            Sin resultados de aprendizaje, la tarjeta de la portada se muestra solo con metadatos.
+            Puedes agregarlos en el paso Básico cuando los tengas.
+          </p>
           <div class="editor-validation">
             <div
               v-for="check in validationChecks"

@@ -46,6 +46,8 @@ export interface CursoEditor {
   slug: string
   titulo: string
   descripcion: string
+  /** Un resultado por línea; se convierte a text[] al persistir (columna resultados_aprendizaje). */
+  resultados_texto: string
   nivel: string
   idioma: string
   imagen: string
@@ -119,12 +121,25 @@ export function createBlankCurso(): CursoEditor {
     slug: '',
     titulo: '',
     descripcion: '',
+    resultados_texto: '',
     nivel: 'Fundamental',
     idioma: 'Español',
     imagen: '',
     publicado: false,
     modulos: [createBlankModulo()],
   }
+}
+
+/**
+ * Texto del editor (un resultado por línea) → array para la columna
+ * resultados_aprendizaje. Vacías fuera, tope de 8 como el check de la base.
+ */
+export function parseResultados(texto: string | null | undefined): string[] {
+  return String(texto || '')
+    .split('\n')
+    .map((r) => r.trim())
+    .filter(Boolean)
+    .slice(0, 8)
 }
 
 export function parseEntregaTipos(csv: string | null | undefined): string[] {
@@ -248,11 +263,16 @@ export function useCourseEditorModel({
     if (!editingCurso.value) return []
     const c = editingCurso.value
     const totalLessons = c.modulos.reduce((sum, m) => sum + m.lecciones.length, 0)
+    const resultados = parseResultados(c.resultados_texto)
     return [
       { label: 'Título', value: c.titulo || '—' },
       { label: 'Slug', value: c.slug || '—' },
       { label: 'Nivel', value: c.nivel },
       { label: 'Idioma', value: c.idioma },
+      {
+        label: 'Resultados',
+        value: resultados.length ? `${resultados.length} en la tarjeta` : '—',
+      },
       { label: 'Módulos', value: String(c.modulos.length) },
       { label: 'Lecciones', value: String(totalLessons) },
       { label: 'Publicado', value: c.publicado ? 'Sí' : 'No' },

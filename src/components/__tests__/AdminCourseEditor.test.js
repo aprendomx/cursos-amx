@@ -411,4 +411,85 @@ describe('AdminCourseEditor', () => {
     expect(sbDelete).toHaveBeenCalledWith(`lecciones?id=eq.${LECCION_BORRADA}`, 'tok-admin')
     expect(w.emitted('published')).toEqual([[CURSO_ID]])
   })
+
+  it('carga los resultados de aprendizaje en el editor, uno por línea', async () => {
+    sbSelect.mockResolvedValue({
+      data: [
+        {
+          id: CURSO_ID,
+          slug: 'con-resultados',
+          titulo: 'Curso con resultados',
+          descripcion: 'Descripción suficientemente larga.',
+          resultados_aprendizaje: ['Aplicar la norma en tu área', 'Emitir opiniones de valor'],
+          nivel: 'Fundamental',
+          publicado: true,
+          modulos: [],
+        },
+      ],
+    })
+    const w = factory({ initialCurso: { id: CURSO_ID } })
+    await flushPromises()
+    expect(w.vm.editingCurso.resultados_texto).toBe(
+      'Aplicar la norma en tu área\nEmitir opiniones de valor'
+    )
+  })
+
+  it('publica los resultados como array limpio (sin líneas vacías)', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso con resultados'
+    c.descripcion = 'Descripción suficientemente larga.'
+    c.resultados_texto = '  Saber A  \n\nSaber B\n'
+    c.modulos[0].titulo = 'Módulo 1'
+    c.modulos[0].lecciones[0].titulo = 'Lección 1'
+    c.modulos[0].lecciones[0].youtube_url = 'https://youtu.be/abc12345678'
+
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ resultados_aprendizaje: ['Saber A', 'Saber B'] }),
+      'tok-admin'
+    )
+  })
+
+  // Los resultados se piden pero NO bloquean: vacíos se guardan como null y
+  // la tarjeta de la portada degrada a solo metadatos (tarea 2.2).
+  it('guarda resultados_aprendizaje en null cuando el campo queda vacío', async () => {
+    sbInsert.mockImplementation(async (table) => {
+      if (table === 'cursos') return { id: CURSO_ID }
+      if (table === 'modulos') return { id: MODULO_ID }
+      if (table === 'lecciones') return { id: LECCION_ID }
+      return {}
+    })
+    const w = factory()
+    await flushPromises()
+    const c = w.vm.editingCurso
+    c.titulo = 'Curso sin resultados'
+    c.descripcion = 'Descripción suficientemente larga.'
+    await saveButton(w).trigger('click')
+    await flushPromises()
+    expect(sbInsert).toHaveBeenCalledWith(
+      'cursos',
+      expect.objectContaining({ resultados_aprendizaje: null }),
+      'tok-admin'
+    )
+  })
+
+  it('el aviso de resultados aparece en Revisar solo cuando el campo está vacío', async () => {
+    const w = factory()
+    await flushPromises()
+    await stepButtons(w)[3].trigger('click')
+    expect(w.find('[data-test="aviso-resultados"]').exists()).toBe(true)
+    w.vm.editingCurso.resultados_texto = 'Saber A'
+    await w.vm.$nextTick()
+    expect(w.find('[data-test="aviso-resultados"]').exists()).toBe(false)
+  })
 })

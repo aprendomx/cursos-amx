@@ -7,9 +7,9 @@
 
 ## 2. Resultados de aprendizaje como dato del curso
 
-- [ ] 2.1 Campo de resultados en `cursos` (migración), editable desde el panel junto al resto del curso.
-- [ ] 2.2 El editor del panel lo pide al editar, sin bloquear la publicación si falta.
-- [ ] 2.3 Sembrar los resultados del curso tutorial, para que la portada de ejemplo no salga vacía.
+- [x] 2.1 Campo de resultados en `cursos` (migración), editable desde el panel junto al resto del curso. — `008_cursos_resultados.sql`: `resultados_aprendizaje text[]` nullable (check ≤ 8); el editor lo captura en el paso Básico y lo persiste como array limpio.
+- [x] 2.2 El editor del panel lo pide al editar, sin bloquear la publicación si falta. — Texto de ayuda en Básico + aviso no bloqueante en Revisar; vacío se guarda como `null` y la tarjeta degrada a solo metadatos.
+- [x] 2.3 Sembrar los resultados del curso tutorial, para que la portada de ejemplo no salga vacía. — UPDATE idempotente en la misma 008 sobre el UUID fijo del tutorial.
 
 ## 3. Portada reequilibrada
 
