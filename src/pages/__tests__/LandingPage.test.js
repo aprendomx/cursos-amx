@@ -6,13 +6,16 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import LandingPage from '@/pages/LandingPage.vue'
 
+const pushMock = vi.hoisted(() => vi.fn())
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushMock }),
 }))
 
 vi.mock('@/composables/useEventosPortada.js', () => ({
   registrarEventoPortada: vi.fn(),
 }))
+
+import { registrarEventoPortada } from '@/composables/useEventosPortada.js'
 
 const datos = vi.hoisted(() => ({
   cursos: [],
@@ -123,5 +126,21 @@ describe('LandingPage — portada reequilibrada', () => {
     expect(bloques).toHaveLength(1)
     expect(bloques[0].text()).toContain('Al terminar sabrás')
     expect(bloques[0].text()).toContain('Aplicar la norma en tu área')
+  })
+
+  // Fase 2: probar la primera lección sin registrarse, desde la tarjeta.
+  it('«Pruébala ahora» lleva al reproductor sin sesión y registra el clic', async () => {
+    const c = curso({ titulo: 'Probable' })
+    datos.cursos = [c]
+    const w = montar()
+    await flushPromises()
+
+    await w.find('[data-test="probar-curso"]').trigger('click')
+
+    expect(registrarEventoPortada).toHaveBeenCalledWith('portada_curso_click', {
+      seccion: 'probar',
+      posicion: 0,
+    })
+    expect(pushMock).toHaveBeenCalledWith({ name: 'player', params: { cursoId: c.id } })
   })
 })

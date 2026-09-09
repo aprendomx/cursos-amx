@@ -10,7 +10,10 @@ export interface HlsPlaybackOptions {
   session: ComputedRef<{ access_token: string } | null>
 }
 
-export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
+export function useHlsPlayback({ videoId, leccionId, session }: HlsPlaybackOptions) {
+  // Modo invitado (sin sesión): se reproduce, pero no se guarda ni se lee
+  // avance — el servidor lo rechazaría y la cola offline acumularía basura.
+  const puedeGuardar = () => !!session.value
   const videoEl = ref<HTMLVideoElement | null>(null)
   const hlsMasterUrl = ref<string | null>(null)
   const hlsPoster = ref<string | null>(null)
@@ -63,6 +66,7 @@ export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
 
   let saveTimer: ReturnType<typeof window.setTimeout> | null = null
   function scheduleSave(leccionId: string, segundos: number) {
+    if (!puedeGuardar()) return
     if (saveTimer) clearTimeout(saveTimer)
     saveTimer = setTimeout(() => {
       actualizarSegundosVistos(leccionId, segundos).catch(() => {})
@@ -70,6 +74,7 @@ export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
   }
   function flushSave(leccionId: string, segundos: number) {
     if (saveTimer) clearTimeout(saveTimer)
+    if (!puedeGuardar()) return
     actualizarSegundosVistos(leccionId, segundos).catch(() => {})
   }
 
@@ -85,6 +90,7 @@ export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
     const el = videoEl.value
     if (!el || !leccionId.value) return
     totalTime.value = el.duration
+    if (!puedeGuardar()) return
     const { data } = await supabase
       .from('progreso')
       .select('segundos_vistos, completado')
@@ -98,7 +104,7 @@ export function useHlsPlayback({ videoId, leccionId }: HlsPlaybackOptions) {
   // Devuelve la promesa del guardado para que la página pueda reflejar el
   // avance (botón de continuar, lista de lecciones) sin recargar.
   function onHlsEnded() {
-    if (!leccionId.value) return
+    if (!leccionId.value || !puedeGuardar()) return
     flushSave(leccionId.value, totalTime.value)
     return marcarLeccionCompletada(leccionId.value)
   }

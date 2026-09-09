@@ -57,6 +57,10 @@ const {
   marcarLecturaCompletada,
   goToNextLesson,
   avisoAvance,
+  invitado,
+  invitacionRegistro,
+  cerrarInvitacion,
+  irARegistroDesdeLeccion,
 } = usePlayerPage(props)
 
 const aiSummariesEnabled = featureEnabled('ai_summaries')
@@ -85,7 +89,9 @@ const { startTracking } = useVideoAnalytics({
   leccionId: leccion.value?.id,
   cursoId: props.cursoId,
   videoId: source.value?.videoId,
-  enabled: videoAnalyticsEnabled.value,
+  // Sin sesión no hay eventos de video: la función exige auth y los eventos
+  // llevarían user_id vacío.
+  enabled: videoAnalyticsEnabled.value && !!session.value,
 })
 
 watch(
@@ -137,6 +143,17 @@ function irASegundo(segundo) {
 </script>
 <template>
   <div class="player-page" :class="`variant-${variant}`">
+    <!-- Modo invitado: primera lección abierta, sin registro -->
+    <div v-if="invitado" class="invitado-banner" data-test="invitado-banner">
+      <span>
+        Est&aacute;s probando la primera lecci&oacute;n, gratis y sin registrarte. Con una cuenta
+        guardas tu avance, tomas notas y obtienes constancia al terminar.
+      </span>
+      <button class="btn btn-primary btn-sm" @click="irARegistroDesdeLeccion">
+        Crear mi cuenta
+      </button>
+    </div>
+
     <!-- Top bar -->
     <header class="player-topbar">
       <div class="topbar-left">
@@ -241,7 +258,20 @@ function irASegundo(segundo) {
           @select="selectLesson"
         />
       </div>
-      <PlayerChatPane v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
+      <!-- Invitado: el chat exige sesión; en su lugar, qué gana registrándose -->
+      <aside v-if="invitado" class="invitado-pane" data-test="invitado-pane">
+        <p class="eyebrow">Con tu cuenta</p>
+        <ul class="invitado-lista">
+          <li><IconSet name="check" /> <span>Guardas tu avance y retomas donde ibas.</span></li>
+          <li><IconSet name="check" /> <span>Tomas notas y participas en las dudas.</span></li>
+          <li><IconSet name="check" /> <span>Presentas evaluaciones.</span></li>
+          <li>
+            <IconSet name="check" /> <span>Obtienes tu constancia verificable al terminar.</span>
+          </li>
+        </ul>
+        <button class="btn btn-primary" @click="irARegistroDesdeLeccion">Crear mi cuenta</button>
+      </aside>
+      <PlayerChatPane v-else v-model:draft="draft" :comentarios="comentarios" @send="sendComment" />
     </div>
 
     <!-- Stacked -->
@@ -447,6 +477,33 @@ function irASegundo(segundo) {
 
     <AiChatWidget v-if="aiChatEnabled && leccionTexto" :context="leccionTexto" />
 
+    <!-- Invitación a registrarse: aparece al intentar avanzar, guardar o
+         evaluar sin sesión. No navega sola — el punto en el que estaba la
+         persona no se pierde hasta que ella decide (tarea 4.4). -->
+    <div
+      v-if="invitacionRegistro"
+      class="invitacion-overlay"
+      data-test="invitacion-registro"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="invitacion-titulo"
+    >
+      <div class="invitacion-card">
+        <p class="eyebrow">Hasta aqu&iacute; llega la prueba</p>
+        <h2 id="invitacion-titulo" class="display invitacion-titulo">
+          Para continuar, crea tu cuenta.
+        </h2>
+        <p class="invitacion-texto">
+          El resto del curso, tu avance, las notas y la constancia verificable van con tu cuenta. Es
+          gratuito y tu lecci&oacute;n te espera donde la dejaste.
+        </p>
+        <div class="invitacion-acciones">
+          <button class="btn btn-primary" @click="irARegistroDesdeLeccion">Crear mi cuenta</button>
+          <button class="btn btn-ghost" @click="cerrarInvitacion">Seguir viendo</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Confirmación de avance guardado -->
     <div
       v-if="avisoAvance"
@@ -459,3 +516,93 @@ function irASegundo(segundo) {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* ── Modo invitado (primera lección abierta) ── */
+.invitado-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--unit) * 2);
+  flex-wrap: wrap;
+  padding: calc(var(--unit) * 1.5) calc(var(--unit) * 3);
+  background: var(--paper-3);
+  border-bottom: 2px solid var(--brand-accent);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.invitado-banner span {
+  max-width: 72ch;
+}
+
+.invitado-pane {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 2);
+  padding: calc(var(--unit) * 3);
+  border-left: 1px solid var(--line);
+  background: var(--paper-2);
+  align-self: start;
+}
+.invitado-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 1.5);
+}
+.invitado-lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(var(--unit) * 1);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.invitado-lista li :deep(svg) {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--primary-fg);
+}
+
+/* Invitación modal: overlay propio, sin dependencia de librerías */
+.invitacion-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--unit) * 3);
+  background: rgba(0, 0, 0, 0.55);
+}
+.invitacion-card {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-lg);
+  padding: calc(var(--unit) * 4);
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--unit) * 2);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+}
+.invitacion-titulo {
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.1;
+  color: var(--ink);
+}
+.invitacion-texto {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.invitacion-acciones {
+  display: flex;
+  gap: calc(var(--unit) * 1.5);
+  flex-wrap: wrap;
+  margin-top: calc(var(--unit) * 1);
+}
+</style>

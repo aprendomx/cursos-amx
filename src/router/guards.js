@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.js'
+import { primeraLeccionAbierta } from '@/lib/leccionAbierta.js'
 
 // Guard de navegación.
 //
@@ -66,16 +67,48 @@ export function decidirNavegacion(to, roles) {
   return null
 }
 
+/**
+ * Excepción del modo invitado: `player` sin sesión se permite SOLO para la
+ * primera lección de un curso publicado (change portada-cursos-primero).
+ * Devuelve la ruta a seguir, o null si no aplica y manda la decisión normal.
+ *
+ * Sin `leccionId` en la URL se redirige a la primera explícita: así el
+ * reproductor invitado siempre sabe qué lección es la abierta. La barrera
+ * real sigue en las funciones que firman URLs.
+ */
+export async function decidirEntradaInvitado(to, resolverPrimera) {
+  if (to.name !== 'player') return null
+  const abierta = await resolverPrimera(to.params?.cursoId)
+  if (!abierta) return null
+  if (!to.params?.leccionId) {
+    return { name: 'player', params: { cursoId: to.params.cursoId, leccionId: abierta } }
+  }
+  return to.params.leccionId === abierta ? true : null
+}
+
 // `obtenerAuth` se resuelve DENTRO del guard, no al importar el módulo: Pinia
 // tiene que estar instalada antes de pedir el store, y main.js la instala
 // justo antes que el router.
-export function setupGuards(router, obtenerAuth = useAuthStore) {
+export function setupGuards(
+  router,
+  obtenerAuth = useAuthStore,
+  resolverPrimera = primeraLeccionAbierta
+) {
   router.beforeEach(async (to) => {
     const necesitaSesion =
       to.meta?.requiresAuth || to.meta?.requiresAdmin || to.meta?.requiresInstructor
     if (!necesitaSesion) return true
 
     const roles = await resolverRoles(obtenerAuth())
-    return decidirNavegacion(to, roles) ?? true
+    const decision = decidirNavegacion(to, roles)
+
+    // Solo cuando la decisión normal rebotaría al login: con sesión no hay
+    // nada que exceptuar, y el resto de rutas protegidas no cambian.
+    if (decision && !roles) {
+      const invitado = await decidirEntradaInvitado(to, resolverPrimera)
+      if (invitado) return invitado
+    }
+
+    return decision ?? true
   })
 }

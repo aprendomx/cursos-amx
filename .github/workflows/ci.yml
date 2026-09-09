@@ -94,6 +94,7 @@ jobs:
           supabase/functions/_shared/serviceAuth.test.ts
           supabase/functions/_shared/playToken.test.ts
           supabase/functions/_shared/rateLimit.test.ts
+          supabase/functions/_shared/leccionAbierta.test.ts
           supabase/functions/bulk-invite/index.test.ts
           supabase/functions/analytics/index.test.ts
           supabase/functions/push-notify/index.test.ts
