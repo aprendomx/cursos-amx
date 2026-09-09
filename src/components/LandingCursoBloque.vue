@@ -8,7 +8,7 @@ const props = defineProps({
   index: { type: Number, default: 0 },
 })
 
-const emit = defineEmits(['ver-curso', 'ver-modulo'])
+const emit = defineEmits(['ver-curso', 'ver-modulo', 'probar-curso'])
 
 // El pastel identifica al curso; sus módulos lo heredan para que el bloque se
 // lea como una sola familia de color.
@@ -105,10 +105,22 @@ function isUrl(v) {
         </span>
       </div>
 
-      <button class="btn btn-primary curso-btn" @click="emit('ver-curso', curso)">
-        {{ btnLabel() }}
-        <IconSet name="arrow" />
-      </button>
+      <div class="curso-acciones">
+        <button class="btn btn-primary curso-btn" @click="emit('ver-curso', curso)">
+          {{ btnLabel() }}
+          <IconSet name="arrow" />
+        </button>
+        <!-- La primera lección se puede ver sin registrarse (fase 2 del
+             change portada-cursos-primero): probar antes de dar datos. -->
+        <button
+          v-if="curso.progreso === 0"
+          class="btn btn-ghost curso-btn"
+          data-test="probar-curso"
+          @click="emit('probar-curso', curso)"
+        >
+          Pru&eacute;bala ahora, sin registro
+        </button>
+      </div>
     </div>
 
     <!-- Grid de módulos -->
@@ -276,9 +288,15 @@ function isUrl(v) {
   align-items: center;
   gap: 6px;
 }
+.curso-acciones {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--unit) * 1.5);
+  flex-wrap: wrap;
+  margin-top: calc(var(--unit) * 1);
+}
 .curso-btn {
   align-self: flex-start;
-  margin-top: calc(var(--unit) * 1);
 }
 
 .modulos {

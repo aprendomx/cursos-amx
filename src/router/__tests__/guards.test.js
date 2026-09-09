@@ -1,5 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
-import { decidirNavegacion, resolverRoles, setupGuards } from '../guards.js'
+import { decidirNavegacion, decidirEntradaInvitado, resolverRoles, setupGuards } from '../guards.js'
+
+// La consulta real de leccionAbierta usa sbRest; aquí siempre se inyecta un
+// resolver falso, pero el import del módulo no debe tocar la red.
+vi.mock('@/lib/leccionAbierta.js', () => ({
+  primeraLeccionAbierta: vi.fn(() => Promise.resolve(null)),
+}))
 
 const RUTA = (meta = {}, fullPath = '/x') => ({ meta, fullPath })
 
@@ -115,6 +121,52 @@ describe('resolverRoles', () => {
   })
 })
 
+// La excepción del modo invitado: player sin sesión, solo la primera lección
+// de un curso publicado (change portada-cursos-primero, fase 2).
+describe('decidirEntradaInvitado', () => {
+  const PLAYER = (params) => ({
+    name: 'player',
+    meta: { requiresAuth: true },
+    params,
+    fullPath: '/player/c1',
+  })
+  const resolver = async (cursoId) => (cursoId === 'c1' ? 'l1' : null)
+
+  it('deja pasar la primera lección abierta', async () => {
+    expect(await decidirEntradaInvitado(PLAYER({ cursoId: 'c1', leccionId: 'l1' }), resolver)).toBe(
+      true
+    )
+  })
+
+  it('sin leccionId redirige a la primera explícita', async () => {
+    expect(await decidirEntradaInvitado(PLAYER({ cursoId: 'c1' }), resolver)).toEqual({
+      name: 'player',
+      params: { cursoId: 'c1', leccionId: 'l1' },
+    })
+  })
+
+  it('cualquier otra lección no aplica (seguirá al login)', async () => {
+    expect(
+      await decidirEntradaInvitado(PLAYER({ cursoId: 'c1', leccionId: 'l2' }), resolver)
+    ).toBeNull()
+  })
+
+  it('un curso sin lección abierta (sin publicar, inexistente) no aplica', async () => {
+    expect(
+      await decidirEntradaInvitado(PLAYER({ cursoId: 'c9', leccionId: 'l1' }), resolver)
+    ).toBeNull()
+  })
+
+  it('fuera de player no aplica nunca', async () => {
+    expect(
+      await decidirEntradaInvitado(
+        { name: 'perfil', meta: { requiresAuth: true }, params: {}, fullPath: '/perfil' },
+        resolver
+      )
+    ).toBeNull()
+  })
+})
+
 describe('setupGuards', () => {
   it('no toca la sesión en rutas públicas', async () => {
     const auth = authFalso()
@@ -157,5 +209,67 @@ describe('setupGuards', () => {
     ])
 
     expect(veredicto).toBe(true)
+  })
+
+  it('sin sesión, player pasa solo con la primera lección abierta', async () => {
+    const auth = authFalso()
+    let guard
+    setupGuards(
+      { beforeEach: (fn) => (guard = fn) },
+      () => auth,
+      async () => 'l1'
+    )
+
+    const abierta = {
+      name: 'player',
+      meta: { requiresAuth: true },
+      params: { cursoId: 'c1', leccionId: 'l1' },
+      fullPath: '/player/c1/l1',
+    }
+    expect(await guard(abierta)).toBe(true)
+
+    const cerrada = {
+      name: 'player',
+      meta: { requiresAuth: true },
+      params: { cursoId: 'c1', leccionId: 'l2' },
+      fullPath: '/player/c1/l2',
+    }
+    expect((await guard(cerrada)).path).toBe('/login')
+  })
+
+  it('sin sesión y sin lección abierta, player rebota al login como siempre', async () => {
+    const auth = authFalso()
+    let guard
+    setupGuards(
+      { beforeEach: (fn) => (guard = fn) },
+      () => auth,
+      async () => null
+    )
+
+    const r = await guard({
+      name: 'player',
+      meta: { requiresAuth: true },
+      params: { cursoId: 'c1', leccionId: 'l1' },
+      fullPath: '/player/c1/l1',
+    })
+    expect(r.path).toBe('/login')
+    expect(r.query.redirect).toBe('/player/c1/l1')
+  })
+
+  it('con sesión, player no consulta la lección abierta', async () => {
+    const auth = authFalso({ session: { user: { id: 'u1' } }, perfil: {} })
+    const resolver = vi.fn()
+    let guard
+    setupGuards({ beforeEach: (fn) => (guard = fn) }, () => auth, resolver)
+
+    expect(
+      await guard({
+        name: 'player',
+        meta: { requiresAuth: true },
+        params: { cursoId: 'c1', leccionId: 'l2' },
+        fullPath: '/player/c1/l2',
+      })
+    ).toBe(true)
+    expect(resolver).not.toHaveBeenCalled()
   })
 })

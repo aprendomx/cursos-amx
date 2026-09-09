@@ -170,6 +170,16 @@ function goToModulo({ curso, modulo }) {
   router.push({ name: 'curso', params: { id: curso.id }, query: { anchor: 'modulo-' + modulo.id } })
 }
 
+// «Pruébala ahora»: directo al reproductor sin sesión; el guard resuelve la
+// primera lección abierta y el evento leccion_probada se emite al llegar.
+function probarCurso(curso) {
+  registrarEventoPortada('portada_curso_click', {
+    seccion: 'probar',
+    posicion: displayCursos.value.findIndex((c) => c.id === curso.id),
+  })
+  router.push({ name: 'player', params: { cursoId: curso.id } })
+}
+
 function goToRegistro() {
   router.push({ name: 'registro' })
 }
@@ -308,6 +318,7 @@ function onEnviarMensajeFaq() {
           :index="i"
           @ver-curso="goToCurso($event)"
           @ver-modulo="goToModulo($event)"
+          @probar-curso="probarCurso($event)"
         />
       </div>
     </section>

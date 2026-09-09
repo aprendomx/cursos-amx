@@ -3,6 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 import { checkRateLimit, rateLimitResponse } from '../_shared/rateLimit.ts'
 import { issuePlayToken, playTokenSecret, PLAY_TOKEN_TTL_SECONDS } from '../_shared/playToken.ts'
+import { esJwtDeUsuario, esPrimeraLeccionAbierta } from '../_shared/leccionAbierta.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 // Public URL the browser can reach. SUPABASE_URL inside the functions
@@ -42,6 +43,14 @@ serve(async (req) => {
 
     const { video_id } = await req.json()
     if (!video_id) return json({ error: 'video_id required' }, 400)
+
+    // Sin sesión (el Bearer es la anon key): SOLO el video de la primera
+    // lección de un curso publicado, verificado aquí con el service role —
+    // no contra lo que diga el cliente. Todo lo demás sigue en 401
+    // (change portada-cursos-primero, decisión 4).
+    if (!esJwtDeUsuario(jwt)) {
+      return await responderInvitado(video_id)
+    }
 
     // Anon key as apikey (kong validates this); user JWT in Authorization
     // header so PostgREST sets auth.uid() correctly inside the RPC.
@@ -103,6 +112,49 @@ serve(async (req) => {
     return json({ error: String(err) }, 500)
   }
 })
+
+// Camino ANÓNIMO: emite la misma respuesta que el autenticado, pero solo si
+// el video pertenece a la primera lección de un curso publicado. El token de
+// reproducción lleva el centinela 'invitado' como userId: entra en el HMAC
+// (el token no sirve para otro video) y no identifica a nadie.
+async function responderInvitado(videoId: string): Promise<Response> {
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
+
+  const { data: video } = await admin
+    .from('videos')
+    .select('id, leccion_id, poster_path, duracion_seg, status')
+    .eq('id', videoId)
+    .single()
+  if (!video || video.status !== 'ready' || !video.leccion_id) {
+    return json({ error: 'unauthorized' }, 401)
+  }
+
+  if (!(await esPrimeraLeccionAbierta(admin, video.leccion_id))) {
+    return json({ error: 'unauthorized' }, 401)
+  }
+
+  const secret = playTokenSecret()
+  if (!secret) return json({ error: 'servidor mal configurado' }, 500)
+
+  const { data: poster, error: posterErr } = await admin.storage
+    .from(HLS_BUCKET)
+    .createSignedUrl(video.poster_path, SIGNED_TTL)
+  if (posterErr) return json({ error: posterErr.message }, 500)
+
+  const playToken = await issuePlayToken(videoId, 'invitado', secret)
+  const master_url =
+    `${PUBLIC_URL}/functions/v1/hls-playlist` +
+    `?video=${encodeURIComponent(videoId)}` +
+    `&path=master.m3u8` +
+    `&t=${encodeURIComponent(playToken)}`
+
+  return json({
+    master_url,
+    poster_url: toPublic(poster.signedUrl),
+    duracion_seg: video.duracion_seg,
+    expires_in: Math.min(SIGNED_TTL, PLAY_TOKEN_TTL_SECONDS),
+  })
+}
 
 function json(body: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {

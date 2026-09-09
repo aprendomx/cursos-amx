@@ -22,12 +22,12 @@
 
 ## 4. Primera lección abierta (fase 2)
 
-- [ ] 4.1 `hls-playlist-url` y `documento-url` aceptan peticiones anónimas SOLO si la lección es la primera de su curso y el curso está publicado, verificado con service role contra la base. Todo lo demás sigue exigiendo sesión.
-- [ ] 4.2 Pruebas de las funciones: primera lección de curso publicado pasa; lección posterior, curso sin publicar y petición sin lección rechazan.
-- [ ] 4.3 El enrutador permite `player` sin sesión solo en ese caso; el reproductor entra en modo invitado: sin progreso, sin notas, sin chat.
-- [ ] 4.4 El modo invitado invita a registrarse al intentar avanzar, guardar o evaluar, sin perder el punto en el que estaba.
-- [ ] 4.5 «Pruébala ahora» en la tarjeta de curso de la portada, enlazando a la primera lección.
-- [ ] 4.6 Eventos `leccion_probada` y `registro_desde_leccion`, con su prueba.
+- [x] 4.1 `hls-playlist-url` y `documento-url` aceptan peticiones anónimas SOLO si la lección es la primera de su curso y el curso está publicado, verificado con service role contra la base. Todo lo demás sigue exigiendo sesión. — Regla en `_shared/leccionAbierta.ts` (cerrada por defecto); el camino anónimo se toma cuando el Bearer no es un JWT de usuario, y el token de reproducción usa el centinela `invitado`. Sin Authorization sigue en 401.
+- [x] 4.2 Pruebas de las funciones: primera lección de curso publicado pasa; lección posterior, curso sin publicar y petición sin lección rechazan. — `leccionAbierta.test.ts` en el banco Deno (8 casos, incluidos módulo posterior, error de consulta y anon key vs sesión); añadida a la lista del CI.
+- [x] 4.3 El enrutador permite `player` sin sesión solo en ese caso; el reproductor entra en modo invitado: sin progreso, sin notas, sin chat. — `decidirEntradaInvitado` en guards (sin leccionId redirige a la primera explícita); guardado y lectura de progreso apagados en `useHlsPlayback`, chat sustituido por el panel de beneficios, analítica de video apagada.
+- [x] 4.4 El modo invitado invita a registrarse al intentar avanzar, guardar o evaluar, sin perder el punto en el que estaba. — Diálogo en el reproductor con el destino intentado como `redirect` de registro; «Seguir viendo» conserva la vista. Banner permanente arriba.
+- [x] 4.5 «Pruébala ahora» en la tarjeta de curso de la portada, enlazando a la primera lección. — Botón secundario en la tarjeta (solo cursos sin empezar) → `player` sin leccionId; el guard resuelve la primera abierta.
+- [x] 4.6 Eventos `leccion_probada` y `registro_desde_leccion`, con su prueba. — La lista blanca de la 076 ya los traía; se emiten desde el reproductor invitado (una vez por visita) y desde el CTA de registro, con pruebas en `usePlayerPage.invitado.test.ts`.
 - [ ] 4.7 Verificar en vivo tras desplegar: sin sesión, la primera lección reproduce; la segunda rechaza desde el servidor aunque se conozca el identificador.
 
 ## 5. Validación (parte fuera del repositorio)
