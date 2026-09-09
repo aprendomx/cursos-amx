@@ -32,4 +32,22 @@ describe('lo que las preguntas frecuentes prometen existe', () => {
     expect(respuesta[1]).toMatch(/correo/i)
     expect(respuesta[1]).toMatch(/vínculo|enlace/i)
   })
+
+  // Fase 2 del change portada-cursos-primero: el FAQ promete probar la
+  // primera lección sin cuenta. La promesa se ata al botón real de la
+  // tarjeta y a la excepción del guard que la hace posible.
+  it('el botón de probar sin registro que el FAQ cita existe en la tarjeta', () => {
+    const m = faq.match(/usa el botón "([^"]+)" en la tarjeta/)
+    expect(m, 'el FAQ ya no menciona el botón de probar: revisar si la promesa cambió').toBeTruthy()
+    const tarjeta = readFileSync(join(RAIZ, 'src/components/LandingCursoBloque.vue'), 'utf8')
+    // El texto del botón vive con entidades HTML (&eacute;); se normaliza.
+    const tarjetaPlana = tarjeta.replace(/&eacute;/g, 'é')
+    expect(tarjetaPlana).toContain(m[1])
+  })
+
+  it('el enrutador tiene la excepción de invitado que sostiene la promesa', () => {
+    const guards = readFileSync(join(RAIZ, 'src/router/guards.js'), 'utf8')
+    expect(guards).toMatch(/decidirEntradaInvitado/)
+    expect(guards).toMatch(/primeraLeccionAbierta/)
+  })
 })

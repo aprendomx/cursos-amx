@@ -10,6 +10,10 @@ const items = [
     a: 'Desde el botón "Crear cuenta" en la página principal o el header completa el formulario con tu nombre completo, correo institucional y dependencia. El registro toma menos de dos minutos y no tiene costo.',
   },
   {
+    q: '¿Puedo probar un curso sin registrarme?',
+    a: 'Sí. La primera lección de cada curso se puede ver sin cuenta: usa el botón "Pruébala ahora, sin registro" en la tarjeta del curso. Para continuar con el resto, guardar tu avance y obtener constancia sí necesitas registrarte.',
+  },
+  {
     q: '¿Cómo ingreso a un curso?',
     a: 'Una vez con sesión iniciada, elige el curso del catálogo y haz clic en "Inscribirme". El curso quedará disponible en "Mi aprendizaje" para retomarlo cuando quieras.',
   },
