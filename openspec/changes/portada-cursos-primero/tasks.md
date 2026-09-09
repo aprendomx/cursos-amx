@@ -35,4 +35,4 @@
 - [ ] 5.1 Leer la línea base a las dos semanas y guardar el corte en el change.
 - [ ] 5.2 Cinco sesiones con personas del público real: tarea «encuentra un curso que te sirva y empieza». Guion, notas y hallazgos al change.
 - [ ] 5.3 Comparar las ventanas antes/después (mismas semanas de duración) y decidir con eso si la fase 2 se despliega, se ajusta o se descarta.
-- [ ] 5.4 Ajustar el texto de las preguntas frecuentes si el recorrido cambió, y la prueba de promesas del FAQ si aplica.
+- [x] 5.4 Ajustar el texto de las preguntas frecuentes si el recorrido cambió, y la prueba de promesas del FAQ si aplica. — El recorrido cambió con la fase 2: pregunta nueva «¿Puedo probar un curso sin registrarme?» y la prueba de promesas ata el botón citado a la tarjeta real y a la excepción del guard.
