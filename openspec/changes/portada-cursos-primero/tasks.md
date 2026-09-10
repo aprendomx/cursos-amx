@@ -32,7 +32,7 @@
 
 ## 5. Validación (parte fuera del repositorio)
 
-- [ ] 5.1 Leer la línea base a las dos semanas y guardar el corte en el change.
+- [x] 5.1 Leer la línea base a las dos semanas y guardar el corte en el change. — Leída el 2026-09-10 (decisión explícita de no esperar al 09-22): `corte-embudo-2026-09-10.md`. Hallazgo principal: fuera del día 0 (anómalo: 19 registro_iniciado sin un solo completado ni perfil nuevo), la portada registra 1–2 eventos por semana — no hay tráfico que medir.
 - [ ] 5.2 Cinco sesiones con personas del público real: tarea «encuentra un curso que te sirva y empieza». Guion, notas y hallazgos al change.
-- [ ] 5.3 Comparar las ventanas antes/después (mismas semanas de duración) y decidir con eso si la fase 2 se despliega, se ajusta o se descarta.
+- [x] 5.3 Comparar las ventanas antes/después (mismas semanas de duración) y decidir con eso si la fase 2 se despliega, se ajusta o se descarta. — Comparación inviable: la ventana se partió dos veces y, más de fondo, con 1–2 eventos por semana ninguna ventana distingue nada. Decisión registrada en el corte: **la fase 2 se queda desplegada** (la vuelta atrás sigue barata); lo que puede aportar señal es 5.2 y conseguir visitas reales — el cuello es la llegada, no la conversión.
 - [x] 5.4 Ajustar el texto de las preguntas frecuentes si el recorrido cambió, y la prueba de promesas del FAQ si aplica. — El recorrido cambió con la fase 2: pregunta nueva «¿Puedo probar un curso sin registrarme?» y la prueba de promesas ata el botón citado a la tarjeta real y a la excepción del guard.
