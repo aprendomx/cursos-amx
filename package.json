@@ -58,7 +58,7 @@
     "@sentry/vite-plugin": "^5.4.0",
     "@types/node": "^26.4.1",
     "@vitejs/plugin-vue": "^6.0.8",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^5.0.0",
     "@vue/test-utils": "^2.5.0",
     "eslint": "^10.10.0",
     "eslint-plugin-vue": "^10.10.0",
